@@ -4,22 +4,21 @@
 
 module qte5;
 
-import core.stdc.stdio: core;
 import std.conv; // Convert to string
 
 // Отладка
-import std.stdio: writeln;
+import std.stdio;
 
 
 int verQt5Eu = 0;
 int verQt5El = 01;
 string verQt5Ed = "20.02.16 12:45";
 
-/* alias PTRINT = int;
+alias PTRINT = int;
 alias PTRUINT = uint;
 
-struct QApplication__ { PTRINT dummy; } alias QApplicationH = QApplication__*;
- */
+struct QtObj__ { PTRINT dummy; } alias QtObjH = QtObj__*;
+
 
 private void*[400] pFunQt; /// Масив указателей на функции из DLL
 
@@ -34,8 +33,8 @@ immutable int QSIGNAL = 2;
 // alias GetObjQt_t = void**; // Дай тип Qt. Происходит неявное преобразование. cast(GetObjQt_t)Z == *Z на любой тип.
 
 private extern (C) @nogc alias t_v__i = void function(int);
-private extern (C) @nogc alias t_v__vp = void function(void*);
-private extern (C) @nogc alias t_v__vp_vp = void function(void*, void*);
+private extern (C) @nogc alias t_v__qp = void function(QtObjH);
+private extern (C) @nogc alias t_v__qp_qp = void function(QtObjH, QtObjH);
 private extern (C) @nogc alias t_v__vp_i = void function(void*, int);
 private extern (C) @nogc alias t_v__vp_c = void function(void*, char);
 
@@ -49,34 +48,32 @@ private extern (C) @nogc alias t_vp__vp_vp = void* function(void*, void*);
 private extern (C) @nogc alias t_vp__vp_c_i = void* function(void*, char, int);
 private extern (C) @nogc alias t_vp__vp_cp_i = void* function(void*, char*, int);
 
-/* 
-private extern (C) @nogc alias t_v__vp_icon = void function(void*, QMessageBox.Icon);
-private extern (C) @nogc alias t_v__vp_StandardButton = void function(void*, QMessageBox.StandardButton);
-private extern (C) @nogc alias t_v__vp_SegmentStyle = void function(void*, QLCDNumber.SegmentStyle);
-private extern (C) @nogc alias t_vp__v = void* function();
-private extern (C) @nogc alias t_v__v = void function();
-
- */
- 
 private extern (C) @nogc alias t_vpp__vp = void** function(void*);
 private extern (C) @nogc alias t_vp__vp = void* function(void*);
 private extern (C) @nogc alias t_c_vp__vp = const void* function(void*);
 
-private extern (C) @nogc alias t_vp__vp_i = void* function(void*, int);
 private extern (C) @nogc alias t_vp__vp_i_i = void* function(void*, int, int);
 private extern (C) @nogc alias t_vp__vp_i_vp = void* function(void*, int, void*);
+
 private extern (C) @nogc alias t_vp__vp_vp_i = void* function(void*, void*, int);
+private extern (C) @nogc alias t_qp__qp_qp_i = QtObjH function(QtObjH, QtObjH, int);
+private extern (C) @nogc alias t_vp__vp_i = void* function(void*, int);
+private extern (C) @nogc alias t_qp__qp_i = QtObjH function(QtObjH, int);
+private extern (C) @nogc alias t_vp__v = void* function();
+private extern (C) @nogc alias t_qp__v = QtObjH function();
+private extern (C) @nogc alias t_i__vp = int function(void*);
+private extern (C) @nogc alias t_i__qp = int function(QtObjH);
 
 private extern (C) @nogc alias t_vp__i_i = void* function(int, int);
 private extern (C) @nogc alias t_vp__i_i_i_i = void* function(int, int, int, int);
 
 private extern (C) @nogc alias t_v__vp_i_bool = void function(void*, int, bool);
 private extern (C) @nogc alias t_v__vp_i_i_i_i = void function(void*, int, int, int, int);
+private extern (C) @nogc alias t_v__qp_i_i_i_i = void function(QtObjH, int, int, int, int);
 private extern (C) @nogc alias t_v__vp_i_i_vp = void function(void*, int, int, void*);
 private extern (C) @nogc alias t_v__i_vp_vp = void function(int, void*, void*);
 private extern (C) @nogc alias t_vp__vp_vp_bool = void* function(void*, void*, bool);
 private extern (C) @nogc alias t_vp__i_vp_bool = void* function(int, void*, bool);
-private extern (C) @nogc alias t_i__vp = int function(void*);
 private extern (C) @nogc alias t_i__v = int function();
 private extern (C) @nogc alias t_i__vp_vbool_i = int function(void*, bool*, int);
 
@@ -100,6 +97,8 @@ private extern (C) @nogc alias t_l__vp = long function(void*);
 private extern (C) @nogc alias t_vp__vp_vp_vp_vp_vp_vp_vp = void* function(void*, void*, void*, void*, void*, void*, void*);
 private extern (C) @nogc alias t_vp__vp_vp_vp_vp_vp_vp_vp_vp = void* function(void*, void*, void*, void*, void*, void*, void*, void*);
 
+private extern (C) @nogc alias t_ub__qp = ubyte* function(QtObjH);
+
 version (Windows) {
 	private import core.sys.windows.windows: GetProcAddress;
 }
@@ -113,8 +112,12 @@ version (linux) {
     private extern (C) void* rt_loadLibrary(const char* name) { return dlopen(name, RTLD_GLOBAL || RTLD_LAZY);  }
     private void* GetProcAddress(void* hLib, const char* nameFun) {  return dlsym(hLib, nameFun);    }
 }
+
 // Загрузить DLL. Load DLL (.so)
-private void* GetHlib(T)(T name) { return core.runtime.Runtime.loadLibrary(name); }
+private void* GetHlib(T)(T name) { 
+	import core.runtime;
+	return Runtime.loadLibrary(name); 
+}
 
 // Найти адреса функций в DLL. To find addresses of executed out functions in DLL
 private void* GetPrAddres(T)(bool isLoad, void* hLib, T nameFun) {
@@ -185,6 +188,8 @@ int LoadQt(dll ldll, bool showError) { ///  Загрузить DLL-ки Qt и Qt
 		hQtE5Widgets = GetHlib(sQtE5Widgets); if (!hQtE5Widgets) { MessageErrorLoad(showError, sQtE5Widgets); return 1; }
 	}
 	// Find name function in DLL
+
+	// ------- QApplication -------
 	pFunQt[0] = GetPrAddres(bQtE5Widgets, hQtE5Widgets, "qteQApplication_create1");
 		if (!pFunQt[0]) MessageErrorLoad(showError, "qteQApplication_create1", sQtE5Widgets);
 	
@@ -195,12 +200,69 @@ int LoadQt(dll ldll, bool showError) { ///  Загрузить DLL-ки Qt и Qt
 		if (!pFunQt[2]) MessageErrorLoad(showError, "aboutQt()", sWidget5);
 
 	pFunQt[3] = GetPrAddres(bQtE5Widgets, hQtE5Widgets, "qteQApplication_delete1");
-		if (!pFunQt[3]) MessageErrorLoad(showError, "~Application1", sQtE5Widgets);
+		if (!pFunQt[3]) MessageErrorLoad(showError, "~QApplication1", sQtE5Widgets);
 
 	pFunQt[4] = GetPrAddres(bQtE5Widgets, hQtE5Widgets, "qteQApplication_sizeof");
 		if (!pFunQt[4]) MessageErrorLoad(showError, "sizeof", sQtE5Widgets);
 
-	// Последний = 4
+	pFunQt[20] = GetPrAddres(bQtE5Widgets, hQtE5Widgets, "qteQApplication_appDirPath");
+		if (!pFunQt[20]) MessageErrorLoad(showError, "qteQApplication_appDirPath", sQtE5Widgets);
+
+	pFunQt[21] = GetPrAddres(bQtE5Widgets, hQtE5Widgets, "qteQApplication_appFilePath");
+		if (!pFunQt[21]) MessageErrorLoad(showError, "qteQApplication_appFilePath", sQtE5Widgets);
+
+	// ------- QWidget -------
+	pFunQt[5] = GetPrAddres(bQtE5Widgets, hQtE5Widgets, "qteQWidget_create1");
+		if (!pFunQt[5]) MessageErrorLoad(showError, "qteQWidget_create1", sQtE5Widgets);
+
+//	pFunQt[6] = GetPrAddres(bWidget5, hWidget5, "_ZN7QWidget10setVisibleEb");
+	pFunQt[6] = GetPrAddres(bQtE5Widgets, hQtE5Widgets, "qteQWidget_setVisible");
+		if (!pFunQt[6]) MessageErrorLoad(showError, "setVisible(bool)", sQtE5Widgets);
+
+	pFunQt[7] = GetPrAddres(bQtE5Widgets, hQtE5Widgets, "qteQWidget_delete1");
+		if (!pFunQt[7]) MessageErrorLoad(showError, "~QWidget", sQtE5Widgets);
+
+	pFunQt[11] = GetPrAddres(bQtE5Widgets, hQtE5Widgets, "qteQWidget_setWindowTitle");
+		if (!pFunQt[11]) MessageErrorLoad(showError, "qteQWidget_setWindowTitle(QString)", sQtE5Widgets);
+
+	pFunQt[12] = GetPrAddres(bQtE5Widgets, hQtE5Widgets, "qteQWidget_isVisible");
+		if (!pFunQt[12]) MessageErrorLoad(showError, "qteQWidget_isVisible(QString)", sQtE5Widgets);
+
+	// ------- QString -------
+	pFunQt[8] = GetPrAddres(bQtE5Widgets, hQtE5Widgets, "qteQString_create1");
+		if (!pFunQt[8]) MessageErrorLoad(showError, "qteQString_create1", sQtE5Widgets);
+
+	pFunQt[9] = GetPrAddres(bQtE5Widgets, hQtE5Widgets, "qteQString_create2");
+		if (!pFunQt[9]) MessageErrorLoad(showError, "qteQString_create2", sQtE5Widgets);
+
+	pFunQt[10] = GetPrAddres(bQtE5Widgets, hQtE5Widgets, "qteQString_delete");
+		if (!pFunQt[10]) MessageErrorLoad(showError, "~QString", sQtE5Widgets);
+
+	pFunQt[18] = GetPrAddres(bQtE5Widgets, hQtE5Widgets, "qteQString_data");
+		if (!pFunQt[18]) MessageErrorLoad(showError, "qteQString_data()", sQtE5Widgets);
+
+	pFunQt[19] = GetPrAddres(bQtE5Widgets, hQtE5Widgets, "qteQString_size");
+		if (!pFunQt[19]) MessageErrorLoad(showError, "qteQString_size()", sQtE5Widgets);
+
+	// ------- QColor -------
+	pFunQt[13] = GetPrAddres(bQtE5Widgets, hQtE5Widgets, "qteQColor_create1");
+		if (!pFunQt[13]) MessageErrorLoad(showError, "qteQColor_create1()", sQtE5Widgets);
+	
+	pFunQt[14] = GetPrAddres(bQtE5Widgets, hQtE5Widgets, "qteQColor_delete");
+		if (!pFunQt[14]) MessageErrorLoad(showError, "qteQColor_delete()", sQtE5Widgets);
+	
+	pFunQt[15] = GetPrAddres(bQtE5Widgets, hQtE5Widgets, "qteQColor_setRgb");
+		if (!pFunQt[15]) MessageErrorLoad(showError, "qteQColor_setRgb()", sQtE5Widgets);
+	
+	// ------- QPalette -------
+	pFunQt[16] = GetPrAddres(bQtE5Widgets, hQtE5Widgets, "qteQPalette_create1");
+		if (!pFunQt[16]) MessageErrorLoad(showError, "qteQPalette_create1()", sQtE5Widgets);
+	
+	pFunQt[17] = GetPrAddres(bQtE5Widgets, hQtE5Widgets, "qteQPalette_delete");
+		if (!pFunQt[17]) MessageErrorLoad(showError, "qteQPalette_delete()", sQtE5Widgets);
+	
+	
+	// Последний = 21
 	return 0;
 } ///  Загрузить DLL-ки Qt и QtE. Найти в них адреса функций и заполнить ими таблицу
 
@@ -518,7 +580,8 @@ class QObject {
 		AutoCompatConnection = 3 		// совместимость с Qt3
 	}
 
-	private void* p_QObject; /// Адрес самого объекта из C++ Qt
+	private QtObjH p_QObject; /// Адрес самого объекта из C++ Qt
+	private bool  fNoDelete;  /// Если T - не вызывать деструктор
 
 	this() {
 		// writeln(" QObject ", this);
@@ -526,10 +589,11 @@ class QObject {
 	~this() {
 		// writeln("~QObject ", this);
 	}
-	void setQtObj(void* adr) {
-		p_QObject = adr;
-	} /// Заменить указатель в объекте на новый указатель
-	@property void* QtObj() {
+	void setNoDelete(bool f) { fNoDelete = f; }
+	
+	void setQtObj(QtObjH adr) { p_QObject = adr; } /// Заменить указатель в объекте на новый указатель
+	
+	@property QtObjH QtObj() {
 		return p_QObject;
 	} /// Выдать указатель на реальный объект Qt C++
 	@property void* aQtObj() {
@@ -538,9 +602,144 @@ class QObject {
 	void setNullQtObj() {
 		p_QObject = null;
 	}
+}
+// ================ QPalette ================
+/++
+QPalette - Палитры цветов
++/
+class QPalette : QObject {
 
+	enum ColorGroup {
+		Active,
+		Disabled,
+		Inactive,
+		NColorGroups,
+		Current,
+		All,
+		Normal = Active
+	}
+
+	enum ColorRole {
+		WindowText,
+		Button,
+		Light,
+		Midlight,
+		Dark,
+		Mid,
+		Text,
+		BrightText,
+		ButtonText,
+		Base,
+		Window,
+		Shadow,
+		Highlight,
+		HighlightedText,
+		Link,
+		LinkVisited, // ### Qt 5: remove
+		AlternateBase,
+		NoRole, // ### Qt 5: value should be 0 or -1
+		ToolTipBase,
+		ToolTipText,
+		NColorRoles = ToolTipText + 1,
+		Foreground = WindowText,
+		Background = Window // ### Qt 5: remove
+	}
+
+	
+	this() {
+		super(); setQtObj((cast(t_qp__v) pFunQt[16])());
+	} /// Конструктор
+	~this() {
+		if(!fNoDelete && (QtObj != null)) { (cast(t_v__qp) pFunQt[17])(QtObj); setQtObj(null); }
+	} /// Деструктор
+
+	/* 	
+	this(void* uk) {
+		super();
+		p_QObject = uk;
+	} /// Используется, для присвоения уже готового адреса на истинный QPalette
+
+	void setColor(QPalette.ColorGroup cg, QPalette.ColorRole cr, QColor color) {
+		(cast(t_v__vp_i_i_vp) pFunQt[62])(p_QObject, cast(int) cg, cast(int) cr, color.QtObj);
+	} /// Установим цвет заданный QColor
+	void setColor(QPalette.ColorGroup cg, QPalette.ColorRole cr, QtE.GlobalColor color) {
+		(cast(t_v__vp_i_i_vp) pFunQt[65])(p_QObject, cast(int) cg, cast(int) cr, cast(void*) color);
+	} /// Установим цвет заданный Константой
+
+ */	
+	
+}
+// ================ QColor ================
+/++
+QColor - Цвет
++/
+class QColor : QObject {
+	this() {
+		super(); setQtObj((cast(t_qp__v) pFunQt[13])());
+	} /// Конструктор
+	~this() {
+		if(!fNoDelete && (QtObj != null)) { (cast(t_v__qp) pFunQt[14])(QtObj); setQtObj(null); }
+	} /// Деструктор
+	void setRgb(int r, int g, int b, int a = 255) {
+		(cast(t_v__qp_i_i_i_i) pFunQt[15])(p_QObject, r, g, b, a);
+	} /// Sets the RGB value to r, g, b and the alpha value to a. All the values must be in the range 0-255.
 }
 
+// ================ QPaintDevice ================
+class QPaintDevice: QObject  {
+    this() {
+	    super();
+    }
+}
+// ================ gWidget ================
+/++
+	QWidget (Окно), но немного модифицированный в QtE.DLL. 
+	<br>Хранит в себе ссылку на реальный С++ класс gWidget из QtE.dll
+	<br>Добавлены свойства хранящие адреса для вызова обратных функций
+	для реакции на события.
++/		
+class QWidget: QPaintDevice {
+	// Жуткое откровение dmd. Оказывается, выходя за границы блока объект
+	// не разрушается, а продолжает существовать, по GC его не прикончит.
+	// В связи с этим надо вызывать ~this() если надо явно разрушить объект.
+	
+	// Qt - тоже ещё тот "подарок". При указании родителя (того самого parent)
+	// происходит связывание в дерево. При удалении родительского объекта Qt
+	// удаляются каскадно все вложенные в него подобъекты. Однако dmd об этом
+	// ни чего не знает. По этому пришлось вставить fNoDelete, который надо
+	// установить в T если объект подвергся вставке и значит будет удален каскадно. 
+    ~this() {
+		if(!fNoDelete && (QtObj != null)) { (cast(t_v__qp) pFunQt[7])(QtObj); setQtObj(null); }
+    }
+	this(QWidget parent = null, QtE.WindowType fl = QtE.WindowType.Widget) {
+		super(); 
+		if (parent) {
+			this.setNoDelete(true);	// Не удалять текущий экземпляр, при условии, что он вставлен в другой
+			parent.setNoDelete(true); // и родителя нельзя удалять
+			setQtObj((cast(t_qp__qp_i)pFunQt[5])(parent.QtObj, cast(int)fl));
+		} else {
+			setQtObj((cast(t_qp__qp_i)pFunQt[5])(null, cast(int)fl));
+		}
+	} /// QWidget::QWidget(QWidget * parent = 0, Qt::WindowFlags f = 0)
+	bool isVisible() {
+		return (cast(t_bool__vp)pFunQt[12])(QtObj);
+	} /// QWidget::isVisible();
+	QWidget setVisible(bool f) {					// Скрыть, Показать виджет
+		//writeln("-1-->", f); stdout.flush();
+        (cast(t_v__vp_bool)pFunQt[6])(QtObj, f);
+		return this;
+	}  /// On/Off - это реальный setVisible from QtWidget.dll
+	QWidget show() { setVisible(true); return this; } /// Показать виджет
+	QWidget hide() { setVisible(false); return this; } /// Скрыть виджет
+	QWidget setWindowTitle(string str) {
+        (cast(t_v__qp_qp)pFunQt[11])(QtObj, (new QString(str)).QtObj);
+		return this; 
+	} /// Установить текст Заголовка
+	QWidget setWindowTitle(QString qstr) { // Установить заголовок окна
+		(cast(t_v__qp_qp) pFunQt[11])(QtObj, qstr.QtObj);
+		return this; 
+	} /// Установить заголовок окна
+}
 // ================ QApplication ================
 /++
 Класс приложения. <b>Внимание:</b>
@@ -550,22 +749,65 @@ private struct stQApplication {
 	int   alloc;
 	int   size;
 	char* data;      // Вот собственно за чем нам это нужно, указатель на массив байтов
-	char  array[1];
+	// char  array[1];
 }
 class QApplication : QObject {
 	this(int* m_argc, char** m_argv, int gui) {
-		super(); setQtObj((cast(t_vp__vp_vp_i) pFunQt[0])(m_argc, m_argv, gui));
+		super(); setQtObj((cast(t_qp__qp_qp_i) pFunQt[0])(cast(QtObjH)m_argc, cast(QtObjH)m_argv, gui));
 	} /// QApplication::QApplication(argc, argv, param);
 	~this() {
-		(cast(t_v__vp) pFunQt[3])(QtObj); setQtObj(null);
+		if(!fNoDelete) { (cast(t_v__qp) pFunQt[3])(QtObj); setQtObj(null); }
 	} ///  QApplication::~QApplication();
 	int exec() {
-		return (cast(t_i__vp) pFunQt[1])(QtObj);
+		return (cast(t_i__qp) pFunQt[1])(QtObj);
 	} /// QApplication::exec()
 	void aboutQt() {
-		(cast(t_v__vp) pFunQt[2])(QtObj);
+		(cast(t_v__qp) pFunQt[2])(QtObj);
 	} /// QApplication::aboutQt()
 	int sizeOfQtObj() {
 		return (cast(t_i__vp) pFunQt[4])(QtObj);
 	} /// Размер объекта QApplicatin. Size of QApplicatin
+	QString applicationDirPath() {
+		QString qs = new QString();
+		(cast(t_v__qp_qp)pFunQt[20])(QtObj, qs.QtObj);
+		return qs;
+	}
+	string appDirPath() { return (applicationDirPath()).String;
+	}
+	QString applicationFilePath() {
+		QString qs = new QString();
+		(cast(t_v__qp_qp)pFunQt[21])(QtObj, qs.QtObj);
+		return qs;
+	}
+	string appFilePath() { return (applicationFilePath()).String;
+	}
+}
+
+// ================ QString ================
+class QString: QObject {
+	import std.utf:  toUTF16, toUTF8;
+
+	this() {
+		setQtObj((cast(t_qp__v)pFunQt[8])());
+	} /// Конструктор пустого QString
+	this(string s) {
+		wstring ps = toUTF16(s);
+		setQtObj((cast(t_qp__qp_i)pFunQt[9])(cast(QtObjH)ps.ptr, cast(int)ps.length));
+	} /// Конструктор где s - Utf-8. Пример: QString qs = new QString("Привет!");
+	this(QtObjH adr) { setQtObj(adr);
+	} /// Изготовить QString из пришедшего из вне указателя на C++ QString
+    ~this() {
+		if(!fNoDelete) { (cast(t_v__qp) pFunQt[10])(QtObj); setQtObj(null); write("S- "); stdout.flush(); }
+    }
+	int size() { return (cast(t_i__qp) pFunQt[19])(QtObj);
+	} /// Размер в UNICODE символах
+	ubyte* data() { return (cast(t_ub__qp) pFunQt[18])(QtObj);
+	} /// Указатель на UNICODE
+	string toUtf8() {
+		wchar[] wss; wchar* wc = cast(wchar*) data();
+		for (int i; i != size(); i++) wss ~= *(wc + i);
+		return toUTF8(wss);
+	} /// Конвертировать внутреннее представление в wstring
+	@property string String() { return toUtf8();
+	} /// return string D from QString
 }
