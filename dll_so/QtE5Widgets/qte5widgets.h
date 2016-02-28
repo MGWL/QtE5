@@ -7,6 +7,9 @@
 #include <QApplication>
 #include <QWidget>
 #include <QPushButton>
+#include <QHBoxLayout>
+#include <QFrame>
+#include <QLabel>
 
 typedef int PTRINT;
 typedef unsigned int PTRUINT;
@@ -24,6 +27,7 @@ public:
     explicit QSlot(QObject* parent = 0);
     ~QSlot();
 private slots:
+    void Slot();
     void SlotN();
     void Slot_Bool(bool);
     void Slot_Int(int);

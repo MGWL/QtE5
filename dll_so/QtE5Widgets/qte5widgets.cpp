@@ -16,6 +16,12 @@ extern "C" void qteQApplication_appDirPath(QtRefH app, QtRefH qs) {
 extern "C" void qteQApplication_appFilePath(QtRefH app, QtRefH qs) {
     *(QString*)qs = ((QApplication*)app)->applicationFilePath();
 }
+extern "C" int qteQApplication_exec(QtRefH app) {
+    return ((QApplication*)app)->exec();
+}
+extern "C" void qteQApplication_aboutQt(QtRefH app) {
+    ((QApplication*)app)->aboutQt();
+}
 
 // =========== QWidget ==========
 extern "C" QtRefH qteQWidget_create1(QtRefH parent, Qt::WindowFlags f) {
@@ -45,6 +51,10 @@ extern "C" void qteQWidget_setMMSize(QtRefH wd, bool mm, int w, int h) {
 }
 extern "C" void qteQWidget_setEnabled(QtRefH wd, bool b) {
     ((QWidget*)wd)->setEnabled(b);
+}
+extern "C" void qteQWidget_setLayout(QtRefH wd, QtRefH la)
+{
+    ((QWidget*)wd)->setLayout((QLayout*)la);
 }
 // =========== QString ==========
 extern "C" QtRefH qteQString_create1(void) {
@@ -98,6 +108,7 @@ extern "C" void qteQAbstractButton_text(QtRefH wd, QtRefH qs) {
 typedef void (*ExecZIM_v__i)(int);
 typedef void (*ExecZIM_v__b)(bool);
 typedef void (*ExecZIM_v__i)(int);
+typedef void (*ExecZIM_v__v)(void);
 
 // =========== QSlot ==========
 QSlot::QSlot(QObject* parent) : QObject(parent) {
@@ -118,6 +129,10 @@ void QSlot::SlotN() // Вызвать глобальную функцию с п�
 {
     if (aSlotN != NULL)  ((ExecZIM_v__i)aSlotN)(N);
 }
+void QSlot::Slot()
+{
+    if (aSlotN != NULL)  ((ExecZIM_v__v)aSlotN)();
+}
 extern "C" void QSlot_setSlotN(QSlot* slot, void* adr, int n) {
     slot->aSlotN = adr;
     slot->N = n;
@@ -126,14 +141,70 @@ extern "C" void qteConnect(QtRefH obj1, char* signal, QtRefH slot, char* sslot, 
     QObject::connect((const QObject*)obj1, (const char*)signal, (const QObject*)slot,
                      (const char*)sslot, (Qt::ConnectionType)n);
 }
-void QSlot::Slot_Bool(bool b) // Вызвать глобальную функцию с параметром N (диспетчерезатор)
+void QSlot::Slot_Bool(bool b) // Вызвать глобальную функцию с параметром b - булево
 {
     if (aSlotN != NULL)  ((ExecZIM_v__b)aSlotN)(b);
 }
-void QSlot::Slot_Int(int i) // Вызвать глобальную функцию с параметром N (диспетчерезатор)
+void QSlot::Slot_Int(int i) // Вызвать глобальную функцию с параметром
 {
     if (aSlotN != NULL)  ((ExecZIM_v__i)aSlotN)(i);
 }
+// ===================== QLyout ====================
+extern "C" QtRefH qteQVBoxLayout(void)
+{
+    return  (QtRefH) new QVBoxLayout();
+}
+extern "C" QtRefH qteQHBoxLayout(void)
+{
+    return  (QtRefH) new QHBoxLayout();
+}
+extern "C" QtRefH qteQBoxLayout(QtRefH wd, QBoxLayout::Direction dir)
+{
+    return  (QtRefH) new QBoxLayout(dir, (QWidget*)wd);
+}
+extern "C" void qteQBoxLayout_delete(QtRefH parent) 
+{
+    delete (QBoxLayout*)parent;
+}
+extern "C" void qteQBoxLayout_addWidget(QtRefH BoxLyout, QtRefH widget, int stretch, int align)
+{
+    ((QBoxLayout*)BoxLyout)->addWidget((QWidget*)widget, stretch, (Qt::Alignment)align);
+}
+extern "C" void qteQBoxLayout_addLayout(QtRefH BoxLyout, QtRefH layout)
+{
+	((QBoxLayout*)BoxLyout)->addLayout((QBoxLayout*)layout);
+}
+// ===================== QFrame ====================
+extern "C" QtRefH qteQFrame_create1(QtRefH parent, Qt::WindowFlags f) {
+    return (QtRefH)new QFrame((QWidget*)parent, f);
+}
+extern "C" void qteQFrame_delete1(QtRefH wd) {
+    delete (QFrame*)wd;
+}
+extern "C" void qteQFrame_setFrameShape(QtRefH fr, QFrame::Shape sh)
+{
+    ((QFrame*)fr)->setFrameShape(sh);
+}
+extern "C" void qteQFrame_setFrameShadow(QtRefH fr, QFrame::Shadow sh)
+{
+    ((QFrame*)fr)->setFrameShadow(sh);
+}
+extern "C" void qteQFrame_setLineWidth(QtRefH fr, int sh)
+{
+    ((QFrame*)fr)->setLineWidth(sh);
+}
+// ===================== QLsbel ====================
+extern "C" QtRefH qteQLabel_create1(QtRefH parent, Qt::WindowFlags f) {
+    return (QtRefH)new QLabel((QWidget*)parent, f);
+}
+extern "C" void qteQLabel_delete1(QtRefH wd) {
+    delete (QLabel*)wd;
+}
+extern "C" void qteQLabel_setText(QtRefH wd, QtRefH qs) {
+    ((QLabel*)wd)->setText(*(QString*)qs);
+}
+
+
 
 
 /*
