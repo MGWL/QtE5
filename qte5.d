@@ -118,7 +118,16 @@ version (linux) {
     private extern (C) void* rt_loadLibrary(const char* name) { return dlopen(name, RTLD_GLOBAL || RTLD_LAZY);  }
     private void* GetProcAddress(void* hLib, const char* nameFun) {  return dlsym(hLib, nameFun);    }
 }
-
+version (OSX) {
+	private import core.sys.posix.dlfcn: dlopen, dlsym, RTLD_GLOBAL, RTLD_LAZY;
+    // На Linux эти функции не определены в core.runtime, вот и пришлось дописать.
+    // странно, почему их там нет... Похоже они в основном Windows крутят. 
+	// On Linux these functions aren't defined in core.runtime, here and it was necessary to add.
+	// It is strange why they aren't present there... 
+	// Probably they in the main Windows twist.
+    private extern (C) void* rt_loadLibrary(const char* name) { return dlopen(name, RTLD_GLOBAL || RTLD_LAZY);  }
+    private void* GetProcAddress(void* hLib, const char* nameFun) {  return dlsym(hLib, nameFun);    }
+}
 // Загрузить DLL. Load DLL (.so)
 private void* GetHlib(T)(T name) { 
 	import core.runtime;
@@ -161,6 +170,7 @@ int LoadQt(dll ldll, bool showError) { ///  Загрузить DLL-ки Qt и Qt
 	string	sCore5, sGui5, sWidget5, sQtE5Widgets;
 	void*	hCore5, hGui5, hWidget5, hQtE5Widgets;
 	
+	// Add path to directory with realy file Qt5 DLL
 	version (Windows) {
 		version (X86) {		// ... 32 bit code ...
 			sCore5			= "Qt5Core.dll";
@@ -175,6 +185,7 @@ int LoadQt(dll ldll, bool showError) { ///  Загрузить DLL-ки Qt и Qt
 			sQtE5Widgets	= "QtE5Widgets64.dll";
 		}
 	}
+	// Use symlink for create link on realy file Qt5
 	version (linux) {
 		version (X86) {		// ... 32 bit code ...
 			sCore5			= "libQt5Core.so";
@@ -189,11 +200,13 @@ int LoadQt(dll ldll, bool showError) { ///  Загрузить DLL-ки Qt и Qt
 			sQtE5Widgets	= "libQtE5Widgets64.so";
 		}
 	}
+	// Use symlink for create link on realy file Qt5
+	// Only 64 bit version Mac OS X (10.9.5 Maveric)
 	version (OSX) {
-		sCore5			= "libQt5Core.so";
-		sGui5			= "libQt5Gui.so";
-		sWidget5		= "libQt5Widgets.so";
-		sQtE5Widgets	= "libQtE5Widgets.so";
+		sCore5			= "libQt5Core.dylib";
+		sGui5			= "libQt5Gui.dylib";
+		sWidget5		= "libQt5Widgets.dylib";
+		sQtE5Widgets	= "libQtE5Widgets64.dylib";
 	}
 	
 	// Если на входе указана dll.QtE5Widgets то автоматом надо грузить и bCore5, bGui5, bWidget5
@@ -202,7 +215,7 @@ int LoadQt(dll ldll, bool showError) { ///  Загрузить DLL-ки Qt и Qt
 	if(bQtE5Widgets) { bCore5 = true; bGui5 = true; bWidget5 = true; }
 
 	// Load library in memory
-/* 	if (bCore5) {
+ 	if (bCore5) {
 		hCore5 = GetHlib(sCore5); if (!hCore5) { MessageErrorLoad(showError, sCore5); return 1; }
 	}
 	if (bGui5) {
@@ -211,7 +224,7 @@ int LoadQt(dll ldll, bool showError) { ///  Загрузить DLL-ки Qt и Qt
 	if (bWidget5) {
 		hWidget5 = GetHlib(sWidget5); if (!hWidget5) { MessageErrorLoad(showError, sWidget5); return 1; }
 	}
- */	if (bQtE5Widgets) {
+	if (bQtE5Widgets) {
 		hQtE5Widgets = GetHlib(sQtE5Widgets); if (!hQtE5Widgets) { MessageErrorLoad(showError, sQtE5Widgets); return 1; }
 	}
 	// Find name function in DLL
