@@ -10,11 +10,20 @@
 #include <QHBoxLayout>
 #include <QFrame>
 #include <QLabel>
+#include <QResizeEvent>
+#include <QSize>
+#include <QKeyEvent>
 
 typedef int PTRINT;
 typedef unsigned int PTRUINT;
 
 typedef struct QtRef__ { PTRINT dummy; } *QtRefH;
+
+extern "C" typedef void (*ExecZIM_v__i)(int);
+extern "C" typedef void  (*ExecZIM_v__b)(bool);
+extern "C" typedef void  (*ExecZIM_v__i)(int);
+extern "C" typedef void  (*ExecZIM_v__v)(void);
+extern "C" typedef void  (*ExecZIM_v__vp)(void*);
 
 class QSlot : public QObject {
     Q_OBJECT
@@ -33,40 +42,40 @@ private slots:
     void Slot_Int(int);
 };
 
-/*
-class gSlot : public QObject
-{
-    Q_OBJECT
+class eQWidget : public QWidget {
+    // Q_OBJECT
+
 public:
-    void* aSlot0;       // Хранит адрес D функции
-    void* aSlot1;       // Хранит адрес D функции
-    void* aSlotN;       // Хранит адрес D функции для вызова с параметром
-    int        N;       // параметр для aSlotN. Идея запомнить параметр при установке слота и выдать
-                        // при срабатывании слота. А ля - диспечерезация
-    // -----------------------------------
-    gSlot(QObject* parent = 0);
-    // ~Q_Slot();
+    void* aKeyPressEvent;
+    void* aPaintEvent;
+    void* aCloseEvent;
+    void* aResizeEvent;
+
+public:
+    explicit eQWidget(QWidget* parent, Qt::WindowFlags f);
+    ~eQWidget();
+
+protected:
+    void keyPressEvent(QKeyEvent* event);
+    void paintEvent(QPaintEvent* event);
+    void closeEvent(QCloseEvent* event);
+    void resizeEvent(QResizeEvent* event);
 };
-*/
 
-/*
-    void sendSignal0();
-    void sendSignal1(void*);
-public slots:
-    void SlotN();
-    void Slot0();
-    void Slot1(bool);
-    void Slot1(int);
-    void Slot1(QAbstractSocket::SocketError);
-    void Slot1_int(size_t);
-signals:
-    void Signal0();
-    void Signal1(void*);
-
+class eQFrame : public QFrame {
+    // Q_OBJECT
+public:
+    void* aKeyPressEvent;
+    void* aPaintEvent;
+    void* aCloseEvent;
+    void* aResizeEvent;
+public:
+    explicit eQFrame(QWidget* parent, Qt::WindowFlags f);
+    ~eQFrame();
+protected:
+    void keyPressEvent(QKeyEvent* event);
+    void paintEvent(QPaintEvent* event);
+    void closeEvent(QCloseEvent* event);
+    void resizeEvent(QResizeEvent* event);
 };
-*/
-
-
-
-
 #endif // QTE5WIDGETS_H

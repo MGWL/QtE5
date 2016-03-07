@@ -14,6 +14,28 @@ import qte5;
 const string strElow  = "background: #FCFDC6"; //#F8FFA1";
 const string strBlue  = "background: #3F42FF"; //#F8FFA1";
 
+// Проверка события QResizeEvent 
+extern (C) void onQResizeEvent(void* ev) {
+	// 1 - Схватить событие пришедшее из Qt и сохранить его в моём классе
+	QResizeEvent qe = new QResizeEvent('+', ev); 
+	// 2 - Выдать тип события
+	writeln(toCON("Событие: ширина: "), qe.size().width, toCON("  высота: "), qe.size().heigth);
+}
+// Проверка события KeyPressEvent 
+extern (C) void onKeyPressEvent(void* ev) {
+	// 1 - Схватить событие пришедшее из Qt и сохранить его в моём классе
+	QKeyEvent qe = new QKeyEvent('+', ev); 
+	// 2 - Выдать тип события
+	writeln(qe.type, "  -- key -> ", qe.key, "  -- count -> ", qe.count);
+}
+// Проверка события CloseEvent 
+extern (C) void onQCloseEvent(void* ev) {
+	// 1 - Схватить событие пришедшее из Qt и сохранить его в моём классе
+	QEvent qe = new QKeyEvent('+', ev); 
+	// 2 - Что то просто сделать, поскольку ни каких параметров там нет
+	writeln(toCON("Перед закрытием окна ..."));
+}
+
 extern (C) void onKn1() {
 	writeln(toCON("Нажата кнопка №1"));
 	f1.change1();
@@ -24,7 +46,7 @@ extern (C) void onKn2() {
 }
 
 // Окно диалога с двумя кнопками
-class Forma1: QFrame {
+class Forma1: QFrame /* QFrame */ {
 	QPushButton kn1, kn2;
 	QBoxLayout lah, lav;
 	QLabel lb1;
@@ -53,6 +75,8 @@ class Forma1: QFrame {
 		lav.addWidget(lb1).addLayout(lah);
 		setLayout(lav);							// Добавляем выравниватель в диалог
 		lah.setNoDelete(true);
+		setKeyPressEvent(&onKeyPressEvent);
+		setCloseEvent(&onQCloseEvent);
 	}
 	// Change color Forma1 for kn1
 	void change1() {

@@ -24,11 +24,53 @@ extern "C" void qteQApplication_aboutQt(QtRefH app) {
 }
 
 // =========== QWidget ==========
+eQWidget::eQWidget(QWidget *parent, Qt::WindowFlags f): QWidget(parent, f) {
+    aKeyPressEvent = NULL;
+    aPaintEvent = NULL;
+    aCloseEvent = NULL;
+    aResizeEvent = NULL;
+}
+eQWidget::~eQWidget() {
+}
+extern "C" void qteQWidget_setKeyPressEvent(QtRefH wd, void* adr) {
+    ((eQWidget*)wd)->aKeyPressEvent = adr;
+}
+void eQWidget::keyPressEvent(QKeyEvent *event) {
+    if(aKeyPressEvent != NULL) {
+        ((ExecZIM_v__vp)aKeyPressEvent)((QtRefH)event);
+    }
+}
+extern "C" void qteQWidget_setPaintEvent(QtRefH wd, void* adr) {
+    ((eQWidget*)wd)->aPaintEvent = adr;
+}
+void eQWidget::paintEvent(QPaintEvent *event) {
+    if(aPaintEvent != NULL) {
+        ((ExecZIM_v__vp)aPaintEvent)((QtRefH)event);
+    }
+}
+extern "C" void qteQWidget_setCloseEvent(QtRefH wd, void* adr) {
+    ((eQWidget*)wd)->aCloseEvent = adr;
+}
+void eQWidget::closeEvent(QCloseEvent *event) {
+    if(aCloseEvent != NULL) {
+        ((ExecZIM_v__vp)aCloseEvent)((QtRefH)event);
+    }
+}
+extern "C" void qteQWidget_setResizeEvent(eQWidget* wd, void* adr) {
+    wd->aResizeEvent = adr;
+}
+
+void eQWidget::resizeEvent(QResizeEvent *event) {
+    if(aResizeEvent != NULL) {
+         ((ExecZIM_v__vp)aResizeEvent)(event);
+    }
+}
+
 extern "C" QtRefH qteQWidget_create1(QtRefH parent, Qt::WindowFlags f) {
-    return (QtRefH)new QWidget((QWidget*)parent, f);
+    return (QtRefH)new eQWidget((eQWidget*)parent, f);
 }
 extern "C" void qteQWidget_delete1(QtRefH wd) {
-    delete (QWidget*)wd;
+    delete (eQWidget*)wd;
 }
 extern "C" void qteQWidget_setVisible(QtRefH wd, bool f) {
     ((QWidget*)wd)->setVisible(f);
@@ -105,10 +147,6 @@ extern "C" void qteQAbstractButton_text(QtRefH wd, QtRefH qs) {
     *(QString*)qs = ((QAbstractButton*)wd)->text();
 }
 
-typedef void (*ExecZIM_v__i)(int);
-typedef void (*ExecZIM_v__b)(bool);
-typedef void (*ExecZIM_v__i)(int);
-typedef void (*ExecZIM_v__v)(void);
 
 // =========== QSlot ==========
 QSlot::QSlot(QObject* parent) : QObject(parent) {
@@ -175,23 +213,52 @@ extern "C" void qteQBoxLayout_addLayout(QtRefH BoxLyout, QtRefH layout)
 	((QBoxLayout*)BoxLyout)->addLayout((QBoxLayout*)layout);
 }
 // ===================== QFrame ====================
+eQFrame::eQFrame(QWidget *parent, Qt::WindowFlags f): QFrame(parent, f) {
+    aKeyPressEvent = NULL;
+    aPaintEvent = NULL;
+    aCloseEvent = NULL;
+    aResizeEvent = NULL;
+}
+eQFrame::~eQFrame() {
+}
 extern "C" QtRefH qteQFrame_create1(QtRefH parent, Qt::WindowFlags f) {
-    return (QtRefH)new QFrame((QWidget*)parent, f);
+    return (QtRefH)new eQFrame((QWidget*)parent, f);
 }
 extern "C" void qteQFrame_delete1(QtRefH wd) {
-    delete (QFrame*)wd;
+    delete (eQFrame*)wd;
 }
+void eQFrame::keyPressEvent(QKeyEvent *event) {
+    if(aKeyPressEvent != NULL) {
+        ((ExecZIM_v__vp)aKeyPressEvent)((QtRefH)event);
+    }
+}
+void eQFrame::paintEvent(QPaintEvent *event) {
+    if(aPaintEvent != NULL) {
+        ((ExecZIM_v__vp)aPaintEvent)((QtRefH)event);
+    }
+}
+void eQFrame::closeEvent(QCloseEvent *event) {
+    if(aCloseEvent != NULL) {
+        ((ExecZIM_v__vp)aCloseEvent)((QtRefH)event);
+    }
+}
+void eQFrame::resizeEvent(QResizeEvent *event) {
+    if(aResizeEvent != NULL) {
+         ((ExecZIM_v__vp)aResizeEvent)(event);
+    }
+}
+
 extern "C" void qteQFrame_setFrameShape(QtRefH fr, QFrame::Shape sh)
 {
-    ((QFrame*)fr)->setFrameShape(sh);
+    ((eQFrame*)fr)->setFrameShape(sh);
 }
 extern "C" void qteQFrame_setFrameShadow(QtRefH fr, QFrame::Shadow sh)
 {
-    ((QFrame*)fr)->setFrameShadow(sh);
+    ((eQFrame*)fr)->setFrameShadow(sh);
 }
 extern "C" void qteQFrame_setLineWidth(QtRefH fr, int sh)
 {
-    ((QFrame*)fr)->setLineWidth(sh);
+    ((eQFrame*)fr)->setLineWidth(sh);
 }
 // ===================== QLsbel ====================
 extern "C" QtRefH qteQLabel_create1(QtRefH parent, Qt::WindowFlags f) {
@@ -202,6 +269,43 @@ extern "C" void qteQLabel_delete1(QtRefH wd) {
 }
 extern "C" void qteQLabel_setText(QtRefH wd, QtRefH qs) {
     ((QLabel*)wd)->setText(*(QString*)qs);
+}
+// ===================== QEvent ====================
+extern "C" int qteQEvent_type(QEvent* ev) {
+    return ev->type();
+}
+// ===================== QResizeEvent ====================
+extern "C" QtRefH qteQResizeEvent_size(QResizeEvent* ev) {
+    return (QtRefH)&ev->size();
+}
+extern "C" QtRefH qteQResizeEvent_oldSize(QResizeEvent* ev) {
+    return (QtRefH)&ev->oldSize();
+}
+// ===================== QSize ====================
+extern "C" QtRefH qteQSize_create1(int wd, int ht) {
+    return (QtRefH)new QSize(wd, ht);
+}
+extern "C" void qteQSize_delete1(QtRefH wd) {
+    delete (QSize*)wd;
+}
+extern "C" int qteQSize_width(QSize* ev) {
+    return ev->width();
+}
+extern "C" int qteQSize_heigth(QSize* ev) {
+    return ev->height();
+}
+extern "C" void qteQSize_setWidth(QSize* ev, int wd) {
+    return ev->setWidth(wd);
+}
+extern "C" void qteQSize_setHeigth(QSize* ev, int ht) {
+    return ev->setHeight(ht);
+}
+// ===================== QKeyEvent ====================
+extern "C" int qteQKeyEvent_key(QKeyEvent* ev) {
+    return ev->key();
+}
+extern "C" int qteQKeyEvent_count(QKeyEvent* ev) {
+    return ev->count();
 }
 
 
