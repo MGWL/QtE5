@@ -59,18 +59,19 @@ void eQWidget::closeEvent(QCloseEvent *event) {
 extern "C" void qteQWidget_setResizeEvent(eQWidget* wd, void* adr) {
     wd->aResizeEvent = adr;
 }
-
 void eQWidget::resizeEvent(QResizeEvent *event) {
     if(aResizeEvent != NULL) {
          ((ExecZIM_v__vp)aResizeEvent)(event);
     }
 }
-
 extern "C" QtRefH qteQWidget_create1(QtRefH parent, Qt::WindowFlags f) {
     return (QtRefH)new eQWidget((eQWidget*)parent, f);
 }
 extern "C" void qteQWidget_delete1(QtRefH wd) {
     delete (eQWidget*)wd;
+}
+extern "C" void qteQWidget_setSizePolicy(QWidget* wd, QSizePolicy::Policy w, QSizePolicy::Policy h) {
+    wd->setSizePolicy(w,  h);
 }
 extern "C" void qteQWidget_setVisible(QtRefH wd, bool f) {
     ((QWidget*)wd)->setVisible(f);
@@ -94,9 +95,19 @@ extern "C" void qteQWidget_setMMSize(QtRefH wd, bool mm, int w, int h) {
 extern "C" void qteQWidget_setEnabled(QtRefH wd, bool b) {
     ((QWidget*)wd)->setEnabled(b);
 }
-extern "C" void qteQWidget_setLayout(QtRefH wd, QtRefH la)
-{
+extern "C" void qteQWidget_setLayout(QtRefH wd, QtRefH la) {
     ((QWidget*)wd)->setLayout((QLayout*)la);
+}
+extern "C" void qteQWidget_setMax1(QWidget* wd, int pr, int r) {
+    switch ( pr ) {
+    case 0:   wd->setMaximumWidth(r);    break;
+    case 1:   wd->setMinimumWidth(r);    break;
+    case 2:   wd->setMaximumHeight(r);   break;
+    case 3:   wd->setMinimumHeight(r);   break;
+    case 4:   wd->setFixedHeight(r);     break;
+    case 5:   wd->setFixedWidth(r);      break;
+    case 6:   wd->setToolTipDuration(r); break;
+    }
 }
 // =========== QString ==========
 extern "C" QtRefH qteQString_create1(void) {
@@ -146,15 +157,12 @@ extern "C" void qteQAbstractButton_setText(QtRefH wd, QtRefH qs) {
 extern "C" void qteQAbstractButton_text(QtRefH wd, QtRefH qs) {
     *(QString*)qs = ((QAbstractButton*)wd)->text();
 }
-
-
 // =========== QSlot ==========
 QSlot::QSlot(QObject* parent) : QObject(parent) {
     aSlotN = NULL;
          N = 0;
 }
-QSlot::~QSlot()
-{
+QSlot::~QSlot() {
 }
 // Вызов конструктора слота
 extern "C" QtRefH qteQSlot_create(QtRefH parent) {
@@ -163,54 +171,71 @@ extern "C" QtRefH qteQSlot_create(QtRefH parent) {
 extern "C" void qteQSlot_delete(QtRefH parent) {
     delete (QSlot*)parent;
 }
-void QSlot::SlotN() // Вызвать глобальную функцию с параметром N (диспетчерезатор)
-{
+void QSlot::SlotN() { // Вызвать глобальную функцию с параметром N (диспетчерезатор)
     if (aSlotN != NULL)  ((ExecZIM_v__i)aSlotN)(N);
 }
-void QSlot::Slot()
-{
-    if (aSlotN != NULL)  ((ExecZIM_v__v)aSlotN)();
+void QSlot::Slot() {
+    // printf("%p -slot- %p", aSlotN, aDThis);
+    if(aSlotN != NULL) {
+        if(aDThis == NULL) {
+            ((ExecZIM_v__v)aSlotN)();
+        } else {
+            ((ExecZIM_v__vp)aSlotN)(*((void**)aDThis));
+        }
+    }
 }
+
 extern "C" void QSlot_setSlotN(QSlot* slot, void* adr, int n) {
     slot->aSlotN = adr;
     slot->N = n;
 }
+extern "C" void QSlot_setSlotN2(QSlot* slot, void* adr, void* adrTh, int n) {
+    slot->aSlotN = adr;
+    slot->aDThis = adrTh;
+    // printf("%p -- %p", slot->aSlotN, slot->aDThis);
+    slot->N = n;
+}
+
 extern "C" void qteConnect(QtRefH obj1, char* signal, QtRefH slot, char* sslot, int n) {
     QObject::connect((const QObject*)obj1, (const char*)signal, (const QObject*)slot,
                      (const char*)sslot, (Qt::ConnectionType)n);
 }
-void QSlot::Slot_Bool(bool b) // Вызвать глобальную функцию с параметром b - булево
-{
+void QSlot::Slot_Bool(bool b) { // Вызвать глобальную функцию с параметром b - булево
     if (aSlotN != NULL)  ((ExecZIM_v__b)aSlotN)(b);
 }
-void QSlot::Slot_Int(int i) // Вызвать глобальную функцию с параметром
-{
+void QSlot::Slot_Int(int i) { // Вызвать глобальную функцию с параметром
     if (aSlotN != NULL)  ((ExecZIM_v__i)aSlotN)(i);
 }
 // ===================== QLyout ====================
-extern "C" QtRefH qteQVBoxLayout(void)
-{
+extern "C" QtRefH qteQVBoxLayout(void) {
     return  (QtRefH) new QVBoxLayout();
 }
-extern "C" QtRefH qteQHBoxLayout(void)
-{
+extern "C" QtRefH qteQHBoxLayout(void) {
     return  (QtRefH) new QHBoxLayout();
 }
-extern "C" QtRefH qteQBoxLayout(QtRefH wd, QBoxLayout::Direction dir)
-{
+extern "C" QtRefH qteQBoxLayout(QtRefH wd, QBoxLayout::Direction dir) {
     return  (QtRefH) new QBoxLayout(dir, (QWidget*)wd);
 }
-extern "C" void qteQBoxLayout_delete(QtRefH parent) 
-{
+extern "C" void qteQBoxLayout_delete(QtRefH parent) {
     delete (QBoxLayout*)parent;
 }
-extern "C" void qteQBoxLayout_addWidget(QtRefH BoxLyout, QtRefH widget, int stretch, int align)
-{
+extern "C" void qteQBoxLayout_addWidget(QtRefH BoxLyout, QtRefH widget, int stretch, int align) {
     ((QBoxLayout*)BoxLyout)->addWidget((QWidget*)widget, stretch, (Qt::Alignment)align);
 }
-extern "C" void qteQBoxLayout_addLayout(QtRefH BoxLyout, QtRefH layout)
-{
+extern "C" void qteQBoxLayout_addLayout(QtRefH BoxLyout, QtRefH layout) {
 	((QBoxLayout*)BoxLyout)->addLayout((QBoxLayout*)layout);
+}
+extern "C" void qteQBoxLayout_setSpasing(QBoxLayout* BoxLyout, int sp) {
+    BoxLyout->setSpacing(sp);
+}
+extern "C" int qteQBoxLayout_spasing(QBoxLayout* BoxLyout) {
+    return BoxLyout->spacing();
+}
+extern "C" void qteQBoxLayout_setMargin(QBoxLayout* BoxLyout, int sp) {
+    BoxLyout->setMargin(sp);
+}
+extern "C" int qteQBoxLayout_margin(QBoxLayout* BoxLyout) {
+    return BoxLyout->margin();
 }
 // ===================== QFrame ====================
 eQFrame::eQFrame(QWidget *parent, Qt::WindowFlags f): QFrame(parent, f) {
@@ -247,7 +272,6 @@ void eQFrame::resizeEvent(QResizeEvent *event) {
          ((ExecZIM_v__vp)aResizeEvent)(event);
     }
 }
-
 extern "C" void qteQFrame_setFrameShape(QtRefH fr, QFrame::Shape sh)
 {
     ((eQFrame*)fr)->setFrameShape(sh);
@@ -307,69 +331,67 @@ extern "C" int qteQKeyEvent_key(QKeyEvent* ev) {
 extern "C" int qteQKeyEvent_count(QKeyEvent* ev) {
     return ev->count();
 }
+// ===================== QAbstractScrollArea ====================
+extern "C" QtRefH qteQAbstractScrollArea_create1(QtRefH parent) {
+    return (QtRefH)new QAbstractScrollArea((QWidget*)parent);
+}
+extern "C" void qteQAbstractScrollArea_delete1(QtRefH wd) {
+    delete (QAbstractScrollArea*)wd;
+}
+// ===================== QPlainTextEdit ====================
 
-
-
-
-/*
-QSlot::~QSlot()
-{
+eQPlainTextEdit::eQPlainTextEdit(QWidget *parent): QPlainTextEdit(parent) {
+    aKeyPressEvent = NULL;
 }
-*/
-
-/*
-void eSlot::SlotN() // Вызвать глобальную функцию с параметром N (диспетчерезатор)
-{
-    if (aSlotN != NULL)  ((ExecZIM_v__i)aSlotN)(N);
+eQPlainTextEdit::~eQPlainTextEdit() {
 }
-void eSlot::Slot0()
-{
-    if (aSlot0 != NULL)  ((ExecZIM_0_0)aSlot0)();
-}
-void eSlot::Slot1(bool par1)
-{
-    if (aSlot1 != NULL) ((ExecZIM_1_0)aSlot1)((void*)par1);
-}
-void eSlot::Slot1(int par1)
-{
-    if (aSlot1 != NULL) ((ExecZIM_v__i)aSlot1)(par1);
-}
-void eSlot::Slot1(QAbstractSocket::SocketError par1)
-{
-    if (aSlot1 != NULL) ((ExecZIM_v__i)aSlot1)(par1);
-}
-void eSlot::Slot1_int(size_t par1)
-{
-    if (aSlot1 != NULL) ((ExecZIM_1_0)aSlot1)((void*)par1);
-}
-void eSlot::sendSignal0() {
-    emit Signal0();
-}
-void eSlot::sendSignal1(void* par1) {
-    emit Signal1(par1);
+void eQPlainTextEdit::keyPressEvent(QKeyEvent *event) {
+    if(aKeyPressEvent != NULL) {
+        if(((ExecZIM_b__vp)aKeyPressEvent)((QtRefH)event)) {
+            QPlainTextEdit::keyPressEvent(event);
+        }
+    }
+    else {
+        QPlainTextEdit::keyPressEvent(event);
+    }
 }
 
-extern "C" void* qte_eSlot(QObject * parent) {
-     return new eSlot(parent);
+extern "C" eQPlainTextEdit* qteQPlainTextEdit_create1(QWidget* parent) {
+    return new eQPlainTextEdit(parent);
 }
-extern "C" void eSlot_setSlot(size_t n, eSlot* slot, void* adr) {
-    if (n==0) slot->aSlot0 = adr;
-    if (n==1) slot->aSlot1 = adr;
+extern "C" void qteQPlainTextEdit_delete1(eQPlainTextEdit* wd) {
+    delete wd;
 }
-extern "C" void eSlot_setSlotN(eSlot* slot, void* adr, int n) {
-    slot->aSlotN = adr;
-    slot->N = n;
+extern "C" void qteQPlainTextEdit_setKeyPressEvent(eQPlainTextEdit* wd, void* adr) {
+    wd->aKeyPressEvent = adr;
 }
-extern "C" void eSlot_setSlot0(eSlot* slot, void* adr) {
-     slot->aSlot0 = adr;
+
+
+extern "C" void qteQPlainTextEdit_appendPlainText(QPlainTextEdit* wd, QtRefH str) {
+    wd->appendPlainText((const QString &)*str);
 }
-extern "C" void eSlot_setSlot1(eSlot* slot, void* adr) {
-     slot->aSlot1 = adr;
+extern "C" void qteQPlainTextEdit_appendHtml(QPlainTextEdit* wd, QtRefH str) {
+    wd->appendHtml((const QString &)*str);
 }
-extern "C" void eSlot_setSignal0(eSlot* slot) {
-     slot->sendSignal0();
+extern "C" void qteQPlainTextEdit_setPlainText(QPlainTextEdit* wd, QtRefH str) {
+    wd->setPlainText((const QString &)*str);
 }
-extern "C" void eSlot_setSignal1(eSlot* slot, void* par1) {
-     slot->sendSignal1(par1);
+extern "C" void qteQPlainTextEdit_insertPlainText(QPlainTextEdit* wd, QtRefH str) {
+    wd->insertPlainText((const QString &)*str);
 }
-*/
+extern "C" void qteQPlainTextEdit_cutn(QPlainTextEdit* wd, int pr) {
+    switch ( pr ) {
+    case 0:   wd->cut();    break;
+    case 1:   wd->clear();  break;
+    case 2:   wd->paste();  break;
+    case 3:   wd->copy();   break;
+    case 4:   wd->selectAll();   break;
+    case 5:   wd->selectionChanged();  break;
+    case 6:   wd->centerCursor();  break;
+    case 7:   wd->undo();  break;
+    case 8:   wd->redo();  break;
+    }
+}
+extern "C" void qteQPlainTextEdit_toPlainText(QPlainTextEdit* wd, QtRefH qs) {
+    *(QString*)qs = wd->toPlainText();
+}

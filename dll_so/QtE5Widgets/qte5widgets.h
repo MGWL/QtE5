@@ -13,6 +13,8 @@
 #include <QResizeEvent>
 #include <QSize>
 #include <QKeyEvent>
+#include <QAbstractScrollArea>
+#include <QPlainTextEdit>
 
 typedef int PTRINT;
 typedef unsigned int PTRUINT;
@@ -23,13 +25,16 @@ extern "C" typedef void (*ExecZIM_v__i)(int);
 extern "C" typedef void  (*ExecZIM_v__b)(bool);
 extern "C" typedef void  (*ExecZIM_v__i)(int);
 extern "C" typedef void  (*ExecZIM_v__v)(void);
+
 extern "C" typedef void  (*ExecZIM_v__vp)(void*);
+extern "C" typedef bool  (*ExecZIM_b__vp)(void*);
 
 class QSlot : public QObject {
     Q_OBJECT
 
 public:
     void* aSlotN;       // Хранит адрес D функции для вызова с параметром
+    void* aDThis;       // Хранит адрес экземпляра объекта D
     int        N;       // параметр для aSlotN. Идея запомнить параметр при установке слота и выдать
                         // при срабатывании слота. А ля - диспечерезация
 public:
@@ -78,4 +83,18 @@ protected:
     void closeEvent(QCloseEvent* event);
     void resizeEvent(QResizeEvent* event);
 };
+
+
+class eQPlainTextEdit : public QPlainTextEdit {
+    // Q_OBJECT
+public:
+    void* aKeyPressEvent;
+public:
+    explicit eQPlainTextEdit(QWidget* parent);
+    ~eQPlainTextEdit();
+protected:
+    void keyPressEvent(QKeyEvent* event);
+};
+
+
 #endif // QTE5WIDGETS_H
