@@ -971,12 +971,12 @@ char[] from1251to866(char[] str) {
 	return rez;
 }
 
-char[] toCON(T)(T s) {
+string toCON(T)(T s) {
 	version (Windows) {
-		return from1251to866(fromUtf8to1251(cast(char[]) s));
+		return cast(string)from1251to866(fromUtf8to1251(cast(char[]) s));
 	}
 	version (linux) {
-		return cast(char[]) s;
+		return cast(string)s;
 	}
 }
 

@@ -22,6 +22,61 @@ extern "C" int qteQApplication_exec(QtRefH app) {
 extern "C" void qteQApplication_aboutQt(QtRefH app) {
     ((QApplication*)app)->aboutQt();
 }
+// =========== QLineEdit ==========
+eQLineEdit::eQLineEdit(QWidget *parent): QLineEdit(parent) {
+}
+eQLineEdit::~eQLineEdit() {
+}
+extern "C" eQLineEdit* qteQLineEdit_create1(QWidget* parent) {
+    return new eQLineEdit(parent);
+}
+extern "C" void qteQLineEdit_delete1(eQLineEdit* wd) {
+    delete wd;
+}
+extern "C" void qteQLineEdit_set(eQLineEdit* qw, QString *qstr) {
+    qw->setText(*qstr);
+}
+/*
+extern "C" void qteQLineEdit_setfocus(eQLineEdit* qw) {
+     qw->setFocus();
+}
+*/
+extern "C" void qteQLineEdit_clear(eQLineEdit* qw) {
+     qw->clear();
+}
+extern "C" void qteQLineEdit_text(eQLineEdit* wd, QString* qs) {
+    *qs = wd->text();
+}
+// =========== QStatusBar ==========
+extern "C" QStatusBar* qteQStatusBar_create1(QWidget* parent) {
+    return new QStatusBar(parent);
+}
+extern "C" void qteQStatusBar_delete1(QStatusBar* wd) {
+    delete wd;
+}
+extern "C" void qteQStatusBar_showMessage(QStatusBar* wd, QString* qs, int ms) {
+    ((QWidget*)wd)->setStyleSheet(*(QString*)qs);
+    wd->showMessage(*qs, ms);
+}
+
+// =========== QMainWinsow ==========
+eQMainWindow::eQMainWindow(QWidget *parent, Qt::WindowFlags f): QMainWindow(parent, f) {
+}
+eQMainWindow::~eQMainWindow() {
+}
+extern "C" eQMainWindow* qteQMainWindow_create1(QWidget* parent, Qt::WindowFlags f) {
+    return new eQMainWindow(parent, f);
+}
+extern "C" void qteQMainWindow_delete1(eQMainWindow* wd) {
+    delete wd;
+}
+extern "C" void qteQMainWindow_setXX(QMainWindow* wd, QWidget* s, int pr) {
+    switch ( pr ) {
+    case 0:   wd->setCentralWidget(s);              break;
+    case 1:   wd->setMenuBar((QMenuBar*)s);         break;
+    case 2:   wd->setStatusBar((QStatusBar*)s);     break;
+    }
+}
 
 // =========== QWidget ==========
 eQWidget::eQWidget(QWidget *parent, Qt::WindowFlags f): QWidget(parent, f) {
@@ -109,6 +164,21 @@ extern "C" void qteQWidget_setMax1(QWidget* wd, int pr, int r) {
     case 6:   wd->setToolTipDuration(r); break;
     }
 }
+extern "C" void qteQWidget_exWin1(QWidget* wd, int pr) {
+    switch ( pr ) {
+    case 0:   wd->setFocus();            break;
+    case 1:   wd->close();               break;
+    case 2:   wd->hide();                break;
+    case 3:   wd->show();                break;
+    case 4:   wd->showFullScreen();      break;
+    case 5:   wd->showMaximized();       break;
+    case 6:   wd->showMinimized();       break;
+    case 7:   wd->showNormal();          break;
+    case 8:   wd->update();              break;
+    case 9:   wd->raise();               break;
+    case 10:  wd->lower();               break;
+    }
+}
 // =========== QString ==========
 extern "C" QtRefH qteQString_create1(void) {
     return (QtRefH)new QString();
@@ -175,16 +245,9 @@ void QSlot::SlotN() { // Вызвать глобальную функцию с �
     if (aSlotN != NULL)  ((ExecZIM_v__i)aSlotN)(N);
 }
 void QSlot::Slot() {
-    // printf("%p -slot- %p", aSlotN, aDThis);
-    if(aSlotN != NULL) {
-        if(aDThis == NULL) {
-            ((ExecZIM_v__v)aSlotN)();
-        } else {
-            ((ExecZIM_v__vp)aSlotN)(*((void**)aDThis));
-        }
-    }
+    if ((aSlotN != NULL) && (aDThis == NULL)) { ((ExecZIM_v__v)aSlotN)(); }
+    if ((aSlotN != NULL) && (aDThis != NULL)) { ((ExecZIM_v__vp)aSlotN)(*(void**)aDThis); }
 }
-
 extern "C" void QSlot_setSlotN(QSlot* slot, void* adr, int n) {
     slot->aSlotN = adr;
     slot->N = n;
@@ -192,7 +255,6 @@ extern "C" void QSlot_setSlotN(QSlot* slot, void* adr, int n) {
 extern "C" void QSlot_setSlotN2(QSlot* slot, void* adr, void* adrTh, int n) {
     slot->aSlotN = adr;
     slot->aDThis = adrTh;
-    // printf("%p -- %p", slot->aSlotN, slot->aDThis);
     slot->N = n;
 }
 
@@ -365,8 +427,6 @@ extern "C" void qteQPlainTextEdit_delete1(eQPlainTextEdit* wd) {
 extern "C" void qteQPlainTextEdit_setKeyPressEvent(eQPlainTextEdit* wd, void* adr) {
     wd->aKeyPressEvent = adr;
 }
-
-
 extern "C" void qteQPlainTextEdit_appendPlainText(QPlainTextEdit* wd, QtRefH str) {
     wd->appendPlainText((const QString &)*str);
 }

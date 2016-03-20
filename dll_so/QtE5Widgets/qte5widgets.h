@@ -9,12 +9,15 @@
 #include <QPushButton>
 #include <QHBoxLayout>
 #include <QFrame>
+#include <QLineEdit>
 #include <QLabel>
 #include <QResizeEvent>
 #include <QSize>
 #include <QKeyEvent>
 #include <QAbstractScrollArea>
 #include <QPlainTextEdit>
+#include <QMainWindow>
+#include <QStatusBar>
 
 typedef int PTRINT;
 typedef unsigned int PTRUINT;
@@ -46,6 +49,26 @@ private slots:
     void Slot_Bool(bool);
     void Slot_Int(int);
 };
+
+
+class eQMainWindow : public QMainWindow {
+    // Q_OBJECT
+
+public:
+    explicit eQMainWindow(QWidget* parent, Qt::WindowFlags f);
+    ~eQMainWindow();
+
+};
+
+class eQLineEdit : public QLineEdit {
+    // Q_OBJECT
+
+public:
+    explicit eQLineEdit(QWidget* parent);
+    ~eQLineEdit();
+
+};
+
 
 class eQWidget : public QWidget {
     // Q_OBJECT
@@ -83,7 +106,6 @@ protected:
     void closeEvent(QCloseEvent* event);
     void resizeEvent(QResizeEvent* event);
 };
-
 
 class eQPlainTextEdit : public QPlainTextEdit {
     // Q_OBJECT
