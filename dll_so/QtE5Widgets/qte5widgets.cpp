@@ -179,6 +179,13 @@ extern "C" void qteQWidget_exWin1(QWidget* wd, int pr) {
     case 10:  wd->lower();               break;
     }
 }
+extern "C" void qteQWidget_exWin2(QWidget* wd, int pr, int w, int h) {
+    switch ( pr ) {
+    case 0:   wd->move(w, h);            break;
+    case 1:   wd->resize(w, h);          break;
+    }
+}
+
 // =========== QString ==========
 extern "C" QtRefH qteQString_create1(void) {
     return (QtRefH)new QString();

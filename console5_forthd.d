@@ -67,7 +67,7 @@ class FormaMain: QMainWindow {
 		mainWid.setLayout(vblAll);
 		setCentralWidget(mainWid);
 		setWindowTitle("--- Консоль forthD на QtE5 ---");
-        // resize(700, 400);
+		resize(700, 400);
 		
 		// В конструкторе 2 адреса. Второй адрес this нашего экземпляра
 		QSlot slotKnEval = new QSlot(&on_knEval, aThis);
@@ -107,10 +107,13 @@ class FormaMain: QMainWindow {
 	}
 	// Help
 	void Help() {
-		writeln(toCON("Help()"));
+		// writeln(toCON("Help()"));
+		app.aboutQt();
 	}
 }
  
+QApplication app;
+
 int main(string[] args) {
 	bool fDebug;		// T - выдавать диагностику загрузки QtE5
 	string sEval;		// Строка для выполнения eval
@@ -128,7 +131,7 @@ int main(string[] args) {
 	// Загрузка графической библиотеки
 	if (1 == LoadQt(dll.QtE5Widgets, fDebug)) return 1;  // Выйти,если ошибка загрузки библиотеки
 	// Изготавливаем само приложение
-	QApplication app = new QApplication(&Runtime.cArgs.argc, Runtime.cArgs.argv, 1);
+	app = new QApplication(&Runtime.cArgs.argc, Runtime.cArgs.argv, 1);
 	FormaMain formaMain = new FormaMain(); formaMain.saveThis(&formaMain); formaMain.show();
 	
 	return app.exec();

@@ -80,6 +80,7 @@ private extern (C) @nogc alias t_vp__i_i_i_i = void* function(int, int, int, int
 private extern (C) @nogc alias t_v__vp_i_bool = void function(void*, int, bool);
 private extern (C) @nogc alias t_v__vp_i_i_i_i = void function(void*, int, int, int, int);
 private extern (C) @nogc alias t_v__qp_i_i_i_i = void function(QtObjH, int, int, int, int);
+private extern (C) @nogc alias t_v__qp_i_i_i = void function(QtObjH, int, int, int);
 private extern (C) @nogc alias t_v__vp_i_i_vp = void function(void*, int, int, void*);
 private extern (C) @nogc alias t_v__i_vp_vp = void function(int, void*, void*);
 private extern (C) @nogc alias t_vp__vp_vp_bool = void* function(void*, void*, bool);
@@ -257,6 +258,7 @@ int LoadQt(dll ldll, bool showError) { ///  Загрузить DLL-ки Qt и Qt
 	funQt(78, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQWidget_setSizePolicy",   showError);
 	funQt(79, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQWidget_setMax1",         showError);
 	funQt(87, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQWidget_exWin1",          showError);
+	funQt(94, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQWidget_exWin2",          showError);
 
 	funQt(49, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQWidget_setKeyPressEvent",showError);
 	funQt(50, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQWidget_setPaintEvent",   showError);
@@ -352,7 +354,7 @@ int LoadQt(dll ldll, bool showError) { ///  Загрузить DLL-ки Qt и Qt
 	funQt(93, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQStatusBar_showMessage",		showError);
 
 
-	// Последний = 87
+	// Последний = 94
 	return 0;
 } ///  Загрузить DLL-ки Qt и QtE. Найти в них адреса функций и заполнить ими таблицу
 
@@ -962,7 +964,6 @@ class QWidget: QPaintDevice {
 	QWidget setFixedWidth(int w) { 
 		(cast(t_v__qp_i_i) pFunQt[79])(QtObj, 5, w); return this; 
 	} /// setFixedWidth();
-
 	QWidget setMaximumHeight(int h) { 
 		(cast(t_v__qp_i_i) pFunQt[79])(QtObj, 2, h); return this; 
 	} /// setMaximumHeight();
@@ -986,6 +987,13 @@ class QWidget: QPaintDevice {
 	QWidget update() { 	(cast(t_v__qp_i) pFunQt[87])(QtObj, 8); return this;  } ///
 	QWidget raise() { (cast(t_v__qp_i) pFunQt[87])(QtObj, 9); return this; 	} /// Показать окно на вершине
 	QWidget lower() { (cast(t_v__qp_i) pFunQt[87])(QtObj, 10); return this; 	} /// Скрыть в стеке
+
+	QWidget move(int x, int y) { 
+		(cast(t_v__qp_i_i_i) pFunQt[94])(QtObj, 0, x, y); return this; 
+	} /// This property holds the size of the widget excluding any window frame
+	QWidget resize(int w, int h) {
+		(cast(t_v__qp_i_i_i) pFunQt[94])(QtObj, 1, w, h); return this; 
+	} /// This property holds the size of the widget excluding any window frame
 }
 // ============ QAbstractButton =======================================
 class QAbstractButton : QWidget {
