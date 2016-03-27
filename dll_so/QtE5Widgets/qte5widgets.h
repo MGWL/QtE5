@@ -18,6 +18,12 @@
 #include <QPlainTextEdit>
 #include <QMainWindow>
 #include <QStatusBar>
+#include <QAction>
+#include <QMenu>
+#include <QMenuBar>
+#include <QToolBar>
+#include <QDialog>
+#include <QMessageBox>
 
 typedef int PTRINT;
 typedef unsigned int PTRUINT;
@@ -30,7 +36,10 @@ extern "C" typedef void  (*ExecZIM_v__i)(int);
 extern "C" typedef void  (*ExecZIM_v__v)(void);
 
 extern "C" typedef void  (*ExecZIM_v__vp)(void*);
+extern "C" typedef void  (*ExecZIM_v__vp_vp)(void*, void*);
 extern "C" typedef bool  (*ExecZIM_b__vp)(void*);
+extern "C" typedef void* (*ExecZIM_vp__vp_vp)(void*, void*);
+extern "C" typedef void* (*ExecZIM_vp__vp)(void*);
 
 class QSlot : public QObject {
     Q_OBJECT
@@ -50,6 +59,24 @@ private slots:
     void Slot_Int(int);
 };
 
+class eAction : public QAction {
+    Q_OBJECT
+
+public:
+    explicit eAction(QObject *parent);
+    ~eAction();
+
+    void* aSlotN;       // Хранит адрес D функции для вызова с параметром
+    void* aDThis;       // Хранит адрес экземпляра объекта D
+    int        N;       // параметр для aSlotN. Идея запомнить параметр при установке слота и выдать
+                        // при срабатывании слота. А ля - диспечерезация
+
+private slots:
+    void Slot();
+    void SlotN();
+    void Slot_Bool(bool);
+    void Slot_Int(int);
+};
 
 class eQMainWindow : public QMainWindow {
     // Q_OBJECT
@@ -74,6 +101,7 @@ class eQWidget : public QWidget {
     // Q_OBJECT
 
 public:
+    void* aDThis;       // Хранит адрес экземпляра объекта D
     void* aKeyPressEvent;
     void* aPaintEvent;
     void* aCloseEvent;
@@ -110,6 +138,7 @@ protected:
 class eQPlainTextEdit : public QPlainTextEdit {
     // Q_OBJECT
 public:
+    void* aDThis;       // Хранит адрес экземпляра объекта D
     void* aKeyPressEvent;
 public:
     explicit eQPlainTextEdit(QWidget* parent);

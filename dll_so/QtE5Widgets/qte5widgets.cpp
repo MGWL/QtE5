@@ -72,14 +72,16 @@ extern "C" void qteQMainWindow_delete1(eQMainWindow* wd) {
 }
 extern "C" void qteQMainWindow_setXX(QMainWindow* wd, QWidget* s, int pr) {
     switch ( pr ) {
-    case 0:   wd->setCentralWidget(s);              break;
-    case 1:   wd->setMenuBar((QMenuBar*)s);         break;
-    case 2:   wd->setStatusBar((QStatusBar*)s);     break;
+        case 0:   wd->setCentralWidget(s);              break;
+        case 1:   wd->setMenuBar((QMenuBar*)s);         break;
+        case 2:   wd->setStatusBar((QStatusBar*)s);     break;
+        case 3:   wd->addToolBar((QToolBar*)s);         break;
     }
 }
 
 // =========== QWidget ==========
 eQWidget::eQWidget(QWidget *parent, Qt::WindowFlags f): QWidget(parent, f) {
+    aDThis = NULL;       // Хранит адрес экземпляра объекта D
     aKeyPressEvent = NULL;
     aPaintEvent = NULL;
     aCloseEvent = NULL;
@@ -87,14 +89,23 @@ eQWidget::eQWidget(QWidget *parent, Qt::WindowFlags f): QWidget(parent, f) {
 }
 eQWidget::~eQWidget() {
 }
-extern "C" void qteQWidget_setKeyPressEvent(QtRefH wd, void* adr) {
+// -------------------------------------------------
+extern "C" void qteQWidget_setKeyPressEvent(QtRefH wd, void* adr, void* dThis) {
     ((eQWidget*)wd)->aKeyPressEvent = adr;
+    ((eQWidget*)wd)->aDThis = dThis;
 }
 void eQWidget::keyPressEvent(QKeyEvent *event) {
-    if(aKeyPressEvent != NULL) {
+    // printf("eQWidget::keyPressEvent --event -> %p  aKeyPressEvent -> %p\n", event, aKeyPressEvent);
+    if (aKeyPressEvent == NULL) return;
+    if ((aKeyPressEvent != NULL) && (aDThis == NULL)) {
         ((ExecZIM_v__vp)aKeyPressEvent)((QtRefH)event);
     }
+    if ((aKeyPressEvent != NULL) && (aDThis != NULL)) {
+        ((ExecZIM_v__vp_vp)aKeyPressEvent)(*(void**)aDThis, (QtRefH)event);
+    }
 }
+// -------------------------------------------------
+
 extern "C" void qteQWidget_setPaintEvent(QtRefH wd, void* adr) {
     ((eQWidget*)wd)->aPaintEvent = adr;
 }
@@ -410,18 +421,24 @@ extern "C" void qteQAbstractScrollArea_delete1(QtRefH wd) {
 // ===================== QPlainTextEdit ====================
 
 eQPlainTextEdit::eQPlainTextEdit(QWidget *parent): QPlainTextEdit(parent) {
-    aKeyPressEvent = NULL;
+    aKeyPressEvent = NULL; aDThis = NULL;
 }
 eQPlainTextEdit::~eQPlainTextEdit() {
 }
-void eQPlainTextEdit::keyPressEvent(QKeyEvent *event) {
-    if(aKeyPressEvent != NULL) {
-        if(((ExecZIM_b__vp)aKeyPressEvent)((QtRefH)event)) {
-            QPlainTextEdit::keyPressEvent(event);
-        }
+void eQPlainTextEdit::keyPressEvent(QKeyEvent* event) {
+    QKeyEvent* otv;
+    // Если нет перехвата, отдай событие
+    if (aKeyPressEvent == NULL) {
+        QPlainTextEdit::keyPressEvent(event); return;
     }
-    else {
-        QPlainTextEdit::keyPressEvent(event);
+    if ((aKeyPressEvent != NULL) && (aDThis == NULL)) {
+        otv = (QKeyEvent*)((ExecZIM_vp__vp)aKeyPressEvent)((QtRefH)event);
+        if(otv != NULL) {  QPlainTextEdit::keyPressEvent(otv); }
+        return;
+    }
+    if ((aKeyPressEvent != NULL) && (aDThis != NULL)) {
+        otv = (QKeyEvent*)((ExecZIM_vp__vp_vp)aKeyPressEvent)(*(void**)aDThis, (QtRefH)event);
+        if(otv != NULL) {  QPlainTextEdit::keyPressEvent(otv); }
     }
 }
 
@@ -431,8 +448,9 @@ extern "C" eQPlainTextEdit* qteQPlainTextEdit_create1(QWidget* parent) {
 extern "C" void qteQPlainTextEdit_delete1(eQPlainTextEdit* wd) {
     delete wd;
 }
-extern "C" void qteQPlainTextEdit_setKeyPressEvent(eQPlainTextEdit* wd, void* adr) {
+extern "C" void qteQPlainTextEdit_setKeyPressEvent(eQPlainTextEdit* wd, void* adr, void* aThis) {
     wd->aKeyPressEvent = adr;
+    wd->aDThis = aThis;
 }
 extern "C" void qteQPlainTextEdit_appendPlainText(QPlainTextEdit* wd, QtRefH str) {
     wd->appendPlainText((const QString &)*str);
@@ -461,4 +479,149 @@ extern "C" void qteQPlainTextEdit_cutn(QPlainTextEdit* wd, int pr) {
 }
 extern "C" void qteQPlainTextEdit_toPlainText(QPlainTextEdit* wd, QtRefH qs) {
     *(QString*)qs = wd->toPlainText();
+}
+// ===================== QAction ====================
+eAction::eAction(QObject* parent)  : QAction(parent) {
+    aDThis = NULL; aSlotN = NULL; N = 0;
+}
+eAction::~eAction() {}
+
+void eAction::Slot() {
+    if ((aSlotN != NULL) && (aDThis == NULL)) { ((ExecZIM_v__v)aSlotN)(); }
+    if ((aSlotN != NULL) && (aDThis != NULL)) { ((ExecZIM_v__vp)aSlotN)(*(void**)aDThis); }
+}
+void eAction::SlotN() { // Вызвать глобальную функцию с параметром N (диспетчерезатор)
+    if (aSlotN != NULL)  ((ExecZIM_v__i)aSlotN)(N);
+}
+void eAction::Slot_Bool(bool b) { // Вызвать глобальную функцию с параметром b - булево
+    if (aSlotN != NULL)  ((ExecZIM_v__b)aSlotN)(b);
+}
+void eAction::Slot_Int(int i) { // Вызвать глобальную функцию с параметром
+    if (aSlotN != NULL)  ((ExecZIM_v__i)aSlotN)(i);
+}
+// -------------------------------------------------------
+extern "C" void* qteQAction_create(QObject * parent) {  return new eAction(parent); }
+extern "C" void  qteQAction_delete(eAction* wd)      {  delete wd; }
+
+extern "C" void qteQAction_setXX1(eAction* qw, QString *qstr, int pr) {
+    switch ( pr ) {
+    case 0:   qw->setText(*qstr);       break;
+    case 1:   qw->setToolTip(*qstr);    break;
+    }
+}
+extern "C" void qteQAction_setSlotN2(eAction* slot, void* adr, void* adrTh, int n) {
+    slot->aSlotN = adr;
+    slot->aDThis = adrTh;
+    slot->N = n;
+}
+
+extern "C" void qteQAction_setHotKey(eAction *act, int kl) {
+    act->setShortcut( (const QKeySequence &)kl);
+}
+extern "C" void qteQAction_setIcon(eAction *act, QIcon *ik) {
+    act->setIcon(*ik);
+}
+extern "C" void qteQAction_setEnabled(eAction *act, bool p) {
+    act->setEnabled(p);
+}
+
+
+extern "C" void qteQAction_setSlotN(eAction* slot, void* adr, int n) {
+    slot->aSlotN = adr;
+    slot->N = n;
+}
+
+extern "C" void qte_Connect(QtRefH obj1, char* signal, QtRefH slot, char* sslot, int n) {
+    QObject::connect((const QObject*)obj1, (const char*)signal, (const eAction*)slot,
+                     (const char*)sslot, (Qt::ConnectionType)n);
+}
+
+// ================= QMenu ==================================
+extern "C"  void* qteQMenu_create(QWidget * parent) {
+     return new QMenu(parent);
+}
+extern "C" void qteQMenu_delete(QMenu* wd) {
+    delete wd;
+}
+extern "C"  void qteQMenu_addAction(QMenu* menu, QAction *ac) {
+    menu->addAction(ac);
+}
+extern "C"  void qteQMenu_setTitle(QMenu* menu, QString *qstr) {
+    menu->setTitle(*qstr);
+}
+extern "C"  void qteQMenu_addSeparator(QMenu* menu) {
+    menu->addSeparator();
+}
+extern "C"  void qteQMenu_addMenu(QMenu* menu, QMenu* nmenu) {
+    menu->addMenu(nmenu);
+}
+// ============ QMenuBar ====================================
+extern "C"  void* qteQMenuBar_create(QWidget * parent) {
+     return new QMenuBar(parent);
+}
+extern "C" void qteQMenuBar_delete(QMenuBar* wd) {
+    delete wd;
+}
+extern "C" void qteQMenuBar_addMenu(QMenuBar* wd, QMenu* mn) {
+    wd->addMenu(mn);
+}
+// ============ QIcon =======================================
+extern "C"  void* qteQIcon_create() {
+     return new QIcon();
+}
+extern "C" void qteQIcon_delete(QIcon* wd) {
+    delete wd;
+}
+extern "C" void qteQIcon_addFile(QIcon* wd, QString *qstr, QSize* qsize ) {
+    if(qsize == NULL) {
+        wd->addFile(*qstr);
+    } else {
+        wd->addFile(*qstr, *qsize);
+    }
+}
+// ============ QToolBar ====================================
+extern "C"  void* qteQToolBar_create() {
+    return new QToolBar();
+}
+extern "C" void qteQToolBar_delete(QToolBar* wd) {
+    delete wd;
+}
+extern "C" void qteQToolBar_setXX1(QToolBar* wd, void* q, int pr) {
+    switch ( pr ) {
+    case 0:   wd->addAction((QAction*)q);      break;
+    case 1:   wd->addWidget((QWidget*)q);      break;
+    }
+}
+// ============ QDialog ====================================
+extern "C" QDialog* qteQDialog_create(QWidget* parent, Qt::WindowFlags f) {
+    return new QDialog(parent, f);
+}
+extern "C" void qteQDialog_delete(QDialog* wd) {
+    delete wd;
+}
+extern "C" int qteQDialog_exec(QDialog* wd) {
+    return wd->exec();
+}
+// ============ QMessageBox ====================================
+extern "C" QMessageBox* qteQMessageBox_create(QWidget* parent) {
+    return new QMessageBox(parent);
+}
+extern "C" void qteQMessageBox_delete(QMessageBox* wd) {
+    delete wd;
+}
+extern "C" void qteQMessageBox_setXX1(QMessageBox* wd, void* q, int pr) {
+    switch ( pr ) {
+    case 0:   wd->setText(*(QString*)q);                break;
+    case 1:   wd->setWindowTitle(*(QString*)q);         break;
+    case 2:   wd->setInformativeText(*(QString*)q);     break;
+    }
+}
+extern "C" void qteQMessageBox_setStandartButtons(QMessageBox* wd,
+        QMessageBox::StandardButton kn, int pr) {
+    switch ( pr ) {
+    case 0:   wd->setStandardButtons(kn);               break;
+    case 1:   wd->setDefaultButton(kn);                 break;
+    case 2:   wd->setEscapeButton(kn);                  break;
+    case 3:   wd->setIcon((QMessageBox::Icon)kn);   break;
+    }
 }

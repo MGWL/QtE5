@@ -47,6 +47,7 @@ private extern (C) @nogc alias t_v__qp_qp_i_i = void function(QtObjH, QtObjH, in
 
 private extern (C) @nogc alias t_v__qp_qp_i = void function(QtObjH, QtObjH, int);
 private extern (C) @nogc alias t_v__qp_qp_qp_i = void function(QtObjH, QtObjH, QtObjH, int);
+private extern (C) @nogc alias t_v__qp_qp_qp = void function(QtObjH, QtObjH, QtObjH);
 
 private extern (C) @nogc alias t_i__vp_vp_vp = int function(void*, void*, void*);
 private extern (C) @nogc alias t_i__vp_i = int function(void*, int);
@@ -352,11 +353,56 @@ int LoadQt(dll ldll, bool showError) { ///  Загрузить DLL-ки Qt и Qt
 	funQt(91, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQStatusBar_create1",			showError);
 	funQt(92, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQStatusBar_delete1",			showError);
 	funQt(93, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQStatusBar_showMessage",		showError);
+	//  ------- QAction -------
+	funQt(95, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQAction_create",				showError);
+	funQt(96, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQAction_delete",				showError);
+	funQt(97, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQAction_setXX1",				showError);
+	funQt(98, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQAction_setSlotN2",				showError);
+	funQt(105, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets,"qteQAction_setHotKey",				showError);
+	funQt(109, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets,"qteQAction_setEnabled",			showError);
+	funQt(113, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets,"qteQAction_setIcon",				showError);
+	//  ------- QMenu -------
+	funQt(99, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets,  "qteQMenu_create",					showError);
+	funQt(100, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQMenu_delete",					showError);
+	funQt(101, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQMenu_addAction",				showError);
+	funQt(106, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQMenu_setTitle",				showError);
+	funQt(107, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQMenu_addSeparator",			showError);
+	funQt(108, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQMenu_addMenu",				showError);
+	//  ------- QMenuBar -------
+	funQt(102, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQMenuBar_create",				showError);
+	funQt(103, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQMenuBar_delete",				showError);
+	funQt(104, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQMenuBar_addMenu",				showError);
+	//  ------- QIcon -------
+	funQt(110, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQIcon_create",					showError);
+	funQt(111, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQIcon_delete",					showError);
+	funQt(112, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQIcon_addFile",				showError);
+	//  ------- QToolBar -------
+	funQt(114, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQToolBar_create",				showError);
+	funQt(115, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQToolBar_delete",				showError);
+	funQt(116, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQToolBar_setXX1",				showError);
+	//  ------- QDialog -------
+	funQt(117, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQDialog_create",				showError);
+	funQt(118, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQDialog_delete",				showError);
+	funQt(119, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQDialog_exec",					showError);
+	//  ------- QDialog -------
+	funQt(120, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQMessageBox_create",			showError);
+	funQt(121, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQMessageBox_delete",			showError);
+	funQt(122, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQMessageBox_setXX1",			showError);
+	funQt(123, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQMessageBox_setStandartButtons",	showError);
 
-
-	// Последний = 94
+	// Последний = 122
 	return 0;
 } ///  Загрузить DLL-ки Qt и QtE. Найти в них адреса функций и заполнить ими таблицу
+
+static void msgbox(string text = null, string caption = null,
+	QMessageBox.Icon icon = QMessageBox.Icon.Information, QWidget parent = null) {
+	string cap, titl;
+	QMessageBox soob = new QMessageBox(parent);
+	if (caption is null) soob.setWindowTitle("Внимание!"); else soob.setWindowTitle(caption);
+	if (text    is null) soob.setText(". . . . .");        else soob.setText(text);
+	soob.setIcon(icon).setStandardButtons(QMessageBox.StandardButton.Ok);
+	try { soob.exec();	}	catch {}
+}
 
 /++
 Класс констант. В нем кое что из Qt::
@@ -677,9 +723,7 @@ class QObject {
 	private bool  fNoDelete;  /// Если T - не вызывать деструктор
 	private void* adrThis;    /// Адрес собственного экземпляра
 
-	this() {
-		// adrThis = cast(void*) &(cast(void*)this);
-	} /// спец Конструктор, что бы не делать реальный объект из Qt при наследовании
+	this() {} /// спец Конструктор, что бы не делать реальный объект из Qt при наследовании
 	~this() {
 		// writeln("~QObject ", this);
 	}
@@ -834,9 +878,7 @@ class QColor : QObject {
 
 // ================ QPaintDevice ================
 class QPaintDevice: QObject  {
-	this() {
-		// super();
-	}
+	this(){}
 }
 
 // ================ gWidget ================
@@ -872,9 +914,12 @@ class QWidget: QPaintDevice {
 	// удаляются каскадно все вложенные в него подобъекты. Однако dmd об этом
 	// ни чего не знает. По этому пришлось вставить fNoDelete, который надо
 	// установить в T если объект подвергся вставке и значит будет удален каскадно. 
+	this(){}
 	~this() {
 		if(!fNoDelete && (QtObj != null)) { (cast(t_v__qp) pFunQt[7])(QtObj); setQtObj(null); }
 	}
+
+	
 	this(QWidget parent = null, QtE.WindowType fl = QtE.WindowType.Widget) {
 		if (parent) {
 			this.setNoDelete(true);	// Не удалять текущий экземпляр, при условии, что он вставлен в другой
@@ -942,9 +987,11 @@ class QWidget: QPaintDevice {
 		return this; 
 	} /// Установить обработчик на событие ResizeWidget
 	
-	
-	QWidget setKeyPressEvent(void* adr) {
-		(cast(t_v__qp_qp) pFunQt[49])(QtObj, cast(QtObjH)adr); return this; 
+
+	QWidget setKeyPressEvent(void* adr, void* adrThis = null) {
+		//(cast(t_v__qp_qp_qp) pFunQt[80])(QtObj, cast(QtObjH)adr, cast(QtObjH)adrThis); 
+		return this; 
+		// (cast(t_v__qp_qp) pFunQt[49])(QtObj, cast(QtObjH)adr); return this; 
 	} /// Установить обработчик на событие KeyPressEvent. Здесь <u>adr</u> - адрес на функцию D +/
 	QWidget  setPaintEvent(void* adr) { 
 		(cast(t_v__qp_qp) pFunQt[50])(QtObj, cast(QtObjH)adr); return this; 
@@ -1030,6 +1077,7 @@ QPushButton (Нажимаемая кнопка), но немного модиф�
 для реакции на события.
 +/
 class QPushButton : QAbstractButton {
+	this(){}
 	this(T: QString)(T str, QWidget parent = null) {
 		// super(); // Это фактически заглушка, что бы сделать наследование,
 		// не создавая промежуточного экземпляра в Qt
@@ -1357,6 +1405,7 @@ class QAbstractScrollArea : QFrame {
 +/
 
 class QPlainTextEdit : QAbstractScrollArea {
+	this(){}
 	~this() {
 		if(!fNoDelete) { (cast(t_v__qp) pFunQt[67])(QtObj); setQtObj(null); }
 	}
@@ -1373,8 +1422,8 @@ class QPlainTextEdit : QAbstractScrollArea {
 		}
 	} /// Конструктор
 
-	override QPlainTextEdit setKeyPressEvent(void* adr) {
-		(cast(t_v__qp_qp) pFunQt[80])(QtObj, cast(QtObjH)adr); return this; 
+	override QPlainTextEdit setKeyPressEvent(void* adr, void* adrThis = null) {
+		(cast(t_v__qp_qp_qp) pFunQt[80])(QtObj, cast(QtObjH)adr, cast(QtObjH)adrThis); return this; 
 	} /// Установить обработчик на событие KeyPressEvent. Здесь <u>adr</u> - адрес на функцию D +/
 	
 	QPlainTextEdit appendPlainText(T: QString)(T str) {
@@ -1489,11 +1538,11 @@ class QLineEdit : QWidget {
 QMainWindow - основное окно приложения
 +/
 class QMainWindow : QWidget {
+	// this(){ super(); }
 	~this() {
 		if(!fNoDelete && (QtObj != null)) { (cast(t_v__qp) pFunQt[89])(QtObj); setQtObj(null); }
 	}
 	this(QWidget parent = null, QtE.WindowType fl = QtE.WindowType.Widget) {
-		// super(); 
 		if (parent) {
 			this.setNoDelete(true);	// Не удалять текущий экземпляр, при условии, что он вставлен в другой
 			setQtObj((cast(t_qp__qp_i)pFunQt[88])(parent.QtObj, cast(int)fl));
@@ -1502,10 +1551,24 @@ class QMainWindow : QWidget {
 		}
 	} /// QMainWindow::QMainWindow(QWidget * parent = 0, Qt::WindowFlags f = 0)
 	QMainWindow setCentralWidget(QWidget wd) {
-		(cast(t_v__qp_qp_i) pFunQt[90])(QtObj, wd.QtObj, 0); return this;
+		(cast(t_v__qp_qp_i) pFunQt[90])(QtObj, wd.QtObj, 0);
+		return this;
 	} /// 
 	QMainWindow setStatusBar(QStatusBar wd) {
-		(cast(t_v__qp_qp_i) pFunQt[90])(QtObj, wd.QtObj, 2); return this;
+		(cast(t_v__qp_qp_i) pFunQt[90])(QtObj, wd.QtObj, 2);
+		 return this;
+	} /// 
+	QMainWindow setMenuBar(QMenuBar wd) {
+		(cast(t_v__qp_qp_i) pFunQt[90])(QtObj, wd.QtObj, 1);
+		 return this;
+	} /// 
+	QMainWindow addToolBar(QToolBar wd) {
+		(cast(t_v__qp_qp_i) pFunQt[90])(QtObj, wd.QtObj, 3);
+		 return this;
+	} /// 
+	QMainWindow setToolBar(QToolBar wd) {
+		addToolBar(wd);
+		return this;
 	} /// 
 
 }
@@ -1536,4 +1599,314 @@ class QStatusBar : QWidget {
 	} /// Установить текст на кнопке
 }
 
+// ================ QAction ================
+/++
+QAction - это класс выполнителей (действий). Объеденяют в себе
+различные формы вызовов:
+из меню, из горячих кнопок, их панели с кнопками
+и т.д. Реально представляет собой строку меню в вертикальном боксе.
++/
+class QAction : QObject {
+	~this() {
+		if(!fNoDelete && (QtObj != null)) { (cast(t_v__qp) pFunQt[96])(QtObj); setQtObj(null); }
+	}
+	// Эксперементаьный, попытка вызвать метод, не используя Extern "C"
+	this(QWidget parent, void* adr, void* adrThis, int n = 0) {
+		if (parent) {
+			this.setNoDelete(true);	// Не удалять текущий экземпляр, при условии, что он вставлен в другой
+			setQtObj((cast(t_qp__qp)pFunQt[95])(parent.QtObj));
+		} else {
+			setQtObj((cast(t_qp__qp)pFunQt[95])(null));
+		}
+		(cast(t_v__qp_qp_qp_i)pFunQt[98])(QtObj, cast(QtObjH)adr, cast(QtObjH)adrThis, n);
+	} /// Установить слот с параметром
 
+// ----------------------------------------------------
+	QAction setText(T: QString)(T str) {
+		(cast(t_v__qp_qp_i) pFunQt[97])(QtObj, str.QtObj, 0);
+		return this;
+	} /// Установить текст
+	QAction setText(T)(T str) {
+		(cast(t_v__qp_qp_i) pFunQt[97])(QtObj, (new QString(to!string(str))).QtObj, 0);
+		return this;
+	} /// Установить текст
+	QAction setToolTip(T: QString)(T str) {
+		(cast(t_v__qp_qp_i) pFunQt[97])(QtObj, str.QtObj, 1);
+		return this;
+	} /// Установить текст
+	QAction setToolTip(T)(T str) {
+		(cast(t_v__qp_qp_i) pFunQt[97])(QtObj, (new QString(to!string(str))).QtObj, 1);
+		return this;
+	} /// Установить текст
+	QAction setHotKey(QtE.Key key) {
+		(cast(t_v__qp_i) pFunQt[105])(p_QObject, cast(int) key);
+		return this;
+	} /// Определить горячую кнопку
+// ----------------------------------------------------
+	QAction setEnabled(bool f) {
+		(cast(t_v__qp_bool) pFunQt[109])(QtObj, f);
+		return this;
+	} /// Включить/выключить пункт меню
+ 	QAction setIcon(QIcon ico) {
+		(cast(t_v__qp_qp) pFunQt[113])(QtObj, ico.QtObj);
+		return this;
+	} /// Добавить иконку
+}
+// ============ QMenu =======================================
+/++
+QMenu - колонка меню. Вертикальная.
++/
+class QMenu : QWidget {
+	~this() {
+		if(!fNoDelete && (QtObj != null)) { (cast(t_v__qp) pFunQt[100])(QtObj); setQtObj(null); }
+	}
+	this(QWidget parent) {
+		if (parent) {
+			this.setNoDelete(true);
+			setQtObj((cast(t_qp__qp)pFunQt[99])(parent.QtObj));
+		} else {
+			setQtObj((cast(t_qp__qp)pFunQt[99])(null));
+		}
+	} /// QMenu::QMenu(QWidget* parent)
+ 	QMenu addAction(QAction act) {
+		(cast(t_v__qp_qp) pFunQt[101])(QtObj, act.QtObj);
+		return this;
+	} /// Вставить вертикальное меню
+	QMenu setTitle(T: QString)(T str) {
+		(cast(t_v__qp_qp_i) pFunQt[106])(QtObj, str.QtObj, 1);
+		return this;
+	} /// Установить текст
+	QMenu setTitle(T)(T str) {
+		(cast(t_v__qp_qp_i) pFunQt[106])(QtObj, (new QString(to!string(str))).QtObj, 1);
+		return this;
+	} /// Установить текст
+	QMenu addSeparator() {
+		(cast(t_v__qp) pFunQt[107])(QtObj);
+		return this;
+	}
+	QMenu addMenu(QMenu menu) {
+		(cast(t_v__qp_qp) pFunQt[108])(QtObj, menu.QtObj);
+		return this;
+	}
+	
+/*	
+	void addSeparator() {
+		(cast(t_v__vp) pFunQt[85])(p_QObject);
+	} /// Добавить сепаратор
+	void setTitle(QString str) {
+		(cast(t_v__vp_vp) pFunQt[86])(p_QObject, cast(void*) str.QtObj);
+	}
+
+	void setTitle(string str) {
+		(cast(t_v__vp_vp) pFunQt[86])(QtObj, (new QString(str)).QtObj);
+	} /// Установить текст
+ */
+
+}
+
+// ============ QMenuBar =======================================
+/++
+QMenuBar - строка меню самого верхнего уровня. Горизонтальная.
++/
+class QMenuBar : QWidget {
+	~this() {
+		if(!fNoDelete && (QtObj != null)) { (cast(t_v__qp) pFunQt[103])(QtObj); setQtObj(null); }
+	}
+	this(QWidget parent) {
+		if (parent) {
+			this.setNoDelete(true);
+			setQtObj((cast(t_qp__qp)pFunQt[102])(parent.QtObj));
+		} else {
+			setQtObj((cast(t_qp__qp)pFunQt[102])(null));
+		}
+	} /// QMenuBar::QMenuBar(QWidget* parent)
+ 	QMenuBar addMenu(QMenu mn) {
+		(cast(t_v__qp_qp) pFunQt[104])(QtObj, mn.QtObj);
+		return this;
+	} /// Вставить вертикальное меню
+}
+// ================ QIcon ================
+class QIcon : QObject {
+	~this() {
+		if(!fNoDelete) { (cast(t_v__qp) pFunQt[111])(QtObj); setQtObj(null); }
+	}
+	this() {
+		setQtObj((cast(t_qp__v)pFunQt[110])());
+	}
+	QIcon addFile(T: QString)(T str, QSize qs = null) {
+		if(qs is null) {
+			(cast(t_v__qp_qp_qp) pFunQt[112])(QtObj, str.QtObj, null);
+		} else {
+			(cast(t_v__qp_qp_qp) pFunQt[112])(QtObj, str.QtObj, qs.QtObj);
+		}
+		return this;
+	}
+	QIcon addFile(T)(T str, QSize qs = null) {
+		if(qs is null) {
+			(cast(t_v__qp_qp_qp) pFunQt[112])(QtObj, (new QString(to!string(str))).QtObj, null);
+		} else {
+			(cast(t_v__qp_qp_qp) pFunQt[112])(QtObj, (new QString(to!string(str))).QtObj, qs.QtObj);
+		}
+		return this;
+	}
+}
+// ================ QToolBar ================
+class QToolBar : QWidget {
+	~this() {
+		if(!fNoDelete && (QtObj != null)) { (cast(t_v__qp) pFunQt[115])(QtObj); setQtObj(null); }
+	}
+	this(QWidget parent) {
+		if (parent) {
+			this.setNoDelete(true);
+			setQtObj((cast(t_qp__qp)pFunQt[114])(parent.QtObj));
+		} else {
+			setQtObj((cast(t_qp__qp)pFunQt[114])(null));
+		}
+	} /// QToolBar::QToolBar(QWidget* parent)
+	void addAction(QAction ac) {
+		(cast(t_v__qp_qp_i) pFunQt[116])(QtObj, ac.QtObj, 0);
+	} /// Вставить Action
+	void addWidget(QWidget wd) {
+		(cast(t_v__qp_qp_i) pFunQt[116])(QtObj, wd.QtObj, 1);
+	} /// Добавить виджет в QToolBar
+}
+// ================ QDialog ================
+class QDialog : QWidget {
+	this() {}
+	~this() {
+		if(!fNoDelete) { (cast(t_v__qp) pFunQt[118])(QtObj); setQtObj(null); }
+	}
+	this(QWidget parent, QtE.WindowType fl = QtE.WindowType.Widget) {
+		if (parent) {
+			this.setNoDelete(true);	// Не удалять текущий экземпляр, при условии, что он вставлен в другой
+			setQtObj((cast(t_qp__qp_i) pFunQt[117])(parent.QtObj, fl));
+		} else {
+			setQtObj((cast(t_qp__qp_i) pFunQt[117])(null, fl));
+		}
+	} /// Конструктор
+	int exec() {
+		return (cast(t_i__qp) pFunQt[119])(QtObj);
+	} /// Обычный QDialog::exec()
+}
+// ================ QMessageBox ================
+/++
+QMessageBox - это стандартный класс сообщений.
++/
+class QMessageBox : QDialog {
+	enum Icon {
+		NoIcon = 0,
+		Information = 1,
+		Warning = 2,
+		Critical = 3,
+		Question = 4
+	}
+
+	enum ButtonRole {
+		// keep this in sync with QDialogButtonBox::ButtonRole
+		InvalidRole = -1,
+		AcceptRole,
+		RejectRole,
+		DestructiveRole,
+		ActionRole,
+		HelpRole,
+		YesRole,
+		NoRole,
+		ResetRole,
+		ApplyRole,
+
+		NRoles
+	}
+
+	enum StandardButton {
+		// keep this in sync with QDialogButtonBox::StandardButton
+		NoButton = 0x00000000,
+		Ok = 0x00000400,
+		Save = 0x00000800,
+		SaveAll = 0x00001000,
+		Open = 0x00002000,
+		Yes = 0x00004000,
+		YesToAll = 0x00008000,
+		No = 0x00010000,
+		NoToAll = 0x00020000,
+		Abort = 0x00040000,
+		Retry = 0x00080000,
+		Ignore = 0x00100000,
+		Close = 0x00200000,
+		Cancel = 0x00400000,
+		Discard = 0x00800000,
+		Help = 0x01000000,
+		Apply = 0x02000000,
+		Reset = 0x04000000,
+		RestoreDefaults = 0x08000000,
+
+		FirstButton = Ok, // internal
+		LastButton = RestoreDefaults, // internal
+
+		YesAll = YesToAll, // obsolete
+		NoAll = NoToAll, // obsolete
+
+		Default = 0x00000100, // obsolete
+		Escape = 0x00000200, // obsolete
+		FlagMask = 0x00000300, // obsolete
+		ButtonMask = ~FlagMask // obsolete
+	}
+
+	alias Button = StandardButton;
+
+	this() {}
+	~this() {
+		if(!fNoDelete) { (cast(t_v__qp) pFunQt[121])(QtObj); setQtObj(null); }
+	}
+	this(QWidget parent) {
+		if (parent) {
+			this.setNoDelete(true);	// Не удалять текущий экземпляр, при условии, что он вставлен в другой
+			setQtObj((cast(t_qp__qp) pFunQt[120])(parent.QtObj));
+		} else {
+			setQtObj((cast(t_qp__qp) pFunQt[120])(null));
+		}
+	} /// Конструктор
+	QMessageBox setText(T: QString)(T str) {
+		(cast(t_v__qp_qp_i) pFunQt[122])(QtObj, str.QtObj, 0);
+		return this;
+	} /// Установить текст
+	QMessageBox setText(T)(T str) {
+		QMessageBox.setText(new QString(to!string(str)));
+		return this;
+	} /// Установить текст
+	QMessageBox setWindowTitle(T: QString)(T str) {
+		(cast(t_v__qp_qp_i) pFunQt[122])(QtObj, str.QtObj, 1);
+		return this;
+	} /// Установить текст
+	QMessageBox setWindowTitle(T)(T str) {
+		QMessageBox.setWindowTitle(new QString(to!string(str)));
+		return this;
+	} /// Установить текст
+	QMessageBox setInformativeText(T: QString)(T str) {
+		(cast(t_v__qp_qp_i) pFunQt[122])(QtObj, str.QtObj, 2);
+		return this;
+	} /// Установить текст
+	QMessageBox setInformativeText(T)(T str) {
+		QMessageBox.setInformativeText(new QString(to!string(str)));
+		return this;
+	} /// Установить текст
+	QMessageBox setStandardButtons(QMessageBox.StandardButton buttons) {
+		(cast(t_v__qp_qp_i) pFunQt[123])(QtObj, cast(QtObjH)buttons, 0);
+		return this;
+	} /// Установить стандартный набор кнопок
+	QMessageBox setDefaultButton(QMessageBox.StandardButton buttons) {
+		(cast(t_v__qp_qp_i) pFunQt[123])(QtObj, cast(QtObjH)buttons, 1);
+		return this;
+	} /// Установить кнопку по умолчанию
+	QMessageBox setEscapeButton(QMessageBox.StandardButton buttons) {
+		(cast(t_v__qp_qp_i) pFunQt[123])(QtObj, cast(QtObjH)buttons, 2);
+		return this;
+	} /// Установить кнопку отмены
+	QMessageBox setIcon(QMessageBox.Icon icon) {
+		(cast(t_v__qp_qp_i) pFunQt[123])(QtObj, cast(QtObjH)icon, 3);
+		return this;
+	} /// Установить стандартную иконку из числа QMessage.Icon. (NoIcon, Information, Warning, Critical, Question)
+	
+	
+	
+	
+}
