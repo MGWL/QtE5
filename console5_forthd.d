@@ -46,6 +46,7 @@ console5_forthd [-d, -e, -i] ...
  
 // Форма для работы  
 class FormaMain: QMainWindow {
+	// ____________________________________________________________________
 	QFrame			frAll;			// Общий фрейм для всей формы
 	QHBoxLayout 	hblKeys;		// Выравниватель для кнопок горизонтальный
 	QVBoxLayout 	vblAll;			// Общий вертикальный выравниватель
@@ -60,7 +61,8 @@ class FormaMain: QMainWindow {
 	QMenuBar mb1;
 	
 	QFrame wdhelp;
-
+	// ____________________________________________________________________
+	// Конструктор по умолчанию
 	this() {
 		mainWid = new QWidget(this);
 		// Горизонтальный выравниватель для кнопок
@@ -85,15 +87,27 @@ class FormaMain: QMainWindow {
 		vblAll.addWidget(teLog).addWidget(leCmdStr).addLayout(hblKeys);
 		mainWid.setLayout(vblAll);
 		
-		setCentralWidget(mainWid);
-		setWindowTitle("--- Консоль forthD на QtE5 ---");
-        resize(700, 400);
+		setCentralWidget(mainWid); setWindowTitle("--- Консоль forthD на QtE5 ---"); resize(700, 400);
 		
-		// В конструкторе 2 адреса. Второй адрес this нашего экземпляра
+		// Определим наиновейший обработчик на основе QAction для Eval
+		QAction acEval = new QAction(null, &on_knEval, aThis); 
+		acEval.setText("Eval(string)").setHotKey(QtE.Key.Key_R | QtE.Key.Key_ControlModifier);
+		acEval.setIcon("ICONS/continue.ico").setToolTip("Выполнить! как строку в Eval()");
+		// -------- Связываю три сигнала с одним слотом -----------
+		// Связываю сигнал QMenu::returnPressed() с слотом action acEval
+		connects(acEval, "triggered()", acEval, "Slot()");
+		// Связываю сигнал QLineEdit::returnPressed() с слотом action acEval
+		connects(knEval, "clicked()",   acEval, "Slot()");
+		// Связываю сигнал QLineEdit::returnPressed() с слотом action acEval
+		connects(leCmdStr,"returnPressed()", acEval, "Slot()");
+		
+		
+		
+/* 		// В конструкторе 2 адреса. Второй адрес this нашего экземпляра
 		QSlot slotKnEval = new QSlot(&on_knEval, aThis);
 		// связываем кнопку с нашим слотом и обработчиком
 		connect(knEval.QtObj, MSS("clicked()", QSIGNAL), slotKnEval.QtObj, MSS("Slot()", QSLOT));
-
+ */
 		QSlot slotKnLoad = new QSlot(&on_knLoad, aThis);
 		// связываем кнопку с нашим слотом и обработчиком
 		connect(knLoad.QtObj, MSS("clicked()", QSIGNAL), slotKnLoad.QtObj, MSS("Slot()", QSLOT));
@@ -105,7 +119,7 @@ class FormaMain: QMainWindow {
 		connect(knHelp.QtObj, MSS("clicked()", QSIGNAL), slotKnHelp.QtObj, MSS("Slot()", QSLOT));
 		
 		// Связываю настоящий сигнал QLineEdit::returnPressed() со своим слотом &on_knEval
-		connect(leCmdStr.QtObj, MSS("returnPressed()", QSIGNAL), slotKnEval.QtObj, MSS("Slot()", QSLOT));
+		// connect(leCmdStr.QtObj, MSS("returnPressed()", QSIGNAL), slotKnEval.QtObj, MSS("Slot()", QSLOT));
 				
 		// ---- Forth ----
 		// initForth(); 		// Активизируем Форт
@@ -127,13 +141,15 @@ class FormaMain: QMainWindow {
 		menu2.addAction(ma3);
 		menu2.addAction(ma2); ma2.setEnabled(false);
 		
- 		menu1 = new QMenu(this); menu1.setTitle("Help");
-		menu1.addAction(slotKnHelp);
-		menu1.addMenu(menu2);
-		menu1.addSeparator();
-		menu1.addAction(ma2);
+ 		menu1 = new QMenu(this); 
+		menu1.setTitle("Help")
+			.addAction(		acEval		)
+			.addAction(		slotKnHelp	)
+			.addMenu(		menu2		)
+			.addSeparator(				)
+			.addAction(		ma2			);
 		
-		tb = new QToolBar(this); tb.addAction(ma3);
+		tb = new QToolBar(this); tb.addAction(acEval).addAction(ma3);
 		setToolBar(tb);
 		
 		connect(slotKnHelp.QtObj, MSS("triggered()", QSIGNAL), slotKnHelp.QtObj, MSS("Slot()", QSLOT));
@@ -144,26 +160,33 @@ class FormaMain: QMainWindow {
  		
 		
 	}
+	// ____________________________________________________________________
 	// Вывод на экран команды и очистка строчного редактора
 	void updateKmd(string cmd) {
 		teLog.appendPlainText(cmd); leCmdStr.clear();
 	}
+	// ____________________________________________________________________
 	// Выполнить строку форта
 	void EvalString() {
- 	    // string cmd = strip(leCmdStr.text!string());
+ 	    string cmd = strip(leCmdStr.text!string());
 		// if(cmd.length != 0) { evalForth(cmd); updateKmd(cmd); }
+		msgbox("Eval() = [" ~ cmd ~ "]", "Eval()");
 	}
+	// ____________________________________________________________________
 	// INCLUDE
 	void IncludedFile() {
 	    // string cmd = strip(leCmdStr.text!string());
 		// if(cmd.length != 0) { includedForth(cmd); updateKmd(cmd); }
 	}
+	// ____________________________________________________________________
 	// Help
 	void Help() {
 		writeln(toCON("Help()"));
 		// Попробуем изготовить QMessageBox()
 		msgbox();
 	}
+	// ____________________________________________________________________
+	// Проверка обработки событий
 	void* workPress(void* ev) {
 		// 1 - Схватить событие пришедшее из Qt и сохранить его в моём классе
 		QKeyEvent qe = new QKeyEvent('+', ev); 
@@ -178,21 +201,26 @@ class FormaMain: QMainWindow {
 		return ev;
 	}
 }
- 
+
+// ____________________________________________________________________
+QApplication app;		// Само приложение
+
+// ____________________________________________________________________
 int main(string[] args) {
 	bool fDebug;		// T - выдавать диагностику загрузки QtE5
 	string sEval;		// Строка для выполнения eval
 	string sInclude;	// Строка с именем файла для INCLUDE
 	
   	// Разбор аргументов коммандной строки
- 	try {
+   	try {
 		auto helpInformation = getopt(args, std.getopt.config.caseInsensitive,
 			"d|debug",   toCON("включить диагностику QtE5"), &fDebug,
 			"e|eval",    toCON("выполнить строку-команду в форт"), &sEval,
 			"i|include", toCON("имя файла для INCLUDE"), &sInclude);
 		if (helpInformation.helpWanted) defaultGetoptPrinter(helps(), helpInformation.options);
 	} catch { writeln(toCON("Ошибка разбора аргументов командной стоки ...")); return 1; }
-	
+
+
 	// Загрузка графической библиотеки
 	if (1 == LoadQt(dll.QtE5Widgets, fDebug)) return 1;  // Выйти,если ошибка загрузки библиотеки
 	// Изготавливаем само приложение

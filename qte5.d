@@ -531,17 +531,8 @@ class QtE {
 		Key_Minus = 0x2d,
 		Key_Period = 0x2e,
 		Key_Slash = 0x2f,
-		Key_0 = 0x30,
-		Key_1 = 0x31,
-		Key_2 = 0x32,
-		Key_3 = 0x33,
-		Key_4 = 0x34,
-		Key_5 = 0x35,
-		Key_6 = 0x36,
-		Key_7 = 0x37,
-		Key_8 = 0x38,
-		Key_9 = 0x39,
-		Key_Colon = 0x3a,
+		Key_0 = 0x30,Key_1 = 0x31,Key_2 = 0x32,Key_3 = 0x33,Key_4 = 0x34,Key_5 = 0x35,
+		Key_6 = 0x36,Key_7 = 0x37,Key_8 = 0x38,Key_9 = 0x39,Key_Colon = 0x3a,
 		Key_Semicolon = 0x3b,
 		Key_Less = 0x3c,
 		Key_Equal = 0x3d,
@@ -746,6 +737,12 @@ class QObject {
 	void connect(void* obj1, char* ssignal, void* obj2, char* sslot, 
 			QObject.ConnectionType type = QObject.ConnectionType.AutoConnection) {
 		(cast(t_QObject_connect) pFunQt[27])(obj1, ssignal, obj2, sslot, cast(int)type);
+	}
+	void connects(QObject obj1, string ssignal, QObject obj2, string sslot) {
+		(cast(t_QObject_connect) pFunQt[27])(
+			(cast(QObject)obj1).QtObj, MSS(ssignal, QSIGNAL), 
+			(cast(QObject)obj2).QtObj, MSS(sslot, QSLOT), 
+		cast(int)QObject.ConnectionType.AutoConnection);
 	}
 	/// Запомнить указатель на собственный экземпляр
 	void saveThis(void* adr) {
@@ -1651,6 +1648,10 @@ class QAction : QObject {
 		(cast(t_v__qp_qp) pFunQt[113])(QtObj, ico.QtObj);
 		return this;
 	} /// Добавить иконку
+ 	QAction setIcon(string fileIco) {
+		QIcon ico = new QIcon(); ico.addFile(fileIco); setIcon(ico);
+		return this;
+	} /// Добавить иконку используя имя файла и неявное создание
 }
 // ============ QMenu =======================================
 /++
@@ -1763,11 +1764,13 @@ class QToolBar : QWidget {
 			setQtObj((cast(t_qp__qp)pFunQt[114])(null));
 		}
 	} /// QToolBar::QToolBar(QWidget* parent)
-	void addAction(QAction ac) {
+	QToolBar addAction(QAction ac) {
 		(cast(t_v__qp_qp_i) pFunQt[116])(QtObj, ac.QtObj, 0);
+		return this;
 	} /// Вставить Action
-	void addWidget(QWidget wd) {
+	QToolBar addWidget(QWidget wd) {
 		(cast(t_v__qp_qp_i) pFunQt[116])(QtObj, wd.QtObj, 1);
+		return this;
 	} /// Добавить виджет в QToolBar
 }
 // ================ QDialog ================
