@@ -54,9 +54,8 @@ extern "C" QStatusBar* qteQStatusBar_create1(QWidget* parent) {
 extern "C" void qteQStatusBar_delete1(QStatusBar* wd) {
     delete wd;
 }
-extern "C" void qteQStatusBar_showMessage(QStatusBar* wd, QString* qs, int ms) {
-    ((QWidget*)wd)->setStyleSheet(*(QString*)qs);
-    wd->showMessage(*qs, ms);
+extern "C" void qteQStatusBar_showMessage(QStatusBar* wd, QString* qs) {
+    wd->showMessage(*qs);
 }
 
 // =========== QMainWinsow ==========
@@ -77,6 +76,9 @@ extern "C" void qteQMainWindow_setXX(QMainWindow* wd, QWidget* s, int pr) {
         case 2:   wd->setStatusBar((QStatusBar*)s);     break;
         case 3:   wd->addToolBar((QToolBar*)s);         break;
     }
+}
+extern "C" void qteQMainWindow_addToolBar(QMainWindow* wd, QToolBar* s, Qt::ToolBarArea pr) {
+    wd->addToolBar(pr, s);
 }
 
 // =========== QWidget ==========
@@ -195,6 +197,9 @@ extern "C" void qteQWidget_exWin2(QWidget* wd, int pr, int w, int h) {
     case 0:   wd->move(w, h);            break;
     case 1:   wd->resize(w, h);          break;
     }
+}
+extern "C" void qteQWidget_setFont(QWidget* wd, QFont* fn) {
+    wd->setFont(*fn);
 }
 
 // =========== QString ==========
@@ -565,6 +570,20 @@ extern "C" void qteQMenuBar_delete(QMenuBar* wd) {
 extern "C" void qteQMenuBar_addMenu(QMenuBar* wd, QMenu* mn) {
     wd->addMenu(mn);
 }
+// ============ QFont =======================================
+extern "C"  void* qteQFont_create() {
+     return new QFont();
+}
+extern "C" void qteQFont_delete(QFont* wd) {
+    delete wd;
+}
+extern "C" void qteQFont_setPointSize(QFont* wd, int pr) {
+    wd->setPointSize(pr);
+}
+extern "C" void qteQFont_setFamily(QFont* wd, QString *qstr) {
+    wd->setFamily(*qstr);
+}
+
 // ============ QIcon =======================================
 extern "C"  void* qteQIcon_create() {
      return new QIcon();
@@ -591,6 +610,12 @@ extern "C" void qteQToolBar_setXX1(QToolBar* wd, void* q, int pr) {
     case 0:   wd->addAction((QAction*)q);      break;
     case 1:   wd->addWidget((QWidget*)q);      break;
     }
+}
+extern "C" void qteQToolBar_setAllowedAreas(QToolBar* wd, Qt::ToolBarArea pr) {
+    wd->setAllowedAreas(pr);
+}
+extern "C" void qteQToolBar_setToolButtonStyle(QToolBar* wd, Qt::ToolButtonStyle pr) {
+    wd->setToolButtonStyle(pr);
 }
 // ============ QDialog ====================================
 extern "C" QDialog* qteQDialog_create(QWidget* parent, Qt::WindowFlags f) {

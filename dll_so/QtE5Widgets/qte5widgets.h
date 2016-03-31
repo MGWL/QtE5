@@ -24,6 +24,7 @@
 #include <QToolBar>
 #include <QDialog>
 #include <QMessageBox>
+#include <QFont>
 
 typedef int PTRINT;
 typedef unsigned int PTRUINT;

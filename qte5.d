@@ -349,6 +349,7 @@ int LoadQt(dll ldll, bool showError) { ///  Загрузить DLL-ки Qt и Qt
 	funQt(88, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQMainWindow_create1",			showError);
 	funQt(89, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQMainWindow_delete1",			showError);
 	funQt(90, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQMainWindow_setXX",				showError);
+	funQt(126, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQMainWindow_addToolBar",		showError);
 	//  ------- QStatusBar -------
 	funQt(91, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQStatusBar_create1",			showError);
 	funQt(92, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQStatusBar_delete1",			showError);
@@ -380,6 +381,10 @@ int LoadQt(dll ldll, bool showError) { ///  Загрузить DLL-ки Qt и Qt
 	funQt(114, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQToolBar_create",				showError);
 	funQt(115, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQToolBar_delete",				showError);
 	funQt(116, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQToolBar_setXX1",				showError);
+
+	funQt(124, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQToolBar_setAllowedAreas",		showError);
+	funQt(125, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQToolBar_setToolButtonStyle",	showError);
+
 	//  ------- QDialog -------
 	funQt(117, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQDialog_create",				showError);
 	funQt(118, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQDialog_delete",				showError);
@@ -390,7 +395,7 @@ int LoadQt(dll ldll, bool showError) { ///  Загрузить DLL-ки Qt и Qt
 	funQt(122, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQMessageBox_setXX1",			showError);
 	funQt(123, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQMessageBox_setStandartButtons",	showError);
 
-	// Последний = 122
+	// Последний = 125
 	return 0;
 } ///  Загрузить DLL-ки Qt и QtE. Найти в них адреса функций и заполнить ими таблицу
 
@@ -734,15 +739,17 @@ class QObject {
 	@property void* aQtObj() {
 		return &p_QObject;
 	} /// Выдать указатель на p_QObject
-	void connect(void* obj1, char* ssignal, void* obj2, char* sslot, 
+	QObject connect(void* obj1, char* ssignal, void* obj2, char* sslot, 
 			QObject.ConnectionType type = QObject.ConnectionType.AutoConnection) {
 		(cast(t_QObject_connect) pFunQt[27])(obj1, ssignal, obj2, sslot, cast(int)type);
+		return this;
 	}
-	void connects(QObject obj1, string ssignal, QObject obj2, string sslot) {
+	QObject connects(QObject obj1, string ssignal, QObject obj2, string sslot) {
 		(cast(t_QObject_connect) pFunQt[27])(
 			(cast(QObject)obj1).QtObj, MSS(ssignal, QSIGNAL), 
 			(cast(QObject)obj2).QtObj, MSS(sslot, QSLOT), 
 		cast(int)QObject.ConnectionType.AutoConnection);
+		return this;
 	}
 	/// Запомнить указатель на собственный экземпляр
 	void saveThis(void* adr) {
@@ -1567,6 +1574,10 @@ class QMainWindow : QWidget {
 		addToolBar(wd);
 		return this;
 	} /// 
+	QMainWindow addToolBar(QToolBar.ToolBarArea st, QToolBar wd) {
+		(cast(t_v__qp_qp_i) pFunQt[126])(QtObj, wd.QtObj, st);
+		 return this;
+	} /// добавить ToolBar используя рамещение внизу,вверху т т.д.
 
 }
 // ================ QStatusBar ================
@@ -1753,6 +1764,21 @@ class QIcon : QObject {
 }
 // ================ QToolBar ================
 class QToolBar : QWidget {
+	enum ToolButtonStyle {
+		ToolButtonIconOnly = 0,				// Only display the icon.
+		ToolButtonTextOnly = 1,				// Only display the text.
+		ToolButtonTextBesideIcon = 2,		// The text appears beside the icon.
+		ToolButtonTextUnderIcon = 3,		// The text appears under the icon.
+		ToolButtonFollowStyle = 4			// Follow the style.
+	}
+	enum ToolBarArea {
+		LeftToolBarArea	= 0x1,
+		RightToolBarArea = 0x2,
+		TopToolBarArea = 0x4,
+		BottomToolBarArea = 0x8,
+		NoToolBarArea =	0
+	}
+
 	~this() {
 		if(!fNoDelete && (QtObj != null)) { (cast(t_v__qp) pFunQt[115])(QtObj); setQtObj(null); }
 	}
@@ -1772,6 +1798,15 @@ class QToolBar : QWidget {
 		(cast(t_v__qp_qp_i) pFunQt[116])(QtObj, wd.QtObj, 1);
 		return this;
 	} /// Добавить виджет в QToolBar
+	
+	QToolBar setToolButtonStyle(QToolBar.ToolButtonStyle st) {
+		(cast(t_v__qp_i) pFunQt[125])(QtObj, st);
+		return this;
+	} /// Установить стиль кнопок в ToolBar
+	QToolBar setAllowedAreas(QToolBar.ToolBarArea st) {
+		(cast(t_v__qp_i) pFunQt[124])(QtObj, st);
+		return this;
+	} /// Где возможно размещение ToolBar, а не где он будет размещён
 }
 // ================ QDialog ================
 class QDialog : QWidget {
