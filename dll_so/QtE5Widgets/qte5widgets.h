@@ -25,6 +25,10 @@
 #include <QDialog>
 #include <QMessageBox>
 #include <QFont>
+#include <QProgressBar>
+#include <QDate>
+#include <QTime>
+#include <QFileDialog>
 
 typedef int PTRINT;
 typedef unsigned int PTRUINT;

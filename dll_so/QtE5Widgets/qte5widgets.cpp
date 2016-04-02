@@ -201,6 +201,9 @@ extern "C" void qteQWidget_exWin2(QWidget* wd, int pr, int w, int h) {
 extern "C" void qteQWidget_setFont(QWidget* wd, QFont* fn) {
     wd->setFont(*fn);
 }
+extern "C" void* qteQWidget_winid(QWidget* wd) {
+    return (void*)wd->winId();
+}
 
 // =========== QString ==========
 extern "C" QtRefH qteQString_create1(void) {
@@ -583,7 +586,6 @@ extern "C" void qteQFont_setPointSize(QFont* wd, int pr) {
 extern "C" void qteQFont_setFamily(QFont* wd, QString *qstr) {
     wd->setFamily(*qstr);
 }
-
 // ============ QIcon =======================================
 extern "C"  void* qteQIcon_create() {
      return new QIcon();
@@ -617,6 +619,13 @@ extern "C" void qteQToolBar_setAllowedAreas(QToolBar* wd, Qt::ToolBarArea pr) {
 extern "C" void qteQToolBar_setToolButtonStyle(QToolBar* wd, Qt::ToolButtonStyle pr) {
     wd->setToolButtonStyle(pr);
 }
+extern "C" void qteQToolBar_addSeparator(QToolBar* wd, int pr) {
+    switch ( pr ) {
+    case 0:   wd->addSeparator();       break;
+    case 1:   wd->clear();              break;
+    }
+}
+
 // ============ QDialog ====================================
 extern "C" QDialog* qteQDialog_create(QWidget* parent, Qt::WindowFlags f) {
     return new QDialog(parent, f);
@@ -649,4 +658,96 @@ extern "C" void qteQMessageBox_setStandartButtons(QMessageBox* wd,
     case 2:   wd->setEscapeButton(kn);                  break;
     case 3:   wd->setIcon((QMessageBox::Icon)kn);   break;
     }
+}
+// ============ QProgressBar ====================================
+extern "C" QProgressBar* qteQProgressBar_create(QWidget* parent) {
+    return new QProgressBar(parent);
+}
+extern "C" void qteQProgressBar_delete(QProgressBar* wd) {
+    delete wd;
+}
+extern "C" void qteQProgressBar_setPr(QProgressBar* wd, int arg, int pr) {
+    switch ( pr ) {
+    case 0:   wd->setMinimum(arg);               break;
+    case 1:   wd->setMaximum(arg);                break;
+    case 2:   wd->setValue(arg);                 break;
+    }
+}
+// ============ QDate =======================================
+extern "C"  void* qteQDate_create() {
+    QDate* dd = new QDate(); *dd = dd->currentDate();
+    return dd;
+}
+extern "C" void qteQDate_delete(QDate* wd) {
+    delete wd;
+}
+extern "C" QString* qteQDate_toString(QDate* d, QString* rez, QString* shabl) {
+//    QMessageBox msgBox; msgBox.setText(*shabl);    msgBox.exec();
+    *rez = d->toString(*shabl);
+    return rez;
+}
+extern "C" void qteQDate_currentDate(QDate* d) {
+//    QMessageBox msgBox; msgBox.setText(*shabl);    msgBox.exec();
+    *d = d->currentDate();
+}
+
+// ============ QTime =======================================
+extern "C"  void* qteQTime_create() {
+    QTime* dd = new QTime(); *dd = dd->currentTime();
+    return dd;
+}
+extern "C" void qteQTime_delete(QTime* wd) {
+    delete wd;
+}
+extern "C" QString* qteQTime_toString(QTime* d, QString* rez, QString* shabl) {
+//    QMessageBox msgBox; msgBox.setText(*shabl);    msgBox.exec();
+    *rez = d->toString(*shabl);
+    return rez;
+}
+extern "C" void qteQTime_currentTime(QTime* d) {
+//    QMessageBox msgBox; msgBox.setText(*shabl);    msgBox.exec();
+    *d = d->currentTime();
+}
+// =========== QFileDialog ==========
+extern "C" QFileDialog* qteQFileDialog_create(QWidget* parent, Qt::WindowFlags f) {
+    return new QFileDialog(parent, f);
+}
+extern "C" void qteQFileDialog_delete(QFileDialog* wd) {
+    delete wd;
+}
+extern "C" void qteQFileDialog_setNameFilter(QFileDialog* wd, QString *qstr, int pr) {
+    switch ( pr ) {
+    case 0:   wd->setNameFilter(*qstr);                 break;
+    case 1:   wd->selectFile(*qstr);                    break;
+    case 2:   wd->setDirectory(*qstr);                  break;
+    case 3:   wd->setDefaultSuffix(*qstr);              break;
+    }
+
+}
+extern "C" void qteQFileDialog_setViewMode(QFileDialog* wd, QFileDialog::ViewMode f) {
+    wd->setViewMode(f);
+}
+extern "C" QString* qteQFileDialog_getOpenFileName(
+        QFileDialog* wd,
+        QWidget* parent,
+        QString* rez,
+        QString* caption,
+        QString* dir,
+        QString* filter,
+        QString* selectedFilter,
+        QFileDialog::Option f) {
+    *rez = wd->getOpenFileName(parent,*caption,*dir,*filter,selectedFilter,f);
+    return rez;
+}
+extern "C" QString* qteQFileDialog_getSaveFileName(
+        QFileDialog* wd,
+        QWidget* parent,
+        QString* rez,
+        QString* caption,
+        QString* dir,
+        QString* filter,
+        QString* selectedFilter,
+        QFileDialog::Option f) {
+    *rez = wd->getSaveFileName(parent,*caption,*dir,*filter,selectedFilter,f);
+    return rez;
 }

@@ -11,8 +11,8 @@ import std.stdio;
 
 
 int verQt5Eu = 0;
-int verQt5El = 02;
-string verQt5Ed = "28.02.16 12:45";
+int verQt5El = 03;
+string verQt5Ed = "02.03.16 12:45";
 
 alias PTRINT = int;
 alias PTRUINT = uint;
@@ -41,6 +41,7 @@ private extern (C) @nogc alias t_v__qp_vp = void function(QtObjH, void*);
 private extern (C) @nogc alias t_v__qp_i = void function(QtObjH, int);
 private extern (C) @nogc alias t_v__vp_c = void function(void*, char);
 
+private extern (C) @nogc alias t_vp__qp = void* function(void*);
 private extern (C) @nogc alias t_v__vp_vp_vp = void function(void*, void*, void*);
 private extern (C) @nogc alias t_v__qp_i_i = void function(QtObjH, int, int);
 private extern (C) @nogc alias t_v__qp_qp_i_i = void function(QtObjH, QtObjH, int, int);
@@ -265,6 +266,9 @@ int LoadQt(dll ldll, bool showError) { ///  Загрузить DLL-ки Qt и Qt
 	funQt(50, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQWidget_setPaintEvent",   showError);
 	funQt(51, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQWidget_setCloseEvent",   showError);
 	funQt(52, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQWidget_setResizeEvent",  showError);
+
+	funQt(131,bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQWidget_setFont",         showError);
+	funQt(148,bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQWidget_winid",           showError);
 	// ------- QString -------
 	funQt(8,  bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQString_create1",         showError);
 	funQt(9,  bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQString_create2",         showError);
@@ -385,6 +389,8 @@ int LoadQt(dll ldll, bool showError) { ///  Загрузить DLL-ки Qt и Qt
 	funQt(124, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQToolBar_setAllowedAreas",		showError);
 	funQt(125, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQToolBar_setToolButtonStyle",	showError);
 
+	funQt(132, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQToolBar_addSeparator",		showError);
+	
 	//  ------- QDialog -------
 	funQt(117, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQDialog_create",				showError);
 	funQt(118, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQDialog_delete",				showError);
@@ -394,8 +400,34 @@ int LoadQt(dll ldll, bool showError) { ///  Загрузить DLL-ки Qt и Qt
 	funQt(121, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQMessageBox_delete",			showError);
 	funQt(122, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQMessageBox_setXX1",			showError);
 	funQt(123, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQMessageBox_setStandartButtons",	showError);
+	//  ------- QFont -------
+	funQt(127, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQFont_create",					showError);
+	funQt(128, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQFont_delete",					showError);
+	funQt(129, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQFont_setPointSize",			showError);
+	funQt(130, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQFont_setFamily",				showError);
+	//  ------- QProgressBar -------
+	funQt(133, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQProgressBar_create",			showError);
+	funQt(134, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQProgressBar_delete",			showError);
+	funQt(135, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQProgressBar_setPr",  			showError);
+	//  ------- QDate -------
+	funQt(136, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQDate_create",					showError);
+	funQt(137, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQDate_delete",					showError);
+	funQt(140, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQDate_toString",				showError);
 
-	// Последний = 125
+	//  ------- QTime -------
+	funQt(138, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQTime_create",					showError);
+	funQt(139, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQTime_delete",					showError);
+	funQt(141, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQTime_toString",				showError);
+	
+	//  ------- QFileDialog -------
+	funQt(142, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQFileDialog_create",			showError);
+	funQt(143, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQFileDialog_delete",			showError);
+	funQt(144, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQFileDialog_setNameFilter",	showError);
+	funQt(145, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQFileDialog_setViewMode",		showError);
+	funQt(146, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQFileDialog_getOpenFileName",	showError);
+	funQt(147, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQFileDialog_getSaveFileName",	showError);
+
+	// Последний = 148
 	return 0;
 } ///  Загрузить DLL-ки Qt и QtE. Найти в них адреса функций и заполнить ими таблицу
 
@@ -1045,6 +1077,12 @@ class QWidget: QPaintDevice {
 	QWidget resize(int w, int h) {
 		(cast(t_v__qp_i_i_i) pFunQt[94])(QtObj, 1, w, h); return this; 
 	} /// This property holds the size of the widget excluding any window frame
+	QWidget setFont(QFont font) {
+		(cast(t_v__qp_qp) pFunQt[131])(QtObj, font.QtObj); return this; 
+	}
+	void* winid() {
+		return (cast(t_vp__qp) pFunQt[148])(QtObj); 
+	}
 }
 // ============ QAbstractButton =======================================
 class QAbstractButton : QWidget {
@@ -1737,6 +1775,28 @@ class QMenuBar : QWidget {
 		return this;
 	} /// Вставить вертикальное меню
 }
+// ================ QFont ================
+class QFont : QObject {
+	~this() {
+		if(!fNoDelete) { (cast(t_v__qp) pFunQt[128])(QtObj); setQtObj(null); }
+	}
+	this() {
+		setQtObj((cast(t_qp__v)pFunQt[127])());
+	}
+	QFont setPointSize(int size) {
+		(cast(t_v__qp_i) pFunQt[129])(QtObj, size);
+		return this;
+	} /// Установить размер шрифта в поинтах
+	QFont setFamily(T: QString)(T str) {
+		(cast(t_v__qp_qp) pFunQt[130])(QtObj, str.QtObj);
+		return this;
+	} /// Наименование шрифта Например: "True Times"
+	QFont setFamily(T)(T str) {
+		setFamily((new QString(to!string(str))).QtObj);
+		return this;
+	} /// Наименование шрифта Например: "True Times"
+}
+
 // ================ QIcon ================
 class QIcon : QObject {
 	~this() {
@@ -1807,6 +1867,14 @@ class QToolBar : QWidget {
 		(cast(t_v__qp_i) pFunQt[124])(QtObj, st);
 		return this;
 	} /// Где возможно размещение ToolBar, а не где он будет размещён
+	QToolBar addSeparator() {
+		(cast(t_v__qp_i) pFunQt[132])(QtObj, 0);
+		return this;
+	} /// 
+	QToolBar clear() {
+		(cast(t_v__qp_i) pFunQt[132])(QtObj, 1);
+		return this;
+	} /// 
 }
 // ================ QDialog ================
 class QDialog : QWidget {
@@ -1943,8 +2011,208 @@ class QMessageBox : QDialog {
 		(cast(t_v__qp_qp_i) pFunQt[123])(QtObj, cast(QtObjH)icon, 3);
 		return this;
 	} /// Установить стандартную иконку из числа QMessage.Icon. (NoIcon, Information, Warning, Critical, Question)
+}
+
+// ================ QProgressBar ================
+/++
+QProgressBar - это ....
++/
+class QProgressBar : QWidget {
+	this() {}
+	~this() {
+		if(!fNoDelete) { (cast(t_v__qp) pFunQt[134])(QtObj); setQtObj(null); }
+	}
+	this(QWidget parent) {
+		if (parent) {
+			this.setNoDelete(true);	// Не удалять текущий экземпляр, при условии, что он вставлен в другой
+			setQtObj((cast(t_qp__qp) pFunQt[133])(parent.QtObj));
+		} else {
+			setQtObj((cast(t_qp__qp) pFunQt[133])(null));
+		}
+	} /// Конструктор
+	QProgressBar setMinimum(int n) {
+		(cast(t_v__qp_i_i) pFunQt[135])(QtObj, n, 0); return this;
+	} /// Установить нижнию границу
+	QProgressBar setMaximum(int n) {
+		(cast(t_v__qp_i_i) pFunQt[135])(QtObj, n, 1); return this;
+	} /// Установить верхнию границу
+	QProgressBar setValue(int n) {
+		(cast(t_v__qp_i_i) pFunQt[135])(QtObj, n, 2); return this;
+	} /// Установить текущее положение
 	
+}
+// ============ QDate ===============
+/*
+d		the day as number without a leading zero (1 to 31)
+dd		the day as number with a leading zero (01 to 31)
+ddd		the abbreviated localized day name (e.g. 'Mon' to 'Sun'). Uses the system locale to localize the name, i.e. QLocale::system().
+dddd	the long localized day name (e.g. 'Monday' to 'Sunday'). Uses the system locale to localize the name, i.e. QLocale::system().
+M		the month as number without a leading zero (1 to 12)
+MM		the month as number with a leading zero (01 to 12)
+MMM		the abbreviated localized month name (e.g. 'Jan' to 'Dec'). Uses the system locale to localize the name, i.e. QLocale::system().
+MMMM	the long localized month name (e.g. 'January' to 'December'). Uses the system locale to localize the name, i.e. QLocale::system().
+yy		the year as two digit number (00 to 99)
+yyyy	the year as four digit number. If the year is negative, a minus sign is prepended in addition.
+*/
+class QDate : QObject {
+	~this() {
+		if(!fNoDelete) { (cast(t_v__qp) pFunQt[137])(QtObj); setQtObj(null); }
+	}
+	this() {
+		setQtObj((cast(t_qp__v)pFunQt[136])());
+	}
+	QString toQString(QString shabl) {
+		QString qs = new QString(); 
+		(cast(t_v__qp_qp_qp)pFunQt[140])(QtObj, qs.QtObj, shabl.QtObj); 
+		return qs;
+	} /// Выдать содержимое в QString
+	string toString(T1)(T1 shabl) { 
+		QString qs = toQString(new QString(to!string(shabl)));
+		return to!string(qs.String);
+	} /// Выдать всё содержимое в String
 	
+}
+// ============ QTime ===============
+/*
+h		the hour without a leading zero (0 to 23 or 1 to 12 if AM/PM display)
+hh		the hour with a leading zero (00 to 23 or 01 to 12 if AM/PM display)
+H		the hour without a leading zero (0 to 23, even with AM/PM display)
+HH		the hour with a leading zero (00 to 23, even with AM/PM display)
+m		the minute without a leading zero (0 to 59)
+mm		the minute with a leading zero (00 to 59)
+s		the second without a leading zero (0 to 59)
+ss		the second with a leading zero (00 to 59)
+z		the milliseconds without leading zeroes (0 to 999)
+zzz		the milliseconds with leading zeroes (000 to 999)
+AP or A	use AM/PM display. A/AP will be replaced by either "AM" or "PM".
+ap or a	use am/pm display. a/ap will be replaced by either "am" or "pm".
+t		the timezone (for example "CEST")
+*/
+class QTime : QObject {
+	~this() {
+		if(!fNoDelete) { (cast(t_v__qp) pFunQt[139])(QtObj); setQtObj(null); }
+	}
+	this() {
+		setQtObj((cast(t_qp__v)pFunQt[138])());
+	}
+	QString toQString(QString shabl) {
+		QString qs = new QString(); 
+		(cast(t_v__qp_qp_qp)pFunQt[141])(QtObj, qs.QtObj, shabl.QtObj); 
+		return qs;
+	} /// Выдать содержимое в QString
+	string toString(T1)(T1 shabl) { 
+		QString qs = toQString(new QString(to!string(shabl)));
+		return to!string(qs.String);
+	} /// Выдать всё содержимое в String
+}
+// ================ QFileDialog ================
+class QFileDialog : QDialog {
+	enum ViewMode {
+		Detail = 0,	// Displays an icon, a name, and details for each item in the directory.
+		List = 1 	// Displays only an icon and a name for each item in the directory.
+	} /// На сколько детаьно паказывать имена файлов
+
+	enum Option {
+		Null = 0,
+		ShowDirsOnly = 0x00000001,  //	Only show directories in the file dialog. By default both files and directories are shown. (Valid only in the Directory file mode.)
+		DontResolveSymlinks = 0x00000002, //	Don't resolve symlinks in the file dialog. By default symlinks are resolved.
+		DontConfirmOverwrite = 0x00000004, //	Don't ask for confirmation if an existing file is selected. By default confirmation is requested.
+		DontUseNativeDialog = 0x00000010, //	Don't use the native file dialog. By default, the native file dialog is used unless you use a subclass of QFileDialog that contains the Q_OBJECT macro, or the platform does not have a native dialog of the type that you require.
+		ReadOnly = 0x00000020, // 	Indicates that the model is readonly.
+		HideNameFilterDetails = 0x00000040,	//Indicates if the file name filter details are hidden or not.
+		DontUseSheet = 0x00000008,	// In previous versions of Qt, the static functions would create a sheet by default if the static function was given a parent. This is no longer supported and does nothing in Qt 4.5, The static functions will always be an application modal dialog. If you want to use sheets, use QFileDialog::open() instead.
+		DontUseCustomDirectoryIcons = 0x00000080	//Always use the default directory icon. Some platforms allow the user to set a different icon. Custom icon lookup cause a big performance impact over network or removable drives. Setting this will enable the QFileIconProvider::DontUseCustomDirectoryIcons option in the icon provider. This enum value was added in Qt 5.2.
+	}
+	private extern (C) @nogc alias 
+	t_v__qp_qp_qp_qp_qp_qp_qp_i = 
+		void function(QtObjH, QtObjH, QtObjH, QtObjH, QtObjH, QtObjH, QtObjH, int);
+
+	this() {}
+	~this() {
+		if(!fNoDelete) { (cast(t_v__qp) pFunQt[143])(QtObj); setQtObj(null); }
+	}
+	this(QWidget parent, QtE.WindowType fl = QtE.WindowType.Widget) {
+		if (parent) {
+			this.setNoDelete(true);
+			setQtObj((cast(t_qp__qp_i) pFunQt[142])(parent.QtObj, fl));
+		} else {
+			setQtObj((cast(t_qp__qp_i) pFunQt[142])(null, fl));
+		}
+	} /// Конструктор
+	QFileDialog setNameFilter(QString shabl) {
+		(cast(t_v__qp_qp_i)pFunQt[144])(QtObj, shabl.QtObj, 0); 
+		return this;
+	} /// Установить фильтр для выбираемых файлов
+	QFileDialog setNameFilter(T1)(T1 shabl) { 
+		setNameFilter(new QString(to!string(shabl)));
+		return this;
+	} /// Установить фильтр для выбираемых файлов
+	QFileDialog selectFile(QString shabl) {
+		(cast(t_v__qp_qp_i)pFunQt[144])(QtObj, shabl.QtObj, 1); 
+		return this;
+	} /// Выбрать строго конкретное имя файла
+	QFileDialog selectFile(T1)(T1 shabl) { 
+		setNameFilter(new QString(to!string(shabl)));
+		return this;
+	} /// Выбрать строго конкретное имя файла
+	QFileDialog setDirectory(QString shabl) {
+		(cast(t_v__qp_qp_i)pFunQt[144])(QtObj, shabl.QtObj, 2); 
+		return this;
+	} /// Открыть конкретный каталог
+	QFileDialog setDirectory(T1)(T1 shabl) { 
+		setNameFilter(new QString(to!string(shabl)));
+		return this;
+	} /// Открыть конкретный каталог
+	QFileDialog setDefaultSuffix(QString shabl) {
+		(cast(t_v__qp_qp_i)pFunQt[144])(QtObj, shabl.QtObj, 3); 
+		return this;
+	} /// "txt" - добавит эту строку к имени файла, если нет расширения
+	QFileDialog setDefaultSuffix(T1)(T1 shabl) { 
+		setNameFilter(new QString(to!string(shabl)));
+		return this;
+	} /// "txt" - добавит эту строку к имени файла, если нет расширения
+	QFileDialog setViewMode(QFileDialog.ViewMode pr) { 
+		(cast(t_v__qp_i)pFunQt[145])(QtObj, pr); 
+		return this;
+	}
 	
+	// Выбор файла для открытия
+	string getOpenFileName(
+			string caption = "",				// Заголовок
+			string dir = "",					// Начальный каталог
+			string filter = "*",				// Фильтр "*.d;;*.f"
+			string selectedFilter = "",
+			Option options = Option.Null) {
+		QString qrez = new QString();
+		QString qcaption = new QString(caption);
+		QString qdir = new QString(dir);
+		QString qfilter = new QString(filter);
+		QString qselectedFilter = new QString(selectedFilter);
+		
+		(cast(t_v__qp_qp_qp_qp_qp_qp_qp_i)pFunQt[146])
+			(QtObj, QtObj, qrez.QtObj,
+			qcaption.QtObj, qdir.QtObj, qfilter.QtObj,
+			qselectedFilter.QtObj, options); 
+		return qrez.String;
+	}
+	// Выбор файла для сохранения. Позволяет выбрать не существующий файл
+	string getSaveFileName(
+			string caption = "",				// Заголовок
+			string dir = "",					// Начальный каталог
+			string filter = "*",				// Фильтр "*.d;;*.f"
+			string selectedFilter = "",
+			Option options = Option.Null) {
+		QString qrez = new QString();
+		QString qcaption = new QString(caption);
+		QString qdir = new QString(dir);
+		QString qfilter = new QString(filter);
+		QString qselectedFilter = new QString(selectedFilter);
+		
+		(cast(t_v__qp_qp_qp_qp_qp_qp_qp_i)pFunQt[147])
+			(QtObj, QtObj, qrez.QtObj,
+			qcaption.QtObj, qdir.QtObj, qfilter.QtObj,
+			qselectedFilter.QtObj, options); 
+		return qrez.String;
+	}
 	
 }

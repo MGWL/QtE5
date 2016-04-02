@@ -13,6 +13,7 @@ import core.runtime;     // Обработка входных параметро
 import std.string: strip, format;
 
 const strElow  = "background: #F8FFA1";
+const strGreen = "background: #008080";
 
 extern (C) {
     void on_knEval(FormaMain* uk) { (*uk).EvalString();    }
@@ -57,44 +58,60 @@ class FormaMain: QMainWindow {
 	// ____________________________________________________________________
 	QVBoxLayout 	vblAll;			// Общий вертикальный выравниватель
     QLineEdit		leCmdStr;		// Строка команды
+	QProgressBar    zz;
 	QPlainTextEdit	teLog;			// Окно лога
 	QStatusBar      stBar;			// Строка сообщений
 	QWidget         mainWid;
 	QToolBar tb;
 	QFrame wdhelp;
+	QMenu menu1, menu2;
+	QMenuBar mb1;
+	QFont qf;
+	QAction acEval, acIncl, acHelp, acAbout, acAboutQt;
 	// ____________________________________________________________________
 	// Конструктор по умолчанию
 	this() {
-		QFont qf = new QFont(); qf.setPointSize(12); setFont(qf);
+		// --------------- Инициализация -----------------
+		// Шрифт
+		qf = new QFont(); qf.setPointSize(12);
 		// Главный виджет, в который всё вставим
 		mainWid = new QWidget(this);
 		// Горизонтальный и вертикальный выравниватели
 		vblAll  = new  QVBoxLayout();			// Главный выравниватель
 		//Строка команды
 		leCmdStr = new QLineEdit(this);			// Строка команды
+		zz = new QProgressBar(null);
 		// Текстовый редактор, окно лога
-		teLog = new QPlainTextEdit(null); 		teLog.setKeyPressEvent(&onChar, aThis);
+		teLog = new QPlainTextEdit(null); teLog.setKeyPressEvent(&onChar, aThis);
+		// Строка сообщений
+		stBar = new QStatusBar(this); stBar.setStyleSheet(strGreen);
+		// ToolBar
+		tb = new QToolBar(this); 
+		// Menu
+ 		menu2 = new QMenu(this),  menu1 = new QMenu(this); 
+		// MenuBar
+		mb1 = new QMenuBar(this); mb1.addMenu(menu1).addMenu(menu2);
+		// Обработчики
+		acEval 	  = new QAction(null, &on_knEval,   aThis); 
+		acIncl 	  = new QAction(null, &on_knLoad,   aThis); 
+		acHelp    = new QAction(null, &on_knHelp,   aThis);
+		acAbout   = new QAction(null, &on_about,    aThis, 1); 			// 1 - это парам перед в обработчик 
+		acAboutQt = new QAction(null, &on_aboutQt,  aThis, 2); 			// 2 - это парам перед в обработчик 
+		
+		// --------------- Взаимные настройки -----------------
+		menu2.setTitle("About")
+			.addAction(		acAbout		)
+			.addAction(		acAboutQt 	);
+		
+		menu1.setTitle("Help")
+			.addAction(		acEval		)
+			.addAction(     acIncl      )
+			.addAction(		acHelp   	);
 
-		// Выскакивающие окошко
-		wdhelp = new QFrame(this, QtE.WindowType.Popup);
-			QFrame zz = new QFrame(wdhelp);
-		zz.setFrameShape(QFrame.Shape.Box);
-		zz.setFrameShadow(QFrame.Shadow.Sunken);
-		
-		stBar = new QStatusBar(this);
-		// Вставляем всё в вертикальный выравниватель
-		vblAll.addWidget(teLog).addWidget(leCmdStr);
-		// Все выравниватели в главный виджет
-		mainWid.setLayout(vblAll);
-		// Центральный виджет в QMainWindow
-		setCentralWidget(mainWid); 
-		// Заголовки и размеры
-		setWindowTitle("--- Консоль forthD на QtE5 ---"); resize(700, 400);
-		
 		// Определим наиновейший обработчик на основе QAction для Eval
-		QAction acEval = new QAction(null, &on_knEval, aThis); 
 		acEval.setText("Eval(string)").setHotKey(QtE.Key.Key_R | QtE.Key.Key_ControlModifier);
 		acEval.setIcon("ICONS/continue.ico").setToolTip("Выполнить! как строку в Eval()");
+		
 		// -------- Связываю три сигнала с одним слотом -----------
 		// Связываю сигнал QMenu::returnPressed() с слотом action acEval
 		connects(acEval, "triggered()", acEval, "Slot()");
@@ -102,44 +119,41 @@ class FormaMain: QMainWindow {
 		connects(leCmdStr,"returnPressed()", acEval, "Slot()");
 		
 		// Определим наиновейший обработчик на основе QAction для Include
-		QAction acIncl = new QAction(null, &on_knLoad, aThis); 
 		acIncl.setText("Include file").setHotKey(QtE.Key.Key_I | QtE.Key.Key_ControlModifier);
 		acIncl.setIcon("ICONS/ArrowDownGreen.ico").setToolTip("Загрузить и выполнить файл");
 		// -------- Связываю сигнала с одним слотом -----------
 		connects(acIncl, "triggered()", acIncl, "Slot()");
 
 		// Определим наиновейший обработчик на основе QAction для Help
-		QAction acHelp = new QAction(null, &on_knHelp, aThis);
 		acHelp.setText("Help").setHotKey(QtE.Key.Key_H | QtE.Key.Key_ControlModifier);
-		acHelp.setIcon("ICONS/help.ico").setToolTip("Помощь + документация");
+		acHelp.setIcon("ICONS/Help.ico").setToolTip("Помощь + документация");
 		connects(acHelp, "triggered()", acHelp, "Slot()");
 		
 		// Обработчик для About и AboutQt
-		QAction acAbout = new QAction(null, &on_about, aThis, 1); // 1 - это парам перед в обработчик 
 		acAbout.setText("About");
 		connects(acAbout, "triggered()", acAbout, "Slot()");
-		QAction acAboutQt = new QAction(null, &on_aboutQt, aThis, 2); // 2 - это парам перед в обработчик 
 		acAboutQt.setText("AboutQt");
 		connects(acAboutQt, "triggered()", acAboutQt, "Slot()");
 
- 		QMenu menu2 = new QMenu(this); 
-		menu2.setTitle("About")
-			.addAction(		acAbout		)
-			.addAction(		acAboutQt 	);
-		
- 		QMenu menu1 = new QMenu(this); 
-		menu1.setTitle("Help")
-			.addAction(		acEval		)
-			.addAction(     acIncl      )
-			.addAction(		acHelp   	);
-		
-		tb = new QToolBar(this); 
-		//tb.setStyleSheet(strElow);
-		
+		// Вставляем всё в вертикальный выравниватель
+		vblAll.addWidget(teLog).addWidget(leCmdStr);
+		// Все выравниватели в главный виджет
+		mainWid.setLayout(vblAll);
+
+		// Настраиваем ToolBar
 		tb.setToolButtonStyle(QToolBar.ToolButtonStyle.ToolButtonTextBesideIcon);
-		tb.addAction(acEval).addAction(acIncl).addAction(acHelp);
+		tb.addAction(acEval).addAction(acIncl).addSeparator().addAction(acHelp);
+		tb.addWidget(zz); zz.setValue(70);
 		
-		QMenuBar mb1 = new QMenuBar(this); mb1.addMenu(menu1).addMenu(menu2);
+		// --------------- Установки класса -----------------
+
+		setFont(qf);
+		// Заголовки и размеры
+		QDate d = new QDate();
+		setWindowTitle("--- Консоль forthD на QtE5 ---[ " ~ d.toString("dd MMMM yyyy") ~ " ]"); resize(700, 400);
+		// Центральный виджет в QMainWindow
+		setCentralWidget(mainWid); 
+		
 		addToolBar(QToolBar.ToolBarArea.BottomToolBarArea, tb); tb.setStyleSheet(strElow);
 
 		setMenuBar(mb1);
@@ -147,12 +161,21 @@ class FormaMain: QMainWindow {
 		stBar.setFont(qf);
  		
 		setNoDelete(true);
+		
+
+		// Выскакивающие окошко
+		wdhelp = new QFrame(this, QtE.WindowType.Popup);
+			QFrame zz = new QFrame(wdhelp);
+		zz.setFrameShape(QFrame.Shape.Box);
+		zz.setFrameShadow(QFrame.Shadow.Sunken);
+		
+		
 
 		// ---- Forth ----
 		initForth(); 		// Активизируем Форт
 		// Проверим и выполним переменные командной строки
 		pvtInclude(sInclude);
-		if(sEval.length != 0) evalForth(sEval);
+		// if(sEval.length != 0) evalForth(sEval);
 		
 		// Запишем в общ таблицу адрес функции вызова
 		// setCommonAdr(0, cast(pp)&on_fromForth);
@@ -168,7 +191,8 @@ class FormaMain: QMainWindow {
 					"Include ...", QMessageBox.Icon.Critical);
 				return;
 			}
-			includedForth(cmd); updateKmd("INCLUDE " ~ cmd);
+			includedForth(cmd); 
+			updateKmd("INCLUDE " ~ cmd);
 		}
 	}
 	// ____________________________________________________________________
@@ -181,13 +205,17 @@ class FormaMain: QMainWindow {
 	void EvalString() {
  	    string cmd = strip(leCmdStr.text!string());
 		if(cmd.length != 0) { 
-			evalForth(cmd); updateKmd(cmd); 
+			evalForth(cmd); 
+			updateKmd(cmd); 
 		}
 	}
 	// ____________________________________________________________________
 	// INCLUDE
 	void IncludedFile() {
- 	    string cmd = strip(leCmdStr.text!string());	pvtInclude(cmd);
+		// Проверим работу открытия файла
+		QFileDialog fileDlg = new QFileDialog(null);
+		string cmd = fileDlg.getOpenFileName("Файл для INCLUDED ...", "", "*f");
+		pvtInclude(cmd);
 	}
 	// ____________________________________________________________________
 	// Help
