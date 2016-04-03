@@ -11,8 +11,8 @@ import std.stdio;
 
 
 int verQt5Eu = 0;
-int verQt5El = 03;
-string verQt5Ed = "02.03.16 12:45";
+int verQt5El = 02;
+string verQt5Ed = "28.02.16 12:45";
 
 alias PTRINT = int;
 alias PTRUINT = uint;
@@ -317,6 +317,7 @@ int LoadQt(dll ldll, bool showError) { ///  Загрузить DLL-ки Qt и Qt
 	funQt(48, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQLabel_setText",          showError);
 	// ------- QEvent -------
 	funQt(53, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQEvent_type",             showError);
+	funQt(157,bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQEvent_ia",				  showError);
 	// ------- QResizeEvent -------
 	funQt(54, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQResizeEvent_size",       showError);
 	funQt(55, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQResizeEvent_oldSize",    showError);
@@ -349,6 +350,7 @@ int LoadQt(dll ldll, bool showError) { ///  Загрузить DLL-ки Qt и Qt
 	funQt(84, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQLineEdit_set",					showError);
 	funQt(85, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQLineEdit_clear",				showError);
 	funQt(86, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQLineEdit_text",				showError);
+	funQt(158,bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQLineEdit_setKeyPressEvent",  showError);
 	//  ------- QMainWindow -------
 	funQt(88, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQMainWindow_create1",			showError);
 	funQt(89, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQMainWindow_delete1",			showError);
@@ -426,8 +428,20 @@ int LoadQt(dll ldll, bool showError) { ///  Загрузить DLL-ки Qt и Qt
 	funQt(145, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQFileDialog_setViewMode",		showError);
 	funQt(146, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQFileDialog_getOpenFileName",	showError);
 	funQt(147, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQFileDialog_getSaveFileName",	showError);
+	//  ------- QAbstractScrollArea -------
+	funQt(149, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQAbstractScrollArea_create",	showError);
+	funQt(150, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQAbstractScrollArea_delete",	showError);
+	//  ------- QMdiArea -------
+	funQt(151, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQMdiArea_create",				showError);
+	funQt(152, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQMdiArea_delete",				showError);
 
-	// Последний = 148
+	funQt(155, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQMdiArea_addSubWindow",		showError);
+	//  ------- QMdiSubWindow -------
+	funQt(153, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQMdiSubWindow_create",			showError);
+	funQt(154, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQMdiSubWindow_delete",			showError);
+	funQt(156, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQMdiSubWindow_addLayout",		showError);
+
+	// Последний = 157
 	return 0;
 } ///  Загрузить DLL-ки Qt и QtE. Найти в них адреса функций и заполнить ими таблицу
 
@@ -458,7 +472,21 @@ class QtE {
 		Desktop = 0x00000010 | Window,
 		SubWindow = 0x00000012,
 		ForeignWindow = 0x00000020 | Window,
-		CoverWindow = 0x00000040 | Window
+		CoverWindow = 0x00000040 | Window,
+		CustomizeWindowHint = 0x02000000, // Turns off the default window title hints.
+		WindowTitleHint = 0x00001000, // Gives the window a title bar.
+		WindowSystemMenuHint = 0x00002000, // Adds a window system menu, and possibly a close button (for example on Mac). If you need to hide or show a close button, it is more portable to use WindowCloseButtonHint.
+		WindowMinimizeButtonHint = 0x00004000, // Adds a minimize button. On some platforms this implies Qt::WindowSystemMenuHint for it to work.
+		WindowMaximizeButtonHint = 0x00008000, // Adds a maximize button. On some platforms this implies Qt::WindowSystemMenuHint for it to work.
+		WindowMinMaxButtonsHint = WindowMinimizeButtonHint | WindowMaximizeButtonHint, // Adds a minimize and a maximize button. On some platforms this implies Qt::WindowSystemMenuHint for it to work.
+		WindowCloseButtonHint = 0x08000000, // Adds a close button. On some platforms this implies Qt::WindowSystemMenuHint for it to work.
+		WindowContextHelpButtonHint = 0x00010000, // Adds a context help button to dialogs. On some platforms this implies Qt::WindowSystemMenuHint for it to work.
+		MacWindowToolBarButtonHint = 0x10000000, // On OS X adds a tool bar button (i.e., the oblong button that is on the top right of windows that have toolbars).
+		WindowFullscreenButtonHint = 0x80000000, // On OS X adds a fullscreen button.
+		BypassGraphicsProxyWidget = 0x20000000, // Prevents the window and its children from automatically embedding themselves into a QGraphicsProxyWidget if the parent widget is already embedded. You can set this flag if you want your widget to always be a toplevel widget on the desktop, regardless of whether the parent widget is embedded in a scene or not.
+		WindowShadeButtonHint = 0x00020000, // Adds a shade button in place of the minimize button if the underlying window manager supports it.
+		WindowStaysOnTopHint = 0x00040000, // Informs the window system that the window should stay on top of all other windows. Note that on some window managers on X11 you also have to pass Qt::X11BypassWindowManagerHint for this flag to work correctly.
+		WindowStaysOnBottomHint = 0x04000000 // Informs the window system that the window should stay on bottom of all other windows. Note that on X11 this hint will work only in window managers that support _NET_WM_STATE_BELOW atom. If a window always on the bottom has a parent, the parent will also be left on the bottom. This window hint is currently not impl		
 	// .... Qt5/QtCore/qnamespace.h
 	}
 	enum KeyboardModifier {
@@ -1032,8 +1060,8 @@ class QWidget: QPaintDevice {
 	QWidget  setPaintEvent(void* adr) { 
 		(cast(t_v__qp_qp) pFunQt[50])(QtObj, cast(QtObjH)adr); return this; 
 	} /// Установить обработчик на событие PaintEvent. Здесь <u>adr</u> - адрес на функцию D +/
-	QWidget  setCloseEvent(void* adr) { 
-		(cast(t_v__qp_qp) pFunQt[51])(QtObj, cast(QtObjH)adr); return this; 
+	QWidget  setCloseEvent(void* adr, void* adrThis = null) { 
+		(cast(t_v__qp_qp_qp) pFunQt[51])(QtObj, cast(QtObjH)adr, cast(QtObjH)adrThis); return this; 
 	} /// Установить обработчик на событие CloseEvent. Здесь <u>adr</u> - адрес на функцию D +/
 	QWidget setSizePolicy(int w, int h) { 
 		(cast(t_v__qp_i_i) pFunQt[78])(QtObj, w, h); return this; 
@@ -1382,6 +1410,12 @@ class QEvent : QObject {
 	@property int type() {
 		return (cast(t_i__qp) pFunQt[53])(QtObj);
 	} /// QEvent::type(); Вернуть тип события
+	void ignore() {
+		(cast(t_v__qp_i) pFunQt[157])(QtObj, 0);
+	} /// Игнорировать событие
+	void accept() {
+		(cast(t_v__qp_i) pFunQt[157])(QtObj, 1);
+	} /// Игнорировать событие
 }
 // ============ QResizeEvent =======================================
 /*
@@ -1573,6 +1607,9 @@ class QLineEdit : QWidget {
 	} /// Выдать содержимое в QString
 	T text(T)() { return to!T(text!QString().String);
 	} /// Выдать всё содержимое в String
+	override QLineEdit setKeyPressEvent(void* adr, void* adrThis = null) {
+		(cast(t_v__qp_qp_qp) pFunQt[158])(QtObj, cast(QtObjH)adr, cast(QtObjH)adrThis); return this; 
+	} /// Установить обработчик на событие KeyPressEvent. Здесь <u>adr</u> - адрес на функцию D +/
 	
 }
 // ===================== QMainWindow =====================
@@ -2214,5 +2251,54 @@ class QFileDialog : QDialog {
 			qselectedFilter.QtObj, options); 
 		return qrez.String;
 	}
-	
 }
+// ================ QMdiArea ================
+class QMdiArea : QAbstractScrollArea {
+	~this() {
+		if(!fNoDelete) { (cast(t_v__qp) pFunQt[152])(QtObj); setQtObj(null); }
+	}
+	this(QWidget parent) {
+		if (parent) {
+			this.setNoDelete(true);
+			setQtObj((cast(t_qp__qp) pFunQt[151])(parent.QtObj));
+		} else {
+			setQtObj((cast(t_qp__qp) pFunQt[151])(null));
+		}
+	} /// Конструктор
+	void addSubWindow(QWidget wd, QtE.WindowType fl = QtE.WindowType.Widget) {
+		(cast(t_v__qp_qp_i)pFunQt[155])(QtObj, wd.QtObj, cast(int)fl); 
+	}
+}
+// ================ QMdiSubWindow ================
+class QMdiSubWindow : QWidget {
+	~this() {
+		if(!fNoDelete) { (cast(t_v__qp) pFunQt[154])(QtObj); setQtObj(null); }
+	}
+	this(QWidget parent, QtE.WindowType fl = QtE.WindowType.Widget) {
+		if (parent) {
+			this.setNoDelete(true);
+			setQtObj((cast(t_qp__qp_i) pFunQt[153])(parent.QtObj, fl));
+		} else {
+			setQtObj((cast(t_qp__qp_i) pFunQt[153])(null, fl));
+		}
+	} /// Конструктор
+}
+// ============ QAbstractItemView ==================
+/* class QAbstractItemView : QAbstractScrollArea {
+	this(){}
+	~this() {
+		if(!fNoDelete) { (cast(t_v__qp) pFunQt[67])(QtObj); setQtObj(null); }
+	}
+	// this() { super(); }
+	this(char ch, void* adr) {
+		if(ch == '+') setQtObj(cast(QtObjH)adr);
+	}
+	this(QWidget parent) {
+		if (parent) {
+			this.setNoDelete(true);	// Не удалять текущий экземпляр, при условии, что он вставлен в другой
+			setQtObj((cast(t_qp__qp) pFunQt[66])(parent.QtObj));
+		} else {
+			setQtObj((cast(t_qp__qp) pFunQt[66])(null));
+		}
+	} /// Конструктор
+} */

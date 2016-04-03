@@ -24,8 +24,30 @@ extern "C" void qteQApplication_aboutQt(QtRefH app) {
 }
 // =========== QLineEdit ==========
 eQLineEdit::eQLineEdit(QWidget *parent): QLineEdit(parent) {
+    aKeyPressEvent = NULL; aDThis = NULL;
 }
 eQLineEdit::~eQLineEdit() {
+}
+
+void eQLineEdit::keyPressEvent(QKeyEvent* event) {
+    QKeyEvent* otv;
+    // Если нет перехвата, отдай событие
+    if (aKeyPressEvent == NULL) {
+        QLineEdit::keyPressEvent(event); return;
+    }
+    if ((aKeyPressEvent != NULL) && (aDThis == NULL)) {
+        otv = (QKeyEvent*)((ExecZIM_vp__vp)aKeyPressEvent)((QtRefH)event);
+        if(otv != NULL) {  QLineEdit::keyPressEvent(otv); }
+        return;
+    }
+    if ((aKeyPressEvent != NULL) && (aDThis != NULL)) {
+        otv = (QKeyEvent*)((ExecZIM_vp__vp_vp)aKeyPressEvent)(*(void**)aDThis, (QtRefH)event);
+        if(otv != NULL) {  QLineEdit::keyPressEvent(otv); }
+    }
+}
+extern "C" void qteQLineEdit_setKeyPressEvent(eQLineEdit* wd, void* adr, void* aThis) {
+    wd->aKeyPressEvent = adr;
+    wd->aDThis = aThis;
 }
 extern "C" eQLineEdit* qteQLineEdit_create1(QWidget* parent) {
     return new eQLineEdit(parent);
@@ -116,14 +138,22 @@ void eQWidget::paintEvent(QPaintEvent *event) {
         ((ExecZIM_v__vp)aPaintEvent)((QtRefH)event);
     }
 }
-extern "C" void qteQWidget_setCloseEvent(QtRefH wd, void* adr) {
+
+// -------------------------------------------------
+extern "C" void qteQWidget_setCloseEvent(QtRefH wd, void* adr, void* dThis) {
     ((eQWidget*)wd)->aCloseEvent = adr;
+    ((eQWidget*)wd)->aDThis = dThis;
 }
 void eQWidget::closeEvent(QCloseEvent *event) {
-    if(aCloseEvent != NULL) {
+    if (aCloseEvent == NULL) return;
+    if ((aCloseEvent != NULL) && (aDThis == NULL)) {
         ((ExecZIM_v__vp)aCloseEvent)((QtRefH)event);
     }
+    if ((aCloseEvent != NULL) && (aDThis != NULL)) {
+        ((ExecZIM_v__vp_vp)aCloseEvent)(*(void**)aDThis, (QtRefH)event);
+    }
 }
+// -------------------------------------------------
 extern "C" void qteQWidget_setResizeEvent(eQWidget* wd, void* adr) {
     wd->aResizeEvent = adr;
 }
@@ -386,6 +416,13 @@ extern "C" void qteQLabel_setText(QtRefH wd, QtRefH qs) {
 extern "C" int qteQEvent_type(QEvent* ev) {
     return ev->type();
 }
+extern "C" void qteQEvent_ia(QEvent* ev, int pr) {
+    switch ( pr ) {
+    case 0:   ev->ignore();    break;
+    case 1:   ev->accept();  break;
+    }
+}
+
 // ===================== QResizeEvent ====================
 extern "C" QtRefH qteQResizeEvent_size(QResizeEvent* ev) {
     return (QtRefH)&ev->size();
@@ -751,3 +788,33 @@ extern "C" QString* qteQFileDialog_getSaveFileName(
     *rez = wd->getSaveFileName(parent,*caption,*dir,*filter,selectedFilter,f);
     return rez;
 }
+// =========== QAbstractScrollArea ==========
+extern "C" QAbstractScrollArea* qteQAbstractScrollArea_create(QWidget* parent) {
+    return new QAbstractScrollArea(parent);
+}
+extern "C" void qteQAbstractScrollArea_delete(QAbstractScrollArea* wd) {
+    delete wd;
+}
+// =========== QMdiArea ==========
+extern "C" QMdiArea* qteQMdiArea_create(QWidget* parent) {
+    return new QMdiArea(parent);
+}
+extern "C" void qteQMdiArea_delete(QMdiArea* wd) {
+    delete wd;
+}
+extern "C" QMdiSubWindow* qteQMdiArea_addSubWindow(QMdiArea* ma, QWidget* wd, Qt::WindowFlags windowFlags) {
+    return ma->addSubWindow(wd, windowFlags);
+}
+
+// =========== QMdiSubWindow ==========
+extern "C" QMdiSubWindow* qteQMdiSubWindow_create(QWidget* parent, Qt::WindowFlags f) {
+    return new QMdiSubWindow(parent, f);
+}
+extern "C" void qteQMdiSubWindow_delete(QMdiSubWindow* wd) {
+    delete wd;
+}
+extern "C" void qteQMdiSubWindow_addLayout(QMdiSubWindow* wd, QBoxLayout* ly ) {
+    wd->setLayout(ly);
+}
+// =========== QAbstractItemView ==========
+

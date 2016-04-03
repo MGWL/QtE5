@@ -29,6 +29,9 @@
 #include <QDate>
 #include <QTime>
 #include <QFileDialog>
+#include <QAbstractScrollArea>
+#include <QMdiArea>
+#include <QMdiSubWindow>
 
 typedef int PTRINT;
 typedef unsigned int PTRUINT;
@@ -96,9 +99,13 @@ class eQLineEdit : public QLineEdit {
     // Q_OBJECT
 
 public:
+    void* aDThis;       // Хранит адрес экземпляра объекта D
+    void* aKeyPressEvent;
+public:
     explicit eQLineEdit(QWidget* parent);
     ~eQLineEdit();
-
+protected:
+    void keyPressEvent(QKeyEvent* event);
 };
 
 

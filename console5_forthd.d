@@ -11,9 +11,10 @@ import forth;			// Сам forth написан на 32 разрядном D (asm
 import qte5;
 import core.runtime;     // Обработка входных параметров
 import std.string: strip, format;
+import std.conv;
 
 const strElow  = "background: #F8FFA1";
-const strGreen = "background: #008080";
+const strGreen = "background: #F79F81";
 
 extern (C) {
     void on_knEval(FormaMain* uk) { (*uk).EvalString();    }
@@ -21,12 +22,8 @@ extern (C) {
     void on_knHelp(FormaMain* uk) { (*uk).Help();          }
 	
 	// Обработчик с параметром. Параметр позволяет не плодить обработчики
-	void on_about(FormaMain* uk) {
-		msgbox("Об этой программе ...");
-	}
-	void on_aboutQt(FormaMain* uk) {
-		app.aboutQt();
-	}
+	void on_about(FormaMain* uk) 	{ (*uk).about(1); }
+	void on_aboutQt(FormaMain* uk)	{ (*uk).about(2); }
 	
 	int on_fromForth() { writeln("... from Forth"); return 6; }
 	int on_type(char* adr) { 
@@ -42,6 +39,9 @@ extern (C) {
 		// return возвратит KeyEvent* обратно в C++, для дальнейшей обработки
 		return (*uk).workPress(ev);
 	}
+	void onCloseWin(FormaMain* uk, void* ev) {
+		(*uk).workCloseForth(ev);
+	}
 }
 
 string helps() { 
@@ -52,16 +52,56 @@ string helps() {
 console5_forthd [-d, -e, -i] ...
 ");
 }
+
+// Интефейс описывающий взаимодействие формы с логом и строкой
+interface IFormLogCmd  {
+	string getCmd();			// Дай команду
+	void addStrInLog(string s);	// Добавь строку в лог
+}
+class CMdiFormLogCmd : QWidget, IFormLogCmd {
+  private
+	QBoxLayout	vblAll;		// Общий вертикальный выравниватель
+	QPlainTextEdit	teLog;	// Окно лога
+    QLineEdit		leCmdStr;		// Строка команды
+	// -------------------------------------------
+	this(QWidget parent, QtE.WindowType fl) {
+		super(parent, fl);
+		resize(200, 180);
+		// Горизонтальный и вертикальный выравниватели
+		vblAll  = new  QBoxLayout(this);			// Главный выравниватель
+		//Строка команды
+		leCmdStr = new QLineEdit(this);			// Строка команды
+		leCmdStr.setKeyPressEvent(&onChar, parent.aThis);
+		// Текстовый редактор, окно лога
+		teLog = new QPlainTextEdit(this);
+		// Методы обработки расположены в родительском классе
+		// teLog.setKeyPressEvent(&onChar, parent.aThis);
+		// Вставляем всё в вертикальный выравниватель
+		vblAll.addWidget(teLog).addWidget(leCmdStr);
+		setLayout(vblAll);
+		setWindowTitle("--[ FORTH ]--");
+	}
+	string getCmd() {
+		return strip(leCmdStr.text!string());
+	}
+	void addStrInLog(string cmd) {
+		teLog.appendPlainText(cmd); leCmdStr.clear().setFocus();
+	}
+}
+
  
 // Форма для работы  
 class FormaMain: QMainWindow {
 	// ____________________________________________________________________
 	QVBoxLayout 	vblAll;			// Общий вертикальный выравниватель
-    QLineEdit		leCmdStr;		// Строка команды
+    //QLineEdit		leCmdStr;		// Строка команды
 	QProgressBar    zz;
-	QPlainTextEdit	teLog;			// Окно лога
+	// QPlainTextEdit	teLog;			// Окно лога
 	QStatusBar      stBar;			// Строка сообщений
-	QWidget         mainWid;
+	
+	QMdiArea		mainWid;
+	CMdiFormLogCmd  winForth;
+	
 	QToolBar tb;
 	QFrame wdhelp;
 	QMenu menu1, menu2;
@@ -75,14 +115,14 @@ class FormaMain: QMainWindow {
 		// Шрифт
 		qf = new QFont(); qf.setPointSize(12);
 		// Главный виджет, в который всё вставим
-		mainWid = new QWidget(this);
+		mainWid = new QMdiArea(this);
 		// Горизонтальный и вертикальный выравниватели
 		vblAll  = new  QVBoxLayout();			// Главный выравниватель
 		//Строка команды
-		leCmdStr = new QLineEdit(this);			// Строка команды
+		// leCmdStr = new QLineEdit(this);			// Строка команды
 		zz = new QProgressBar(null);
 		// Текстовый редактор, окно лога
-		teLog = new QPlainTextEdit(null); teLog.setKeyPressEvent(&onChar, aThis);
+		// teLog = new QPlainTextEdit(null); teLog.setKeyPressEvent(&onChar, aThis);
 		// Строка сообщений
 		stBar = new QStatusBar(this); stBar.setStyleSheet(strGreen);
 		// ToolBar
@@ -115,9 +155,9 @@ class FormaMain: QMainWindow {
 		// -------- Связываю три сигнала с одним слотом -----------
 		// Связываю сигнал QMenu::returnPressed() с слотом action acEval
 		connects(acEval, "triggered()", acEval, "Slot()");
-		// Связываю сигнал QLineEdit::returnPressed() с слотом action acEval
+/* 		// Связываю сигнал QLineEdit::returnPressed() с слотом action acEval
 		connects(leCmdStr,"returnPressed()", acEval, "Slot()");
-		
+ */		
 		// Определим наиновейший обработчик на основе QAction для Include
 		acIncl.setText("Include file").setHotKey(QtE.Key.Key_I | QtE.Key.Key_ControlModifier);
 		acIncl.setIcon("ICONS/ArrowDownGreen.ico").setToolTip("Загрузить и выполнить файл");
@@ -136,21 +176,21 @@ class FormaMain: QMainWindow {
 		connects(acAboutQt, "triggered()", acAboutQt, "Slot()");
 
 		// Вставляем всё в вертикальный выравниватель
-		vblAll.addWidget(teLog).addWidget(leCmdStr);
+		// vblAll.addWidget(teLog).addWidget(leCmdStr);
 		// Все выравниватели в главный виджет
-		mainWid.setLayout(vblAll);
+		
+		createWinForth();
 
 		// Настраиваем ToolBar
 		tb.setToolButtonStyle(QToolBar.ToolButtonStyle.ToolButtonTextBesideIcon);
 		tb.addAction(acEval).addAction(acIncl).addSeparator().addAction(acHelp);
-		tb.addWidget(zz); zz.setValue(70);
+		tb.addWidget(zz); zz.setValue(1);
 		
 		// --------------- Установки класса -----------------
 
 		setFont(qf);
 		// Заголовки и размеры
-		QDate d = new QDate();
-		setWindowTitle("--- Консоль forthD на QtE5 ---[ " ~ d.toString("dd MMMM yyyy") ~ " ]"); resize(700, 400);
+		setWindowTitle("--- Консоль forthD на QtE5 ---"); resize(700, 400);
 		// Центральный виджет в QMainWindow
 		setCentralWidget(mainWid); 
 		
@@ -165,10 +205,12 @@ class FormaMain: QMainWindow {
 
 		// Выскакивающие окошко
 		wdhelp = new QFrame(this, QtE.WindowType.Popup);
-			QFrame zz = new QFrame(wdhelp);
-		zz.setFrameShape(QFrame.Shape.Box);
-		zz.setFrameShadow(QFrame.Shadow.Sunken);
 		
+		QVBoxLayout 	wdhelpLV = new QVBoxLayout();
+		QPlainTextEdit pte = new QPlainTextEdit(wdhelp);
+		wdhelpLV.addWidget(pte);
+		wdhelp.setLayout(wdhelpLV);
+		pte.appendPlainText("gena\nlena");
 		
 
 		// ---- Forth ----
@@ -192,35 +234,66 @@ class FormaMain: QMainWindow {
 				return;
 			}
 			includedForth(cmd); 
-			updateKmd("INCLUDE " ~ cmd);
+			winForth.addStrInLog("INCLUDE " ~ cmd);
+			// updateKmd("INCLUDE " ~ cmd);
 		}
 	}
 	// ____________________________________________________________________
 	// Вывод на экран команды и очистка строчного редактора
 	void updateKmd(string cmd) {
-		teLog.appendPlainText(cmd); leCmdStr.clear().setFocus();
+		// teLog.appendPlainText(cmd); leCmdStr.clear().setFocus();
 	}
 	// ____________________________________________________________________
 	// Выполнить строку форта
 	void EvalString() {
- 	    string cmd = strip(leCmdStr.text!string());
+		// Обработка теперь берется с новой формы: 
+ 	    string cmd = winForth.getCmd();
 		if(cmd.length != 0) { 
 			evalForth(cmd); 
-			updateKmd(cmd); 
+			winForth.addStrInLog(cmd);
 		}
+//		QDate d = new QDate(); QTime t = new QTime();
+//		writeln(toCON(d.toString("dd MMMM yyyy")), " ", toCON(t.toString("h:m:zzz")));
 	}
 	// ____________________________________________________________________
 	// INCLUDE
 	void IncludedFile() {
 		// Проверим работу открытия файла
 		QFileDialog fileDlg = new QFileDialog(null);
-		string cmd = fileDlg.getOpenFileName("Файл для INCLUDED ...", "", "*f");
+		string cmd = fileDlg.getOpenFileName("INCLUDE ...", "", "*.f");
 		pvtInclude(cmd);
+		
+		
+ 	    // string cmd = strip(leCmdStr.text!string());	pvtInclude(cmd);
 	}
 	// ____________________________________________________________________
 	// Help
 	void Help() {
 		msgbox("Окно с помощью ....", "Помощь", QMessageBox.Icon.Warning);
+	}
+	// ____________________________________________________________________
+	// Создать и показать окно Forth
+	void createWinForth() {
+		// Создадим окно forth
+		winForth = new CMdiFormLogCmd(this, 
+			  QtE.WindowType.Window
+		);
+		// Поставим обработку закрытия окна
+		winForth.setCloseEvent(&onCloseWin, aThis()); 
+		// Добавим в MDI
+		mainWid.addSubWindow(winForth);
+		winForth.showMaximized();
+		// Связываю сигнал QLineEdit::returnPressed() с слотом action acEval
+		connects(winForth.leCmdStr,"returnPressed()", acEval, "Slot()");
+	}
+	// ____________________________________________________________________
+	// closeWinMDI обработки событий
+	void* workCloseForth(void* ev) {
+		// 1 - Схватить событие пришедшее из Qt и сохранить его в моём классе
+		QEvent qe = new QEvent('+', ev); 
+		qe.ignore();
+		msgbox("Закрытие этого окна не предусмотрено.", "Внимание!");
+		return ev;
 	}
 	// ____________________________________________________________________
 	// Проверка обработки событий
@@ -230,18 +303,26 @@ class FormaMain: QMainWindow {
 		// 2 - Выдать тип события
 		string ss = format("%s -- key -> %s -- count -> %s", qe.type, qe.key, qe.count);
 		// writeln(ss);
-		stBar.showMessage(ss);
-		if(qe.key == 65) {
+		//stBar.showMessage(ss);
+		string cmd = winForth.getCmd() ~ to!string(cast(char)qe.key);
+		stBar.showMessage("[" ~ cmd ~ "]");
+		if(cmd == "GEN") {
+			// msgbox("GEN в строке ....");
+			wdhelp.resize(250, 150).move(150, 150);
+			wdhelp.show();
+		}
+/* 		if(qe.key == 65) {
 			// попробуем написовать окно
 			wdhelp.resize(250, 150).move(150, 150);
 			wdhelp.show();
 		}
-		return ev;
+ */		return ev;
 	}
 	// ____________________________________________________________________
 	// Обработка About и AboutQt
 	void about(int n) {
 		if(n == 1) {
+			msgbox("MGW 2016\n\n<b>Консоль для forth на D</b>", "about");
 		}
 		if(n == 2) {
 			app.aboutQt();
@@ -274,5 +355,12 @@ int main(string[] args) {
 	app = new QApplication(&Runtime.cArgs.argc, Runtime.cArgs.argv, 1);
 	FormaMain formaMain = new FormaMain(); formaMain.show().saveThis(&formaMain);
 	
+/* 	CMdiFormLogCmd w = new CMdiFormLogCmd(null,
+		   QtE.WindowType.Window
+		 | QtE.WindowType.WindowMinimizeButtonHint     
+		 | QtE.WindowType.WindowMaximizeButtonHint     
+		 | QtE.WindowType.CustomizeWindowHint);
+	w.show();
+ */
 	return app.exec();
 }
