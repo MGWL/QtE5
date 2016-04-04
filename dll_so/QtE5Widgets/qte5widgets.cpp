@@ -817,4 +817,27 @@ extern "C" void qteQMdiSubWindow_addLayout(QMdiSubWindow* wd, QBoxLayout* ly ) {
     wd->setLayout(ly);
 }
 // =========== QAbstractItemView ==========
-
+// =========== QTableView ==========
+extern "C" QTableView* qteQTableView_create(QWidget* parent) {
+    return new QTableView(parent);
+}
+extern "C" void qteQTableView_delete(QTableView* wd) {
+    delete wd;
+}
+// =========== QTableWidget ==========
+extern "C" QTableWidget* qteQTableWidget_create(QWidget* parent) {
+    return new QTableWidget(parent);
+}
+extern "C" void qteQTableWidget_delete(QTableWidget* wd) {
+    delete wd;
+}
+extern "C" void qteQTableWidget_setRC(QTableWidget* wd, int n, int pr) {
+    switch ( pr ) {
+    case 0:   wd->setColumnCount(n);                 break;
+    case 1:   wd->setRowCount(n);                    break;
+    case 2:   wd->insertColumn(n);                   break;
+    case 3:   wd->insertRow(n);                      break;
+    case 4:   wd->clear();                           break;
+    case 5:   wd->clearContents();                   break;
+    }
+}

@@ -57,12 +57,16 @@ console5_forthd [-d, -e, -i] ...
 interface IFormLogCmd  {
 	string getCmd();			// Дай команду
 	void addStrInLog(string s);	// Добавь строку в лог
+	void appendCmd(string s);	// Допиши коммандную строку
 }
 class CMdiFormLogCmd : QWidget, IFormLogCmd {
   private
-	QBoxLayout	vblAll;		// Общий вертикальный выравниватель
-	QPlainTextEdit	teLog;	// Окно лога
-    QLineEdit		leCmdStr;		// Строка команды
+	QBoxLayout	vblAll;			// Общий вертикальный выравниватель
+	QHBoxLayout	hb2;			// Общий вертикальный выравниватель
+	QPlainTextEdit	teLog;		// Окно лога
+    QLineEdit		leCmdStr;	// Строка команды
+	QTableWidget	teHelp;		// Таблица подсказок
+
 	// -------------------------------------------
 	this(QWidget parent, QtE.WindowType fl) {
 		super(parent, fl);
@@ -74,10 +78,14 @@ class CMdiFormLogCmd : QWidget, IFormLogCmd {
 		leCmdStr.setKeyPressEvent(&onChar, parent.aThis);
 		// Текстовый редактор, окно лога
 		teLog = new QPlainTextEdit(this);
+		teHelp = new QTableWidget(this); teHelp.setColumnCount(1).setRowCount(10);
+		teHelp.setMaximumWidth(200);
+		hb2 = new QHBoxLayout;
+		hb2.addWidget(teLog).addWidget(teHelp);
 		// Методы обработки расположены в родительском классе
 		// teLog.setKeyPressEvent(&onChar, parent.aThis);
 		// Вставляем всё в вертикальный выравниватель
-		vblAll.addWidget(teLog).addWidget(leCmdStr);
+		vblAll.addLayout(hb2).addWidget(leCmdStr);
 		setLayout(vblAll);
 		setWindowTitle("--[ FORTH ]--");
 	}
@@ -87,6 +95,10 @@ class CMdiFormLogCmd : QWidget, IFormLogCmd {
 	void addStrInLog(string cmd) {
 		teLog.appendPlainText(cmd); leCmdStr.clear().setFocus();
 	}
+	void appendCmd(string s) {
+		string old = leCmdStr.text!string();
+		leCmdStr.setText(old ~ s ~ " ");
+	} 
 }
 
  
@@ -94,9 +106,7 @@ class CMdiFormLogCmd : QWidget, IFormLogCmd {
 class FormaMain: QMainWindow {
 	// ____________________________________________________________________
 	QVBoxLayout 	vblAll;			// Общий вертикальный выравниватель
-    //QLineEdit		leCmdStr;		// Строка команды
 	QProgressBar    zz;
-	// QPlainTextEdit	teLog;			// Окно лога
 	QStatusBar      stBar;			// Строка сообщений
 	
 	QMdiArea		mainWid;
@@ -118,11 +128,7 @@ class FormaMain: QMainWindow {
 		mainWid = new QMdiArea(this);
 		// Горизонтальный и вертикальный выравниватели
 		vblAll  = new  QVBoxLayout();			// Главный выравниватель
-		//Строка команды
-		// leCmdStr = new QLineEdit(this);			// Строка команды
 		zz = new QProgressBar(null);
-		// Текстовый редактор, окно лога
-		// teLog = new QPlainTextEdit(null); teLog.setKeyPressEvent(&onChar, aThis);
 		// Строка сообщений
 		stBar = new QStatusBar(this); stBar.setStyleSheet(strGreen);
 		// ToolBar
@@ -155,9 +161,7 @@ class FormaMain: QMainWindow {
 		// -------- Связываю три сигнала с одним слотом -----------
 		// Связываю сигнал QMenu::returnPressed() с слотом action acEval
 		connects(acEval, "triggered()", acEval, "Slot()");
-/* 		// Связываю сигнал QLineEdit::returnPressed() с слотом action acEval
-		connects(leCmdStr,"returnPressed()", acEval, "Slot()");
- */		
+
 		// Определим наиновейший обработчик на основе QAction для Include
 		acIncl.setText("Include file").setHotKey(QtE.Key.Key_I | QtE.Key.Key_ControlModifier);
 		acIncl.setIcon("ICONS/ArrowDownGreen.ico").setToolTip("Загрузить и выполнить файл");
@@ -175,10 +179,7 @@ class FormaMain: QMainWindow {
 		acAboutQt.setText("AboutQt");
 		connects(acAboutQt, "triggered()", acAboutQt, "Slot()");
 
-		// Вставляем всё в вертикальный выравниватель
-		// vblAll.addWidget(teLog).addWidget(leCmdStr);
-		// Все выравниватели в главный виджет
-		
+		// Создаю неубиваемое окошко Форта
 		createWinForth();
 
 		// Настраиваем ToolBar
@@ -205,13 +206,12 @@ class FormaMain: QMainWindow {
 
 		// Выскакивающие окошко
 		wdhelp = new QFrame(this, QtE.WindowType.Popup);
-		
 		QVBoxLayout 	wdhelpLV = new QVBoxLayout();
-		QPlainTextEdit pte = new QPlainTextEdit(wdhelp);
+
+		QTableWidget pte = new QTableWidget(wdhelp);
+		pte.setColumnCount(1).setRowCount(10);
 		wdhelpLV.addWidget(pte);
 		wdhelp.setLayout(wdhelpLV);
-		pte.appendPlainText("gena\nlena");
-		
 
 		// ---- Forth ----
 		initForth(); 		// Активизируем Форт
@@ -239,17 +239,16 @@ class FormaMain: QMainWindow {
 		}
 	}
 	// ____________________________________________________________________
-	// Вывод на экран команды и очистка строчного редактора
-	void updateKmd(string cmd) {
-		// teLog.appendPlainText(cmd); leCmdStr.clear().setFocus();
-	}
-	// ____________________________________________________________________
 	// Выполнить строку форта
 	void EvalString() {
 		// Обработка теперь берется с новой формы: 
  	    string cmd = winForth.getCmd();
 		if(cmd.length != 0) { 
-			evalForth(cmd); 
+			try {
+				evalForth(cmd); 
+			} catch {
+				msgbox("Error ...");
+			}
 			winForth.addStrInLog(cmd);
 		}
 //		QDate d = new QDate(); QTime t = new QTime();
@@ -262,9 +261,6 @@ class FormaMain: QMainWindow {
 		QFileDialog fileDlg = new QFileDialog(null);
 		string cmd = fileDlg.getOpenFileName("INCLUDE ...", "", "*.f");
 		pvtInclude(cmd);
-		
-		
- 	    // string cmd = strip(leCmdStr.text!string());	pvtInclude(cmd);
 	}
 	// ____________________________________________________________________
 	// Help
@@ -301,14 +297,32 @@ class FormaMain: QMainWindow {
 		// 1 - Схватить событие пришедшее из Qt и сохранить его в моём классе
 		QKeyEvent qe = new QKeyEvent('+', ev); 
 		// 2 - Выдать тип события
-		string ss = format("%s -- key -> %s -- count -> %s", qe.type, qe.key, qe.count);
+		string ss = format("type[%s] -- key[%s] -- count[%s]", qe.type, qe.key, qe.count);
 		// writeln(ss);
 		//stBar.showMessage(ss);
+		string soob = "";
+		if(qe.key == 16777235) soob = " Стрелка вверх ...";
+		if(qe.key == 16777237) soob = " Стрелка вниз ...";
+
+		if(qe.key == 16777264) {
+			soob = " F1";
+			winForth.appendCmd("SWAP");
+		}
+		if(qe.key == 16777265) soob = " F2";
+		if(qe.key == 16777266) soob = " F3";
+		if(qe.key == 16777267) soob = " F4";
+		if(qe.key == 16777268) soob = " F5";
+		if(qe.key == 16777269) soob = " F6";
+		if(qe.key == 16777270) soob = " F7";
+		if(qe.key == 16777271) soob = " F8";
+		if(qe.key == 16777272) soob = " F9";
+		if(qe.key == 16777273) soob = " F10";
+
 		string cmd = winForth.getCmd() ~ to!string(cast(char)qe.key);
-		stBar.showMessage("[" ~ cmd ~ "]");
+		stBar.showMessage("[" ~ cmd ~ "] --> " ~ ss ~ soob);
 		if(cmd == "GEN") {
 			// msgbox("GEN в строке ....");
-			wdhelp.resize(250, 150).move(150, 150);
+			wdhelp.resize(250, 150).move(350, 350);
 			wdhelp.show();
 		}
 /* 		if(qe.key == 65) {
@@ -354,13 +368,7 @@ int main(string[] args) {
 	// Изготавливаем само приложение
 	app = new QApplication(&Runtime.cArgs.argc, Runtime.cArgs.argv, 1);
 	FormaMain formaMain = new FormaMain(); formaMain.show().saveThis(&formaMain);
+
 	
-/* 	CMdiFormLogCmd w = new CMdiFormLogCmd(null,
-		   QtE.WindowType.Window
-		 | QtE.WindowType.WindowMinimizeButtonHint     
-		 | QtE.WindowType.WindowMaximizeButtonHint     
-		 | QtE.WindowType.CustomizeWindowHint);
-	w.show();
- */
 	return app.exec();
 }

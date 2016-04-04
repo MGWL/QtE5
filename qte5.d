@@ -440,8 +440,16 @@ int LoadQt(dll ldll, bool showError) { ///  Загрузить DLL-ки Qt и Qt
 	funQt(153, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQMdiSubWindow_create",			showError);
 	funQt(154, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQMdiSubWindow_delete",			showError);
 	funQt(156, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQMdiSubWindow_addLayout",		showError);
+	//  ------- QTableView -------
+	funQt(159, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQTableView_create",			showError);
+	funQt(160, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQTableView_delete",			showError);
+	//  ------- QTableWidget -------
+	funQt(161, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQTableWidget_create",			showError);
+	funQt(162, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQTableWidget_delete",			showError);
+	funQt(163, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQTableWidget_setRC",			showError);
 
-	// Последний = 157
+	
+	// Последний = 163
 	return 0;
 } ///  Загрузить DLL-ки Qt и QtE. Найти в них адреса функций и заполнить ими таблицу
 
@@ -2284,21 +2292,69 @@ class QMdiSubWindow : QWidget {
 	} /// Конструктор
 }
 // ============ QAbstractItemView ==================
-/* class QAbstractItemView : QAbstractScrollArea {
+class QAbstractItemView : QAbstractScrollArea {
 	this(){}
 	~this() {
-		if(!fNoDelete) { (cast(t_v__qp) pFunQt[67])(QtObj); setQtObj(null); }
+		// if(!fNoDelete) { (cast(t_v__qp) pFunQt[67])(QtObj); setQtObj(null); }
 	}
 	// this() { super(); }
 	this(char ch, void* adr) {
 		if(ch == '+') setQtObj(cast(QtObjH)adr);
 	}
 	this(QWidget parent) {
-		if (parent) {
+/* 		if (parent) {
 			this.setNoDelete(true);	// Не удалять текущий экземпляр, при условии, что он вставлен в другой
 			setQtObj((cast(t_qp__qp) pFunQt[66])(parent.QtObj));
 		} else {
 			setQtObj((cast(t_qp__qp) pFunQt[66])(null));
 		}
-	} /// Конструктор
-} */
+ */	} /// Конструктор
+} 
+// ============ QTableView ==================
+class QTableView : QAbstractItemView {
+	this(){}
+	~this() {
+		if(!fNoDelete) { (cast(t_v__qp) pFunQt[160])(QtObj); setQtObj(null); }
+	}
+	// this() { super(); }
+	this(char ch, void* adr) {
+		if(ch == '+') setQtObj(cast(QtObjH)adr);
+	}
+	this(QWidget parent) {
+		this.setNoDelete(true);
+		setQtObj((cast(t_qp__qp) pFunQt[159])(parent ? parent.QtObj : null));
+ 	} /// Конструктор
+} 
+// ============ QTableWidget ==================
+class QTableWidget : QTableView {
+	this(){}
+	~this() {
+		if(!fNoDelete) { (cast(t_v__qp) pFunQt[162])(QtObj); setQtObj(null); }
+	}
+	// this() { super(); }
+	this(char ch, void* adr) {
+		if(ch == '+') setQtObj(cast(QtObjH)adr);
+	}
+	this(QWidget parent) {
+		this.setNoDelete(true);
+		setQtObj((cast(t_qp__qp) pFunQt[161])(parent ? parent.QtObj : null));
+ 	} /// Конструктор
+	QTableWidget setRowCount(int row) {
+		(cast(t_v__qp_i_i) pFunQt[163])(QtObj, row, 1); return this;
+	}
+	QTableWidget setColumnCount(int col) {
+		(cast(t_v__qp_i_i) pFunQt[163])(QtObj, col, 0); return this;
+	}
+	QTableWidget insertRow(int row) {
+		(cast(t_v__qp_i_i) pFunQt[163])(QtObj, row, 3); return this;
+	}
+	QTableWidget insertColumn(int col) {
+		(cast(t_v__qp_i_i) pFunQt[163])(QtObj, col, 2); return this;
+	}
+	QTableWidget clear() {
+		(cast(t_v__qp_i_i) pFunQt[163])(QtObj, 0, 4); return this;
+	}
+	QTableWidget clearContents() {
+		(cast(t_v__qp_i_i) pFunQt[163])(QtObj, 0, 5); return this;
+	} /// Удалено содержание, но заголовки и прочее остаётся
+} 

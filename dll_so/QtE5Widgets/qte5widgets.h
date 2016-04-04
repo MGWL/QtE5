@@ -32,6 +32,9 @@
 #include <QAbstractScrollArea>
 #include <QMdiArea>
 #include <QMdiSubWindow>
+#include <QAbstractItemView>
+#include <QTableView>
+#include <QTableWidget>
 
 typedef int PTRINT;
 typedef unsigned int PTRUINT;
