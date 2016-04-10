@@ -10,12 +10,13 @@
 // includedForth(string NameFileForth) - Загрузить и выполнить файл Форта
 // pp asr = getCommonAdr(int n) - Вернуть из общей таблицы (ячейка n) значение
 // setCommonAdr(int n, pp adr) - Записать в ячейку общей таблицы n значение равное adr
-
+// adrContext() - Указатель на adr[256] со списками слов
 
 // История изменений
 // 28.06.15 - BMOVE Копировать байты 
 // 05.07.15 - Пропускать в поиске слова из одних цифр 
 // 06.07.15 - Добавил DDUP
+// 10.04.16 - Исправлена ошибка в EXECUTEFROMD
  
 module forth;
 
@@ -31,11 +32,28 @@ alias	void**	pp;		// Указатель на указатель
 alias  ubyte*	pb;		// Указатель на байт
 alias   char* 	ps;   	// Указатель на char
 
+// Стеки и кодофайл выделены в хипе и не пересекаются
 private const CELL = 4;
+private const sizeCodeFile = 30000; // Количество CELL для кодофайла
+private const sizeStack    =  1000; // Количество CELL для стеков
 
 // Таблица общих для F и D адресов. В неё можно помещать адреса переменных или функций.
 // Контроля над тем, что лежит нет!
 private pp[100] commonTable;
+
+// Выдать адрес context из структуры forth
+void* adrContext() {return gpcb.context; }
+// Выдать адрес начала стека SD
+void* adr_cSD() {	return gpcb.csd; }
+// Выдать адрес сохраненого стека SP
+void* adr_SD() {	return gpcb.saveEBP;  }
+
+// Выдать адрес начала кодофайла
+void* adr_begKDF() {	return gpcb.akdf;  }
+// Выдать адрес HERE
+void* adr_here()   {	return gpcb.here;  }
+// Выдать адрес конца кодофайла
+void* adr_endKDF() {	return gpcb.akdf + sizeCodeFile;  }
 
 // Контекст Fotrh процесса
 private struct NPcb {
@@ -56,10 +74,10 @@ private struct NPcb {
     ps	Tib; 					// указатель на сам входной буфеp
 	int dlTib;					// Размер строки прочитанной в Tib
 	// Регистры сохранения состояния
-	pp saveEBP;          // Место под EBP форта
-	pp saveEAX;          // Место под EAX форта
-	pp saveESI;          // Место под ESI форта
-	pp saveEDI;          // Место под EDI форта
+	pp saveEBP;          		// Место под EBP форта
+	pp saveEAX;          		// Место под EAX форта
+	pp saveESI;          		// Место под ESI форта
+	pp saveEDI;          		// Место под EDI форта
 }
 
 private NPcb gpcb;						// Глобальное определение блока управления
@@ -89,8 +107,6 @@ void dumpAdr(pp adr) {
 	}
 }
 
-
-
 // ======================== defkern.f ========================
 
 // 01-02-2008 ~mOleg
@@ -119,7 +135,6 @@ private void f_NRAWNO() {
 		ret;
 	}
 }
-
 // Сравнение.
 // CODE < ( A B --> T/F )
 private void f_MENSHE() {
@@ -132,7 +147,6 @@ private void f_MENSHE() {
 		ret;
 	}
 }
-
 // Сравнение.
 // CODE > ( A B --> T/F )
 private void f_BOLSHE() {
@@ -145,7 +159,6 @@ private void f_BOLSHE() {
 		ret;
 	}
 }
-
 // ничего не делать.
 // CODE NOOP ( --> )
 private void f_NOOP() {
@@ -463,7 +476,6 @@ private void h_ZW() {
 		ret;
 	}
 }
-
 // +  ( A B -- A+B )
 private void h_PLUS() {
 	asm {		naked;
@@ -536,8 +548,6 @@ private void f_R_RESOLVE() {
 		ret;
 	}
 }
-
-
 // \ разрешить ссылку(в коде, то есть в поле данных команды JMP или CALL) назад
 // : <resolve ( addr --> ) atod REF, ;
 private void f_L_resolve() {
@@ -955,7 +965,6 @@ private void SL_Ldrop() {
 
 // Процедуры времени выполнения для CONSTANT, VARIABLE, etc.
 
-
 // Записать значение по адресу
 // ! ( x a-addr --> )
 private void h_setToAdr() {
@@ -967,7 +976,6 @@ private void h_setToAdr() {
 		ret;
 	}
 }
-
 // Прочитать значение по адресу
 // @ ( a-addr --> x )
 private void h_getFromAdr() {
@@ -976,7 +984,6 @@ private void h_getFromAdr() {
 		ret;
 	}
 }
-
 // Получить byte по адресу c-addr.
 // Незначащие старшие биты ячейки нулевые.
 // B@ ( c-addr --> byte )
@@ -986,7 +993,6 @@ private void h_getFromAdrByte() {
 		ret;
 	}
 }
-
 // Записать byte по адресу a-addr.
 // CODE B! ( byte c-addr --> )
 private void h_setToAdrByte() {
@@ -1277,7 +1283,6 @@ version(linux) {
 	}
 }
 }
-
 // Вернуть на стек адрес функции LoadLibrary
 pp h_LoadLibrary() {
 	pp rez;
@@ -1309,7 +1314,6 @@ void f_DlOpen() {
 		ret;
 	}
 }
-
 // Вернуть на стек адрес функции GetProcAdres
 pp h_GetPrAdressA() {
 	pp rez;
@@ -1343,7 +1347,7 @@ void f_DlSym() {
 }
 
 
- // use std.stdout instead of std.c.stdio.stdout 
+// use std.stdout instead of std.c.stdio.stdout 
 
 pp h_getSTDOUT() {
     // Linux
@@ -1361,7 +1365,7 @@ void getSTDOUT() {
 
 // TYPE ( A -- ) Распечатать строку на консоли
 void h_TYPE(ps adr) {
-	printf("%s", adr);
+	printf("%s", adr); stdout.flush();
 }
 void f_TYPE() {
 	asm {	naked;
@@ -1404,32 +1408,35 @@ private void f_THROW() {
 // }
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // Выполнить адрес через EXECUTE
-extern (C) pp executeForth(pp adrexec, ubyte kolPar, ...) {
+extern (C) pp executeForth(pp adrexec, uint kolPar, ...) {
 	pp Adr_execD = gpcb.executeFromD;  // ' EXECUTEFROMD
-	pp ret;
+	// writeln("Adr_execD = ", Adr_execD, "   adrexec = ", adrexec, "  kolPar = ", kolPar);
+	pp ret;  			// Место под возвращаемое значение
 	NPcb npcb = gpcb;   // Возможность работы с PCB (контекст) переменными в ASM
+	pp adrKolPar = cast(pp)&kolPar;  // Адрес количества параметров
 	asm {
 		align 4;
 		// Сохраним регистры D
 		push EBX; push ESI; push EAX; push ECX; push EDX; push EBP; 
 		// --------------------
 		// Запишем наши параметры
-		push Adr_execD;
-		lea EAX, adrexec;
-		push EAX;
+		push Adr_execD;				// Адрес xt специальный слова в Forth (EXECUTEFROMD)
+		push adrexec;				// Адпес слова Forth которое будет выполнено из EXECUTEFROMD
+		push adrKolPar; 			// Адрес количества параметров для передачи в Форт
 		// Востановим регитры F
 		mov EAX, npcb.saveEAX.offsetof[npcb];
 		mov ESI, npcb.saveESI.offsetof[npcb];
 		mov EDI, npcb.saveEDI.offsetof[npcb];
 		mov EBP, npcb.saveEBP.offsetof[npcb];
-		
-  		call h_DUP;
-		pop  EAX;    // s2  
-  		call h_DUP;
-		pop  EAX;    // s2  
-		call f_EXECUTE;
-		mov EBX, EAX;
-		call h_DROP;
+  		call h_DUP;					// Сохраним то что было на вершине стека Форта
+		pop  EAX;					// На веншину SD количество пораметров
+  		call h_DUP;					// Сохраним,освободив вершину SD
+		pop  EAX;					// На веншину SD адрес вызываемого слова
+  		call h_DUP;					// Сохраним,освободив вершину SD
+		pop  EAX;					// На вершине SD адрес EXECUTEFROMD
+		call f_EXECUTE;				// Вызов EXECUTEFROMD
+		mov EBX, EAX;				// Сохранить возвращаемое значение
+		// call h_DROP;				// Выкинуть со стека в форте, так как вызов внешний 
 		
 		// Сохраним F
 		mov ECX, EBP;
@@ -1447,14 +1454,12 @@ extern (C) pp executeForth(pp adrexec, ubyte kolPar, ...) {
 	gpcb.saveEAX = npcb.saveEAX;   // Возможность работы с PCB (контекст) переменными в ASM
 	gpcb.saveESI = npcb.saveESI;   // Возможность работы с PCB (контекст) переменными в ASM
 	gpcb.saveEDI = npcb.saveEDI;   // Возможность работы с PCB (контекст) переменными в ASM
-
 	return ret;
 }
 
 void evalForth(char *str) {
 	evalForth(to!string(str));
 }
-
 void evalForth(string str) {
 	// Linux корректировка
 	if(str.length>0 && str[$-1]==13) str.length = str.length-1;
@@ -1500,10 +1505,10 @@ pp getCommonAdr(int n) {	return commonTable[n];  }
 // Инициализировать Forth и подготовить его к работе
 
 void initForth() {
-	kdf = cast(pb)(new uint[10000]).ptr;		// Изготовим кодофайл на 10000 адр
+	kdf = cast(pb)(new uint[sizeCodeFile]).ptr;		// Изготовим кодофайл на sizeCodeFile адр
 	NPcb npcb = gpcb;
 	npcb.adrCommonTable = cast(pp)commonTable.ptr;
-	const sizeSt = 1000; 					// По 1000 CELL на каждый стек
+	const sizeSt = sizeStack; 				// По sizeStack CELL на каждый стек
 	// uint[sizeSt] stSD, stSR, stSL;  		// Память под стеки
 	stSD = cast(pp)(new uint[sizeSt]);		// Запомнить начало области SP в глобальной переменной
 	npcb.csd = stSD + sizeSt - 1;			// Запомнить вершину стека SP в контексте
@@ -1728,8 +1733,6 @@ void initForth() {
 	evalForth(": ?COMP STATE NOT IF 1 THROW THEN ; : ?EXEC STATE IF 2 THROW THEN ;");
 	// ( -- ) Забрать из потока слово немедленного исполнения и закомпилировать его
 	evalForth(": [COMPILE] ?COMP ' COMPILE, ; IMMEDIATE");
-	// EXECUTEFROMD ( Asr -- Rez ) Выполнить из D слово по EXECUTE
-	evalForth(": EXECUTEFROMD DUP >R CELL + @ BEGIN DUP WHILE DUP CELLS CELL R@ + + @ SWAP 1- REPEAT DROP R> @ EXECUTE ;");
 	// Счетный цикл 10 0 DO .. I .. LOOP - 10 раз от 0 до 9 - в любом случае 1 раз выполнение
 	// Для работы использует стек L
 	evalForth(": (DO) SWAP >L >L ; : DO COMPILE (DO) <MARK ; IMMEDIATE : I L@ ;");
@@ -1737,7 +1740,11 @@ void initForth() {
 	evalForth(": LOOP COMPILE (LOOP) COMPILE ?BRANCH <RESOLVE ; IMMEDIATE");
 	evalForth(": (+LOOP) L> + L> DDUP < NOT IF DDROP TRUE ELSE >L >L FALSE THEN ;");
 	evalForth(": +LOOP COMPILE (+LOOP) COMPILE ?BRANCH <RESOLVE ; IMMEDIATE");
+	
+	// EXECUTEFROMD ( Aколпарамтровcpp Aсловафорта -- Rez ) Выполнить из D слово по EXECUTE
+	evalForth(": EXECUTEFROMD >R DUP @ BEGIN DUP WHILE DDUP CELL * + @ -ROT 1- REPEAT DDROP R> EXECUTE ;");
 	gpcb.executeFromD = gpcb.latest; // Сохраним адрес EXECUTEFROMD
+	
 }
 // CODE WORD ( Rz -- A/0) Выдать адрес на начало следующей лексемы в формате
 // \4ABCD\0\4 Причем эта лексема находится по адресу HERE

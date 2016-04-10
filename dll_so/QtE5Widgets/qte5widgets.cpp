@@ -234,6 +234,16 @@ extern "C" void qteQWidget_setFont(QWidget* wd, QFont* fn) {
 extern "C" void* qteQWidget_winid(QWidget* wd) {
     return (void*)wd->winId();
 }
+extern "C" int qteQWidget_getPr(QWidget* wd, int pr) {
+    int rez = 0;
+    switch ( pr ) {
+    case 0:   rez = wd->x();            break;
+    case 1:   rez = wd->y();            break;
+    case 2:   rez = wd->width();        break;
+    case 3:   rez = wd->height();       break;
+    }
+    return rez;
+}
 
 // =========== QString ==========
 extern "C" QtRefH qteQString_create1(void) {
@@ -824,6 +834,38 @@ extern "C" QTableView* qteQTableView_create(QWidget* parent) {
 extern "C" void qteQTableView_delete(QTableView* wd) {
     delete wd;
 }
+// =========== QTableWidgetItem ==========
+extern "C" void* qteQTableWidgetItem_create(int t) {
+    return new QTableWidgetItem(t);
+}
+extern "C" void qteQTableWidgetItem_delete(QTableWidgetItem* wd) {
+    delete wd;
+}
+extern "C" void qteQTableWidgetItem_setXX(QTableWidgetItem* wd, QString *qstr, int pr) {
+    switch ( pr ) {
+        case 0:   wd->setText(*qstr);                  break;
+        case 1:   wd->setToolTip(*qstr);                    break;
+        case 2:   wd->setStatusTip(*qstr);                  break;
+        case 3:   wd->setWhatsThis(*qstr);                  break;
+    }
+}
+extern "C" int qteQTableWidgetItem_setYY(QTableWidgetItem* wd, int pr) {
+    int rez = 0;
+    switch ( pr ) {
+        case 0:  rez = wd->column();                  break;
+        case 1:  rez = wd->row();                     break;
+        case 2:  rez = wd->textAlignment();           break;
+        case 3:  rez = wd->type();                    break;
+    }
+    return rez;
+}
+extern "C" void qteQTableWidgetItem_text(QTableWidgetItem* wd, QString* qs) {
+    *qs = wd->text();
+}
+extern "C" void qteQTableWidgetItem_setAligment(QTableWidgetItem* wd, int alig) {
+    wd->setTextAlignment(alig);
+}
+
 // =========== QTableWidget ==========
 extern "C" QTableWidget* qteQTableWidget_create(QWidget* parent) {
     return new QTableWidget(parent);
@@ -841,3 +883,72 @@ extern "C" void qteQTableWidget_setRC(QTableWidget* wd, int n, int pr) {
     case 5:   wd->clearContents();                   break;
     }
 }
+extern "C" void qteQTableWidget_setitem(QTableWidget* wd,
+                        QTableWidgetItem* tw, int r, int c) {
+    wd->setItem(r, c, tw);
+}
+extern "C" QTableWidgetItem* qteQTableWidget_item(QTableWidget* wd, int r, int c) {
+    return wd->item(r, c);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*
+// ================= QTableView =================
+extern "C" void* QT_QTableViewNEW(QWidget* parent) {
+    return new QTableView(parent);
+}
+extern "C" void QT_QTableViewDELETE(QTableView* p) {
+    delete p;
+}
+// ================= QTableWidget =================
+extern "C" void* QT_QTableWidgetNEW(QWidget* parent) {
+    return new QTableWidget(parent);
+}
+extern "C" void QT_QTableWidgetDELETE(QTableWidget* p) {
+    delete p;
+}
+extern "C" QWidget* QT_QTableWidget_cellWidget(QTableWidget* tw, int row, int column) {
+    return tw->cellWidget(row, column);
+}
+extern "C" void QT_QTableWidget_setItem(QTableWidget* tw, QTableWidgetItem* p, int row, int column) {
+    return tw->setItem(row, column, p);
+}
+extern "C" QString* QT_QTableWidget_stringFromCell(QTableWidget* tw, QString* qs, int row, int column) {
+    qs->append(tw->item(row, column)->text());
+    return qs;
+}
+
+// ================= QTableWidgetItem =================
+extern "C" void* QT_QTableWidgetItemNEW(void) {
+    return  new QTableWidgetItem();
+}
+extern "C" void* QT_QTableWidgetItemNEWqs(QString str) {
+    return  new QTableWidgetItem(str);
+}
+extern "C" void QT_QTableWidgetItemDELETE(QTableWidgetItem* p) {
+    delete p;
+}
+extern "C" void QT_QTableWidget_setTextAligment(QTableWidgetItem* p,  int alignment) {
+    p->setTextAlignment(alignment);
+}
+
+*/

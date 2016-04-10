@@ -108,5 +108,10 @@ IF=W R@ 13 F_EMIT
 ПроверкаФорт
 IF=W testMessageBox
 
+// Прведем проверку вызова слов Форта из D не через Eval, а через CALL ASM
+: TestForthWord
+    +
+    ; LATEST @ 6 COMMONADR!  // Сохраним адрес в 6 общей ячейке для вызова с D
+
 
 // . . . . .

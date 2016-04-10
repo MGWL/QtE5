@@ -35,6 +35,7 @@
 #include <QAbstractItemView>
 #include <QTableView>
 #include <QTableWidget>
+#include <QTableWidgetItem>
 
 typedef int PTRINT;
 typedef unsigned int PTRUINT;
