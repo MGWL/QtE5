@@ -52,6 +52,7 @@ private extern (C) @nogc alias t_v__qp_qp_qp = void function(QtObjH, QtObjH, QtO
 
 private extern (C) @nogc alias t_i__vp_vp_vp = int function(void*, void*, void*);
 private extern (C) @nogc alias t_i__vp_i = int function(void*, int);
+private extern (C) @nogc alias t_i__qp_i = int function(QtObjH, int);
 private extern (C) @nogc alias t_qp__qp_qp = QtObjH function(QtObjH, QtObjH);
 private extern (C) @nogc alias t_vp__vp_c_i = void* function(void*, char, int);
 private extern (C) @nogc alias t_vp__vp_cp_i = void* function(void*, char*, int);
@@ -67,6 +68,7 @@ private extern (C) @nogc alias t_vp__vp_vp_i = void* function(void*, void*, int)
 private extern (C) @nogc alias t_qp__qp_qp_i = QtObjH function(QtObjH, QtObjH, int);
 private extern (C) @nogc alias t_vp__vp_i = void* function(void*, int);
 private extern (C) @nogc alias t_qp__qp_i = QtObjH function(QtObjH, int);
+private extern (C) @nogc alias t_qp__qp_i_i = QtObjH function(QtObjH, int, int);
 private extern (C) @nogc alias t_vp__v = void* function();
 private extern (C) @nogc alias t_qp__v = QtObjH function();
 private extern (C) @nogc alias t_i__vp = int function(void*);
@@ -76,6 +78,7 @@ private extern (C) @nogc alias t_v__qp_b_i_i = void function(QtObjH, bool, int, 
 
 private extern (C) @nogc alias t_vp__i_i = void* function(int, int);
 private extern (C) @nogc alias t_qp__i_i = QtObjH function(int, int);
+private extern (C) @nogc alias t_qp__i = QtObjH function(int);
 
 private extern (C) @nogc alias t_vp__i_i_i_i = void* function(int, int, int, int);
 
@@ -269,6 +272,9 @@ int LoadQt(dll ldll, bool showError) { ///  Загрузить DLL-ки Qt и Qt
 
 	funQt(131,bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQWidget_setFont",         showError);
 	funQt(148,bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQWidget_winid",           showError);
+
+	funQt(172,bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQWidget_getPr",           showError);
+	
 	// ------- QString -------
 	funQt(8,  bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQString_create1",         showError);
 	funQt(9,  bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQString_create2",         showError);
@@ -447,9 +453,19 @@ int LoadQt(dll ldll, bool showError) { ///  Загрузить DLL-ки Qt и Qt
 	funQt(161, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQTableWidget_create",			showError);
 	funQt(162, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQTableWidget_delete",			showError);
 	funQt(163, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQTableWidget_setRC",			showError);
+	funQt(167, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQTableWidget_setitem",			showError);
+	//  ------- QTableWidgetItem -------
+	funQt(164, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQTableWidgetItem_create",		showError);
+	funQt(165, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQTableWidgetItem_delete",		showError);
 
+	funQt(166, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQTableWidgetItem_setXX",		showError);
+	funQt(168, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQTableWidgetItem_setYY",		showError);
+	funQt(169, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQTableWidget_item",			showError);
+	funQt(170, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQTableWidgetItem_text",		showError);
+	funQt(171, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQTableWidgetItem_setAligment",	showError);
 	
-	// Последний = 163
+	
+	// Последний = 172
 	return 0;
 } ///  Загрузить DLL-ки Qt и QtE. Найти в них адреса функций и заполнить ими таблицу
 
@@ -1119,6 +1135,19 @@ class QWidget: QPaintDevice {
 	void* winid() {
 		return (cast(t_vp__qp) pFunQt[148])(QtObj); 
 	}
+	int x() {
+		return (cast(t_i__qp_i) pFunQt[172])(QtObj, 0); 
+	}
+	int y() {
+		return (cast(t_i__qp_i) pFunQt[172])(QtObj, 1); 
+	}
+	int width() {
+		return (cast(t_i__qp_i) pFunQt[172])(QtObj, 2); 
+	}
+	int height() {
+		return (cast(t_i__qp_i) pFunQt[172])(QtObj, 3); 
+	}
+	
 }
 // ============ QAbstractButton =======================================
 class QAbstractButton : QWidget {
@@ -2357,4 +2386,85 @@ class QTableWidget : QTableView {
 	QTableWidget clearContents() {
 		(cast(t_v__qp_i_i) pFunQt[163])(QtObj, 0, 5); return this;
 	} /// Удалено содержание, но заголовки и прочее остаётся
-} 
+	
+	QTableWidget setItem(int r, int c, QTableWidgetItem twi) {
+		(cast(t_v__qp_qp_i_i) pFunQt[167])(QtObj, twi.QtObj, r, c); return this;
+	}
+/* 	QString toQString(QString shabl) {
+		QString qs = new QString(); 
+		(cast(t_v__qp_qp_qp)pFunQt[141])(QtObj, qs.QtObj, shabl.QtObj); 
+		return qs;
+	}
+ */}
+ 
+// =========== QTableWidgetItem ========
+class QTableWidgetItem : QObject {
+	~this() {
+		if(!fNoDelete) { (cast(t_v__qp) pFunQt[165])(QtObj); setQtObj(null); }
+	}
+	this(QTableWidget tw, int row, int col) {
+		setQtObj((cast(t_qp__qp_i_i)pFunQt[169])(tw.QtObj, row, col));
+	} /// Создать item забрав его по координатам
+	this(int Type) {
+		setQtObj((cast(t_qp__i)pFunQt[164])(Type));
+	}
+	this(char ch, void* adr) {
+		if(ch == '+') setQtObj(cast(QtObjH)adr);
+	}
+	QTableWidgetItem setText(T: QString)(T str) {
+		(cast(t_v__qp_qp_i) pFunQt[166])(QtObj, str.QtObj, 0);
+		return this;
+	} /// Установить текст в ячейке
+	QTableWidgetItem setText(T)(T str) {
+		(cast(t_v__qp_qp_i) pFunQt[166])(QtObj, (new QString(to!string(str))).QtObj, 0);
+		return this;
+	} /// Установить текст в ячейке
+	QTableWidgetItem setToolTip(T: QString)(T str) {
+		(cast(t_v__qp_qp_i) pFunQt[166])(QtObj, str.QtObj, 1);
+		return this;
+	}
+	QTableWidgetItem setToolTip(T)(T str) {
+		(cast(t_v__qp_qp_i) pFunQt[166])(QtObj, (new QString(to!string(str))).QtObj, 1);
+		return this;
+	}
+	QTableWidgetItem setStatusTip(T: QString)(T str) {
+		(cast(t_v__qp_qp_i) pFunQt[166])(QtObj, str.QtObj, 2);
+		return this;
+	}
+	QTableWidgetItem setStatusTip(T)(T str) {
+		(cast(t_v__qp_qp_i) pFunQt[166])(QtObj, (new QString(to!string(str))).QtObj, 2);
+		return this;
+	}
+	QTableWidgetItem setWhatsThis(T: QString)(T str) {
+		(cast(t_v__qp_qp_i) pFunQt[166])(QtObj, str.QtObj, 3);
+		return this;
+	}
+	QTableWidgetItem setWhatsThis(T)(T str) {
+		(cast(t_v__qp_qp_i) pFunQt[166])(QtObj, (new QString(to!string(str))).QtObj, 3);
+		return this;
+	}
+	int column() {
+		return (cast(t_i__qp_i) pFunQt[168])(QtObj, 0);
+	}
+	int row() {
+		return (cast(t_i__qp_i) pFunQt[168])(QtObj, 1);
+	}
+	int textAlignment() {
+		return (cast(t_i__qp_i) pFunQt[168])(QtObj, 2);
+	}
+	int type() {
+		return (cast(t_i__qp_i) pFunQt[168])(QtObj, 3);
+	}
+	T text(T: QString)() {
+		QString qs = new QString(); (cast(t_v__qp_qp)pFunQt[170])(QtObj, qs.QtObj); return qs;
+	} /// Выдать содержимое в QString
+	T text(T)() { return to!T(text!QString().String);
+	} /// Выдать всё содержимое в String
+	
+ 	QTableWidgetItem setTextAlignment(QtE.AlignmentFlag alig = QtE.AlignmentFlag.AlignLeft) {
+		(cast(t_v__qp_i)pFunQt[171])(QtObj, alig);
+		return this;
+	}
+
+	
+}
