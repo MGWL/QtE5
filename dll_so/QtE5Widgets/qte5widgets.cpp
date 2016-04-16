@@ -272,6 +272,21 @@ extern "C" void qteQColor_delete(QtRefH qs) {
 extern "C" void qteQColor_setRgb(QtRefH wc, int r, int g, int b, int a) {
     ((QColor*)wc)->setRgb(r,g,b,a);
 }
+// =========== QBrush ==========
+extern "C" QtRefH qteQBrush_create1(void) {
+    return (QtRefH)new QBrush();
+}
+extern "C" void qteQBrush_delete(QtRefH qs) {
+    delete (QBrush*)qs;
+}
+// 179
+extern "C" void qteQBrush_setColor(QBrush* qs, QColor* qc) {
+    qs->setColor(*qc);
+}
+extern "C" void qteQBrush_setStyle(QBrush* qs, Qt::BrushStyle bs) {
+    qs->setStyle(bs);
+}
+
 // =========== QPalette ==========
 extern "C" QtRefH qteQPalette_create1(void) {
     return (QtRefH)new QPalette();
@@ -834,6 +849,35 @@ extern "C" QTableView* qteQTableView_create(QWidget* parent) {
 extern "C" void qteQTableView_delete(QTableView* wd) {
     delete wd;
 }
+// 174
+extern "C" void qteQTableView_setN1(QTableView* wd, int n, int p, int pr) {
+    switch ( pr ) {
+        case 0:   wd->setColumnWidth(n, p);                  break;
+        case 1:   wd->setRowHeight(n, p);                    break;
+    }
+}
+// 175
+extern "C" int qteQTableView_getN1(QTableView* wd, int n, int pr) {
+    int rez; rez = 0;
+    switch ( pr ) {
+        case 0:   rez = wd->columnWidth(n);                  break;
+        case 1:   rez = wd->rowHeight(n);                    break;
+        case 2:   rez = wd->columnAt(n);                     break;
+        case 3:   rez = wd->rowAt(n);                        break;
+        case 4:   wd->showColumn(n);                   break;
+        case 5:   wd->hideColumn(n);                   break;
+        case 6:   wd->showRow(n);                      break;
+        case 7:   wd->hideRow(n);                      break;
+    }
+    return rez;
+}
+extern "C" void qteQTableView_ResizeMode(QTableView* wd, int rc, QHeaderView::ResizeMode n, int pr) {
+    switch ( pr ) {
+    case 0:  wd->horizontalHeader()->setSectionResizeMode(rc, n); break;
+    case 1:    wd->verticalHeader()->setSectionResizeMode(rc, n); break;
+    }
+}
+
 // =========== QTableWidgetItem ==========
 extern "C" void* qteQTableWidgetItem_create(int t) {
     return new QTableWidgetItem(t);
@@ -865,6 +909,12 @@ extern "C" void qteQTableWidgetItem_text(QTableWidgetItem* wd, QString* qs) {
 extern "C" void qteQTableWidgetItem_setAligment(QTableWidgetItem* wd, int alig) {
     wd->setTextAlignment(alig);
 }
+extern "C" void qteQTableWidgetItem_setBackground(QTableWidgetItem* wd, QBrush* qb, int pr) {
+    switch ( pr ) {
+        case 0:  wd->setBackground(*qb);                  break;
+        case 1:  wd->setForeground(*qb);                  break;
+    }
+}
 
 // =========== QTableWidget ==========
 extern "C" QTableWidget* qteQTableWidget_create(QWidget* parent) {
@@ -890,65 +940,47 @@ extern "C" void qteQTableWidget_setitem(QTableWidget* wd,
 extern "C" QTableWidgetItem* qteQTableWidget_item(QTableWidget* wd, int r, int c) {
     return wd->item(r, c);
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-/*
-// ================= QTableView =================
-extern "C" void* QT_QTableViewNEW(QWidget* parent) {
-    return new QTableView(parent);
+// 176
+extern "C" void qteQTableWidget_setHVheaderItem(QTableWidget* wd,
+                                                QTableWidgetItem* item,
+                                                int cr, int pr) {
+    switch ( pr ) {
+    case 0:   wd->setHorizontalHeaderItem(cr, item);  break;
+    case 1:   wd->setVerticalHeaderItem(cr, item);    break;
+    case 2: {
+        QTableWidgetItem* twi = new QTableWidgetItem(0);
+        twi->setText("Hello");
+        wd->setVerticalHeaderItem(cr, twi);
+            }   break;
+    }
 }
-extern "C" void QT_QTableViewDELETE(QTableView* p) {
-    delete p;
+// =========== QComboBox ==========
+extern "C" QComboBox* qteQComboBox_create(QWidget* parent) {
+    return new QComboBox(parent);
 }
-// ================= QTableWidget =================
-extern "C" void* QT_QTableWidgetNEW(QWidget* parent) {
-    return new QTableWidget(parent);
+extern "C" void qteQComboBox_delete(QComboBox* wd) {
+    delete wd;
 }
-extern "C" void QT_QTableWidgetDELETE(QTableWidget* p) {
-    delete p;
+extern "C" void qteQComboBox_setXX(QComboBox* wd, QString *qstr, int n, int pr) {
+    switch ( pr ) {
+    case 0:   wd->addItem(*qstr, n);       break;
+    case 1:   wd->setItemText(n, *qstr);   break;
+    case 2:   wd->setMaxCount(n);          break;
+    case 3:   wd->setMaxVisibleItems(n);   break;
+    }
 }
-extern "C" QWidget* QT_QTableWidget_cellWidget(QTableWidget* tw, int row, int column) {
-    return tw->cellWidget(row, column);
+extern "C" int qteQComboBox_getXX(QComboBox* wd, int pr) {
+    int rez = 0;
+    switch ( pr ) {
+    case 0:   rez = wd->currentIndex();          break;
+    case 1:   rez = wd->count();                 break;
+    case 2:   rez = wd->maxCount();              break;
+    case 3:   rez = wd->maxVisibleItems();       break;
+    case 4:   rez = wd->currentData().toUInt();  break;
+    case 5:   wd->clear();                 break;
+    }
+    return rez;
 }
-extern "C" void QT_QTableWidget_setItem(QTableWidget* tw, QTableWidgetItem* p, int row, int column) {
-    return tw->setItem(row, column, p);
+extern "C" void qteQComboBox_text(QComboBox* wd, QString* qs) {
+    *qs = wd->currentText();
 }
-extern "C" QString* QT_QTableWidget_stringFromCell(QTableWidget* tw, QString* qs, int row, int column) {
-    qs->append(tw->item(row, column)->text());
-    return qs;
-}
-
-// ================= QTableWidgetItem =================
-extern "C" void* QT_QTableWidgetItemNEW(void) {
-    return  new QTableWidgetItem();
-}
-extern "C" void* QT_QTableWidgetItemNEWqs(QString str) {
-    return  new QTableWidgetItem(str);
-}
-extern "C" void QT_QTableWidgetItemDELETE(QTableWidgetItem* p) {
-    delete p;
-}
-extern "C" void QT_QTableWidget_setTextAligment(QTableWidgetItem* p,  int alignment) {
-    p->setTextAlignment(alignment);
-}
-
-*/

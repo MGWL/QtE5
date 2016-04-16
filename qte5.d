@@ -53,6 +53,7 @@ private extern (C) @nogc alias t_v__qp_qp_qp = void function(QtObjH, QtObjH, QtO
 private extern (C) @nogc alias t_i__vp_vp_vp = int function(void*, void*, void*);
 private extern (C) @nogc alias t_i__vp_i = int function(void*, int);
 private extern (C) @nogc alias t_i__qp_i = int function(QtObjH, int);
+private extern (C) @nogc alias t_i__qp_i_i = int function(QtObjH, int, int);
 private extern (C) @nogc alias t_qp__qp_qp = QtObjH function(QtObjH, QtObjH);
 private extern (C) @nogc alias t_vp__vp_c_i = void* function(void*, char, int);
 private extern (C) @nogc alias t_vp__vp_cp_i = void* function(void*, char*, int);
@@ -449,11 +450,19 @@ int LoadQt(dll ldll, bool showError) { ///  Загрузить DLL-ки Qt и Qt
 	//  ------- QTableView -------
 	funQt(159, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQTableView_create",			showError);
 	funQt(160, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQTableView_delete",			showError);
+
+	funQt(174, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQTableView_setN1",				showError);
+	funQt(175, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQTableView_getN1",				showError);
+	funQt(182, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQTableView_ResizeMode",		showError);
+	
 	//  ------- QTableWidget -------
 	funQt(161, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQTableWidget_create",			showError);
 	funQt(162, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQTableWidget_delete",			showError);
 	funQt(163, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQTableWidget_setRC",			showError);
 	funQt(167, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQTableWidget_setitem",			showError);
+	
+	funQt(176, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQTableWidget_setHVheaderItem",	showError);
+	
 	//  ------- QTableWidgetItem -------
 	funQt(164, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQTableWidgetItem_create",		showError);
 	funQt(165, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQTableWidgetItem_delete",		showError);
@@ -463,9 +472,23 @@ int LoadQt(dll ldll, bool showError) { ///  Загрузить DLL-ки Qt и Qt
 	funQt(169, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQTableWidget_item",			showError);
 	funQt(170, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQTableWidgetItem_text",		showError);
 	funQt(171, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQTableWidgetItem_setAligment",	showError);
+	funQt(180, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQTableWidgetItem_setBackground",	showError);
+
+	//  ------- QBrush -------
+	funQt(177, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQBrush_create1",				showError);
+	funQt(178, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQBrush_delete",				showError);
+	funQt(179, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQBrush_setColor",				showError);
+	funQt(181, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQBrush_setStyle",				showError);
+
+	//  ------- QComboBox -------
+	funQt(183, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQComboBox_create",				showError);
+	funQt(184, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQComboBox_delete",				showError);
+	funQt(185, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQComboBox_setXX",				showError);
+	funQt(186, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQComboBox_getXX",				showError);
+	funQt(187, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQComboBox_text",				showError);
 	
 	
-	// Последний = 172
+	// Последний = 187
 	return 0;
 } ///  Загрузить DLL-ки Qt и QtE. Найти в них адреса функций и заполнить ими таблицу
 
@@ -960,9 +983,60 @@ class QColor : QObject {
 		if(!fNoDelete && (QtObj != null)) { (cast(t_v__qp) pFunQt[14])(QtObj); setQtObj(null); }
 	} /// Деструктор
 	void setRgb(int r, int g, int b, int a = 255) {
-		(cast(t_v__qp_i_i_i_i) pFunQt[15])(p_QObject, r, g, b, a);
+		(cast(t_v__qp_i_i_i_i) pFunQt[15])(QtObj, r, g, b, a);
 	} /// Sets the RGB value to r, g, b and the alpha value to a. All the values must be in the range 0-255.
 }
+// ================ QBrush ================
+/++
+QBrush - Оформление
++/
+class QBrush : QObject {
+
+	enum BrushStyle {
+		NoBrush	=		0,			// No brush pattern.
+		SolidPattern =	1,			// Однообразный
+		Dense1Pattern =	2,			// Исключительно плотный
+		Dense2Pattern =	3,			// Довольно плотный
+		Dense3Pattern =	4,			// Somewhat dense brush pattern.
+		Dense4Pattern =	5,			// Half dense brush pattern.
+		Dense5Pattern =	6,			// Somewhat sparse brush pattern.
+		Dense6Pattern =	7,			// Very sparse brush pattern.
+		Dense7Pattern =	8,			// Extremely sparse brush pattern.
+		HorPattern	=	9,			// Горизонтальная штриховка
+		VerPattern =	10,			// Вертикальная штриховка
+		CrossPattern =	11,			// Сетка
+		BDiagPattern =	12,			// Backward diagonal lines.
+		FDiagPattern =	13,			// Forward diagonal lines.
+		DiagCrossPattern =	14,		// Crossing diagonal lines.
+		LinearGradientPattern =	15,	// Linear gradient (set using a dedicated QBrush constructor).
+		ConicalGradientPattern=	17,	// Conical gradient (set using a dedicated QBrush constructor).
+		RadialGradientPattern=	16,	// Radial gradient (set using a dedicated QBrush constructor).
+		TexturePattern =24			// Custom pattern (see QBrush::setTexture()).
+	}
+
+	this() {
+		setQtObj((cast(t_qp__v) pFunQt[177])());
+	} /// Конструктор
+	~this() {
+		if(!fNoDelete && (QtObj != null)) { (cast(t_v__qp) pFunQt[178])(QtObj); setQtObj(null); }
+	} /// Деструктор
+	QBrush setColor(QColor color) {
+		(cast(t_v__qp_qp) pFunQt[179])(QtObj, color.QtObj);
+		return this;
+	}
+	QBrush setStyle(BrushStyle style = BrushStyle.SolidPattern) {
+		(cast(t_v__qp_i) pFunQt[181])(QtObj, style);
+		return this;
+	}
+}
+
+/* 	//  ------- QBrush -------
+	funQt(177, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQBrush_create1",				showError);
+	funQt(178, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQBrush_delete",				showError);
+	funQt(179, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQBrush_setColor",				showError);
+ */
+
+
 
 // ================ QPaintDevice ================
 class QPaintDevice: QObject  {
@@ -2339,6 +2413,28 @@ class QAbstractItemView : QAbstractScrollArea {
 		}
  */	} /// Конструктор
 } 
+// ============ QHeaderView =================
+class QHeaderView : QAbstractItemView {
+	enum ResizeMode {
+		Interactive = 0,
+		Fixed =	2,
+		Stretch	 = 1,
+		ResizeToContents = 3
+	}
+	this(){}
+//	~this() {
+//		if(!fNoDelete) { (cast(t_v__qp) pFunQt[160])(QtObj); setQtObj(null); }
+//	}
+	// this() { super(); }
+	this(char ch, void* adr) {
+		if(ch == '+') setQtObj(cast(QtObjH)adr);
+	}
+/* 	this(QWidget parent) {
+		this.setNoDelete(true);
+		setQtObj((cast(t_qp__qp) pFunQt[159])(parent ? parent.QtObj : null));
+ 	} /// Конструктор
+ */
+}
 // ============ QTableView ==================
 class QTableView : QAbstractItemView {
 	this(){}
@@ -2353,6 +2449,45 @@ class QTableView : QAbstractItemView {
 		this.setNoDelete(true);
 		setQtObj((cast(t_qp__qp) pFunQt[159])(parent ? parent.QtObj : null));
  	} /// Конструктор
+	QTableView setColumnWidth(int column, int width) {
+		(cast(t_v__qp_i_i_i) pFunQt[174])(QtObj, column, width, 0); return this;
+	}
+	int columnWidth(int column) {
+		return (cast(t_i__qp_i_i) pFunQt[175])(QtObj, column, 0);
+	}
+	QTableView setRowHeight(int row, int height) {
+		(cast(t_v__qp_i_i_i) pFunQt[174])(QtObj, row, height, 1); return this;
+	}
+	int rowHeight(int row) {
+		return (cast(t_i__qp_i_i) pFunQt[175])(QtObj, row, 1);
+	}
+	int columnAt(int column) {
+		return (cast(t_i__qp_i_i) pFunQt[175])(QtObj, column, 2);
+	}
+	int rowAt(int row) {
+		return (cast(t_i__qp_i_i) pFunQt[175])(QtObj, row, 3);
+	}
+	QTableView showColumn(int column) {
+		(cast(t_v__qp_i_i) pFunQt[175])(QtObj, column, 4); return this;
+	}
+	QTableView hideColumn(int column) {
+		(cast(t_v__qp_i_i) pFunQt[175])(QtObj, column, 5); return this;
+	}
+	QTableView showRow(int row) {
+		(cast(t_v__qp_i_i) pFunQt[175])(QtObj, row, 6); return this;
+	}
+	QTableView hideRow(int row) {
+		(cast(t_v__qp_i_i) pFunQt[175])(QtObj, row, 7); return this;
+	}
+ 	QTableView ResizeModeColumn(int column, QHeaderView.ResizeMode rm = QHeaderView.ResizeMode.Stretch) {
+		(cast(t_v__qp_i_i_i) pFunQt[182])(QtObj, column, rm, 0); return this;
+	}
+	QTableView ResizeModeRow(int row, QHeaderView.ResizeMode rm = QHeaderView.ResizeMode.Stretch) {
+		(cast(t_v__qp_i_i_i) pFunQt[182])(QtObj, row, rm, 1); return this;
+	}
+
+//	funQt(182, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQTableView_ResizeMode",		showError);
+	
 } 
 // ============ QTableWidget ==================
 class QTableWidget : QTableView {
@@ -2390,6 +2525,14 @@ class QTableWidget : QTableView {
 	QTableWidget setItem(int r, int c, QTableWidgetItem twi) {
 		(cast(t_v__qp_qp_i_i) pFunQt[167])(QtObj, twi.QtObj, r, c); return this;
 	}
+	QTableWidget setHorizontalHeaderItem(int c, QTableWidgetItem twi) {
+		(cast(t_v__qp_qp_i_i) pFunQt[176])(QtObj, twi.QtObj, c, 0); return this;
+	}
+	QTableWidget setVerticalHeaderItem(int row, QTableWidgetItem twi) {
+		(cast(t_v__qp_qp_i_i) pFunQt[176])(QtObj, twi.QtObj, row, 1); return this;
+	}
+	
+	
 /* 	QString toQString(QString shabl) {
 		QString qs = new QString(); 
 		(cast(t_v__qp_qp_qp)pFunQt[141])(QtObj, qs.QtObj, shabl.QtObj); 
@@ -2465,6 +2608,73 @@ class QTableWidgetItem : QObject {
 		(cast(t_v__qp_i)pFunQt[171])(QtObj, alig);
 		return this;
 	}
-
+ 	QTableWidgetItem setBackground(QBrush brush) {
+		(cast(t_v__qp_qp_i)pFunQt[180])(QtObj, brush.QtObj, 0);
+		return this;
+	}
+ 	QTableWidgetItem setForeground(QBrush brush) {
+		(cast(t_v__qp_qp_i)pFunQt[180])(QtObj, brush.QtObj, 1);
+		return this;
+	}
+}
+// ================ QComboBox ================
+/++
+QComboBox (Выподающий список), но немного модифицированный в QtE.DLL.
++/
+class QComboBox : QWidget {
+	this() {}
+	~this() {
+		if(!fNoDelete) { (cast(t_v__qp) pFunQt[184])(QtObj); setQtObj(null); }
+	}
+	this(QWidget parent) {
+		if (parent) {
+			this.setNoDelete(true);	// Не удалять текущий экземпляр, при условии, что он вставлен в другой
+			setQtObj((cast(t_qp__qp) pFunQt[183])(parent.QtObj));
+		} else {
+			setQtObj((cast(t_qp__qp) pFunQt[183])(null));
+		}
+	} /// Конструктор
+	QComboBox addItem(QString str, int i) {
+		(cast(t_v__qp_qp_i_i) pFunQt[185])(QtObj, str.QtObj, i, 0); return this;
+	} /// Добавить строку str с значением i
+	QComboBox addItem(string s, int i) {
+		(cast(t_v__qp_qp_i_i) pFunQt[185])(QtObj, (new QString(s)).QtObj, i, 0); return this;
+	}
+	QComboBox setItemText(QString str, int n) {
+		(cast(t_v__qp_qp_i_i) pFunQt[185])(QtObj, str.QtObj, n, 1); return this;
+	} /// Заменить строку, значение i не меняется
+	QComboBox setItemText(string s, int n) {
+		(cast(t_v__qp_qp_i_i) pFunQt[185])(QtObj, (new QString(s)).QtObj, n, 1); return this;
+	}
+	QComboBox setMaxCount(int n) {
+		(cast(t_v__qp_qp_i_i) pFunQt[185])(QtObj, null, n, 2); return this;
+	}
+	QComboBox setMaxVisibleItems(int n) {
+		(cast(t_v__qp_qp_i_i) pFunQt[185])(QtObj, null, n, 3); return this;
+	}
+	int currentIndex() {
+		return (cast(t_i__qp_i) pFunQt[186])(QtObj, 0);
+	}
+	int count() {
+		return (cast(t_i__qp_i) pFunQt[186])(QtObj, 1);
+	}
+	int maxCount() {
+		return (cast(t_i__qp_i) pFunQt[186])(QtObj, 2);
+	}
+	int maxVisibleItems() {
+		return (cast(t_i__qp_i) pFunQt[186])(QtObj, 3);
+	}
+	int currentData() {
+		return (cast(t_i__qp_i) pFunQt[186])(QtObj, 4);
+	}
+	QComboBox clear() {
+		(cast(t_i__qp_i) pFunQt[186])(QtObj, 5); return this;
+	}
+	T text(T: QString)() {
+		QString qs = new QString(); (cast(t_v__qp_qp)pFunQt[187])(QtObj, qs.QtObj); return qs;
+	} /// Выдать содержимое в QString
+	T text(T)() { return to!T(text!QString().String);
+	} /// Выдать всё содержимое в String
 	
+//		setQtObj((cast(t_qp__qp) pFunQt[161])(parent ? parent.QtObj : null));
 }

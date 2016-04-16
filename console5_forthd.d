@@ -29,6 +29,7 @@ extern (C) {
     void on_knHelp(FormaMain* uk) { (*uk).Help();          }
     void on_knTest(FormaMain* uk) { (*uk).Test();          }
     void on_testEdited(FormaMain* uk) { (*uk).EndEditCmd();     }
+	void on_ShowDump(FormaMain* uk) { (*uk).ShowDump();     }
 	
 	// Обработчик с параметром. Параметр позволяет не плодить обработчики
 	void on_about(FormaMain* uk) 	{ (*uk).about(1); }
@@ -51,6 +52,14 @@ extern (C) {
 	void onCloseWin(FormaMain* uk, void* ev) {
 		(*uk).workCloseForth(ev);
 	}
+	// Обработчики Dump
+	void onDumpR(CMdiDump* uk) { 
+		(*uk).clickDumpR(); 
+	}
+	void onDumpL(CMdiDump* uk)   { (*uk).clickDumpL();   }
+	void onDumpRaz(CMdiDump* uk) { (*uk).clickDumpRaz(); }
+	void onLoadSt(CMdiDump* uk)  { (*uk).clickLoadSt();  }
+	void onCopy(CMdiDump* uk)    { (*uk).clickCopy();  }
 }
 
 string helps() { 
@@ -62,6 +71,191 @@ console5_forthd [-d, -e, -i] ...
 ");
 }
 
+// ____________________________________________________________________
+// Форма DUMP
+class CMdiDump : QWidget {
+	const zzz = 7;
+	int  id;
+  private
+	QVBoxLayout	vblAll;			// Общий вертикальный выравниватель
+	QHBoxLayout	laHkn;			// Выравниватель кнопок
+	
+	QTableWidget	tbDump;		// Таблица самого Dump
+	QComboBox		cbStack;	// список значений стека
+	QPushButton knLoad, knDump1, knRaz, knCopy, knDump2; // Кнопки
+	QLineEdit		leAdr;		// Ввод адреса
+	
+	QTableWidgetItem[10] 		colAdr; 
+	QTableWidgetItem[10][10] 	strAdr;
+
+	QAction acLoad, acCopy, acDumpL, acDumpR, acDumpRaz;
+	// ____________________________________________________________________
+	// Конструктор фрмы
+	this(QWidget parent, QtE.WindowType fl) {
+		super(parent, fl);
+		resize(200, 180);
+		// Горизонтальный и вертикальный выравниватели
+		vblAll  = new  QVBoxLayout();		// Главный выравниватель
+		laHkn   = new  QHBoxLayout();
+		//Строка адреса
+		leAdr   = new QLineEdit(this);		// Строка адреса
+		leAdr.setToolTip("Адрес для DUMP (можно редактировать)");
+		leAdr.setMinimumWidth(140);
+		// Кнопки
+		knLoad  = new QPushButton("Load SD:", this);
+		knLoad.setToolTip("Загрузить список адресов со стека SD");
+		knDump1 = new QPushButton("<DUMP", this);
+		knDump1.setToolTip("DUMP адреса из левого выпадающего списка");
+		knDump2 = new QPushButton("<DUMP", this);
+		knDump2.setToolTip("DUMP адреса из левой строки редактора");
+		knRaz   = new QPushButton("-@->", this);  knRaz.setMinimumWidth(40);
+		knRaz.setToolTip("разименовать из списка в строку редактора");
+		knCopy  = new QPushButton("--->", this); knCopy.setMinimumWidth(40);
+		knCopy.setToolTip("скоптровать из списка в строку редактора");
+		// Выпадающий список
+		cbStack	= new QComboBox(this); cbStack.setMinimumWidth(140);
+		// Таблица
+		tbDump = new QTableWidget(this); tbDump.setColumnCount(11).setRowCount(10);
+		tbDump.setColumnWidth(0,80);
+		for(int i = 0; i != 10; i++) {
+			colAdr[i] = new QTableWidgetItem(0);
+			colAdr[i].setTextAlignment(QtE.AlignmentFlag.AlignCenter);
+			tbDump.setItem(i, 0, colAdr[i]);
+		}
+		for(int i = 1; i != 11; i++) tbDump.setColumnWidth(i, 50);
+		// Назначим оставшиеся ячейки тпблицы
+		for(int i; i != 10; i++ ) {
+			for(int j; j != 10; j++) {
+				strAdr[i][j] = new QTableWidgetItem(0);
+				tbDump.setItem(i, j+1, strAdr[i][j]);
+				// strAdr[i][j].setText(format("% 3s [%s]", i, j));
+				strAdr[i][j].setTextAlignment(QtE.AlignmentFlag.AlignCenter);
+			}
+		}
+		// События
+		acCopy = new QAction(null, &onCopy,   aThis);
+		connects(knCopy, "clicked()", acCopy, "Slot()");
+
+		acLoad = new QAction(null, &onLoadSt,   aThis);
+		connects(knLoad, "clicked()", acLoad, "Slot()");
+
+		acDumpR = new QAction(null, &onDumpR,   aThis);
+		connects(knDump2, "clicked()", acDumpR, "Slot()");
+
+		acDumpL = new QAction(null, &onDumpL,   aThis);
+		connects(knDump1, "clicked()", acDumpL, "Slot()");
+
+		acDumpRaz = new QAction(null, &onDumpRaz,   aThis);
+		connects(knRaz, "clicked()", acDumpRaz, "Slot()");
+
+		// Собираем кнопки в выравниватель
+		laHkn.addWidget(knLoad).addWidget(cbStack).addWidget(knDump1)
+			.addWidget(knRaz).addWidget(knCopy)
+			.addWidget(leAdr).addWidget(knDump2);
+		// Соберем все в основной выравниватель
+		vblAll.addLayout(laHkn).addWidget(tbDump);
+		setLayout(vblAll);
+		setWindowTitle("--[ DUMP ]--");
+	}
+	// ____________________________________________________________________
+	// DUMP строки адреса
+	void wDump(string sAdr) {
+		string strAdr;
+		int      iAdr;
+		try {
+			strAdr = strip(sAdr);
+		} catch {
+			sAdr = "";
+		}
+		if(sAdr == "") return;
+		try {
+			iAdr = to!int(sAdr);
+			showDump2(iAdr);
+		} catch {}
+	}
+	// ____________________________________________________________________
+	// Обработка кнопки dump R
+	void clickDumpR() {
+		wDump(leAdr.text!string());
+	}
+	// ____________________________________________________________________
+	// Обработка кнопки dump L
+	void clickDumpL() {
+		wDump(cbStack.text!string());
+	}
+	// ____________________________________________________________________
+	// Обработка кнопки dump R
+	void clickDumpRaz() {
+		string strAdr;
+		pp      ppAdr;
+		int      iAdr;
+		string sAdr = cbStack.text!string();
+		try {
+			strAdr = strip(sAdr);
+		} catch {
+			sAdr = "";
+		}
+		if(sAdr == "") return;
+		try {
+			ppAdr = cast(pp)(to!int(sAdr));
+			iAdr = to!int(cast(int)*ppAdr);
+			leAdr.setText(to!string(iAdr));
+		} catch {}
+	}
+	// ____________________________________________________________________
+	// Копирование аргумента с Combo в LineEdit
+	void clickCopy() {
+		leAdr.setText(cbStack.text!string());
+	}
+	// ____________________________________________________________________
+	// DUMP - полученного адреса
+	void showDump2(int adr) {
+		try {
+			char* uCh2, uCh = cast(char*)adr;
+			// Обход по строкам
+			for(int row; row != 10; row++) {
+				colAdr[row].setText(format("%s", cast(int)(  (row * 10) + uCh  )  ));
+				// Цикл по колонкам
+				for(int column; column != 10; column++) {
+					uCh2 = (((row * 10) + uCh) + column);
+					char ch = *uCh2; // write(cast(ubyte)ch, " - "); stdout.flush();
+					// Не отображать символы меньше 32
+					if(ch < 32)  ch = ' ';
+					if(ch > 128) ch = ' ';
+					strAdr[row][column].setText(format("%3s [%s]", cast(ubyte)(*uCh2), ch));
+					// writeln(format("%3s [%s]", cast(ubyte)(*uCh2), ch));
+				}
+			}
+		} catch {
+			msgbox("Ошибка преобразования", "Внимание", QMessageBox.Icon.Critical);
+		}
+	}
+	// ____________________________________________________________________
+	// Заполнить выпадающий список Combo значенияси со стека данных
+	void clickLoadSt() {
+		// Дно стека
+		pp a = cast(pp)adr_cSD;
+		// Указатель стека
+		pp b = cast(pp)adr_SD;
+		// Разница
+		auto r = a - (b-2);
+		if(r == 0) {
+				// Стек пуст
+		} else {
+			if(r > 0) {
+				cbStack.clear();
+				// На стеке элементы ...
+				for(int i = r - 1; i != -1; i--) {
+					cbStack.addItem(to!string( cast(int)*(a-i) ), i);
+					// str1 = str1 ~ to!string( cast(int)*(a-i) ) ~ "  ";
+				}
+			} 
+		}
+	}
+	
+}
+
+// ____________________________________________________________________
 // Интефейс описывающий взаимодействие формы с логом и строкой
 interface IFormLogCmd  {
 	string getCmd(int km = 0);	// Дай команду
@@ -78,7 +272,8 @@ class CMdiFormLogCmd : QWidget, IFormLogCmd {
 	QTableWidgetItem[10] mTi;	// Массив на 10 ячеек подсказок
 	string[100] mHistory;		// 100 строчек истории
 	int tekUkHistory;			// Указатель на текущую строку истории
-	// ________________
+	QTableWidgetItem teHelpС1header;
+	// ____________________________________________________________________
 	// Конструктор фрмы
 	this(QWidget parent, QtE.WindowType fl) {
 		super(parent, fl);
@@ -94,15 +289,26 @@ class CMdiFormLogCmd : QWidget, IFormLogCmd {
 		teLog = new QPlainTextEdit(this);
 		teHelp = new QTableWidget(this); teHelp.setColumnCount(1).setRowCount(10);
 		teHelp.setMaximumWidth(250);
+		teHelp.setColumnWidth(0, 200);
 		teHelp.setToolTip("от F1 до F10 - быстрая вставка слова в командной строке");
+		teHelp.ResizeModeColumn(0);
+		// Создаю раскраску
+		QColor color1 = new QColor(); color1.setRgb(255, 128, 0, 128); // Оранжевый
+		QBrush qbr = new QBrush(); qbr.setColor(color1).setStyle();
+		
 		// Делаю массив для таблицы
-		for(int i; i != 10; i++) {
+ 		for(int i; i != 10; i++) {
 			mTi[i] = new QTableWidgetItem(0); 
+			// mTi[i].setBackground(qbr);
 			teHelp.setItem(i, 0, mTi[i]);
 		}
-
 		hb2 = new QHBoxLayout; hb2.addWidget(teLog).addWidget(teHelp);
-
+		
+		// Установка заголовка на колонку таблицы
+		teHelpС1header = new QTableWidgetItem(0); 
+		teHelp.setHorizontalHeaderItem(0, teHelpС1header);
+		teHelpС1header.setText("Найдено:").setTextAlignment(QtE.AlignmentFlag.AlignCenter);
+		teHelpС1header.setBackground(qbr);
 		// Методы обработки расположены в родительском классе
 		// teLog.setKeyPressEvent(&onChar, parent.aThis);
 		// Вставляем всё в вертикальный выравниватель
@@ -110,7 +316,7 @@ class CMdiFormLogCmd : QWidget, IFormLogCmd {
 		setLayout(vblAll);
 		setWindowTitle("--[ FORTH ]--");
 	}
-	// ____________________________________
+	// ____________________________________________________________________
 	// Отразить строку истории в ком строке
 	void cmdStrHistory(int sm) {
 		if((sm > 0) && (tekUkHistory < 99)) {
@@ -130,7 +336,7 @@ class CMdiFormLogCmd : QWidget, IFormLogCmd {
 			leCmdStr.setText(""); 
 		}
 	}
-	// _________________________________
+	// ____________________________________________________________________
 	// Добавить строку команды в историю
 	void addStrHistory(string str) {
 		string s = strip(str);
@@ -141,7 +347,7 @@ class CMdiFormLogCmd : QWidget, IFormLogCmd {
 		for(int i = 99; i != 0; i--) mHistory[i] = mHistory[i - 1];
 		mHistory[0] = str; tekUkHistory = 0;
 	}
-	// ____________________________
+	// ____________________________________________________________________
 	// Выдать строку команды наружу
 	string getCmd(int km = 0) {
 		string rez;
@@ -149,19 +355,19 @@ class CMdiFormLogCmd : QWidget, IFormLogCmd {
 		if(km == 1) rez = leCmdStr.text!string();
 		return rez;
 	}
-	// ______________________________________
+	// ____________________________________________________________________
 	// Добавить строку в лог и читать команду
 	void addStrInLog(string cmd) {
 		teLog.appendPlainText(cmd); addStrHistory(cmd);
 		leCmdStr.clear().setFocus();
 	}
-	// __________________________
+	// ____________________________________________________________________
 	// Заполним таблицу подсказок
 	void setTablHelp(string[] mStr) {
 		mStr.length = 10; 
 		for(int i; i != 10; i++) mTi[i].setText(mStr[i]);
 	}
-	// __________________________________
+	// ____________________________________________________________________
 	// Дописать строку из таблицы по номеру
 	void getStrN(int nomStr) {
 		string rez;
@@ -184,25 +390,26 @@ class CMdiFormLogCmd : QWidget, IFormLogCmd {
 	}
 }
  
+// ____________________________________________________________________
 // Главная Форма для работы  
 class FormaMain: QMainWindow {
 	int tForth = 7;
-	// ____________________________________________________________________
 	QVBoxLayout 	vblAll;			// Общий вертикальный выравниватель
 	QProgressBar    zz;
 	QStatusBar      stBar;			// Строка сообщений
 	
 	QMdiArea		mainWid;
 	CMdiFormLogCmd  winForth;
+	CMdiDump[10]    winDump;     // 10 окошек DUMP
+	int 			winDumpKol;  // Количество открытых
 	
 	QToolBar tb;
 	QMenu menu1, menu2;
 	QMenuBar mb1;
 	QFont qf;
 	QAction acEval, acIncl, acHelp, acAbout, acAboutQt;
-	QAction acTest, acTest1;
+	QAction acTest, acTest1, acShowDump;
 	StopWatch 		sw;   			// Секундомер для измерения времени
-
 	// ____________________________________________________________________
 	// Конструктор по умолчанию
 	this() {
@@ -230,6 +437,7 @@ class FormaMain: QMainWindow {
 		acAboutQt = new QAction(null, &on_aboutQt,  aThis, 2); 	// 2 - это парам перед в обработчик 
 		acTest    = new QAction(null, &on_knTest,   aThis);
 		acTest1   = new QAction(null, &on_testEdited, aThis);
+		acShowDump= new QAction(null, &on_ShowDump, aThis);
 		
 		// --------------- Взаимные настройки -----------------
 		menu2.setTitle("About")
@@ -240,7 +448,8 @@ class FormaMain: QMainWindow {
 			.addAction(		acEval		)
 			.addAction(     acIncl      )
 			.addAction(     acTest      )
-			.addAction(		acHelp   	);
+			.addAction(		acHelp   	)
+			.addAction(   acShowDump	);
 
 		// Определим наиновейший обработчик на основе QAction для Eval
 		acEval.setText("Eval(string)").setHotKey(QtE.Key.Key_R | QtE.Key.Key_ControlModifier);
@@ -271,6 +480,11 @@ class FormaMain: QMainWindow {
 		acTest.setText("Test").setHotKey(QtE.Key.Key_T | QtE.Key.Key_ControlModifier);
 		acTest.setIcon("ICONS/Tester.ico").setToolTip("Тест ...");
 		connects(acTest, "triggered()", acTest, "Slot()");
+
+		// Определим обработчик на основе QAction для ShowDump
+		acShowDump.setText("Dump").setHotKey(QtE.Key.Key_D | QtE.Key.Key_ControlModifier);
+		acShowDump.setIcon("ICONS/calc.ico").setToolTip("Распечатка памяти ...");
+		connects(acShowDump, "triggered()", acShowDump, "Slot()");
 		
 		// Создаю неубиваемое окошко Форта
 		createWinForth();
@@ -286,7 +500,7 @@ class FormaMain: QMainWindow {
 		// --------------- Установки класса -----------------
 		setFont(qf);
 		// Заголовки и размеры
-		setWindowTitle("--- Консоль forthD на QtE5 ---"); resize(700, 400);
+		setWindowTitle("--- Консоль forthD на QtE5 ---"); resize(700, 450);
 		// Центральный виджет в QMainWindow
 		setCentralWidget(mainWid); 
 		
@@ -296,9 +510,13 @@ class FormaMain: QMainWindow {
  		
 		setNoDelete(true); // Не вызывай delete C++ для этой формы
 		
-		// ---- Forth ----
+		// -------- Forth --------
 		initForth(); 		// Активизируем Форт
 		
+		// Проверим и выполним переменные командной строки
+		pvtInclude(sInclude);
+		evalForth(to!string(fromUtf8to1251(cast(char[])sEval))); 
+
 		// Начнем передачу параметров в forth
  		setCommonAdr(0, cast(pp)5);
 		setCommonAdr(1, cast(pp)7);
@@ -308,9 +526,7 @@ class FormaMain: QMainWindow {
 		setCommonAdr(5, cast(pp)this);
 		setCommonAdr(6, cast(pp)0);   // Сюда вернем адрес слова Форта
 		
-		
-		// Проверим и выполним переменные командной строки
-		pvtInclude(sInclude);
+		// Отобразим результат работы на слайдере
 		stBar.showMessage(showSD());
 		zz.setMinimum(cast(int)adr_begKDF()); // Начало кодофайла
 		zz.setMaximum(cast(int)adr_endKDF()); // Конец кодовайла
@@ -497,10 +713,26 @@ class FormaMain: QMainWindow {
 		}
 		return str ~ str1;
 	}
+	// ____________________________________________________________________
 	// Проверка вызова метода из forth
 	int test3(int a) {
 		writeln("a = ", a); stdout.flush();
 		return a + a;
+	}
+	// ____________________________________________________________________
+	// Создать и показать окошко с DUMP
+	void ShowDump() {
+		// Проверка создания формы DUMP
+		// CMdiDump winDump1 = new CMdiDump(this, QtE.WindowType.Window); 
+		if(winDumpKol < 10) {
+			winDump[winDumpKol] = new CMdiDump(this, QtE.WindowType.Window); 
+			winDump[winDumpKol].saveThis(&winDump[winDumpKol]);
+			winDump[winDumpKol].id = winDumpKol;
+			mainWid.addSubWindow(winDump[winDumpKol]);
+			winForth.showNormal(); 
+			winDump[winDumpKol].show();
+			winDumpKol++;
+		}
 	}
 }
 // ____________________________________________________________________
@@ -565,7 +797,9 @@ int main(string[] args) {
 			"e|eval",    toCON("выполнить строку-команду в форт"), &sEval,
 			"i|include", toCON("имя файла для INCLUDE"), &sInclude);
 		if (helpInformation.helpWanted) defaultGetoptPrinter(helps(), helpInformation.options);
-	} catch { writeln(toCON("Ошибка разбора аргументов командной стоки ...")); return 1; }
+	} catch { 
+		writeln(toCON("Ошибка разбора аргументов командной стоки ...")); return 1; 
+	}
 
 
 	// Загрузка графической библиотеки

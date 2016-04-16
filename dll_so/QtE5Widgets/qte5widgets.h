@@ -36,6 +36,9 @@
 #include <QTableView>
 #include <QTableWidget>
 #include <QTableWidgetItem>
+#include <QBrush>
+#include <QHeaderView>
+#include <QComboBox>
 
 typedef int PTRINT;
 typedef unsigned int PTRUINT;
