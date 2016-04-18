@@ -20,6 +20,7 @@ import std.datetime;
 
 const strElow  = "background: #F8FFA1";
 const strGreen = "background: #F79F81";
+const strWhite = "background: SeaShell";  // Таблица цветов из HTML
 
 string ts = "ABC";
 
@@ -60,6 +61,11 @@ extern (C) {
 	void onDumpRaz(CMdiDump* uk) { (*uk).clickDumpRaz(); }
 	void onLoadSt(CMdiDump* uk)  { (*uk).clickLoadSt();  }
 	void onCopy(CMdiDump* uk)    { (*uk).clickCopy();  }
+	
+	// Paint
+	void onPaint1(CPaint* uk, void* ev, void* qpaint)   { 
+		(*uk).runPaint1(ev, qpaint);
+	}
 }
 
 string helps() { 
@@ -69,6 +75,50 @@ string helps() {
 Запуск:
 console5_forthd [-d, -e, -i] ...
 ");
+}
+
+// ____________________________________________________________________
+// Форма Paint
+class CPaint : QWidget {
+	QColor color1;
+	QBrush qbr;
+	QPen pero;
+	// ____________________________________________________________________
+	// Конструктор фрмы
+	this(QWidget parent, QtE.WindowType fl) {
+		super(parent, fl); resize(500, 500); setWindowTitle("--[ Paint ]--");
+		// Установить обработчик Paint на onPaint1
+		// color1 = new QColor(); color1.setRgb(255, 128, 0, 128); // Оранжевый
+		// qbr = new QBrush(); qbr.setColor(color1).setStyle();
+		pero = new QPen(); pero.setStyle(QtE.PenStyle.DotLine).setWidth(1);
+		setStyleSheet(strWhite);
+		setPaintEvent(&onPaint1, aThis);
+	}
+	// ____________________________________________________________________
+	// Обработчик paint
+	void runPaint1(void* ev, void* qpaint) {
+		// Схватить переданный из Qt указатель на QPaint и запомнить его 
+		// в своем объекте, для дальнейшей обработки
+		QPainter qp = new QPainter('+', qpaint); 
+		qp.setPen(pero);
+		
+		for(int i; i != 100; i++) qp.drawPoint(i, i);
+		qp.drawLine(10, 20, 140, 310);
+		// write(qpaint, "."); stdout.flush;
+		qp.setText(140, 200, "Привет! ...");
+		drawGrid(qp);
+		qp.end();
+	}
+	// ____________________________________________________________________
+	// Нарисовать сетку
+	void drawGrid(QPainter graphics) {
+		for (int i = 0; i < 500; i += 15) {
+			for (int j = 0; j < 500; j += 15)	{
+				graphics.drawLine(i, 0, i, 500);
+				graphics.drawLine(0, j, 500, j);
+			}
+		}
+	}
 }
 
 // ____________________________________________________________________
@@ -410,6 +460,8 @@ class FormaMain: QMainWindow {
 	QAction acEval, acIncl, acHelp, acAbout, acAboutQt;
 	QAction acTest, acTest1, acShowDump;
 	StopWatch 		sw;   			// Секундомер для измерения времени
+	
+	CPaint fPaint;
 	// ____________________________________________________________________
 	// Конструктор по умолчанию
 	this() {
@@ -666,28 +718,31 @@ class FormaMain: QMainWindow {
 	// ____________________________________________________________________
 	// проверочный Test
 	void Test() {
-		// Попробуем вызвать из D слово Форта
-		pp adrWordForth = getCommonAdr(6);
-		// Вызовем на выполнение слово форта
-		sw.reset();
-		sw.start();
-		// -------------------------
-		pp rez = executeForth(adrWordForth, 2, 5, 6);
-		// -------------------------
-		sw.stop();
+		// Проверка Paint
+		fPaint = new CPaint(null, QtE.WindowType.Window); fPaint.saveThis(&fPaint);
+		fPaint.show();
+/* 				// Попробуем вызвать из D слово Форта
+				pp adrWordForth = getCommonAdr(6);
+				// Вызовем на выполнение слово форта
+				sw.reset();
+				sw.start();
+				// -------------------------
+				pp rez = executeForth(adrWordForth, 2, 5, 6);
+				// -------------------------
+				sw.stop();
 
-		stBar.showMessage(showSD() ~ "   { " ~ to!string(sw.peek().usecs) ~ " microsec}" );
-		zz.setValue(cast(int)adr_here());     // А здесь HERE тусуется
-		writeln(rez);
-		
-		sw.reset();
-		sw.start();
-		// -------------------------
-		int q = sr(5, 6);
-		// -------------------------
-		sw.stop();
-		writeln("   { " ~ to!string(sw.peek().usecs) ~ " microsec}");
-		
+				stBar.showMessage(showSD() ~ "   { " ~ to!string(sw.peek().usecs) ~ " microsec}" );
+				zz.setValue(cast(int)adr_here());     // А здесь HERE тусуется
+				writeln(rez);
+				
+				sw.reset();
+				sw.start();
+				// -------------------------
+				int q = sr(5, 6);
+				// -------------------------
+				sw.stop();
+				writeln("   { " ~ to!string(sw.peek().usecs) ~ " microsec}");
+ */		
 		// msgbox("Проверочный Test");
 	}
 	// ____________________________________________________________________

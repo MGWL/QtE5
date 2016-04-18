@@ -39,6 +39,8 @@
 #include <QBrush>
 #include <QHeaderView>
 #include <QComboBox>
+#include <QPainter>
+#include <QPen>
 
 typedef int PTRINT;
 typedef unsigned int PTRUINT;
@@ -51,7 +53,10 @@ extern "C" typedef void  (*ExecZIM_v__i)(int);
 extern "C" typedef void  (*ExecZIM_v__v)(void);
 
 extern "C" typedef void  (*ExecZIM_v__vp)(void*);
+
 extern "C" typedef void  (*ExecZIM_v__vp_vp)(void*, void*);
+extern "C" typedef void  (*ExecZIM_v__vp_vp_vp)(void*, void*, void*);
+
 extern "C" typedef bool  (*ExecZIM_b__vp)(void*);
 extern "C" typedef void* (*ExecZIM_vp__vp_vp)(void*, void*);
 extern "C" typedef void* (*ExecZIM_vp__vp)(void*);

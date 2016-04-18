@@ -46,6 +46,8 @@ private extern (C) @nogc alias t_v__vp_vp_vp = void function(void*, void*, void*
 private extern (C) @nogc alias t_v__qp_i_i = void function(QtObjH, int, int);
 private extern (C) @nogc alias t_v__qp_qp_i_i = void function(QtObjH, QtObjH, int, int);
 
+private extern (C) @nogc alias t_b__qp = bool function(QtObjH);
+
 private extern (C) @nogc alias t_v__qp_qp_i = void function(QtObjH, QtObjH, int);
 private extern (C) @nogc alias t_v__qp_qp_qp_i = void function(QtObjH, QtObjH, QtObjH, int);
 private extern (C) @nogc alias t_v__qp_qp_qp = void function(QtObjH, QtObjH, QtObjH);
@@ -486,9 +488,21 @@ int LoadQt(dll ldll, bool showError) { ///  Загрузить DLL-ки Qt и Qt
 	funQt(185, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQComboBox_setXX",				showError);
 	funQt(186, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQComboBox_getXX",				showError);
 	funQt(187, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQComboBox_text",				showError);
+	//  ------- QPainter -------
+	funQt(188, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQPainter_drawPoint",			showError);
+	funQt(189, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQPainter_drawLine",			showError);
+	funQt(190, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQPainter_setXX1",				showError);
+	funQt(196, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQPainter_setText",				showError);
+	funQt(197, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQPainter_end",					showError);
+	//  ------- QPen -------
+	funQt(191, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQPen_create1",					showError);
+	funQt(192, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQPen_delete",					showError);
+	funQt(193, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQPen_setColor",				showError);
+	funQt(194, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQPen_setStyle",				showError);
+	funQt(195, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQPen_setWidth",				showError);
 	
 	
-	// Последний = 187
+	// Последний = 197
 	return 0;
 } ///  Загрузить DLL-ки Qt и QtE. Найти в них адреса функций и заполнить ими таблицу
 
@@ -804,6 +818,15 @@ class QtE {
 		darkMagenta,
 		darkYellow,
 		transparent
+	}
+ 	enum PenStyle {
+		NoPen			= 0,	// Запретить рисование
+		SolidLine		= 1,	// Сплошная непрерывная линия
+		DashLine		= 2,	// Штрихова, длинные штрихи
+		DotLine			= 3,	// Пунктир, точки
+		DashDotLine		= 4,	// Штрих пунктиреая, длинный штрих + точка
+		DashDotDotLine	= 5,	// штрих 2 точки штрих 2 точки
+		CustomDashLine	= 6		// A custom pattern defined using QPainterPathStroker::setDashPattern().
 	}
 }
 // ================ QObject ================
@@ -1155,8 +1178,8 @@ class QWidget: QPaintDevice {
 		return this; 
 		// (cast(t_v__qp_qp) pFunQt[49])(QtObj, cast(QtObjH)adr); return this; 
 	} /// Установить обработчик на событие KeyPressEvent. Здесь <u>adr</u> - адрес на функцию D +/
-	QWidget  setPaintEvent(void* adr) { 
-		(cast(t_v__qp_qp) pFunQt[50])(QtObj, cast(QtObjH)adr); return this; 
+	QWidget  setPaintEvent(void* adr, void* adrThis = null) { 
+		(cast(t_v__qp_qp_qp) pFunQt[50])(QtObj, cast(QtObjH)adr, cast(QtObjH)adrThis); return this; 
 	} /// Установить обработчик на событие PaintEvent. Здесь <u>adr</u> - адрес на функцию D +/
 	QWidget  setCloseEvent(void* adr, void* adrThis = null) { 
 		(cast(t_v__qp_qp_qp) pFunQt[51])(QtObj, cast(QtObjH)adr, cast(QtObjH)adrThis); return this; 
@@ -1510,6 +1533,50 @@ class QSize : QObject {
 		(cast(t_v__qp_i) pFunQt[61])(QtObj, width); return this;
 	} /// QSize::setHeigth();
 }
+// ============ QPainter =======================================
+class QPainter : QObject {
+	this() {	}
+ 	this(char ch, void* adr) {
+		if(ch == '+') setQtObj(cast(QtObjH)adr);
+	} /// При создании своего объекта сохраняет в себе объект событие QPainter пришедшее из Qt
+	~this() {
+	}
+	QPainter drawPoint(int x, int y) {
+		(cast(t_v__qp_i_i_i) pFunQt[188])(QtObj, x, y, 0); return this;
+	}
+	QPainter setBrushOrigin(int x, int y) {
+		(cast(t_v__qp_i_i_i) pFunQt[188])(QtObj, x, y, 1); return this;
+	}
+	QPainter drawLine(int x1, int y1, int x2, int y2) {
+		(cast(t_v__qp_i_i_i_i) pFunQt[189])(QtObj, x1, y1, x2, y2); return this;
+	}
+	QPainter setBrush(QBrush qb) {
+		(cast(t_v__qp_qp_i) pFunQt[190])(QtObj, qb.QtObj, 0); return this;
+	}
+	QPainter setPen(QPen qp) {
+		(cast(t_v__qp_qp_i) pFunQt[190])(QtObj, qp.QtObj, 1); return this;
+	}
+	QPainter setText(int x, int y, QString qs) {
+		(cast(t_v__qp_qp_i_i) pFunQt[196])(QtObj, qs.QtObj, x, y); return this;
+	}
+	QPainter setText(int x, int y, string s) {
+		(cast(t_v__qp_qp_i_i) pFunQt[196])(QtObj, (new QString(s)).QtObj, x, y); return this;
+	}
+	bool end() {
+		return (cast(t_b__qp) pFunQt[197])(QtObj);
+	}
+/* 	@property int type() {
+		return (cast(t_i__qp) pFunQt[53])(QtObj);
+	} /// QPainter::type(); Вернуть тип события
+	void ignore() {
+		(cast(t_v__qp_i) pFunQt[157])(QtObj, 0);
+	} /// Игнорировать событие
+	void accept() {
+		(cast(t_v__qp_i) pFunQt[157])(QtObj, 1);
+	} /// Игнорировать событие
+ */
+}
+
 // ============ QEvent =======================================
 class QEvent : QObject {
 	this() {	}
@@ -2677,4 +2744,25 @@ class QComboBox : QWidget {
 	} /// Выдать всё содержимое в String
 	
 //		setQtObj((cast(t_qp__qp) pFunQt[161])(parent ? parent.QtObj : null));
+}
+// ================ QPen ================
+class QPen : QObject {
+	this() {
+		setQtObj((cast(t_qp__v) pFunQt[191])());
+	} /// Конструктор
+	~this() {
+		if(!fNoDelete && (QtObj != null)) { (cast(t_v__qp) pFunQt[192])(QtObj); setQtObj(null); }
+	} /// Деструктор
+	QPen setColor(QColor color) {
+		(cast(t_v__qp_qp) pFunQt[193])(QtObj, color.QtObj);
+		return this;
+	}
+	QPen setStyle(QtE.PenStyle ps = QtE.PenStyle.SolidLine) {
+		(cast(t_v__qp_i) pFunQt[194])(QtObj, ps);
+		return this;
+	}
+	QPen setWidth(int w) {
+		(cast(t_v__qp_i) pFunQt[195])(QtObj, w);
+		return this;
+	}
 }

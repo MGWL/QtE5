@@ -130,12 +130,18 @@ void eQWidget::keyPressEvent(QKeyEvent *event) {
 }
 // -------------------------------------------------
 
-extern "C" void qteQWidget_setPaintEvent(QtRefH wd, void* adr) {
+extern "C" void qteQWidget_setPaintEvent(QtRefH wd, void* adr, void* dThis) {
     ((eQWidget*)wd)->aPaintEvent = adr;
+    ((eQWidget*)wd)->aDThis = dThis;
 }
 void eQWidget::paintEvent(QPaintEvent *event) {
-    if(aPaintEvent != NULL) {
-        ((ExecZIM_v__vp)aPaintEvent)((QtRefH)event);
+    if (aPaintEvent == NULL) return;
+    QPainter* qp = new QPainter(this);
+    if (aDThis == NULL) {
+        ((ExecZIM_v__vp_vp)aPaintEvent)((QtRefH)event, (QtRefH)qp);
+    }
+    else  {
+        ((ExecZIM_v__vp_vp_vp)aPaintEvent)(*(void**)aDThis, (QtRefH)event, (QtRefH)qp);
     }
 }
 
@@ -285,6 +291,22 @@ extern "C" void qteQBrush_setColor(QBrush* qs, QColor* qc) {
 }
 extern "C" void qteQBrush_setStyle(QBrush* qs, Qt::BrushStyle bs) {
     qs->setStyle(bs);
+}
+// =========== QPen ==========
+extern "C" QtRefH qteQPen_create1(void) {
+    return (QtRefH)new QPen();
+}
+extern "C" void qteQPen_delete(QtRefH qs) {
+    delete (QPen*)qs;
+}
+extern "C" void qteQPen_setColor(QPen* qs, QColor* qc) {
+    qs->setColor(*qc);
+}
+extern "C" void qteQPen_setStyle(QPen* qs, Qt::PenStyle st) {
+    qs->setStyle(st);
+}
+extern "C" void qteQPen_setWidth(QPen* qs, int w) {
+    qs->setWidth(w);
 }
 
 // =========== QPalette ==========
@@ -983,4 +1005,26 @@ extern "C" int qteQComboBox_getXX(QComboBox* wd, int pr) {
 }
 extern "C" void qteQComboBox_text(QComboBox* wd, QString* qs) {
     *qs = wd->currentText();
+}
+// =========== QPainter ==========
+extern "C" void qteQPainter_drawPoint(QPainter* qp, int x, int y, int pr) {
+    switch ( pr ) {
+    case 0:   qp->drawPoint(x, y);          break;
+    case 1:   qp->setBrushOrigin(x, y);     break;
+    }
+}
+extern "C" void qteQPainter_drawLine(QPainter* qp, int x1, int y1, int x2, int y2) {
+    qp->drawLine(x1, y1, x2, y2);
+}
+extern "C" void qteQPainter_setXX1(QPainter* qp, void* ob, int pr) {
+    switch ( pr ) {
+    case 0:   qp->setBrush(*((QBrush*)ob)); break;
+    case 1:   qp->setPen(*((QPen*)ob)); break;
+    }
+}
+extern "C" void qteQPainter_setText(QPainter* qp, QString* ob, int x, int y) {
+    qp->drawText(x, y, *ob);
+}
+extern "C" bool qteQPainter_end(QPainter* qp) {
+    return qp->end();
 }
