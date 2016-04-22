@@ -1,4 +1,5 @@
 /*
+21.04.2016 18:13 - Проверка ИНН на корректность
 31.05.2014 7:36:58
 Add x64
 Repair LTrim and RTrim
@@ -371,6 +372,52 @@ unittest {
 	assert(isFio1251(cast(char[]) "GenA") == false);
 	assert(isFio1251(cast(char[]) "\xC3\xE5\xED\xC0") == false);
 }
+
+// Проверка правильности ИНН string[10]
+bool tstINN(string s) {
+	string s1;
+	bool rez;
+	int[10] weights = [2, 4, 10, 3, 5, 9, 4, 6, 8, 0];
+	int summ;
+	
+	if((s.length == 0) || (s.length > 10) ) return rez;
+	foreach(ch; s) {
+		if(!isDigit1251(ch)) return rez;
+	}
+	import std.string: format, strip;
+	import std.conv: to;
+	try {
+		s1 = format("%.10s", to!long(strip(s)));
+	} catch {
+		return rez;			// Ошибка конвертации
+	}
+	if(s1 == "0000000000") return true;
+	// Перебор цифр и вычисление суммы
+	for(int i; i != 9; i++) {
+		auto digit = s1[i] - 48; 
+		summ += digit * weights[i];
+	}
+	auto ost = summ % 11;
+	if (ost > 9) ost = ost % 10;
+    if (ost == (s1[9] - 48)) rez = true;
+	return rez;
+}
+
+unittest {
+	assert(tstINN("") == false);
+	assert(tstINN("0000000000") == true);
+	assert(tstINN("0") == true);
+	assert(tstINN("0000A00000") == false);
+	assert(tstINN("+000000000") == false);
+	assert(tstINN("9999999999") == false);
+	assert(tstINN("05911013765") == false);
+
+	assert(tstINN("5905033450") == true);
+	assert(tstINN("5913001268") == true);
+	assert(tstINN("6607000556") == true);
+	assert(tstINN("5911013765") == true);
+}
+
 
 char[] from1251toUtf8(char[] str) {
 	char[] rez;

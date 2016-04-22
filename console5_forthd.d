@@ -20,53 +20,8 @@ import std.datetime;
 
 const strElow  = "background: #F8FFA1";
 const strGreen = "background: #F79F81";
-const strWhite = "background: SeaShell";  // Таблица цветов из HTML
 
 string ts = "ABC";
-
-extern (C) {
-    void on_knEval(FormaMain* uk) { (*uk).EvalString();    }
-    void on_knLoad(FormaMain* uk) { (*uk).IncludedFile();  }
-    void on_knHelp(FormaMain* uk) { (*uk).Help();          }
-    void on_knTest(FormaMain* uk) { (*uk).Test();          }
-    void on_testEdited(FormaMain* uk) { (*uk).EndEditCmd();     }
-	void on_ShowDump(FormaMain* uk) { (*uk).ShowDump();     }
-	
-	// Обработчик с параметром. Параметр позволяет не плодить обработчики
-	void on_about(FormaMain* uk) 	{ (*uk).about(1); }
-	void on_aboutQt(FormaMain* uk)	{ (*uk).about(2); }
-	
-	int on_fromForth() { writeln("... from Forth"); return 6; }
-	int on_type(char* adr) { 
-		int i;
-		char kol = *adr; for(i = 0; i != kol; i++) write(*(adr + 1 + i)); 
-		stdout.flush();
-		return i;
-	}
-	// Проверка события KeyPressEvent 
-	void* onChar(FormaMain* uk, void* ev) {
-		// Вызвать метод FormaMain.workPress(из_С++__KeyEvent*)
-		// Этот обработчик, просто транзитом передаёт всё дальше
-		// return возвратит KeyEvent* обратно в C++, для дальнейшей обработки
-		return (*uk).workPress(ev);
-	}
-	void onCloseWin(FormaMain* uk, void* ev) {
-		(*uk).workCloseForth(ev);
-	}
-	// Обработчики Dump
-	void onDumpR(CMdiDump* uk) { 
-		(*uk).clickDumpR(); 
-	}
-	void onDumpL(CMdiDump* uk)   { (*uk).clickDumpL();   }
-	void onDumpRaz(CMdiDump* uk) { (*uk).clickDumpRaz(); }
-	void onLoadSt(CMdiDump* uk)  { (*uk).clickLoadSt();  }
-	void onCopy(CMdiDump* uk)    { (*uk).clickCopy();  }
-	
-	// Paint
-	void onPaint1(CPaint* uk, void* ev, void* qpaint)   { 
-		(*uk).runPaint1(ev, qpaint);
-	}
-}
 
 string helps() { 
 	return	toCON(
@@ -77,52 +32,159 @@ console5_forthd [-d, -e, -i] ...
 ");
 }
 
-// ____________________________________________________________________
-// Форма Paint
+// ==================================================================
+// Форма Model - Отобразить модель (массив) построенную в Forth
+// ==================================================================
+extern (C) {
+	void onPaintModel(CModel* uk, void* ev, void* qpaint) { 
+		(*uk).runPaintModel(ev, qpaint);
+	}
+	void onKn1(CModel* uk) {
+		(*uk).runKn1();
+	}
+}
+// __________________________________________________________________
+class CModel : QWidget {
+	struct t_uk  { int X; int Y; pp Buf; }
+	struct t_rgb { ubyte R; ubyte G; ubyte B; ubyte L; };
+	t_uk*   uk;			// указатель на структуру Форта
+	// Нужны выравниватели
+	QVBoxLayout	vblAll;			// Общий вертикальный выравниватель
+	QHBoxLayout	laHkn;			// Выравниватель кнопок
+	// Кнопки
+	QPushButton kn1, kn2;
+	// Screen
+	QWidget screen;
+	QAction acKn1, acKn2;
+	// Рисование
+	QColor color;
+	QPen   pero;
+	// ______________________________________________________________
+	// Конструктор фрмы
+	this(QWidget parent, QtE.WindowType fl) {
+		super(parent, fl); resize(100, 100); 
+		setWindowTitle("--[ Model ]--");
+		// Горизонтальный и вертикальный выравниватели
+		vblAll  = new  QVBoxLayout();		// Главный выравниватель
+		laHkn   = new  QHBoxLayout();
+		// Кнопки
+		kn1  = new QPushButton("Первая кнопка:", this);
+		kn2 = new QPushButton("Вторая кнопка", this);
+		acKn1 = new QAction(null, &onKn1, aThis);
+		connects(kn1, "clicked()", acKn1, "Slot()");
+		
+		screen = new QWidget(this, QtE.WindowType.Widget);
+		screen.setStyleSheet(strElow);
+		screen.setPaintEvent(&onPaintModel, aThis);
+
+		// Собираем кнопки в выравниватель
+		laHkn.addWidget(kn1).addWidget(kn2);
+		// Соберем все в основной выравниватель
+		vblAll.addLayout(laHkn).addWidget(screen);
+		setLayout(vblAll);
+		
+		color = new QColor(); pero = new QPen(); 
+		pero.setColor(color);
+
+		
+	}
+	// ______________________________________________________________
+	// Первая кнопка
+	void runKn1() {
+/* 		uk = cast(t_uk*)getCommonAdr(7);
+		writefln("X = %s  Y = %s  Buf = %s", uk.X, uk.Y, uk.Buf);
+		t_rgb rgb = cast()*uk.Buf;
+		writefln("R = %s  G = %s  B = %s  L = %s", rgb.R, rgb.G, rgb.B, rgb.L);
+		msgbox("Нажата 1");
+ */	}
+	// ______________________________________________________________
+	// Обработчик paint
+	void runPaintModel(void* ev, void* qpaint) {
+ 		// Схватить переданный из Qt указатель на QPaint и запомнить его 
+		// в своем объекте, для дальнейшей обработки
+		uk = cast(t_uk*)getCommonAdr(7);
+		if(uk is null) return;
+		t_rgb* urgb = cast(t_rgb*)uk.Buf;
+		t_rgb rgb;
+		QPainter qp = new QPainter('+', qpaint); 
+		int sm;
+		for(int x; x != uk.X; x++) {
+			for(int y; y != uk.Y; y++) {
+				rgb = *( urgb + sm++ );
+				// write( cast(int)(urgb + sm - 1), "  " );
+				// writefln("%s   %s   %s   %s", rgb.R, rgb.G, rgb.B, rgb.L);
+				color.setRgb(rgb.R, rgb.G, rgb.B, rgb.L);
+				pero.setColor(color); qp.setPen(pero); qp.drawPoint(x, y);
+			}
+		}
+		
+/* 		for(int i; i != 100; i++) qp.drawPoint(i, i);
+		qp.drawLine(10, 20, 140, 310);
+		// write(qpaint, "."); stdout.flush;
+		qp.setText(140, 200, "Привет! ...");
+ */		qp.end();
+	}
+}
+/* 		// Попробуем вызвать из D слово Форта
+		pp adrWordForth = getCommonAdr(6);
+		writeln("adrWordForth = ", adrWordForth);
+ */
+
+// ==================================================================
+// Форма Paint - Отобразим в отдельном окне график
+// ==================================================================
+extern (C) {
+	void onPaint1(CPaint* uk, void* ev, void* qpaint) { 
+		(*uk).runPaint1(ev, qpaint);
+	}
+}
+// __________________________________________________________________
 class CPaint : QWidget {
 	QColor color1;
 	QBrush qbr;
 	QPen pero;
-	// ____________________________________________________________________
+	// ______________________________________________________________
 	// Конструктор фрмы
 	this(QWidget parent, QtE.WindowType fl) {
-		super(parent, fl); resize(500, 500); setWindowTitle("--[ Paint ]--");
+		super(parent, fl); resize(400, 600); 
+		setWindowTitle("--[ Paint ]--");
 		// Установить обработчик Paint на onPaint1
-		// color1 = new QColor(); color1.setRgb(255, 128, 0, 128); // Оранжевый
-		// qbr = new QBrush(); qbr.setColor(color1).setStyle();
-		pero = new QPen(); pero.setStyle(QtE.PenStyle.DotLine).setWidth(1);
-		setStyleSheet(strWhite);
+		color1 = new QColor(); 
+		color1.setRgb(255, 128, 0, 128); // Оранжевый
+		qbr = new QBrush(); qbr.setColor(color1).setStyle();
+		pero = new QPen(); 
+		pero.setColor(color1)
+			.setStyle(QtE.PenStyle.DotLine)
+			.setWidth(3);
 		setPaintEvent(&onPaint1, aThis);
 	}
-	// ____________________________________________________________________
+	// ______________________________________________________________
 	// Обработчик paint
 	void runPaint1(void* ev, void* qpaint) {
 		// Схватить переданный из Qt указатель на QPaint и запомнить его 
 		// в своем объекте, для дальнейшей обработки
 		QPainter qp = new QPainter('+', qpaint); 
-		qp.setPen(pero);
+		qp.setBrush(qbr).setPen(pero);
 		
 		for(int i; i != 100; i++) qp.drawPoint(i, i);
 		qp.drawLine(10, 20, 140, 310);
 		// write(qpaint, "."); stdout.flush;
 		qp.setText(140, 200, "Привет! ...");
-		drawGrid(qp);
 		qp.end();
-	}
-	// ____________________________________________________________________
-	// Нарисовать сетку
-	void drawGrid(QPainter graphics) {
-		for (int i = 0; i < 500; i += 15) {
-			for (int j = 0; j < 500; j += 15)	{
-				graphics.drawLine(i, 0, i, 500);
-				graphics.drawLine(0, j, 500, j);
-			}
-		}
 	}
 }
 
-// ____________________________________________________________________
-// Форма DUMP
+// ==================================================================
+// Форма DUMP - Отобразим в окошке диалог с дампом памяти
+// ==================================================================
+extern (C) {
+	void onDumpR(CMdiDump* uk)   { (*uk).clickDumpR();   }
+	void onDumpL(CMdiDump* uk)   { (*uk).clickDumpL();   }
+	void onDumpRaz(CMdiDump* uk) { (*uk).clickDumpRaz(); }
+	void onLoadSt(CMdiDump* uk)  { (*uk).clickLoadSt();  }
+	void onCopy(CMdiDump* uk)    { (*uk).clickCopy();    }
+}
+// __________________________________________________________________
 class CMdiDump : QWidget {
 	const zzz = 7;
 	int  id;
@@ -139,7 +201,7 @@ class CMdiDump : QWidget {
 	QTableWidgetItem[10][10] 	strAdr;
 
 	QAction acLoad, acCopy, acDumpL, acDumpR, acDumpRaz;
-	// ____________________________________________________________________
+	// ______________________________________________________________
 	// Конструктор фрмы
 	this(QWidget parent, QtE.WindowType fl) {
 		super(parent, fl);
@@ -440,8 +502,31 @@ class CMdiFormLogCmd : QWidget, IFormLogCmd {
 	}
 }
  
-// ____________________________________________________________________
-// Главная Форма для работы  
+// ==================================================================
+// FormaMain - Главная Форма для работы  
+// ==================================================================
+extern (C) {
+	void on_knEval(FormaMain* uk)		{ (*uk).EvalString();    }
+	void on_knLoad(FormaMain* uk)		{ (*uk).IncludedFile();  }
+	void on_knHelp(FormaMain* uk)		{ (*uk).Help();          }
+	void on_knTest(FormaMain* uk)		{ (*uk).Test();          }
+	void on_testEdited(FormaMain* uk)	{ (*uk).EndEditCmd();    }
+	void on_ShowDump(FormaMain* uk)		{ (*uk).ShowDump();      }
+	
+	// Обработчик с параметром. Параметр позволяет не плодить обработчики
+	void on_about(FormaMain* uk) 		{ (*uk).about(1); }
+	void on_aboutQt(FormaMain* uk)		{ (*uk).about(2); }
+	
+	// Проверка события KeyPressEvent 
+	void* onChar(FormaMain* uk, void* ev) {
+		// Вызвать метод FormaMain.workPress(из_С++__KeyEvent*)
+		// Этот обработчик, просто транзитом передаёт всё дальше
+		// return возвратит KeyEvent* обратно в C++, для дальнейшей обработки
+		return (*uk).workPress(ev);
+	}
+	void onCloseWin(FormaMain* uk, void* ev) { (*uk).workCloseForth(ev); }
+}
+// __________________________________________________________________
 class FormaMain: QMainWindow {
 	int tForth = 7;
 	QVBoxLayout 	vblAll;			// Общий вертикальный выравниватель
@@ -462,7 +547,8 @@ class FormaMain: QMainWindow {
 	StopWatch 		sw;   			// Секундомер для измерения времени
 	
 	CPaint fPaint;
-	// ____________________________________________________________________
+	CModel fModel;					// Форма с моделью
+	// __________________________________________________________________
 	// Конструктор по умолчанию
 	this() {
 		// --------------- Инициализация -----------------
@@ -546,7 +632,8 @@ class FormaMain: QMainWindow {
 
 		// Настраиваем ToolBar
 		tb.setToolButtonStyle(QToolBar.ToolButtonStyle.ToolButtonTextBesideIcon);
-		tb.addAction(acEval).addAction(acIncl).addSeparator().addAction(acHelp).addAction(acTest);
+		tb.addAction(acEval).addAction(acIncl)
+			.addSeparator().addAction(acHelp).addAction(acTest);
 		tb.addWidget(zz); zz.setValue(1);
 		
 		// --------------- Установки класса -----------------
@@ -556,7 +643,8 @@ class FormaMain: QMainWindow {
 		// Центральный виджет в QMainWindow
 		setCentralWidget(mainWid); 
 		
-		addToolBar(QToolBar.ToolBarArea.BottomToolBarArea, tb); tb.setStyleSheet(strElow);
+		addToolBar(QToolBar.ToolBarArea.BottomToolBarArea, tb); 
+		tb.setStyleSheet(strElow);
 
 		setMenuBar(mb1); setStatusBar(stBar); stBar.setFont(qf);
  		
@@ -572,11 +660,10 @@ class FormaMain: QMainWindow {
 		// Начнем передачу параметров в forth
  		setCommonAdr(0, cast(pp)5);
 		setCommonAdr(1, cast(pp)7);
-	//	setCommonAdr(2, cast(pp)&testForth1);
+		setCommonAdr(2, cast(pp)&sr); // Функция D: int sr(int, int);
 		setCommonAdr(3, cast(pp)&ts);
 		setCommonAdr(4, cast(pp)aThis);
 		setCommonAdr(5, cast(pp)this);
-		setCommonAdr(6, cast(pp)0);   // Сюда вернем адрес слова Форта
 		
 		// Отобразим результат работы на слайдере
 		stBar.showMessage(showSD());
@@ -586,7 +673,7 @@ class FormaMain: QMainWindow {
 		zz.setToolTip("Заполнение кодофайла опираясь на HERE");
 		
 	}
-	// ____________________________________________________________________
+	// ______________________________________________________________
 	// Повторяющейся код для Include
 	void pvtInclude(string cmd) {
 		if(cmd.length != 0) { 
@@ -607,7 +694,7 @@ class FormaMain: QMainWindow {
 			zz.setValue(cast(int)adr_here());     // А здесь HERE тусуется
 		}
 	}
-	// ____________________________________________________________________
+	// ______________________________________________________________
 	// Выполнить строку форта
 	void EvalString() {
 		// Обработка теперь берется с новой формы: 
@@ -629,7 +716,7 @@ class FormaMain: QMainWindow {
 			zz.setValue(cast(int)adr_here());     // А здесь HERE тусуется
 		}
 	}
-	// ____________________________________________________________________
+	// ______________________________________________________________
 	// INCLUDE
 	void IncludedFile() {
 		// Проверим работу открытия файла
@@ -637,7 +724,7 @@ class FormaMain: QMainWindow {
 		string cmd = fileDlg.getOpenFileName("INCLUDE ...", "", "*.f");
 		pvtInclude(cmd);
 	}
-	// ____________________________________________________________________
+	// ______________________________________________________________
 	// Help
 	void Help() {
 		// msgbox("Окно с помощью ....", "Помощь", QMessageBox.Icon.Warning);
@@ -652,8 +739,14 @@ class FormaMain: QMainWindow {
 "		
 		);
 		ql.show();
+		// -----------------------
+		if(fModel is null) {
+			fModel = new CModel(this, QtE.WindowType.Window); fModel.saveThis(&fModel);
+			mainWid.addSubWindow(fModel);
+		}
+		fModel.show();
 	}
-	// ____________________________________________________________________
+	// ______________________________________________________________
 	// Создать и показать окно Forth
 	void createWinForth() {
 		// Создадим окно forth
@@ -668,7 +761,7 @@ class FormaMain: QMainWindow {
 		// Связываю сигнал QLineEdit::returnPressed() с слотом action acEval
 		connects(winForth.leCmdStr,"returnPressed()", acEval, "Slot()");
 	}
-	// ____________________________________________________________________
+	// ______________________________________________________________
 	// closeWinMDI обработки событий
 	void* workCloseForth(void* ev) {
 		// 1 - Схватить событие пришедшее из Qt и сохранить его в моём классе
@@ -677,7 +770,7 @@ class FormaMain: QMainWindow {
 		msgbox("Закрытие этого окна не предусмотрено.", "Внимание!");
 		return ev;
 	}
-	// ____________________________________________________________________
+	// ______________________________________________________________
 	// Проверка обработки событий
 	void* workPress(void* ev) {
 		// 1 - Схватить событие пришедшее из Qt и сохранить его в моём классе
@@ -701,7 +794,7 @@ class FormaMain: QMainWindow {
 
 		return ev;	// Вернуть событие в C++ Qt для дальнейшей обработки
 	}
-	// ____________________________________________________________________
+	// ______________________________________________________________
 	// Обработка сигнала - Конец редактирования cmd
 	void EndEditCmd() {
 		// Взять последнее слово из команд строки
@@ -709,43 +802,45 @@ class FormaMain: QMainWindow {
 		// Заполнить таблицу подсказок 
 		winForth.setTablHelp(getMasNamesForth(s1));
 	}
-	// ____________________________________________________________________
+	// ______________________________________________________________
 	// Обработка About и AboutQt
 	void about(int n) {
 		if(n == 1) msgbox("MGW 2016\n\nКонсоль для forth на asm D\n\nD + QtE5 + Qt-5", "about");
 		if(n == 2) app.aboutQt();
 	}
-	// ____________________________________________________________________
+	// ______________________________________________________________
 	// проверочный Test
 	void Test() {
 		// Проверка Paint
-		fPaint = new CPaint(null, QtE.WindowType.Window); fPaint.saveThis(&fPaint);
-		fPaint.show();
-/* 				// Попробуем вызвать из D слово Форта
-				pp adrWordForth = getCommonAdr(6);
-				// Вызовем на выполнение слово форта
-				sw.reset();
-				sw.start();
-				// -------------------------
-				pp rez = executeForth(adrWordForth, 2, 5, 6);
-				// -------------------------
-				sw.stop();
-
-				stBar.showMessage(showSD() ~ "   { " ~ to!string(sw.peek().usecs) ~ " microsec}" );
-				zz.setValue(cast(int)adr_here());     // А здесь HERE тусуется
-				writeln(rez);
-				
-				sw.reset();
-				sw.start();
-				// -------------------------
-				int q = sr(5, 6);
-				// -------------------------
-				sw.stop();
-				writeln("   { " ~ to!string(sw.peek().usecs) ~ " microsec}");
- */		
+		// fPaint = new CPaint(null, QtE.WindowType.Window); fPaint.saveThis(&fPaint);
+		// fPaint.show();
+		// -------------
+		
+		// Попробуем вызвать из D слово Форта
+		pp adrWordForth = getCommonAdr(6);
+		writeln("adrWordForth = ", adrWordForth);
+		// Вызовем на выполнение слово форта
+		sw.reset();
+		sw.start();
+		// -------------------------
+		pp rez = executeForth(adrWordForth, 2, 5, 6);
+		// -------------------------
+		sw.stop();
+		stBar.showMessage(showSD() ~ "   { " ~ to!string(sw.peek().usecs) ~ " microsec}" );
+		zz.setValue(cast(int)adr_here());     // А здесь HERE тусуется
+		writeln(rez);
+		
+		sw.reset();
+		sw.start();
+		// -------------------------
+		int q = sr(5, 6);
+		// -------------------------
+		sw.stop();
+		writeln(q, "   { " ~ to!string(sw.peek().usecs) ~ " microsec}");
+		
 		// msgbox("Проверочный Test");
 	}
-	// ____________________________________________________________________
+	// ______________________________________________________________
 	// Состояние на стеке
 	string showSD() {
 		string str, str1;
@@ -762,19 +857,19 @@ class FormaMain: QMainWindow {
 			if(r > 0) {
 				// На стеке элементы ...
 				for(int i; i != r; i++) {
-					str1 = str1 ~ to!string( cast(int)*(a-i) ) ~ "  ";
+					str1 ~= (to!string( cast(int)*(a-i) ) ~ "  ");
 				}
 			} 
 		}
 		return str ~ str1;
 	}
-	// ____________________________________________________________________
+	// ______________________________________________________________
 	// Проверка вызова метода из forth
 	int test3(int a) {
 		writeln("a = ", a); stdout.flush();
 		return a + a;
 	}
-	// ____________________________________________________________________
+	// ______________________________________________________________
 	// Создать и показать окошко с DUMP
 	void ShowDump() {
 		// Проверка создания формы DUMP
@@ -790,13 +885,13 @@ class FormaMain: QMainWindow {
 		}
 	}
 }
-// ____________________________________________________________________
+// __________________________________________________________________
 // Глобальные переменные программы
 QApplication app;
 string sEval;		// Строка для выполнения eval
 string sInclude;	// Строка с именем файла для INCLUDE
 
-// ____________________________________________________________________
+// __________________________________________________________________
 // Глобальная функция. Выдать массив строк из forth, у которых
 // есть соответствие в имени
 string[] getMasNamesForth(string str1) {
@@ -824,7 +919,7 @@ string[] getMasNamesForth(string str1) {
 	}
 	return rez;
 }
-// __________________________________
+// __________________________________________________________________
 // Выдать последнее слово в строке
 string getLastWord(string str) {
 	string rez;
@@ -833,15 +928,15 @@ string getLastWord(string str) {
 	return mWords[$-1];
 }
 
-// __________________________________
+// __________________________________________________________________
 // Замер времени выполнения, для сравнения с фортом
 int sr(int a, int b) {
-	int a1, b1;
-	a1 = a; b1 = b;
-	return a1 + b1;
+	int rez;
+	for(int i; i != 10000; i++) rez = rez + a + b;
+	return rez;
 }
 
-// ____________________________________________________________________
+// __________________________________________________________________
 int main(string[] args) {
 	bool fDebug;		// T - выдавать диагностику загрузки QtE5
 	

@@ -11,6 +11,7 @@
 // pp asr = getCommonAdr(int n) - Вернуть из общей таблицы (ячейка n) значение
 // setCommonAdr(int n, pp adr) - Записать в ячейку общей таблицы n значение равное adr
 // adrContext() - Указатель на adr[256] со списками слов
+// extern (C) pp executeForth(pp adrexec, uint kolPar, ...) {
 
 // История изменений
 // 28.06.15 - BMOVE Копировать байты 
@@ -80,7 +81,7 @@ private struct NPcb {
 	pp saveEDI;          		// Место под EDI форта
 }
 
-private NPcb gpcb;						// Глобальное определение блока управления
+/* private */ NPcb gpcb;						// Глобальное определение блока управления
 private pb	kdf;						// Сюда будем компилировать код 
 private pp  stSD, stSR, stSL;			// Указатели на стеки
 
@@ -468,7 +469,32 @@ private void h_dec() {
 
 // ======================== marks.f ========================
 
-// +  ( A B -- A*B )
+// %  ( A B -- A%B )
+private void h_ZP() {
+	asm {		naked;
+		mov ECX, EAX;
+		mov EAX, [EBP];
+		cdq;
+		idiv ECX;
+		lea EBP,[EBP+CELL];
+		mov EAX, EDX;
+		ret;
+	}
+}
+
+// /  ( A B -- A/B )
+private void h_ZD() {
+	asm {		naked;
+		mov ECX, EAX;
+		mov EAX, [EBP];
+		cdq;
+		idiv ECX;
+		lea EBP,[EBP+CELL];
+		ret;
+	}
+}
+
+// *  ( A B -- A*B )
 private void h_ZW() {
 	asm {		naked;
 		imul dword ptr SS:[EBP];
@@ -1435,8 +1461,9 @@ extern (C) pp executeForth(pp adrexec, uint kolPar, ...) {
   		call h_DUP;					// Сохраним,освободив вершину SD
 		pop  EAX;					// На вершине SD адрес EXECUTEFROMD
 		call f_EXECUTE;				// Вызов EXECUTEFROMD
-		mov EBX, EAX;				// Сохранить возвращаемое значение
-		// call h_DROP;				// Выкинуть со стека в форте, так как вызов внешний 
+		// mov EBX, EAX;				// Сохранить возвращаемое значение
+		mov ret, EAX;
+		call h_DROP;				// Выкинуть со стека в форте, так как вызов внешний 
 		
 		// Сохраним F
 		mov ECX, EBP;
@@ -1445,7 +1472,7 @@ extern (C) pp executeForth(pp adrexec, uint kolPar, ...) {
 		mov npcb.saveEBP.offsetof[npcb], ECX;  // Сохраним запомненный EBP
 		mov npcb.saveESI.offsetof[npcb], ESI;
 		mov npcb.saveEDI.offsetof[npcb], EDI;
-		mov ret, EBX;
+		// mov ret, EBX;
 		// ----------------------
 		// Восстановим регистры D
 		pop EDX; pop ECX; pop EAX; pop ESI; pop EBX;
@@ -1616,6 +1643,8 @@ void initForth() {
 	CreateVocItem(cast(char*)"\4OVER".ptr, 		cast(pp)&h_OVER, 		&gpcb.context);
 	CreateVocItem(cast(char*)"\1+".ptr, 		cast(pp)&h_PLUS, 		&gpcb.context);
 	CreateVocItem(cast(char*)"\1*".ptr, 		cast(pp)&h_ZW, 			&gpcb.context);
+	CreateVocItem(cast(char*)"\1/".ptr, 		cast(pp)&h_ZD, 			&gpcb.context);
+	CreateVocItem(cast(char*)"\1%".ptr, 		cast(pp)&h_ZP, 			&gpcb.context);
 	CreateVocItem(cast(char*)"\1-".ptr, 		cast(pp)&h_MINUS, 		&gpcb.context);
 	CreateVocItem(cast(char*)"\1=".ptr, 		cast(pp)&f_RAWNO, 		&gpcb.context);
 	CreateVocItem(cast(char*)"\2<>".ptr, 		cast(pp)&f_NRAWNO, 		&gpcb.context);

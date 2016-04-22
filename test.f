@@ -12,6 +12,11 @@ S" stdlib.f" 1+ INCLUDED // Загрузить стандартную библиотеку
 : (measure) // ( xt --> dt ) // измерить длительность исполнения слова, представленного своим xt
     TIMER@ >R >R EXECUTE TIMER@ R> R> DROP SWAP DROP - ;
 
+IF=W Lib" MSVCRT.DLL" MsVcrt
+IF=W Library@ MsVcrt 1 CDECL-Call" malloc"  malloc
+IF=W Library@ MsVcrt 1 CDECL-Call" free"    free
+
+
 // Проверим Windows
 IF=W Lib" CRTDLL.DLL" CrtDll
 IF=W Library@ CrtDll 1 CDECL-Call" strlen"  strlen
@@ -35,12 +40,17 @@ IF=L Library@ libcSo 2 CDECL-Call" putc"    putc
 IF=L Library@ libcSo 2 CDECL-Call" fopen"   fopen
 IF=L Library@ libcSo 2 CDECL-Call" fputs"   fputs
 IF=L Library@ libcSo 1 CDECL-Call" fclose"  fclose
+IF=L Library@ libcSo 1 CDECL-Call" malloc"  malloc
+IF=L Library@ libcSo 1 CDECL-Call" free"    free
+
 
 IF=W Lib" USER32.DLL" User32
 IF=W Library@ User32 4 WINAPI-Call" MessageBoxA"  messagebox
 
 IF=W LibraryLoad CrtDll
 IF=W LibraryLoad User32
+IF=W LibraryLoad MsVcrt
+
 IF=L LibraryLoad libcSo
 
 
@@ -106,12 +116,48 @@ IF=W R@ 13 F_EMIT
     S" -----------------------------------------" TYPE CR
     ;
 ПроверкаФорт
-IF=W testMessageBox
+// IF=W testMessageBox
 
 // Прведем проверку вызова слов Форта из D не через Eval, а через CALL ASM
+VAR sum 0 sum !
 : TestForthWord
-    +
+    + 10000 0 DO DUP sum @ + sum ! LOOP DROP sum @
     ; LATEST @ 6 COMMONADR!  // Сохраним адрес в 6 общей ячейке для вызова с D
+
+// Проверка работы с памятью
+// ---------------------------
+HERE 3 CELLS ALLOT CONST uk // uk - есть указатель на структуру из 3 int
+: ukX uk 0 CELLS + ; : ukY uk 1 CELLS + ; : ukBuf uk 2 CELLS + ;
+
+// Зададим размер виртуального экрана
+400 500   ukX !  ukY !
+
+// Выделим память под данный массив и запомним на него указатель
+: BufCreate    // ( -- ) Создаёт буфер под массив опираясь на структуру uk
+    ukX @ ukY @ * CELLS malloc ukBuf !
+    ; BufCreate
+uk 7 COMMONADR!  // Передадим в D указатель на структуру
+
+: full    // ( color -- ) Заполнить сплошным цветом
+    ukX @ ukY @ * 0 DO DUP ukBuf @ I CELLS + ! LOOP DROP
+    ;
+: point   // ( color y x -- )
+    ukY @ * + CELLS ukBuf @ + !
+    ;
+-9000    CONST Серый
+300      CONST Желтый
+-53441   CONST Синий
+-9364862 CONST Бордовый
+
+// -05453748
+// 100 CONST sizeb1         // Размер блока памяти
+// VAR b1                   // Указатель на Блок памяти
+// sizeb1 CELLS malloc b1 ! // Выделена память под массив
+
+// : Buf! CELLS b1 @ + ! ;   // ( Значение НомерЭлемента -- ) Записать зн в ячейку
+// : b1@ CELLS b1 @ + @ ;   // ( НомерЭлемента -- Значение ) Прочитать зн
+// Занулим массив
+// : b1init sizeb1 0 DO 0 I b1! LOOP ; b1init
 
 
 // . . . . .
