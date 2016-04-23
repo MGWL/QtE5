@@ -148,6 +148,8 @@ uk 7 COMMONADR!  // Передадим в D указатель на структуру
 300      CONST Желтый
 -53441   CONST Синий
 -9364862 CONST Бордовый
+VAR sm 0 sm ! : sm+ sm @ 1+ DUP sm ! + ;
+: линия100 100 0 DO DUP I I sm+ point LOOP DROP ;
 
 // -05453748
 // 100 CONST sizeb1         // Размер блока памяти

@@ -41,6 +41,10 @@
 #include <QComboBox>
 #include <QPainter>
 #include <QPen>
+#include <QLCDNumber>
+#include <QAbstractSlider>
+#include <QSlider>
+#include <QGroupBox>
 
 typedef int PTRINT;
 typedef unsigned int PTRUINT;

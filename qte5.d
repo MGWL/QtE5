@@ -78,6 +78,7 @@ private extern (C) @nogc alias t_i__vp = int function(void*);
 private extern (C) @nogc alias t_i__qp = int function(QtObjH);
 
 private extern (C) @nogc alias t_v__qp_b_i_i = void function(QtObjH, bool, int, int);
+private extern (C) @nogc alias t_v__qp_b_i = void function(QtObjH, bool, int);
 
 private extern (C) @nogc alias t_vp__i_i = void* function(int, int);
 private extern (C) @nogc alias t_qp__i_i = QtObjH function(int, int);
@@ -294,6 +295,8 @@ int LoadQt(dll ldll, bool showError) { ///  Загрузить DLL-ки Qt и Qt
 	// ------- QPushButton -------
 	funQt(22, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQPushButton_create1",     showError);
 	funQt(23, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQPushButton_delete",      showError);
+	funQt(210,bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQPushButton_setXX",       showError);
+
 	// ------- QSlot -------
 	funQt(24, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQSlot_create",            showError);
 	funQt(25, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "QSlot_setSlotN",             showError);
@@ -303,6 +306,9 @@ int LoadQt(dll ldll, bool showError) { ///  Загрузить DLL-ки Qt и Qt
 	// ------- QAbstractButton -------
 	funQt(28, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQAbstractButton_setText", showError);
 	funQt(29, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQAbstractButton_text",    showError);
+	funQt(209,bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQAbstractButton_setXX",   showError);
+	funQt(211,bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQAbstractButton_setIcon", showError);
+
 	// ------- QLayout -------
 	funQt(34, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQBoxLayout",              showError);
 	funQt(35, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQVBoxLayout",             showError);
@@ -500,9 +506,27 @@ int LoadQt(dll ldll, bool showError) { ///  Загрузить DLL-ки Qt и Qt
 	funQt(193, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQPen_setColor",				showError);
 	funQt(194, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQPen_setStyle",				showError);
 	funQt(195, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQPen_setWidth",				showError);
+	//  ------- QLCDNumber -------
+	funQt(198, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQLCDNumber_create1",			showError);
+	funQt(199, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQLCDNumber_delete1",			showError);
+	funQt(200, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQLCDNumber_create2",			showError);
+	funQt(201, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQLCDNumber_display",			showError);
+	funQt(202, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQLCDNumber_setSegmentStyle",	showError);
+	funQt(203, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQLCDNumber_setDigitCount",		showError);
+	funQt(204, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQLCDNumber_setMode",			showError);
+	//  ------- QAbstractSlider -------
+	funQt(205, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQAbstractSlider_setXX",		showError);
+	funQt(208, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQAbstractSlider_getXX",		showError);
+	//  ------- QSlider -------
+	funQt(206, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQSlider_create1",				showError);
+	funQt(207, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQSlider_delete1",				showError);
+	//  ------- QGroupBox -------
+	funQt(212, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQGroupBox_create",				showError);
+	funQt(213, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQGroupBox_delete",				showError);
+	funQt(214, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQGroupBox_setTitle",			showError);
+	funQt(215, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQGroupBox_setAlignment",		showError);
 	
-	
-	// Последний = 197
+	// Последний = 213
 	return 0;
 } ///  Загрузить DLL-ки Qt и QtE. Найти в них адреса функций и заполнить ими таблицу
 
@@ -1266,7 +1290,23 @@ class QAbstractButton : QWidget {
 	}
 	T text(T)() { return to!T(text!QString().String);
 	}
-/*
+	QAbstractButton setAutoExclusive(bool pr) {
+		(cast(t_v__qp_b_i) pFunQt[209])(QtObj, pr, 0); return this;
+	} /// 
+	QAbstractButton setAutoRepeat(bool pr) {
+		(cast(t_v__qp_b_i) pFunQt[209])(QtObj, pr, 1); return this;
+	} /// 
+	QAbstractButton setCheckable(bool pr) {
+		(cast(t_v__qp_b_i) pFunQt[209])(QtObj, pr, 2); return this;
+	} /// 
+	QAbstractButton setDown(bool pr) {
+		(cast(t_v__qp_b_i) pFunQt[209])(QtObj, pr, 3); return this;
+	} /// 
+	QAbstractButton setIcon(QIcon ik) {
+		(cast(t_v__qp_qp) pFunQt[211])(QtObj, ik.QtObj); return this;
+	} /// 
+
+	/*
 	bool isChecked() {
 		return (cast(t_b__vp) pFunQt[265])(QtObj);
 	} /// T = нажата
@@ -1305,6 +1345,16 @@ class QPushButton : QAbstractButton {
 			setQtObj((cast(t_qp__qp_qp) pFunQt[22])(null, (new QString(to!string(str))).QtObj));
 		}
 	}
+	QPushButton setAutoDefault(bool pr) {
+		(cast(t_v__qp_b_i) pFunQt[210])(QtObj, pr, 0); return this;
+	} /// 
+	QPushButton setDefault(bool pr) {
+		(cast(t_v__qp_b_i) pFunQt[210])(QtObj, pr, 1); return this;
+	} /// 
+	QPushButton setFlat(bool pr) {
+		(cast(t_v__qp_b_i) pFunQt[210])(QtObj, pr, 2); return this;
+	} /// 
+	
 }
 
 // ================ QApplication ================
@@ -2765,4 +2815,127 @@ class QPen : QObject {
 		(cast(t_v__qp_i) pFunQt[195])(QtObj, w);
 		return this;
 	}
+}
+// ============ QLCDNumber =======================================
+class QLCDNumber : QFrame {
+	enum Mode { Hex, Dec, Oct, Bin }
+	enum SegmentStyle {
+		Outline,			// Выпуклый Цвета фона - а именно прозрачноБесцветный
+		Filled,				// Выпуклый Цвета текста
+		Flat				// Плоский
+	}
+	~this() {
+		if(!fNoDelete) { (cast(t_v__qp) pFunQt[199])(QtObj); setQtObj(null); }
+	}
+	this(char ch, void* adr) {
+		if(ch == '+') setQtObj(cast(QtObjH)adr);
+	}
+	this(QWidget parent) {
+		super();
+		if (parent) {
+			this.setNoDelete(true);	// Не удалять текущий экземпляр, при условии, что он вставлен в другой
+			setQtObj((cast(t_qp__qp) pFunQt[198])(parent.QtObj));
+		} else {
+			setQtObj((cast(t_qp__qp) pFunQt[198])(null));
+		}
+	} /// Конструктор
+	this(QWidget parent, int kolNumber) {
+		super();
+		if (parent) {
+			this.setNoDelete(true);	// Не удалять текущий экземпляр, при условии, что он вставлен в другой
+			setQtObj((cast(t_qp__qp_i) pFunQt[200])(parent.QtObj, kolNumber));
+		} else {
+			setQtObj((cast(t_qp__qp_i) pFunQt[200])(null, kolNumber));
+		}
+	} /// Конструктор
+	QLCDNumber display(int n) {
+		(cast(t_v__qp_i) pFunQt[201])(QtObj, n); return this;
+	} /// Отобразить число
+	QLCDNumber setSegmentStyle(QLCDNumber.SegmentStyle style) {
+		(cast(t_v__qp_i) pFunQt[202])(QtObj, cast(int)style);  return this;
+	} /// Способ изображения сегментов
+	QLCDNumber setDigitCount(int kolNumber) {
+		(cast(t_v__qp_i) pFunQt[203])(QtObj, kolNumber); return this;
+	} /// Установить количество показываемых цифр
+	QLCDNumber setMode(QLCDNumber.Mode mode) {
+		(cast(t_v__qp_i) pFunQt[204])(QtObj, cast(int)mode);  return this;
+	} /// Способ изображения сегментов
+	
+}
+// ============ QAbstractSlider =======================================
+class QAbstractSlider : QWidget {
+	this() {}
+	this(QWidget parent) {}
+	~this() {
+		if(!fNoDelete) {}
+	}
+	QAbstractSlider setMaximum( int n ) {
+		(cast(t_v__qp_i_i) pFunQt[205])(QtObj, n, 0); return this;
+	}
+	QAbstractSlider setMinimum( int n ) {
+		(cast(t_v__qp_i_i) pFunQt[205])(QtObj, n, 1); return this;
+	}
+	QAbstractSlider setPageStep( int n ) {
+		(cast(t_v__qp_i_i) pFunQt[205])(QtObj, n, 2); return this;
+	}
+	QAbstractSlider setSingleStep( int n ) {
+		(cast(t_v__qp_i_i) pFunQt[205])(QtObj, n, 3); return this;
+	}
+	QAbstractSlider setSliderPosition( int n ) {
+		(cast(t_v__qp_i_i) pFunQt[205])(QtObj, n, 4); return this;
+	}
+	int maximum() { return (cast(t_i__qp_i) pFunQt[208])(QtObj, 0); }
+	int minimum() { return (cast(t_i__qp_i) pFunQt[208])(QtObj, 1); }
+	int pageStep() { return (cast(t_i__qp_i) pFunQt[208])(QtObj, 2); }
+	int singleStep() { return (cast(t_i__qp_i) pFunQt[208])(QtObj, 3); }
+	int sliderPosition() { return (cast(t_i__qp_i) pFunQt[208])(QtObj, 4); }
+	int value() { return (cast(t_i__qp_i) pFunQt[208])(QtObj, 5); }
+}
+// ============ QSlider =======================================
+class QSlider : QAbstractSlider {
+	~this() {
+		if(!fNoDelete) { (cast(t_v__qp) pFunQt[207])(QtObj); setQtObj(null); }
+	}
+	this(char ch, void* adr) {
+		if(ch == '+') setQtObj(cast(QtObjH)adr);
+	} /// Конструктор
+	this(QWidget parent, QtE.Orientation n = QtE.Orientation.Horizontal) {
+		super();
+		if (parent) {
+			this.setNoDelete(true);	// Не удалять текущий экземпляр, при условии, что он вставлен в другой
+			setQtObj((cast(t_qp__qp_i) pFunQt[206])(parent.QtObj, cast(int)n));
+		} else {
+			setQtObj((cast(t_qp__qp_i) pFunQt[206])(null, cast(int)n));
+		}
+	} /// Конструктор
+}
+// ================ QGroupBox ================
+class QGroupBox : QWidget {
+	~this() {
+		if(!fNoDelete && (QtObj != null)) { (cast(t_v__qp) pFunQt[213])(QtObj); setQtObj(null); }
+	}
+	this(char ch, void* adr) {
+		if(ch == '+') setQtObj(cast(QtObjH)adr);
+	} /// Конструктор
+	this(QWidget parent) {
+		if (parent) {
+			this.setNoDelete(true);
+			setQtObj((cast(t_qp__qp)pFunQt[212])(parent.QtObj));
+		} else {
+			setQtObj((cast(t_qp__qp)pFunQt[212])(null));
+		}
+	}
+	QGroupBox setText(T: QString)(T str) {
+		(cast(t_v__qp_qp) pFunQt[214])(QtObj, str.QtObj);
+		return this;
+	} /// Установить текст
+	QGroupBox setText(T)(T str) {
+		(cast(t_v__qp_qp) pFunQt[214])(QtObj, (new QString(to!string(str))).QtObj);
+		return this;
+	} /// Установить текст
+	QGroupBox setAlignment(QtE.AlignmentFlag fl) {
+		(cast(t_v__qp_i) pFunQt[215])(QtObj, fl);
+		return this;
+	} /// Выровнять текст
+	
 }

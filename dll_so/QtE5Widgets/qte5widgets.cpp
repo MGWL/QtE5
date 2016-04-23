@@ -323,6 +323,13 @@ extern "C" QtRefH qteQPushButton_create1(QtRefH parent, QtRefH name) {
 extern "C" void qteQPushButton_delete(QtRefH qs) {
     delete (QPushButton*)qs;
 }
+extern "C" void qteQPushButton_setXX(QPushButton* wd, bool p, int pr) {
+    switch ( pr ) {
+    case 0:   wd->setAutoDefault(p); break;
+    case 1:   wd->setDefault(p);     break;
+    case 2:   wd->setFlat(p);        break;
+    }
+}
 // =========== QAbstractButton =========
 extern "C" void qteQAbstractButton_setText(QtRefH wd, QtRefH qs) {
     ((QAbstractButton*)wd)->setText( (const QString &)*qs  );
@@ -330,6 +337,18 @@ extern "C" void qteQAbstractButton_setText(QtRefH wd, QtRefH qs) {
 extern "C" void qteQAbstractButton_text(QtRefH wd, QtRefH qs) {
     *(QString*)qs = ((QAbstractButton*)wd)->text();
 }
+extern "C" void qteQAbstractButton_setXX(QAbstractButton* wd, bool p, int pr) {
+    switch ( pr ) {
+    case 0:   wd->setAutoExclusive(p); break;
+    case 1:   wd->setAutoRepeat(p);    break;
+    case 2:   wd->setCheckable(p);     break;
+    case 3:   wd->setDown(p);          break;
+    }
+}
+extern "C" void qteQAbstractButton_setIcon(QAbstractButton* wd, QIcon* p) {
+    wd->setIcon(*p);
+}
+
 // =========== QSlot ==========
 QSlot::QSlot(QObject* parent) : QObject(parent) {
     aSlotN = NULL;
@@ -449,7 +468,7 @@ extern "C" void qteQFrame_setLineWidth(QtRefH fr, int sh)
 {
     ((eQFrame*)fr)->setLineWidth(sh);
 }
-// ===================== QLsbel ====================
+// ===================== QLabel ====================
 extern "C" QtRefH qteQLabel_create1(QtRefH parent, Qt::WindowFlags f) {
     return (QtRefH)new QLabel((QWidget*)parent, f);
 }
@@ -1027,4 +1046,70 @@ extern "C" void qteQPainter_setText(QPainter* qp, QString* ob, int x, int y) {
 }
 extern "C" bool qteQPainter_end(QPainter* qp) {
     return qp->end();
+}
+// =========== QLCDNumber ==========
+extern "C" QLCDNumber* qteQLCDNumber_create1(QWidget* parent) {
+    return new QLCDNumber(parent);
+}
+extern "C" QLCDNumber* qteQLCDNumber_create2(QWidget* parent, int n) {
+    return new QLCDNumber(n, parent);
+}
+extern "C" void qteQLCDNumber_delete1(QLCDNumber* wd) {
+    delete wd;
+}
+extern "C" void qteQLCDNumber_display(QLCDNumber* wd, int n) {
+    wd->display(n);
+}
+// 202
+extern "C" void qteQLCDNumber_setSegmentStyle(QLCDNumber* wd, QLCDNumber::SegmentStyle n) {
+    wd->setSegmentStyle(n);
+}
+// 203
+extern "C" void qteQLCDNumber_setDigitCount(QLCDNumber* wd, int n) {
+    wd->setDigitCount(n);
+}
+extern "C" void qteQLCDNumber_setMode(QLCDNumber* wd, QLCDNumber::Mode n) {
+    wd->setMode(n);
+}
+// =========== QAbstractSlider ==========
+extern "C" void qteQAbstractSlider_setXX(QAbstractSlider* wd, int n, int pr) {
+    switch ( pr ) {
+    case 0:   wd->setMaximum(n);          break;
+    case 1:   wd->setMinimum(n);          break;
+    case 2:   wd->setPageStep(n);         break;
+    case 3:   wd->setSingleStep(n);       break;
+    case 4:   wd->setSliderPosition(n);   break;
+    }
+}
+extern "C" int qteQAbstractSlider_getXX(QAbstractSlider* wd, int pr) {
+    int rez = 0;
+    switch ( pr ) {
+    case 0:   rez = wd->maximum();         break;
+    case 1:   rez = wd->minimum();         break;
+    case 2:   rez = wd->pageStep();        break;
+    case 3:   rez = wd->singleStep();      break;
+    case 4:   rez = wd->sliderPosition();  break;
+    case 5:   rez = wd->value();           break;
+    }
+    return rez;
+}
+// =========== QSlider ==========
+extern "C" QSlider* qteQSlider_create1(QWidget* parent, Qt::Orientation n) {
+    return new QSlider(n, parent);
+}
+extern "C" void qteQSlider_delete1(QSlider* wd) {
+    delete wd;
+}
+// =========== QGroupBox ==========
+extern "C" QGroupBox* qteQGroupBox_create(QWidget* parent) {
+    return new QGroupBox(parent);
+}
+extern "C" void qteQGroupBox_delete(QGroupBox* wd) {
+    delete wd;
+}
+extern "C" void qteQGroupBox_setTitle(QGroupBox* wd, QString* str) {
+    wd->setTitle(*str);
+}
+extern "C" void qteQGroupBox_setAlignment(QGroupBox* wd, Qt::AlignmentFlag str) {
+    wd->setAlignment(str);
 }

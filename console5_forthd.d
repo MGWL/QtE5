@@ -18,8 +18,9 @@ import std.string: strip, format, split;
 import std.conv;
 import std.datetime;
 
-const strElow  = "background: #F8FFA1";
-const strGreen = "background: #F79F81";
+const strElow    = "background: #F8FFA1";
+const strGreen   = "background: #F79F81";
+const strLigBlue = "background: #C2EDFF; font: 12pt/10pt sans-serif;";
 
 string ts = "ABC";
 
@@ -44,7 +45,7 @@ extern (C) {
 	}
 }
 // __________________________________________________________________
-class CModel : QWidget {
+class CModel : QWidget { //=> Опмсание Формы Модель
 	struct t_uk  { int X; int Y; pp Buf; }
 	struct t_rgb { ubyte R; ubyte G; ubyte B; ubyte L; };
 	t_uk*   uk;			// указатель на структуру Форта
@@ -53,12 +54,16 @@ class CModel : QWidget {
 	QHBoxLayout	laHkn;			// Выравниватель кнопок
 	// Кнопки
 	QPushButton kn1, kn2;
+	QLCDNumber lcdN1;
+	QSlider slIder;
 	// Screen
 	QWidget screen;
 	QAction acKn1, acKn2;
 	// Рисование
 	QColor color;
 	QPen   pero;
+	QIcon ik1;
+	QGroupBox gr1;
 	// ______________________________________________________________
 	// Конструктор фрмы
 	this(QWidget parent, QtE.WindowType fl) {
@@ -67,20 +72,36 @@ class CModel : QWidget {
 		// Горизонтальный и вертикальный выравниватели
 		vblAll  = new  QVBoxLayout();		// Главный выравниватель
 		laHkn   = new  QHBoxLayout();
+		// Группировка
+		gr1 = new QGroupBox(this); gr1.setMaximumHeight(70); gr1.setText("Группа");
+		gr1.setAlignment(QtE.AlignmentFlag.AlignCenter);
+		
 		// Кнопки
 		kn1  = new QPushButton("Первая кнопка:", this);
-		kn2 = new QPushButton("Вторая кнопка", this);
+		kn2 = new QPushButton("Вторая кнопка", this); 
+		ik1 = new QIcon(); ik1.addFile("ICONS/ArrowDownGreen.ico");
+		kn1.setIcon(ik1);
+		
 		acKn1 = new QAction(null, &onKn1, aThis);
 		connects(kn1, "clicked()", acKn1, "Slot()");
 		
+		lcdN1 = new QLCDNumber(this, 2); lcdN1.setMaximumHeight(30).setMaximumWidth(60);
+		lcdN1.setStyleSheet(strGreen);
+		lcdN1.display(15).setSegmentStyle(QLCDNumber.SegmentStyle.Flat).setMode(QLCDNumber.Mode.Hex);
+		
+		slIder = new QSlider(this, QtE.Orientation.Horizontal);
+		slIder.setMinimum(0).setMaximum(10);
+		
 		screen = new QWidget(this, QtE.WindowType.Widget);
-		screen.setStyleSheet(strElow);
+		// screen.setStyleSheet(strElow);
 		screen.setPaintEvent(&onPaintModel, aThis);
 
 		// Собираем кнопки в выравниватель
-		laHkn.addWidget(kn1).addWidget(kn2);
+		laHkn.addWidget(kn1).addWidget(kn2).addWidget(lcdN1);
+		gr1.setLayout(laHkn);
+		
 		// Соберем все в основной выравниватель
-		vblAll.addLayout(laHkn).addWidget(screen);
+		vblAll.addWidget(gr1).addWidget(slIder).addWidget(screen);
 		setLayout(vblAll);
 		
 		color = new QColor(); pero = new QPen(); 
@@ -90,7 +111,7 @@ class CModel : QWidget {
 	}
 	// ______________________________________________________________
 	// Первая кнопка
-	void runKn1() {
+	void runKn1() { //-> Обработка нажатия на правую кнопку
 /* 		uk = cast(t_uk*)getCommonAdr(7);
 		writefln("X = %s  Y = %s  Buf = %s", uk.X, uk.Y, uk.Buf);
 		t_rgb rgb = cast()*uk.Buf;
@@ -99,30 +120,29 @@ class CModel : QWidget {
  */	}
 	// ______________________________________________________________
 	// Обработчик paint
-	void runPaintModel(void* ev, void* qpaint) {
+	void runPaintModel(void* ev, void* qpaint) { //-> Обработчик Paint для модели
  		// Схватить переданный из Qt указатель на QPaint и запомнить его 
 		// в своем объекте, для дальнейшей обработки
 		uk = cast(t_uk*)getCommonAdr(7);
 		if(uk is null) return;
 		t_rgb* urgb = cast(t_rgb*)uk.Buf;
-		t_rgb rgb;
+		t_rgb rgb, rgb_before = { 0, 0, 0, 0 };
 		QPainter qp = new QPainter('+', qpaint); 
 		int sm;
 		for(int x; x != uk.X; x++) {
 			for(int y; y != uk.Y; y++) {
-				rgb = *( urgb + sm++ );
-				// write( cast(int)(urgb + sm - 1), "  " );
-				// writefln("%s   %s   %s   %s", rgb.R, rgb.G, rgb.B, rgb.L);
-				color.setRgb(rgb.R, rgb.G, rgb.B, rgb.L);
-				pero.setColor(color); qp.setPen(pero); qp.drawPoint(x, y);
+				rgb        = *( urgb + sm++ );
+				rgb_before = *( urgb + sm );
+				{
+					rgb_before = rgb;
+					color.setRgb(rgb.R, rgb.G, rgb.B, rgb.L);
+					pero.setColor(color); 
+					qp.setPen(pero); 
+					qp.drawPoint(x, y);
+				}
 			}
 		}
-		
-/* 		for(int i; i != 100; i++) qp.drawPoint(i, i);
-		qp.drawLine(10, 20, 140, 310);
-		// write(qpaint, "."); stdout.flush;
-		qp.setText(140, 200, "Привет! ...");
- */		qp.end();
+		qp.end();
 	}
 }
 /* 		// Попробуем вызвать из D слово Форта
@@ -396,6 +416,7 @@ class CMdiFormLogCmd : QWidget, IFormLogCmd {
 		leCmdStr = new QLineEdit(this);			// Строка команды
 		leCmdStr.setKeyPressEvent(&onChar, parent.aThis);
 		leCmdStr.setToolTip("Строка команды.\nДоступны стрелки вверх/вниз и F1 .. F10 быстрой вствки");
+		leCmdStr.setStyleSheet(strLigBlue);
 
 		// Текстовый редактор, окно лога
 		teLog = new QPlainTextEdit(this);
