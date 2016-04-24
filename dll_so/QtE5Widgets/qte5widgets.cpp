@@ -349,6 +349,18 @@ extern "C" void qteQAbstractButton_setIcon(QAbstractButton* wd, QIcon* p) {
     wd->setIcon(*p);
 }
 
+extern "C" bool qteQAbstractButton_getXX(QAbstractButton* wd, int pr) {
+    bool rez = 0;
+    switch ( pr ) {
+    case 0:   rez = wd->autoExclusive();    break;
+    case 1:   rez = wd->autoRepeat();       break;
+    case 2:   rez = wd->isCheckable();      break;
+    case 3:   rez = wd->isChecked();        break;
+    case 4:   rez = wd->isDown();           break;
+    }
+    return rez;
+}
+
 // =========== QSlot ==========
 QSlot::QSlot(QObject* parent) : QObject(parent) {
     aSlotN = NULL;
@@ -532,27 +544,28 @@ extern "C" void qteQAbstractScrollArea_delete1(QtRefH wd) {
 // ===================== QPlainTextEdit ====================
 
 eQPlainTextEdit::eQPlainTextEdit(QWidget *parent): QPlainTextEdit(parent) {
-    aKeyPressEvent = NULL; aDThis = NULL;
+    aKeyPressEvent = NULL; aDThis = NULL; aKeyReleaseEvent = NULL;
 }
 eQPlainTextEdit::~eQPlainTextEdit() {
 }
 void eQPlainTextEdit::keyPressEvent(QKeyEvent* event) {
     QKeyEvent* otv;
     // Если нет перехвата, отдай событие
-    if (aKeyPressEvent == NULL) {
-        QPlainTextEdit::keyPressEvent(event); return;
-    }
-    if ((aKeyPressEvent != NULL) && (aDThis == NULL)) {
-        otv = (QKeyEvent*)((ExecZIM_vp__vp)aKeyPressEvent)((QtRefH)event);
-        if(otv != NULL) {  QPlainTextEdit::keyPressEvent(otv); }
-        return;
-    }
-    if ((aKeyPressEvent != NULL) && (aDThis != NULL)) {
+    if (aKeyPressEvent == NULL) {QPlainTextEdit::keyPressEvent(event); return; }
+    if (aKeyPressEvent != NULL) {
         otv = (QKeyEvent*)((ExecZIM_vp__vp_vp)aKeyPressEvent)(*(void**)aDThis, (QtRefH)event);
         if(otv != NULL) {  QPlainTextEdit::keyPressEvent(otv); }
     }
 }
-
+void eQPlainTextEdit::keyReleaseEvent(QKeyEvent* event) {
+    QKeyEvent* otv;
+    // Если нет перехвата, отдай событие
+    if (aKeyReleaseEvent == NULL) {QPlainTextEdit::keyReleaseEvent(event); return; }
+    if (aKeyReleaseEvent != NULL) {
+        otv = (QKeyEvent*)((ExecZIM_vp__vp_vp)aKeyReleaseEvent)(*(void**)aDThis, (QtRefH)event);
+        if(otv != NULL) {  QPlainTextEdit::keyReleaseEvent(otv); }
+    }
+}
 extern "C" eQPlainTextEdit* qteQPlainTextEdit_create1(QWidget* parent) {
     return new eQPlainTextEdit(parent);
 }
@@ -561,6 +574,10 @@ extern "C" void qteQPlainTextEdit_delete1(eQPlainTextEdit* wd) {
 }
 extern "C" void qteQPlainTextEdit_setKeyPressEvent(eQPlainTextEdit* wd, void* adr, void* aThis) {
     wd->aKeyPressEvent = adr;
+    wd->aDThis = aThis;
+}
+extern "C" void qteQPlainTextEdit_setKeyReleaseEvent(eQPlainTextEdit* wd, void* adr, void* aThis) {
+    wd->aKeyReleaseEvent = adr;
     wd->aDThis = aThis;
 }
 extern "C" void qteQPlainTextEdit_appendPlainText(QPlainTextEdit* wd, QtRefH str) {
@@ -592,6 +609,15 @@ extern "C" void qteQPlainTextEdit_toPlainText(QPlainTextEdit* wd, QtRefH qs) {
     *(QString*)qs = wd->toPlainText();
 }
 // ===================== QAction ====================
+// Скорее всего будет сделано так:
+// -------------------------------
+// Любой слот всегда! передаёт в обработчик D два параметра,
+// 1 - Адрес объекта и 2 - N установленный при инициадизации
+
+// Специализированные слоты для обработки сообщений с параметрами
+// всегда передают Адрес и N (см выше) и дальше сами параметры
+
+
 eAction::eAction(QObject* parent)  : QAction(parent) {
     aDThis = NULL; aSlotN = NULL; N = 0;
 }
@@ -610,6 +636,19 @@ void eAction::Slot_Bool(bool b) { // Вызвать глобальную фун�
 void eAction::Slot_Int(int i) { // Вызвать глобальную функцию с параметром
     if (aSlotN != NULL)  ((ExecZIM_v__i)aSlotN)(i);
 }
+
+//--------- Новые слоты ---------------
+void eAction::Slot_v__A_N_v() { // Новый тип слота - универсальный
+    if (aSlotN != NULL)  ((ExecZIM_v__vp_n)aSlotN)(*(void**)aDThis, N);
+}
+void eAction::Slot_v__A_N_b(bool pr) { // Новый тип слота - универсальный
+    if (aSlotN != NULL)  ((ExecZIM_v__vp_n_b)aSlotN)(*(void**)aDThis, N, pr);
+}
+void eAction::Slot_v__A_N_i(int pn) { // Новый тип слота - универсальный
+    if (aSlotN != NULL)  ((ExecZIM_v__vp_n_i)aSlotN)(*(void**)aDThis, N, pn);
+}
+
+
 // -------------------------------------------------------
 extern "C" void* qteQAction_create(QObject * parent) {  return new eAction(parent); }
 extern "C" void  qteQAction_delete(eAction* wd)      {  delete wd; }
@@ -1112,4 +1151,30 @@ extern "C" void qteQGroupBox_setTitle(QGroupBox* wd, QString* str) {
 }
 extern "C" void qteQGroupBox_setAlignment(QGroupBox* wd, Qt::AlignmentFlag str) {
     wd->setAlignment(str);
+}
+// =========== QCheckBox ==========
+extern "C" QCheckBox* qteQCheckBox_create1(QWidget* parent, QString* name) {
+    return  new QCheckBox(*name, parent);
+}
+extern "C" void qteQCheckBox_delete(QCheckBox* qs) {
+    delete qs;
+}
+extern "C" int qteQCheckBox_checkState(QCheckBox* qs) {
+    return (int)qs->checkState();
+}
+extern "C" void qteQCheckBox_setCheckState(QCheckBox* qs, Qt::CheckState st) {
+    qs->setCheckState(st);
+}
+extern "C" void qteQCheckBox_setTristate(QCheckBox* qs, bool st) {
+    qs->setTristate(st);
+}
+extern "C" bool qteQCheckBox_isTristate(QCheckBox* qs) {
+    return qs->isTristate();
+}
+// =========== QRadioButton ==========
+extern "C" QRadioButton* qteQRadioButton_create1(QWidget* parent, QString* name) {
+    return  new QRadioButton(*name, parent);
+}
+extern "C" void qteQRadioButton_delete(QRadioButton* qs) {
+    delete qs;
 }

@@ -45,6 +45,8 @@
 #include <QAbstractSlider>
 #include <QSlider>
 #include <QGroupBox>
+#include <QCheckBox>
+#include <QRadioButton>
 
 typedef int PTRINT;
 typedef unsigned int PTRUINT;
@@ -56,6 +58,11 @@ extern "C" typedef void  (*ExecZIM_v__b)(bool);
 extern "C" typedef void  (*ExecZIM_v__i)(int);
 extern "C" typedef void  (*ExecZIM_v__v)(void);
 
+extern "C" typedef void  (*ExecZIM_v__vp_n_i)(void*, int, int);
+extern "C" typedef void  (*ExecZIM_v__vp_n_b)(void*, int, bool);
+extern "C" typedef void  (*ExecZIM_v__vp_n)(void*, int);
+
+
 extern "C" typedef void  (*ExecZIM_v__vp)(void*);
 
 extern "C" typedef void  (*ExecZIM_v__vp_vp)(void*, void*);
@@ -65,6 +72,7 @@ extern "C" typedef bool  (*ExecZIM_b__vp)(void*);
 extern "C" typedef void* (*ExecZIM_vp__vp_vp)(void*, void*);
 extern "C" typedef void* (*ExecZIM_vp__vp)(void*);
 
+//___________________________________________________
 class QSlot : public QObject {
     Q_OBJECT
 
@@ -81,8 +89,9 @@ private slots:
     void SlotN();
     void Slot_Bool(bool);
     void Slot_Int(int);
+//    void Slot_v__A_N_i(int);
 };
-
+//___________________________________________________
 class eAction : public QAction {
     Q_OBJECT
 
@@ -100,8 +109,12 @@ private slots:
     void SlotN();
     void Slot_Bool(bool);
     void Slot_Int(int);
+    void Slot_v__A_N_i(int);
+    void Slot_v__A_N_b(bool);
+    void Slot_v__A_N_v();
 };
 
+//___________________________________________________
 class eQMainWindow : public QMainWindow {
     // Q_OBJECT
 
@@ -110,7 +123,7 @@ public:
     ~eQMainWindow();
 
 };
-
+//___________________________________________________
 class eQLineEdit : public QLineEdit {
     // Q_OBJECT
 
@@ -123,8 +136,7 @@ public:
 protected:
     void keyPressEvent(QKeyEvent* event);
 };
-
-
+//___________________________________________________
 class eQWidget : public QWidget {
     // Q_OBJECT
 
@@ -145,7 +157,7 @@ protected:
     void closeEvent(QCloseEvent* event);
     void resizeEvent(QResizeEvent* event);
 };
-
+//___________________________________________________
 class eQFrame : public QFrame {
     // Q_OBJECT
 public:
@@ -162,17 +174,19 @@ protected:
     void closeEvent(QCloseEvent* event);
     void resizeEvent(QResizeEvent* event);
 };
-
+//___________________________________________________
 class eQPlainTextEdit : public QPlainTextEdit {
     // Q_OBJECT
 public:
     void* aDThis;       // Хранит адрес экземпляра объекта D
     void* aKeyPressEvent;
+    void* aKeyReleaseEvent;
 public:
     explicit eQPlainTextEdit(QWidget* parent);
     ~eQPlainTextEdit();
 protected:
     void keyPressEvent(QKeyEvent* event);
+    void keyReleaseEvent(QKeyEvent* event);
 };
 
 

@@ -1752,6 +1752,7 @@ void initForth() {
 	// REGULAR ( xt --> ) I (исполнить слово), С (закомпилировать в определение)
 	evalForth(": REGULAR STATE @ IF COMPILE, ELSE EXECUTE THEN ; : CELLS CELL * ; ");
 	// IS ( xt / name --> ) Присвоить значение вектору, HAS ( / name --> xt ) получить значение вектора
+	// Применение VECT vec FIND DUP IS A A -- выполнить DUP и HAS A - получить адрес из вектора
 	evalForth(": IS ' LITERAL ['] TOKEN! REGULAR ; : HAS ' LITERAL ['] TOKEN@ REGULAR ;");
 	// COMMONADR@ ( n -- Value ) Значение в ячейке n общй таблицы. COMMONADR! ( Value n -- ) Запись значения в ячейку n
 	evalForth(": COMMONADR! CELL * COMMONADR + ! ; : COMMONADR@ CELL * COMMONADR + @ ;");

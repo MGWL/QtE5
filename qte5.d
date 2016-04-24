@@ -47,6 +47,7 @@ private extern (C) @nogc alias t_v__qp_i_i = void function(QtObjH, int, int);
 private extern (C) @nogc alias t_v__qp_qp_i_i = void function(QtObjH, QtObjH, int, int);
 
 private extern (C) @nogc alias t_b__qp = bool function(QtObjH);
+private extern (C) @nogc alias t_b__qp_i = bool function(QtObjH, int);
 
 private extern (C) @nogc alias t_v__qp_qp_i = void function(QtObjH, QtObjH, int);
 private extern (C) @nogc alias t_v__qp_qp_qp_i = void function(QtObjH, QtObjH, QtObjH, int);
@@ -308,6 +309,7 @@ int LoadQt(dll ldll, bool showError) { ///  Загрузить DLL-ки Qt и Qt
 	funQt(29, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQAbstractButton_text",    showError);
 	funQt(209,bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQAbstractButton_setXX",   showError);
 	funQt(211,bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQAbstractButton_setIcon", showError);
+	funQt(224,bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQAbstractButton_getXX",   showError);
 
 	// ------- QLayout -------
 	funQt(34, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQBoxLayout",              showError);
@@ -359,6 +361,7 @@ int LoadQt(dll ldll, bool showError) { ///  Загрузить DLL-ки Qt и Qt
 	funQt(72, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQPlainTextEdit_cutn",            showError);
 	funQt(73, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQPlainTextEdit_toPlainText",     showError);
 	funQt(80, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQPlainTextEdit_setKeyPressEvent",showError);
+	funQt(225,bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQPlainTextEdit_setKeyReleaseEvent",showError);
 	//  ------- QLineEdit -------
 	funQt(82, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQLineEdit_create1",				showError);
 	funQt(83, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQLineEdit_delete1",				showError);
@@ -525,8 +528,18 @@ int LoadQt(dll ldll, bool showError) { ///  Загрузить DLL-ки Qt и Qt
 	funQt(213, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQGroupBox_delete",				showError);
 	funQt(214, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQGroupBox_setTitle",			showError);
 	funQt(215, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQGroupBox_setAlignment",		showError);
+	//  ------- QCheckBox -------
+	funQt(216, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQCheckBox_create1",			showError);
+	funQt(217, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQCheckBox_delete",				showError);
+	funQt(218, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQCheckBox_checkState",			showError);
+	funQt(219, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQCheckBox_setCheckState",		showError);
+	funQt(220, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQCheckBox_setTristate",		showError);
+	funQt(221, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQCheckBox_isTristate",			showError);
+	//  ------- QRadioButton -------
+	funQt(222, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQRadioButton_create1",			showError);
+	funQt(223, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQRadioButton_delete",			showError);
 	
-	// Последний = 213
+	// Последний = 224
 	return 0;
 } ///  Загрузить DLL-ки Qt и QtE. Найти в них адреса функций и заполнить ими таблицу
 
@@ -851,6 +864,11 @@ class QtE {
 		DashDotLine		= 4,	// Штрих пунктиреая, длинный штрих + точка
 		DashDotDotLine	= 5,	// штрих 2 точки штрих 2 точки
 		CustomDashLine	= 6		// A custom pattern defined using QPainterPathStroker::setDashPattern().
+	}
+	enum CheckState {
+		Unchecked	= 0, 		// Не выбранный
+		PartiallyChecked = 1,	// The item is partially checked. Items in hierarchical models may be partially checked if some, but not all, of their children are checked.
+		Checked		= 2			// Выбран The item is checked.
 	}
 }
 // ================ QObject ================
@@ -1196,6 +1214,10 @@ class QWidget: QPaintDevice {
 		return this; 
 	} /// Установить обработчик на событие ResizeWidget
 	
+	QWidget setKeyReleaseEvent(void* adr, void* adrThis = null) {
+		(cast(t_v__qp_qp_qp) pFunQt[225])(QtObj, cast(QtObjH)adr, cast(QtObjH)adrThis); 
+		return this; 
+	}
 
 	QWidget setKeyPressEvent(void* adr, void* adrThis = null) {
 		//(cast(t_v__qp_qp_qp) pFunQt[80])(QtObj, cast(QtObjH)adr, cast(QtObjH)adrThis); 
@@ -1305,7 +1327,24 @@ class QAbstractButton : QWidget {
 	QAbstractButton setIcon(QIcon ik) {
 		(cast(t_v__qp_qp) pFunQt[211])(QtObj, ik.QtObj); return this;
 	} /// 
-
+	bool autoExclusive() { //-> T - Эксклюзивное использование
+		return (cast(t_b__qp_i) pFunQt[224])(QtObj, 0);
+	}
+	bool autoRepeat() { //-> T - Повторяющеяся
+		return (cast(t_b__qp_i) pFunQt[224])(QtObj, 1);
+	}
+	bool isCheckable() { //-> T - Может нажиматься
+		return (cast(t_b__qp_i) pFunQt[224])(QtObj, 2);
+	}
+	bool isChecked() { //-> T - Нажата
+		return (cast(t_b__qp_i) pFunQt[224])(QtObj, 3);
+	}
+	bool isDown() { //-> T - Нажата
+		return (cast(t_b__qp_i) pFunQt[224])(QtObj, 4);
+	}
+	
+	
+	
 	/*
 	bool isChecked() {
 		return (cast(t_b__vp) pFunQt[265])(QtObj);
@@ -1922,6 +1961,11 @@ class QAction : QObject {
 		if(!fNoDelete && (QtObj != null)) { (cast(t_v__qp) pFunQt[96])(QtObj); setQtObj(null); }
 	}
 	// Эксперементаьный, попытка вызвать метод, не используя Extern "C"
+	// Любой слот всегда! передаёт в обработчик D два параметра,
+	// 1 - Адрес объекта и 2 - N установленный при инициадизации
+
+	// Специализированные слоты для обработки сообщений с параметрами
+	// всегда передают Адрес и N (см выше) и дальше сами параметры
 	this(QWidget parent, void* adr, void* adrThis, int n = 0) {
 		if (parent) {
 			this.setNoDelete(true);	// Не удалять текущий экземпляр, при условии, что он вставлен в другой
@@ -2938,4 +2982,85 @@ class QGroupBox : QWidget {
 		return this;
 	} /// Выровнять текст
 	
+}
+// ================ QCheckBox ================
+class QCheckBox : QAbstractButton { //=> Кнопки CheckBox независимые
+	this(){}
+	this(T: QString)(T str, QWidget parent = null) {
+		// super(); // Это фактически заглушка, что бы сделать наследование,
+		// не создавая промежуточного экземпляра в Qt
+		if (parent) {
+			this.setNoDelete(true);	// Не удалять текущий экземпляр, при условии, что он вставлен в другой
+			setQtObj((cast(t_qp__qp_qp) pFunQt[216])(parent.QtObj, str.QtObj));
+		} else {
+			setQtObj((cast(t_qp__qp_qp) pFunQt[216])(null, str.QtObj));
+		}
+	} /// Создать кнопку.
+    ~this() {
+		if(!fNoDelete && (QtObj != null)) { (cast(t_v__qp) pFunQt[217])(QtObj); setQtObj(null); }
+		// write("B- "); stdout.flush();
+    }
+	this(T)(T str, QWidget parent = null) {
+		// super(); // Это фактически заглушка, что бы сделать наследование,
+		// не создавая промежуточного экземпляра в Qt
+		if (parent) {
+			setQtObj((cast(t_qp__qp_qp) pFunQt[216])(parent.QtObj, (new QString(to!string(str))).QtObj));
+		} else {
+			setQtObj((cast(t_qp__qp_qp) pFunQt[216])(null, (new QString(to!string(str))).QtObj));
+		}
+	}
+	QtE.CheckState checkState() {  //-> Состояние переключателя/кнопки
+		return cast(QtE.CheckState)(cast(t_i__qp) pFunQt[218])(QtObj);
+	}
+	QCheckBox setCheckState(QtE.CheckState st = QtE.CheckState.Unchecked) { //-> Установить состояние переключателя/кнопки
+		(cast(t_v__qp_i) pFunQt[219])(QtObj, st); return this;
+	}
+	bool isTristate() { //-> Есть в третичном состоянии?
+		return cast() (cast(t_b__qp) pFunQt[221])(QtObj);
+	}
+	QCheckBox setTristate(bool state = true) { //-> Установить/отменить третичное состояние
+		(cast(t_v__qp_bool)pFunQt[220])(QtObj, state); return this;
+	}
+}
+// ================ QRadioButton ================
+class QRadioButton : QAbstractButton { //=> Кнопки РадиоБатоны зависимые
+	this(){}
+	this(T: QString)(T str, QWidget parent = null) {
+		// super(); // Это фактически заглушка, что бы сделать наследование,
+		// не создавая промежуточного экземпляра в Qt
+		if (parent) {
+			this.setNoDelete(true);	// Не удалять текущий экземпляр, при условии, что он вставлен в другой
+			setQtObj((cast(t_qp__qp_qp) pFunQt[222])(parent.QtObj, str.QtObj));
+		} else {
+			setQtObj((cast(t_qp__qp_qp) pFunQt[222])(null, str.QtObj));
+		}
+	} /// Создать кнопку.
+    ~this() {
+		if(!fNoDelete && (QtObj != null)) { (cast(t_v__qp) pFunQt[223])(QtObj); setQtObj(null); }
+		// write("B- "); stdout.flush();
+    }
+	this(T)(T str, QWidget parent = null) {
+		// super(); // Это фактически заглушка, что бы сделать наследование,
+		// не создавая промежуточного экземпляра в Qt
+		if (parent) {
+			setQtObj((cast(t_qp__qp_qp) pFunQt[222])(parent.QtObj, (new QString(to!string(str))).QtObj));
+		} else {
+			setQtObj((cast(t_qp__qp_qp) pFunQt[222])(null, (new QString(to!string(str))).QtObj));
+		}
+	}
+	
+	
+/* 	QtE.CheckState checkState() {  //-> Состояние переключателя/кнопки
+		return cast(QtE.CheckState)(cast(t_i__qp) pFunQt[218])(QtObj);
+	}
+	QCheckBox setCheckState(QtE.CheckState st = QtE.CheckState.Unchecked) { //-> Установить состояние переключателя/кнопки
+		(cast(t_v__qp_i) pFunQt[219])(QtObj, st); return this;
+	}
+	bool isTristate() { //-> Есть в третичном состоянии?
+		return cast() (cast(t_b__qp) pFunQt[221])(QtObj);
+	}
+	QCheckBox setTristate(bool state = true) { //-> Установить/отменить третичное состояние
+		(cast(t_v__qp_bool)pFunQt[220])(QtObj, state); return this;
+	}
+ */	
 }

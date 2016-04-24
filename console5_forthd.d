@@ -18,9 +18,8 @@ import std.string: strip, format, split;
 import std.conv;
 import std.datetime;
 
-const strElow    = "background: #F8FFA1";
-const strGreen   = "background: #F79F81";
-const strLigBlue = "background: #C2EDFF; font: 12pt/10pt sans-serif;";
+const strElow  = "background: #F8FFA1";
+const strGreen = "background: #F79F81";
 
 string ts = "ABC";
 
@@ -31,6 +30,132 @@ string helps() {
 Запуск:
 console5_forthd [-d, -e, -i] ...
 ");
+}
+// ==================================================================
+// Форма Settings - Проверка отображения раздичных элементов
+// ==================================================================
+extern (C) {
+	void onac1(CSetting* uk, int N, QtE.CheckState st) { 	// Обработка флажков
+		(*uk).testCheks(N, st);
+	}
+	void onar1(CSetting* uk, int N, bool bp) {
+		(*uk).testRasio(N, bp);
+	}
+	// Проверка KeyReleaseEvent 
+	void* onKeyReleaseEvent(CSetting* uk, void* ev) {
+		// Вызвать метод FormaMain.workPress(из_С++__KeyEvent*)
+		// Этот обработчик, просто транзитом передаёт всё дальше
+		// return возвратит KeyEvent* обратно в C++, для дальнейшей обработки
+		return (*uk).runKeyReleaseEvent(ev);
+	}
+}
+// __________________________________________________________________
+class CSetting : QWidget {
+	// Нужны выравниватели
+	QVBoxLayout	vblAll;			// Общий вертикальный выравниватель
+	QVBoxLayout	vblGr, vblGr2;
+	QHBoxLayout vblLong;
+
+	QGroupBox gr1;
+	QCheckBox    cb1, cb2, cb3;
+	QRadioButton rb1, rb2, rb3;
+	
+	QAction ac1, ac2, ac3;				// Обработка флажков
+	QAction ar1, ar2, ar3;				// Обработка флажков
+	
+	QPlainTextEdit pte;
+	// ______________________________________________________________
+	// Конструктор фрмы
+	this(QWidget parent, QtE.WindowType fl) {
+		super(parent, fl); // resize(100, 100); 
+		setWindowTitle("--[ Settings ]--");
+		vblAll  = new  QVBoxLayout();		// Главный выравниватель
+		vblGr   = new  QVBoxLayout();		// для группы
+		vblGr2  = new  QVBoxLayout();		// для второй группы
+		vblLong = new  QHBoxLayout();		// для групп кнопок
+		// Экранный редактор
+		pte = new QPlainTextEdit(this);
+		
+		// РадиоБатоны
+		rb1 = new QRadioButton("№1 Первый", this); 
+		rb2 = new QRadioButton("№2 Первый", this); 
+		rb3 = new QRadioButton("№3 Первый", this); 
+		vblGr2.addWidget(rb1).addWidget(rb2).addWidget(rb3);
+		// Чекбоксы
+		cb1 = new QCheckBox("Первый", this); 
+		cb2 = new QCheckBox("Второй", this); 
+		cb3 = new QCheckBox("Третий", this); 
+		vblGr.addWidget(cb1).addWidget(cb2).addWidget(cb3);
+		
+		// Включим все кнопки
+		cb1.setCheckState(QtE.CheckState.Checked);
+		cb2.setCheckState(QtE.CheckState.Checked);
+		cb3.setCheckState(QtE.CheckState.Checked);
+
+		// Горизонтальная группировка кнопок
+		vblLong.addLayout(vblGr).addLayout(vblGr2);
+		// Группировка
+		gr1 = new QGroupBox(this); // gr1.setMinimumHeight(160);
+		gr1.setLayout(vblLong);
+		
+		// Обработка событий
+		ac1 = new QAction(this, &onac1, aThis, 1);
+		ac2 = new QAction(this, &onac1, aThis, 2);
+		ac3 = new QAction(this, &onac1, aThis, 3);
+		connects(cb1, "stateChanged(int)", ac1, "Slot_v__A_N_i(int)");
+		connects(cb2, "stateChanged(int)", ac2, "Slot_v__A_N_i(int)");
+		connects(cb3, "stateChanged(int)", ac3, "Slot_v__A_N_i(int)");
+		
+		// События на радиобатоны
+		ar1 = new QAction(this, &onar1, aThis, 1);
+		ar2 = new QAction(this, &onar1, aThis, 2);
+		ar3 = new QAction(this, &onar1, aThis, 3);
+		connects(rb1, "toggled(bool)", ar1, "Slot_v__A_N_b(bool)");
+		connects(rb2, "toggled(bool)", ar2, "Slot_v__A_N_b(bool)");
+		connects(rb3, "toggled(bool)", ar3, "Slot_v__A_N_b(bool)");
+		
+
+		vblAll.addWidget(gr1); 
+		vblAll.addWidget(pte);
+		
+
+		setLayout(vblAll);
+		gr1.setText("Группа").setAlignment(QtE.AlignmentFlag.AlignRight);
+		
+		// Обработка клавиш в редакторе
+		pte.setKeyReleaseEvent(&onKeyReleaseEvent, aThis);
+		
+	}
+	// ______________________________________________________________
+	// Первая кнопка
+	void testCheks(int N, QtE.CheckState st) {  //-> Обработка выбора флажков
+		writeln("N = ", N, "  st = ", st);
+		// Состояние всех кнопок
+		writefln("cb1 = %s  cb2 = %s  cb3 = %s  ", cb1.checkState(), cb2.checkState(), cb3.checkState());
+		if(cb1.checkState() == QtE.CheckState.Checked) {
+			cb3.setTristate();
+		}
+		writefln("rb1  -- %s = autoExclusive()   %s = autoRepeat()   %s = isCheckable()  %s = isChecked()   %s = isDown()",
+			rb1.autoExclusive(), rb1.autoRepeat(), rb1.isCheckable(), rb1.isChecked(), rb1.isDown());
+	}
+	// ______________________________________________________________
+	// Провкрка РадиоБатонов
+	void testRasio(int N, bool bp) {  //-> Обработка радио кнопок
+		writeln(bp, "  ", N);
+		writefln("rb1  -- %s = autoExclusive()   %s = autoRepeat()   %s = isCheckable()  %s = isChecked()   %s = isDown()",
+			rb1.autoExclusive(), rb1.autoRepeat(), rb1.isCheckable(), rb1.isChecked(), rb1.isDown());
+		writefln("rb2  -- %s = autoExclusive()   %s = autoRepeat()   %s = isCheckable()  %s = isChecked()   %s = isDown()",
+			rb2.autoExclusive(), rb2.autoRepeat(), rb2.isCheckable(), rb2.isChecked(), rb2.isDown());
+		writefln("rb3  -- %s = autoExclusive()   %s = autoRepeat()   %s = isCheckable()  %s = isChecked()   %s = isDown()",
+			rb3.autoExclusive(), rb3.autoRepeat(), rb3.isCheckable(), rb3.isChecked(), rb3.isDown());
+	}
+	// ______________________________________________________________
+	// Обработка события KeyReleaseEvent
+	void* runKeyReleaseEvent(void* ev) {
+		QKeyEvent qe = new QKeyEvent('+', ev); 
+		write(qe.key, " "); stdout.flush();
+		return ev;	// Вернуть событие в C++ Qt для дальнейшей обработки
+	}
 }
 
 // ==================================================================
@@ -45,7 +170,7 @@ extern (C) {
 	}
 }
 // __________________________________________________________________
-class CModel : QWidget { //=> Опмсание Формы Модель
+class CModel : QWidget {
 	struct t_uk  { int X; int Y; pp Buf; }
 	struct t_rgb { ubyte R; ubyte G; ubyte B; ubyte L; };
 	t_uk*   uk;			// указатель на структуру Форта
@@ -111,7 +236,7 @@ class CModel : QWidget { //=> Опмсание Формы Модель
 	}
 	// ______________________________________________________________
 	// Первая кнопка
-	void runKn1() { //-> Обработка нажатия на правую кнопку
+	void runKn1() {
 /* 		uk = cast(t_uk*)getCommonAdr(7);
 		writefln("X = %s  Y = %s  Buf = %s", uk.X, uk.Y, uk.Buf);
 		t_rgb rgb = cast()*uk.Buf;
@@ -120,7 +245,7 @@ class CModel : QWidget { //=> Опмсание Формы Модель
  */	}
 	// ______________________________________________________________
 	// Обработчик paint
-	void runPaintModel(void* ev, void* qpaint) { //-> Обработчик Paint для модели
+	void runPaintModel(void* ev, void* qpaint) {
  		// Схватить переданный из Qt указатель на QPaint и запомнить его 
 		// в своем объекте, для дальнейшей обработки
 		uk = cast(t_uk*)getCommonAdr(7);
@@ -416,7 +541,6 @@ class CMdiFormLogCmd : QWidget, IFormLogCmd {
 		leCmdStr = new QLineEdit(this);			// Строка команды
 		leCmdStr.setKeyPressEvent(&onChar, parent.aThis);
 		leCmdStr.setToolTip("Строка команды.\nДоступны стрелки вверх/вниз и F1 .. F10 быстрой вствки");
-		leCmdStr.setStyleSheet(strLigBlue);
 
 		// Текстовый редактор, окно лога
 		teLog = new QPlainTextEdit(this);
@@ -567,8 +691,9 @@ class FormaMain: QMainWindow {
 	QAction acTest, acTest1, acShowDump;
 	StopWatch 		sw;   			// Секундомер для измерения времени
 	
-	CPaint fPaint;
-	CModel fModel;					// Форма с моделью
+	CPaint   fPaint;
+	CModel   fModel;					// Форма с моделью
+	CSetting fSetting;					// Форма с модальными настройками
 	// __________________________________________________________________
 	// Конструктор по умолчанию
 	this() {
@@ -759,13 +884,20 @@ class FormaMain: QMainWindow {
 <p>Так же работают стрелки вверх/вниз показывая историю команд.</p>
 "		
 		);
-		ql.show();
+		// ql.show();
 		// -----------------------
 		if(fModel is null) {
 			fModel = new CModel(this, QtE.WindowType.Window); fModel.saveThis(&fModel);
 			mainWid.addSubWindow(fModel);
 		}
 		fModel.show();
+		// -----------------------
+		if(fSetting is null) {
+			fSetting = new CSetting(null, QtE.WindowType.Dialog); fSetting.saveThis(&fSetting);
+			// fSetting.setMaximumHeight(100).setMaximumHeight(100); 
+			mainWid.addSubWindow(fSetting);
+		}
+		fSetting.show();
 	}
 	// ______________________________________________________________
 	// Создать и показать окно Forth
