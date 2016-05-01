@@ -64,6 +64,9 @@ class CSetting : QWidget {
 	QAction ar1, ar2, ar3;				// Обработка флажков
 	
 	QPlainTextEdit pte;
+	QTextCursor txtCursor;
+	QRect qRect;
+	QWidget popWinHelp;
 	// ______________________________________________________________
 	// Конструктор фрмы
 	this(QWidget parent, QtE.WindowType fl) {
@@ -124,6 +127,10 @@ class CSetting : QWidget {
 		
 		// Обработка клавиш в редакторе
 		pte.setKeyReleaseEvent(&onKeyReleaseEvent, aThis);
+
+		txtCursor = new QTextCursor();
+		qRect = new QRect();
+		popWinHelp = new QWidget(this, QtE.WindowType.Popup);
 		
 	}
 	// ______________________________________________________________
@@ -153,7 +160,14 @@ class CSetting : QWidget {
 	// Обработка события KeyReleaseEvent
 	void* runKeyReleaseEvent(void* ev) {
 		QKeyEvent qe = new QKeyEvent('+', ev); 
-		write(qe.key, " "); stdout.flush();
+		pte.textCursor(txtCursor); pte.cursorRect(qRect);
+		// Расчитаем X и Y для точного позиционирования
+		int nx = pte.x() + qRect.right();
+		int ny = pte.y() + qRect.bottom();
+		write(qe.key, " - ", nx, ":", ny); stdout.flush();
+		if(qe.key == 65) {
+			popWinHelp.move(nx, ny); popWinHelp.show();
+		}
 		return ev;	// Вернуть событие в C++ Qt для дальнейшей обработки
 	}
 }

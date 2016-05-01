@@ -11,8 +11,8 @@ import std.stdio;
 
 
 int verQt5Eu = 0;
-int verQt5El = 02;
-string verQt5Ed = "28.02.16 12:45";
+int verQt5El = 03;
+string verQt5Ed = "25.04.16 07:53";
 
 alias PTRINT = int;
 alias PTRUINT = uint;
@@ -362,6 +362,11 @@ int LoadQt(dll ldll, bool showError) { ///  Загрузить DLL-ки Qt и Qt
 	funQt(73, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQPlainTextEdit_toPlainText",     showError);
 	funQt(80, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQPlainTextEdit_setKeyPressEvent",showError);
 	funQt(225,bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQPlainTextEdit_setKeyReleaseEvent",showError);
+	funQt(226,bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQPlainTextEdit_document",		showError);
+	funQt(230,bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQPlainTextEdit_textCursor",		showError);
+	funQt(235,bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQPlainTextEdit_cursorRect",		showError);
+	funQt(235,bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQPlainTextEdit_cursorRect",		showError);
+	funQt(236,bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQPlainTextEdit_setTabStopWidth",showError);
 	//  ------- QLineEdit -------
 	funQt(82, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQLineEdit_create1",				showError);
 	funQt(83, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQLineEdit_delete1",				showError);
@@ -473,6 +478,7 @@ int LoadQt(dll ldll, bool showError) { ///  Загрузить DLL-ки Qt и Qt
 	funQt(167, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQTableWidget_setitem",			showError);
 	
 	funQt(176, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQTableWidget_setHVheaderItem",	showError);
+	funQt(241, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQTableWidget_setCurrentCell",	showError);
 	
 	//  ------- QTableWidgetItem -------
 	funQt(164, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQTableWidgetItem_create",		showError);
@@ -538,8 +544,22 @@ int LoadQt(dll ldll, bool showError) { ///  Загрузить DLL-ки Qt и Qt
 	//  ------- QRadioButton -------
 	funQt(222, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQRadioButton_create1",			showError);
 	funQt(223, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQRadioButton_delete",			showError);
+	//  ------- QTextCursor -------
+	funQt(227, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQTextCursor_create1",			showError);
+	funQt(228, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQTextCursor_delete",			showError);
+	funQt(229, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQTextCursor_create2",			showError);
+	funQt(231, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQTextCursor_getXX1",			showError);
+	//  ------- QRect -------
+	funQt(232, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQRect_create1",				showError);
+	funQt(233, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQRect_delete",					showError);
+	funQt(234, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQRect_setXX1",					showError);
+	//  ------- QTextBlock -------
+	funQt(237, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQTextBlock_text",				showError);
+	funQt(238, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQTextBlock_create",			showError);
+	funQt(239, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQTextBlock_delete",			showError);
+	funQt(240, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQTextBlock_create2",			showError);
 	
-	// Последний = 224
+	// Последний = 241
 	return 0;
 } ///  Загрузить DLL-ки Qt и QtE. Найти в них адреса функций и заполнить ими таблицу
 
@@ -1769,40 +1789,40 @@ class QPlainTextEdit : QAbstractScrollArea {
 		(cast(t_v__qp_qp_qp) pFunQt[80])(QtObj, cast(QtObjH)adr, cast(QtObjH)adrThis); return this; 
 	} /// Установить обработчик на событие KeyPressEvent. Здесь <u>adr</u> - адрес на функцию D +/
 	
-	QPlainTextEdit appendPlainText(T: QString)(T str) {
+	QPlainTextEdit appendPlainText(T: QString)(T str) { //-> Добавить текст в конец
 		(cast(t_v__qp_qp) pFunQt[68])(QtObj, str.QtObj); return this;
 	} /// Добавать текст в конец
-	QPlainTextEdit appendPlainText(T)(T str) {
+	QPlainTextEdit appendPlainText(T)(T str) { //-> Добавить текст в конец
 		(cast(t_v__qp_qp) pFunQt[68])(QtObj, (new QString(to!string(str))).QtObj); return this;
 	} /// Добавать текст в конец
-	QPlainTextEdit appendHtml(T: QString)(T str) {
+	QPlainTextEdit appendHtml(T: QString)(T str) { //-> Добавать html в конец
 		(cast(t_v__qp_qp) pFunQt[69])(QtObj, str.QtObj); return this;
 	} /// Добавать html в конец
-	QPlainTextEdit appendHtml(T)(T str) {
+	QPlainTextEdit appendHtml(T)(T str) { //-> Добавать html в конец
 		(cast(t_v__qp_qp) pFunQt[69])(QtObj, (new QString(to!string(str))).QtObj); return this;
 	} /// Добавать html в конец
-	QPlainTextEdit setPlainText(T: QString)(T str) {
+	QPlainTextEdit setPlainText(T: QString)(T str) {  //-> Удалить всё и вставить с начала
 		(cast(t_v__qp_qp) pFunQt[70])(QtObj, str.QtObj); return this;
 	} /// Удалить всё и вставить с начала
-	QPlainTextEdit setPlainText(T)(T str) {
+	QPlainTextEdit setPlainText(T)(T str) { //-> Удалить всё и вставить с начала
 		(cast(t_v__qp_qp) pFunQt[70])(QtObj, (new QString(to!string(str))).QtObj); return this;
 	} /// Удалить всё и вставить с начала
-	QPlainTextEdit insertPlainText(T: QString)(T str) {
+	QPlainTextEdit insertPlainText(T: QString)(T str) { //-> Вставить сразу за курсором
 		(cast(t_v__qp_qp) pFunQt[71])(QtObj, str.QtObj); return this;
 	} /// Вставить сразу за курсором
-	QPlainTextEdit insertPlainText(T)(T str) {
+	QPlainTextEdit insertPlainText(T)(T str) { //-> Вставить сразу за курсором
 		(cast(t_v__qp_qp) pFunQt[71])(QtObj, (new QString(to!string(str))).QtObj); return this;
 	} /// Вставить сразу за курсором
-	QPlainTextEdit cut() {
+	QPlainTextEdit cut() { //-> Вырезать кусок
 		(cast(t_v__qp_i) pFunQt[72])(QtObj, 0); return this;
 	} /// cut()
-	QPlainTextEdit clear() {
+	QPlainTextEdit clear() { //-> Очистить всё
 		(cast(t_v__qp_i) pFunQt[72])(QtObj, 1); return this;
 	} /// clear()
-	QPlainTextEdit paste() {
+	QPlainTextEdit paste() { //-> Вставить из буфера
 		(cast(t_v__qp_i) pFunQt[72])(QtObj, 2); return this;
 	} /// paste()
-	QPlainTextEdit copy() {
+	QPlainTextEdit copy() { //-> Скопировать в буфер
 		(cast(t_v__qp_i) pFunQt[72])(QtObj, 3); return this;
 	} /// copy()
 	QPlainTextEdit selectAll() {
@@ -1825,6 +1845,20 @@ class QPlainTextEdit : QAbstractScrollArea {
 	} /// Выдать содержимое в QString
 	T toPlainText(T)() { return to!T(toPlainText!QString().String);
 	} /// Выдать всё содержимое в String
+	void* document() { //-> Вернуть указатель на QTextDocument
+		return (cast(t_qp__qp) pFunQt[226])(QtObj);
+	}
+	QTextCursor textCursor(QTextCursor tk) {
+		(cast(t_v__qp_qp) pFunQt[230])(QtObj, tk.QtObj);
+		return tk;
+	}
+	QRect cursorRect(QRect tk) {
+		(cast(t_v__qp_qp) pFunQt[235])(QtObj, tk.QtObj);
+		return tk;
+	}
+	QPlainTextEdit setTabStopWidth(int width) { //-> Размер табуляции в пикселах
+		(cast(t_v__qp_i) pFunQt[236])(QtObj, width); return this;
+	}
 }
 // ================ QLineEdit ================
 /++
@@ -2692,6 +2726,9 @@ class QTableWidget : QTableView {
 	QTableWidget setVerticalHeaderItem(int row, QTableWidgetItem twi) {
 		(cast(t_v__qp_qp_i_i) pFunQt[176])(QtObj, twi.QtObj, row, 1); return this;
 	}
+	QTableWidget setCurrentCell(int row, int column) {
+		(cast(t_v__qp_i_i) pFunQt[241])(QtObj, row, column); return this;
+	}
 	
 	
 /* 	QString toQString(QString shabl) {
@@ -3016,7 +3053,7 @@ class QCheckBox : QAbstractButton { //=> Кнопки CheckBox независи�
 		(cast(t_v__qp_i) pFunQt[219])(QtObj, st); return this;
 	}
 	bool isTristate() { //-> Есть в третичном состоянии?
-		return cast() (cast(t_b__qp) pFunQt[221])(QtObj);
+		return (cast(t_b__qp) pFunQt[221])(QtObj);
 	}
 	QCheckBox setTristate(bool state = true) { //-> Установить/отменить третичное состояние
 		(cast(t_v__qp_bool)pFunQt[220])(QtObj, state); return this;
@@ -3048,19 +3085,97 @@ class QRadioButton : QAbstractButton { //=> Кнопки РадиоБатоны 
 			setQtObj((cast(t_qp__qp_qp) pFunQt[222])(null, (new QString(to!string(str))).QtObj));
 		}
 	}
-	
-	
-/* 	QtE.CheckState checkState() {  //-> Состояние переключателя/кнопки
-		return cast(QtE.CheckState)(cast(t_i__qp) pFunQt[218])(QtObj);
+}
+// ================ QTextCursor ================
+class QTextCursor : QObject {
+	~this() {
+		if(!fNoDelete) { (cast(t_v__qp) pFunQt[228])(QtObj); setQtObj(null); }
 	}
-	QCheckBox setCheckState(QtE.CheckState st = QtE.CheckState.Unchecked) { //-> Установить состояние переключателя/кнопки
-		(cast(t_v__qp_i) pFunQt[219])(QtObj, st); return this;
+	this(char ch, void* adr) {
+		if(ch == '+') setQtObj(cast(QtObjH)adr);
+	} /// Конструктор
+	this(void* ukDocument) {
+		setQtObj((cast(t_qp__qp)pFunQt[227])(cast(QtObj__*)ukDocument));
 	}
-	bool isTristate() { //-> Есть в третичном состоянии?
-		return cast() (cast(t_b__qp) pFunQt[221])(QtObj);
+	this() {
+		setQtObj((cast(t_qp__v)pFunQt[229])());
 	}
-	QCheckBox setTristate(bool state = true) { //-> Установить/отменить третичное состояние
-		(cast(t_v__qp_bool)pFunQt[220])(QtObj, state); return this;
+	int anchor() {
+		return (cast(t_i__qp_i) pFunQt[231])(QtObj, 0);
 	}
- */	
+	int blockNumber() {
+		return (cast(t_i__qp_i) pFunQt[231])(QtObj, 1);
+	}
+	int columnNumber() { //-> Позиция (с 0) в видимой строке. Перен стр считается снова
+		return (cast(t_i__qp_i) pFunQt[231])(QtObj, 2);
+	}
+	int position() { //-> Позиция (с 0) в тексте, начиная с начала. Счит. печ симв
+		return (cast(t_i__qp_i) pFunQt[231])(QtObj, 3);
+	}
+	int positionInBlock() { //-> Позиция (с 0) в текушей строке
+		return (cast(t_i__qp_i) pFunQt[231])(QtObj, 4);
+	}
+	int selectionEnd() {
+		return (cast(t_i__qp_i) pFunQt[231])(QtObj, 5);
+	}
+	int selectionStart() {
+		return (cast(t_i__qp_i) pFunQt[231])(QtObj, 6);
+	}
+	int verticalMovementX() { //-> Количество пикселей с левого края
+		return (cast(t_i__qp_i) pFunQt[231])(QtObj, 7);
+	}
+}
+// ================ QRect ================
+class QRect : QObject {
+	~this() {
+		if(!fNoDelete) { (cast(t_v__qp) pFunQt[233])(QtObj); setQtObj(null); }
+	}
+	this(char ch, void* adr) {
+		if(ch == '+') setQtObj(cast(QtObjH)adr);
+	} /// Конструктор
+	this() {
+		setQtObj((cast(t_qp__v)pFunQt[232])());
+	}
+	int x() {
+		return (cast(t_i__qp_i) pFunQt[234])(QtObj, 0);
+	}
+	int y() {
+		return (cast(t_i__qp_i) pFunQt[234])(QtObj, 1);
+	}
+	int width() {
+		return (cast(t_i__qp_i) pFunQt[234])(QtObj, 2);
+	}
+	int height() {
+		return (cast(t_i__qp_i) pFunQt[234])(QtObj, 3);
+	}
+	int left() {
+		return (cast(t_i__qp_i) pFunQt[234])(QtObj, 4);
+	}
+	int right() {
+		return (cast(t_i__qp_i) pFunQt[234])(QtObj, 5);
+	}
+	int top() {
+		return (cast(t_i__qp_i) pFunQt[234])(QtObj, 6);
+	}
+	int bottom() {
+		return (cast(t_i__qp_i) pFunQt[234])(QtObj, 7);
+	}
+}
+// ================ QTextBlock ================
+class QTextBlock : QObject {
+	this() {
+		setQtObj((cast(t_qp__v)pFunQt[238])());
+	}
+	this(QTextCursor tk) {
+		setQtObj((cast(t_qp__qp)pFunQt[240])(tk.QtObj));
+	}
+	~this() {
+		if(!fNoDelete) { (cast(t_v__qp) pFunQt[239])(QtObj); setQtObj(null); }
+	}
+	T text(T: QString)() { //-> Содержимое блока в QString
+		QString qs = new QString(); (cast(t_v__qp_qp)pFunQt[237])(QtObj, qs.QtObj); return qs;
+	} /// Выдать содержимое в QString
+	T text(T)() { return to!T(text!QString().String);
+	} /// Выдать всё содержимое в String
+
 }

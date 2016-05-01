@@ -47,6 +47,9 @@
 #include <QGroupBox>
 #include <QCheckBox>
 #include <QRadioButton>
+#include <QTextCursor>
+#include <QTextDocument>
+#include <QTextBlock>
 
 typedef int PTRINT;
 typedef unsigned int PTRUINT;

@@ -608,6 +608,20 @@ extern "C" void qteQPlainTextEdit_cutn(QPlainTextEdit* wd, int pr) {
 extern "C" void qteQPlainTextEdit_toPlainText(QPlainTextEdit* wd, QtRefH qs) {
     *(QString*)qs = wd->toPlainText();
 }
+extern "C" QTextDocument* qteQPlainTextEdit_document(QPlainTextEdit* wd) {
+    return wd->document();
+}
+// 230
+extern "C" void qteQPlainTextEdit_textCursor(QPlainTextEdit* wd, QTextCursor* tk) {
+    *tk = wd->textCursor();
+}
+extern "C" void qteQPlainTextEdit_cursorRect(QPlainTextEdit* wd, QRect* tk) {
+    *tk = wd->cursorRect();
+}
+extern "C" void qteQPlainTextEdit_setTabStopWidth(QPlainTextEdit* wd, int width) {
+    wd->setTabStopWidth(width);
+}
+
 // ===================== QAction ====================
 // Скорее всего будет сделано так:
 // -------------------------------
@@ -1034,6 +1048,11 @@ extern "C" void qteQTableWidget_setHVheaderItem(QTableWidget* wd,
             }   break;
     }
 }
+//241
+extern "C" void qteQTableWidget_setCurrentCell (QTableWidget* wd, int row, int column ) {
+    wd->setCurrentCell(row, column);
+}
+
 // =========== QComboBox ==========
 extern "C" QComboBox* qteQComboBox_create(QWidget* parent) {
     return new QComboBox(parent);
@@ -1177,4 +1196,71 @@ extern "C" QRadioButton* qteQRadioButton_create1(QWidget* parent, QString* name)
 }
 extern "C" void qteQRadioButton_delete(QRadioButton* qs) {
     delete qs;
+}
+// =========== QTextCursor ==========
+extern "C" QTextCursor* qteQTextCursor_create1(QTextDocument * document) {
+    return  new QTextCursor(document);
+}
+extern "C" QTextCursor* qteQTextCursor_create2() {
+    return  new QTextCursor();
+}
+extern "C" void qteQTextCursor_delete(QTextCursor* qs) {
+    delete qs;
+}
+extern "C" int qteQTextCursor_getXX1(QTextCursor* wd, int pr) {
+    int rez = 0;
+    switch ( pr ) {
+    case 0:   rez = wd->anchor();           break;
+    case 1:   rez = wd->blockNumber();      break;
+    case 2:   rez = wd->columnNumber();     break;
+    case 3:   rez = wd->position();         break;
+    case 4:   rez = wd->positionInBlock();  break;
+    case 5:   rez = wd->selectionEnd();     break;
+    case 6:   rez = wd->selectionStart();   break;
+    case 7:   rez = wd->verticalMovementX();break;
+    }
+    return rez;
+}
+
+// =========== QRect ==========
+extern "C" QRect* qteQRect_create1() {
+    return  new QRect();
+}
+extern "C" void qteQRect_delete(QRect* qs) {
+    delete qs;
+}
+extern "C" int qteQRect_setXX1(QRect* wd, int pr) {
+    int rez = 0;
+    switch ( pr ) {
+    case 0:   rez = wd->x();           break;
+    case 1:   rez = wd->y();           break;
+    case 2:   rez = wd->width();       break;
+    case 3:   rez = wd->height();      break;
+    case 4:   rez = wd->left();        break;
+    case 5:   rez = wd->right();       break;
+    case 6:   rez = wd->top();         break;
+    case 7:   rez = wd->bottom();      break;
+    }
+    return rez;
+}
+// =========== QTextBlock ==========
+// 240
+extern "C" QTextBlock* qteQTextBlock_create2(QTextCursor* tk) {
+    QTextBlock* tb = new QTextBlock();
+    *tb = tk->block();
+    return tb;
+}
+// 238
+extern "C" QTextBlock* qteQTextBlock_create() {
+    return new QTextBlock();
+}
+// 239
+extern "C" void qteQTextBlock_delete(QTextBlock* qs) {
+    delete qs;
+}
+
+// 237
+extern "C" QString* qteQTextBlock_text(QTextBlock* tb, QString* rez) {
+    *rez = tb->text();
+    return rez;
 }
