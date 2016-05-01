@@ -1093,6 +1093,23 @@ extern "C" void qteQPainter_drawPoint(QPainter* qp, int x, int y, int pr) {
 extern "C" void qteQPainter_drawLine(QPainter* qp, int x1, int y1, int x2, int y2) {
     qp->drawLine(x1, y1, x2, y2);
 }
+// 243
+extern "C" void qteQPainter_drawRect1(QPainter* qp, int x1, int y1, int w, int h) {
+    qp->drawRect(x1, y1, w, h);
+}
+// 244
+extern "C" void qteQPainter_drawRect2(QPainter* qp, QRect* qr) {
+    qp->drawRect(*qr);
+}
+// 245
+extern "C" void qteQPainter_fillRect2(QPainter* qp, QRect* qr, QColor* cl) {
+    qp->fillRect(*qr, *cl);
+}
+// 246
+extern "C" void qteQPainter_fillRect3(QPainter* qp, QRect* qr, Qt::GlobalColor gc) {
+    qp->fillRect(*qr, gc);
+}
+
 extern "C" void qteQPainter_setXX1(QPainter* qp, void* ob, int pr) {
     switch ( pr ) {
     case 0:   qp->setBrush(*((QBrush*)ob)); break;
@@ -1243,6 +1260,13 @@ extern "C" int qteQRect_setXX1(QRect* wd, int pr) {
     }
     return rez;
 }
+extern "C" void qteQRect_setXX2(QRect* wd, int x1, int y1, int x2, int y2, int pr) {
+    switch ( pr ) {
+    case 0:   wd->setCoords(x1, y1, x2, y2);           break;
+    case 1:   wd->setRect(x1, y1, x2, y2);           break;
+    }
+}
+
 // =========== QTextBlock ==========
 // 240
 extern "C" QTextBlock* qteQTextBlock_create2(QTextCursor* tk) {

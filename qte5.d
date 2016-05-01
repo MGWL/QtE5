@@ -52,6 +52,9 @@ private extern (C) @nogc alias t_b__qp_i = bool function(QtObjH, int);
 private extern (C) @nogc alias t_v__qp_qp_i = void function(QtObjH, QtObjH, int);
 private extern (C) @nogc alias t_v__qp_qp_qp_i = void function(QtObjH, QtObjH, QtObjH, int);
 private extern (C) @nogc alias t_v__qp_qp_qp = void function(QtObjH, QtObjH, QtObjH);
+private extern (C) @nogc alias t_v__qp_i_i_i_i_i = void function(QtObjH, int, int, int, int, int);
+
+
 
 private extern (C) @nogc alias t_i__vp_vp_vp = int function(void*, void*, void*);
 private extern (C) @nogc alias t_i__vp_i = int function(void*, int);
@@ -509,6 +512,10 @@ int LoadQt(dll ldll, bool showError) { ///  Загрузить DLL-ки Qt и Qt
 	funQt(190, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQPainter_setXX1",				showError);
 	funQt(196, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQPainter_setText",				showError);
 	funQt(197, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQPainter_end",					showError);
+	funQt(243, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQPainter_drawRect1",			showError);
+	funQt(244, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQPainter_drawRect2",			showError);
+	funQt(245, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQPainter_fillRect2",			showError);
+	funQt(246, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQPainter_fillRect3",			showError);
 	//  ------- QPen -------
 	funQt(191, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQPen_create1",					showError);
 	funQt(192, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQPen_delete",					showError);
@@ -553,13 +560,15 @@ int LoadQt(dll ldll, bool showError) { ///  Загрузить DLL-ки Qt и Qt
 	funQt(232, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQRect_create1",				showError);
 	funQt(233, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQRect_delete",					showError);
 	funQt(234, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQRect_setXX1",					showError);
+	funQt(242, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQRect_setXX2",					showError);
+	
 	//  ------- QTextBlock -------
 	funQt(237, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQTextBlock_text",				showError);
 	funQt(238, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQTextBlock_create",			showError);
 	funQt(239, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQTextBlock_delete",			showError);
 	funQt(240, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQTextBlock_create2",			showError);
 	
-	// Последний = 241
+	// Последний = 245
 	return 0;
 } ///  Загрузить DLL-ки Qt и QtE. Найти в них адреса функций и заполнить ими таблицу
 
@@ -1659,6 +1668,22 @@ class QPainter : QObject {
 	QPainter drawLine(int x1, int y1, int x2, int y2) {
 		(cast(t_v__qp_i_i_i_i) pFunQt[189])(QtObj, x1, y1, x2, y2); return this;
 	}
+	
+	QPainter drawRect(int x1, int y1, int w, int h) { //-> Четырехугольник
+		(cast(t_v__qp_i_i_i_i) pFunQt[243])(QtObj, x1, y1, w, h); return this;
+	}
+	QPainter drawRect(QRect qr) { //-> Четырехугольник
+		(cast(t_v__qp_qp) pFunQt[244])(QtObj, qr.QtObj); return this;
+	}
+	QPainter fillRect(QRect qr, QColor cl) { //-> Четырехугольник заполнить цветом
+		(cast(t_v__qp_qp_qp) pFunQt[245])(QtObj, qr.QtObj, cl.QtObj); return this;
+	}
+	QPainter fillRect(QRect qr, QtE.GlobalColor gc) { //-> Четырехугольник заполнить цветом
+		(cast(t_v__qp_qp_i) pFunQt[246])(QtObj, qr.QtObj, gc); return this;
+	}
+	
+	
+	
 	QPainter setBrush(QBrush qb) {
 		(cast(t_v__qp_qp_i) pFunQt[190])(QtObj, qb.QtObj, 0); return this;
 	}
@@ -3159,6 +3184,12 @@ class QRect : QObject {
 	}
 	int bottom() {
 		return (cast(t_i__qp_i) pFunQt[234])(QtObj, 7);
+	}
+	QRect setCoords(int x1, int y1, int x2, int y2) { //-> Задать координаты
+		(cast(t_v__qp_i_i_i_i_i) pFunQt[242])(QtObj, x1, y1, x2, y2, 0); return this;
+	}
+	QRect setRect(int x1, int y1, int width, int height) { //-> Задать верх лев угол и длину + ширину
+		(cast(t_v__qp_i_i_i_i_i) pFunQt[242])(QtObj, x1, y1, width, height, 1); return this;
 	}
 }
 // ================ QTextBlock ================

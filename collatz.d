@@ -6,21 +6,26 @@ extern (C) void onPaint1(MainForm* uk, void* ev, void* qpaint)   {
 	(*uk).runPaint1(ev, qpaint);
 }
 // ____________________________________________________________________
-auto foreverApply(alias Functional, Argument)(Argument x) {
+auto foreverApply(alias Functional, Argument)(Argument x) 
+{
 	alias FunctorType = ReturnType!Functional;
-	struct ForeverFunctorRange {
+	struct ForeverFunctorRange 
+	{
 		FunctorType argument;
  
-		this(Argument)(Argument argument) {
+		this(Argument)(Argument argument) 
+		{
 			this.argument = cast(FunctorType) argument;
 		}
 		enum empty = false;
  
-		FunctorType front() {
+		FunctorType front() 
+		{
 			return argument;
 		}
  
-		void popFront() {
+		void popFront() 
+		{
 			argument = Functional(argument);
 		}
 	}
@@ -48,7 +53,18 @@ class MainForm : QWidget {
 	void runPaint1(void* ev, void* qpaint) {
 		// Схватить переданный из Qt указатель на QPaint и обработать его 
 		QPainter qp = new QPainter('+', qpaint); 
-		drawGrid(qp); qp.setPen(pero); drawCollatz(qp); qp.end();
+		// drawGrid(qp);
+		drawRect(qp);
+		qp.setPen(pero); 
+		drawCollatz(qp); 
+		qp.end();
+	}
+	// ____________________________________________________________________
+	void drawRect(QPainter graphics) {
+		QRect qr1 = new QRect(); qr1.setCoords(85, 90, 185, 190);
+		QRect qr2 = new QRect(); qr2.setCoords(110, 110, 230, 270);
+		/* graphics.drawRect(qr1); */ graphics.fillRect(qr2, QtE.GlobalColor.red);
+		graphics.drawRect(10, 10, 50, 20);
 	}
 	// ____________________________________________________________________
 	void drawGrid(QPainter graphics) {
@@ -60,8 +76,11 @@ class MainForm : QWidget {
 		}
 	}
 	// ____________________________________________________________________
-	void drawCollatz(QPainter graphics) {
-		auto doubleTwo(int x) {
+  // Допишу комментарий
+	void drawCollatz(QPainter graphics) 
+	{
+		auto doubleTwo(int x) 
+		{
 			if ((x % 2) == 0) return x / 2; else return 3 * x + 1;
 		}
 		auto collatz27 = doTimes!doubleTwo(27, 112);
@@ -77,7 +96,7 @@ class MainForm : QWidget {
 }
 // ____________________________________________________________________
 int main(string[] args) {
-	bool fDebug; if (1 == LoadQt(dll.QtE5Widgets, fDebug)) return 1;
+	bool fDebug = true; if (1 == LoadQt(dll.QtE5Widgets, fDebug)) return 1;
 	QApplication  app = new QApplication(&Runtime.cArgs.argc, Runtime.cArgs.argv, 1);
 	MainForm fMain = new MainForm(null, QtE.WindowType.Window);
 	fMain.show().saveThis(&fMain);
