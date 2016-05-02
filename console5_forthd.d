@@ -91,9 +91,11 @@ class CSetting : QWidget {
 		vblGr.addWidget(cb1).addWidget(cb2).addWidget(cb3);
 		
 		// Включим все кнопки
-		cb1.setCheckState(QtE.CheckState.Checked);
-		cb2.setCheckState(QtE.CheckState.Checked);
-		cb3.setCheckState(QtE.CheckState.Checked);
+		// cb1.setCheckState(QtE.CheckState.Checked);
+		// cb2.setCheckState(QtE.CheckState.Checked);
+		//  cb3.setCheckState(QtE.CheckState.Checked);
+		cb1.setChecked(true);
+		rb2.setChecked(true);
 
 		// Горизонтальная группировка кнопок
 		vblLong.addLayout(vblGr).addLayout(vblGr2);

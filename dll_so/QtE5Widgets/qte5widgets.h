@@ -50,6 +50,7 @@
 #include <QTextCursor>
 #include <QTextDocument>
 #include <QTextBlock>
+#include <QSpinBox>
 
 typedef int PTRINT;
 typedef unsigned int PTRUINT;

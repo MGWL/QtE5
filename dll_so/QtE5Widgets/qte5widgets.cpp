@@ -343,6 +343,7 @@ extern "C" void qteQAbstractButton_setXX(QAbstractButton* wd, bool p, int pr) {
     case 1:   wd->setAutoRepeat(p);    break;
     case 2:   wd->setCheckable(p);     break;
     case 3:   wd->setDown(p);          break;
+    case 4:   wd->setChecked(p);       break;
     }
 }
 extern "C" void qteQAbstractButton_setIcon(QAbstractButton* wd, QIcon* p) {
@@ -1288,3 +1289,44 @@ extern "C" QString* qteQTextBlock_text(QTextBlock* tb, QString* rez) {
     *rez = tb->text();
     return rez;
 }
+// =========== QAbstractSpinBox ==========
+// 252
+extern "C" void qteQAbstractSpinBox_setReadOnly(QAbstractSpinBox* wd, bool f) {
+    wd->setReadOnly(f);
+}
+// =========== QSpinBox ==========
+// 247
+extern "C" QSpinBox* qteQSpinBox_create(QWidget* parent) {
+    return new QSpinBox(parent);
+}
+// 248
+extern "C" void qteQSpinBox_delete(QSpinBox* wd) {
+    delete wd;
+}
+// 249
+extern "C" void qteQSpinBox_setXX1(QSpinBox* wd, int n, int pr) {
+    switch ( pr ) {
+    case 0:   wd->setMinimum(n);           break;
+    case 1:   wd->setMaximum(n);           break;
+    case 2:   wd->setSingleStep(n);        break;
+    }
+}
+// 250
+extern "C" int qteQSpinBox_getXX1(QSpinBox* wd, int pr) {
+    int rez = 0;
+    switch ( pr ) {
+    case 0:   rez = wd->minimum();           break;
+    case 1:   rez = wd->maximum();           break;
+    case 2:   rez = wd->singleStep();        break;
+    case 3:   rez = wd->value();             break;
+    }
+    return rez;
+}
+// 251
+extern "C" void qteQSpinBox_setXX2(QSpinBox* wd, QString *str, int pr) {
+    switch ( pr ) {
+    case 0:   wd->setPrefix(*str);           break;
+    case 1:   wd->setSuffix(*str);           break;
+    }
+}
+

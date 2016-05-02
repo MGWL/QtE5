@@ -31,9 +31,8 @@ console5_forthd [-d, -e, -i] ...
 // Форма Окно редактора 
 // =================================================================
 extern (C) {
-	void* onKeyReleaseEvent(CEditWin* uk, void* ev) {
-		return (*uk).runKeyReleaseEvent(ev);
-	}
+	void* onKeyReleaseEvent(CEditWin* uk, void* ev) {return (*uk).runKeyReleaseEvent(ev); }
+	void*   onKeyPressEvent(CEditWin* uk, void* ev) {return (*uk).runKeyPressEvent(ev); }
 }
 // __________________________________________________________________
 class CEditWin: QWidget { //=> Окно редактора D кода
@@ -75,6 +74,7 @@ class CEditWin: QWidget { //=> Окно редактора D кода
 
 		// Обработка клавиш в редакторе
 		teEdit.setKeyReleaseEvent(&onKeyReleaseEvent, aThis);
+		teEdit.setKeyPressEvent(&onKeyPressEvent, aThis);
 		// Инициализируем текстовый курсор
 		txtCursor = new QTextCursor();
  		
@@ -85,6 +85,7 @@ class CEditWin: QWidget { //=> Окно редактора D кода
 			// mTi[i].setBackground(qbr);
 			teHelp.setItem(i, 0, mTi[i]);
 		}
+		teHelp.setEnabled(false);
 		
 		finder1 = new CFinder();
 		finder1.addFile("qte5.d");
@@ -96,14 +97,27 @@ class CEditWin: QWidget { //=> Окно редактора D кода
 		parentQtE5 = p;
 	}
 	// ______________________________________________________________
-	void* runKeyReleaseEvent(void* ev) { //-> Обработка события нажатия кнопки
+	void* runKeyPressEvent(void* ev) { //-> Обработка события нажатия кнопки
+		if( editSost == Sost.Normal) {
+			return ev;
+		} else {
+			return null;
+		}
+	}
+	// ______________________________________________________________
+	void* runKeyReleaseEvent(void* ev) { //-> Обработка события отпускания кнопки
 		QKeyEvent qe = new QKeyEvent('+', ev); 
+		if( editSost == Sost.Normal) {
+			write("N"); stdout.flush();
+		} else {
+			write("C"); stdout.flush();
+		}
 		
 		if( editSost == Sost.Normal) {
 			if(qe.key == 16777216) { // ESC
 				editSost = Sost.Change; 
 				teHelp.setCurrentCell(pozInTable, 0);
-		parentQtE5.showInfo(to!string(editSost) ~ "  " ~ to!string(qe.key)); 
+		        parentQtE5.showInfo(to!string(editSost) ~ "  " ~ to!string(qe.key)); 
 				return null;
 			}
 			teEdit.textCursor(txtCursor);
@@ -120,19 +134,31 @@ class CEditWin: QWidget { //=> Окно редактора D кода
 		} else {
 			if(qe.key == 16777216) { // ESC
 				editSost = Sost.Normal;
+				teHelp.setCurrentCell(100, 0);
 				pozInTable = 0; 
-		parentQtE5.showInfo(to!string(editSost) ~ "  " ~ to!string(qe.key)); 
+		        parentQtE5.showInfo(to!string(editSost) ~ "  " ~ to!string(qe.key)); 
 				return null;
 			}
 			if(qe.key == 16777237) { // Стрелка вниз
 				if(pozInTable < 10)	teHelp.setCurrentCell(++pozInTable, 0);
+			//	write("V"); stdout.flush();
 			}
 			if(qe.key == 16777235) { // Стрелка вверх
 				if(pozInTable > 0)	teHelp.setCurrentCell(--pozInTable, 0);
+			//	write("A"); stdout.flush();
 			}
+			if(qe.key == 16777220) { // CR
+				teHelp.setCurrentCell(100, 0);
+				editSost = Sost.Normal;
+				// Слово из таблицы
+				string shabl = mTi[pozInTable].text!string();
+				pozInTable = 0; 
+				teEdit.insertPlainText(shabl);
+			}
+		//	write("+"); stdout.flush();
 			return null;
 		}
-		
+		//write("*"); stdout.flush();
 		return ev;	// Вернуть событие в C++ Qt для дальнейшей обработки
 	}	
 	// ______________________________________________________________
@@ -141,7 +167,9 @@ class CEditWin: QWidget { //=> Окно редактора D кода
 		if(poz == 0) return rez;
 		if(poz > str.length) return rez;
 		char[] line = fromUtf8to1251(cast(char[])str);
-		int i; for(i = poz-1; i > -1; i--) { if( line[i] == ' ' ) break;	}
+		int i; for(i = poz-1; i > -1; i--) {
+			if( (line[i] == ' ') || (line[i] == '\t')  || (line[i] == '(')) break;	
+		}
 		if(i == -1) {	rezch = line[0 .. poz]; 	} 
 		else 		{	rezch = line[i+1 .. poz];	}
 		rez = cast(string)from1251toUtf8(rezch);
@@ -266,6 +294,8 @@ int main(string[] args) {
 	app = new QApplication(&Runtime.cArgs.argc, Runtime.cArgs.argv, 1);
 	
 	CFormaMain formaMain = new CFormaMain(); formaMain.show().saveThis(&formaMain);
+	QSpinBox sb = new QSpinBox(null); sb.show(); sb.setStyleSheet("font-size: 12pt;");
+	sb.setPrefix("Толщина линии: ").setSuffix(" пкс."); sb.setReadOnly(true);
 	
 	return app.exec();
 }

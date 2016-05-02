@@ -567,8 +567,18 @@ int LoadQt(dll ldll, bool showError) { ///  Загрузить DLL-ки Qt и Qt
 	funQt(238, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQTextBlock_create",			showError);
 	funQt(239, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQTextBlock_delete",			showError);
 	funQt(240, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQTextBlock_create2",			showError);
+
+	//  ------- QSpinBox -------
+	funQt(247, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQSpinBox_create",				showError);
+	funQt(248, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQSpinBox_delete",				showError);
+	funQt(249, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQSpinBox_setXX1",				showError);
+	funQt(250, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQSpinBox_getXX1",				showError);
+	funQt(251, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQSpinBox_setXX2",				showError);
+
+	//  ------- QAbstractSpinBox -------
+	funQt(252, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQAbstractSpinBox_setReadOnly",	showError);
 	
-	// Последний = 245
+	// Последний = 252
 	return 0;
 } ///  Загрузить DLL-ки Qt и QtE. Найти в них адреса функций и заполнить ими таблицу
 
@@ -1352,6 +1362,9 @@ class QAbstractButton : QWidget {
 	} /// 
 	QAbstractButton setDown(bool pr) {
 		(cast(t_v__qp_b_i) pFunQt[209])(QtObj, pr, 3); return this;
+	} /// 
+	QAbstractButton setChecked(bool pr) { //-> Включить кнопку
+		(cast(t_v__qp_b_i) pFunQt[209])(QtObj, pr, 4); return this;
 	} /// 
 	QAbstractButton setIcon(QIcon ik) {
 		(cast(t_v__qp_qp) pFunQt[211])(QtObj, ik.QtObj); return this;
@@ -3210,3 +3223,80 @@ class QTextBlock : QObject {
 	} /// Выдать всё содержимое в String
 
 }
+// ============ QAbstractSpinBox =======================================
+class QAbstractSpinBox : QWidget {
+	this() {}
+	this(QWidget parent) {}
+	~this() {
+		if(!fNoDelete) {}
+	}
+	void setReadOnly(bool f) { //-> T - только чтать, изменять нельзя
+		(cast(t_v__qp_bool)pFunQt[252])(QtObj, f);
+	}
+}
+// ============ QSpinBox =======================================
+class QSpinBox : QAbstractSpinBox {
+	~this() {
+		if(!fNoDelete) { (cast(t_v__qp) pFunQt[248])(QtObj); setQtObj(null); }
+	}
+	this(char ch, void* adr) {
+		if(ch == '+') setQtObj(cast(QtObjH)adr);
+	} /// Конструктор
+	this(QWidget parent) {
+		super();
+		if (parent) {
+			this.setNoDelete(true);
+			setQtObj((cast(t_qp__qp) pFunQt[247])(parent.QtObj));
+		} else {
+			setQtObj((cast(t_qp__qp) pFunQt[247])(null));
+		}
+	} /// Конструктор
+	QSpinBox setMinimum(int n) { //-> Установить минимум
+		(cast(t_v__qp_i_i) pFunQt[249])(QtObj, n, 0); return this;
+	}
+	QSpinBox setMaximum(int n) { //-> Установить максимум
+		(cast(t_v__qp_i_i) pFunQt[249])(QtObj, n, 1); return this;
+	}
+	QSpinBox setSingleStep(int n) { //-> Установить приращение
+		(cast(t_v__qp_i_i) pFunQt[249])(QtObj, n, 2); return this;
+	}
+	int minimum() { //-> Получить минимальное
+		return (cast(t_i__qp_i) pFunQt[250])(QtObj, 0);
+	}
+	int maximum() { //-> Получить максимальное
+		return (cast(t_i__qp_i) pFunQt[250])(QtObj, 1);
+	}
+	int singleStep() { //-> Получить приращение
+		return (cast(t_i__qp_i) pFunQt[250])(QtObj, 2);
+	}
+	int value() { //-> Получить значение
+		return (cast(t_i__qp_i) pFunQt[250])(QtObj, 3);
+	}
+	QSpinBox setPrefix(T: QString)(T str) {
+		(cast(t_v__qp_qp_i) pFunQt[251])(QtObj, str.QtObj, 0);
+		return this;
+	} /// Установить текст
+	QSpinBox setPrefix(T)(T str) {
+		(cast(t_v__qp_qp_i) pFunQt[251])(QtObj, (new QString(to!string(str))).QtObj, 0);
+		return this;
+	} /// Установить текст
+	QSpinBox setSuffix(T: QString)(T str) {
+		(cast(t_v__qp_qp_i) pFunQt[251])(QtObj, str.QtObj, 1);
+		return this;
+	} /// Установить текст
+	QSpinBox setSuffix(T)(T str) {
+		(cast(t_v__qp_qp_i) pFunQt[251])(QtObj, (new QString(to!string(str))).QtObj, 1);
+		return this;
+	} /// Установить текст
+
+	
+}
+
+
+
+
+
+
+
+
+
