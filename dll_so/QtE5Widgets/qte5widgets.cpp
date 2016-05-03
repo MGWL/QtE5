@@ -616,6 +616,10 @@ extern "C" QTextDocument* qteQPlainTextEdit_document(QPlainTextEdit* wd) {
 extern "C" void qteQPlainTextEdit_textCursor(QPlainTextEdit* wd, QTextCursor* tk) {
     *tk = wd->textCursor();
 }
+// 253
+extern "C" void qteQPlainTextEdit_setTextCursor(QPlainTextEdit* wd, QTextCursor* tk) {
+    wd->setTextCursor(*tk);
+}
 extern "C" void qteQPlainTextEdit_cursorRect(QPlainTextEdit* wd, QRect* tk) {
     *tk = wd->cursorRect();
 }
@@ -1239,6 +1243,45 @@ extern "C" int qteQTextCursor_getXX1(QTextCursor* wd, int pr) {
     }
     return rez;
 }
+// 255
+extern "C" void qteQTextCursor_runXX(QTextCursor* wd, int pr) {
+    switch ( pr ) {
+    case 0:   wd->beginEditBlock();   break;
+    case 1:   wd->clearSelection();   break;
+    case 2:   wd->deleteChar();       break;
+    case 3:   wd->deletePreviousChar();  break;
+    case 4:   wd->endEditBlock();     break;
+    case 5:   wd->insertBlock();      break;
+    case 6:   wd->removeSelectedText();   break;
+    }
+}
+extern "C" void qteQTextCursor_insertText1(QTextCursor* wd, QString* name) {
+    wd->insertText(*name);
+}
+
+// 254
+extern "C" bool qteQTextCursor_movePosition(
+                QTextCursor* wd,
+                QTextCursor::MoveOperation op,
+                QTextCursor::MoveMode mode,
+                int n) {
+    return wd->movePosition(op, mode, n);
+}
+/*
+// Выделим Hello и покрасим в зелёный цвет
+QTextCursor cursor = edit.textCursor();
+cursor.movePosition(QTextCursor::Right, QTextCursor::KeepAnchor, 5);
+QTextCharFormat charFormat;
+charFormat.setBackground(Qt::green);
+cursor.setCharFormat(charFormat);
+//edit.setTextCursor(cursor); не нужен, курсор редактора остаётся в начале
+// Выделим World и покрасим в синий цвет
+cursor = edit.textCursor();
+cursor.movePosition(QTextCursor::Right, QTextCursor::MoveAnchor, 6);
+cursor.movePosition(QTextCursor::Right, QTextCursor::KeepAnchor, 5);
+charFormat.setBackground(Qt::blue);
+cursor.setCharFormat(charFormat);
+*/
 
 // =========== QRect ==========
 extern "C" QRect* qteQRect_create1() {

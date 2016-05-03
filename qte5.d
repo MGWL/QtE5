@@ -48,6 +48,7 @@ private extern (C) @nogc alias t_v__qp_qp_i_i = void function(QtObjH, QtObjH, in
 
 private extern (C) @nogc alias t_b__qp = bool function(QtObjH);
 private extern (C) @nogc alias t_b__qp_i = bool function(QtObjH, int);
+private extern (C) @nogc alias t_b__qp_i_i_i = bool function(QtObjH, int, int, int);
 
 private extern (C) @nogc alias t_v__qp_qp_i = void function(QtObjH, QtObjH, int);
 private extern (C) @nogc alias t_v__qp_qp_qp_i = void function(QtObjH, QtObjH, QtObjH, int);
@@ -370,6 +371,7 @@ int LoadQt(dll ldll, bool showError) { ///  Загрузить DLL-ки Qt и Qt
 	funQt(235,bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQPlainTextEdit_cursorRect",		showError);
 	funQt(235,bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQPlainTextEdit_cursorRect",		showError);
 	funQt(236,bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQPlainTextEdit_setTabStopWidth",showError);
+	funQt(253,bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQPlainTextEdit_setTextCursor",	showError);
 	//  ------- QLineEdit -------
 	funQt(82, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQLineEdit_create1",				showError);
 	funQt(83, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQLineEdit_delete1",				showError);
@@ -556,6 +558,9 @@ int LoadQt(dll ldll, bool showError) { ///  Загрузить DLL-ки Qt и Qt
 	funQt(228, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQTextCursor_delete",			showError);
 	funQt(229, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQTextCursor_create2",			showError);
 	funQt(231, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQTextCursor_getXX1",			showError);
+	funQt(254, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQTextCursor_movePosition",		showError);
+	funQt(255, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQTextCursor_runXX",			showError);
+	funQt(256, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQTextCursor_insertText1",		showError);
 	//  ------- QRect -------
 	funQt(232, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQRect_create1",				showError);
 	funQt(233, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQRect_delete",					showError);
@@ -578,7 +583,7 @@ int LoadQt(dll ldll, bool showError) { ///  Загрузить DLL-ки Qt и Qt
 	//  ------- QAbstractSpinBox -------
 	funQt(252, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQAbstractSpinBox_setReadOnly",	showError);
 	
-	// Последний = 252
+	// Последний = 256
 	return 0;
 } ///  Загрузить DLL-ки Qt и QtE. Найти в них адреса функций и заполнить ими таблицу
 
@@ -1890,6 +1895,10 @@ class QPlainTextEdit : QAbstractScrollArea {
 		(cast(t_v__qp_qp) pFunQt[230])(QtObj, tk.QtObj);
 		return tk;
 	}
+	QPlainTextEdit setTextCursor(QTextCursor tk) {
+		(cast(t_v__qp_qp) pFunQt[253])(QtObj, tk.QtObj);
+		return this;
+	}
 	QRect cursorRect(QRect tk) {
 		(cast(t_v__qp_qp) pFunQt[235])(QtObj, tk.QtObj);
 		return tk;
@@ -3126,6 +3135,41 @@ class QRadioButton : QAbstractButton { //=> Кнопки РадиоБатоны 
 }
 // ================ QTextCursor ================
 class QTextCursor : QObject {
+
+	enum MoveMode {
+		MoveAnchor	= 0,	// Moves the anchor to the same position as the cursor itself.
+		KeepAnchor	= 1		// Keeps the anchor where it is.
+	}
+	enum MoveOperation {
+		NoMove		= 0,	// Keep the cursor where it is
+		Start		= 1,	// Move to the start of the document.
+		StartOfLine	= 3,	// Move to the start of the current line.
+		StartOfBlock= 4,	// Move to the start of the current block.
+		StartOfWord	= 5,	// Move to the start of the current word.
+		PreviousBlock=6,	// Move to the start of the previous block.
+		PreviousCharacter=7,// Move to the previous character.
+		PreviousWord= 8,	// Move to the beginning of the previous word.
+		Up			= 2,	// Move up one line.
+		Left		= 9,	// Move left one character.
+		WordLeft	= 10,	// Move left one word.
+		End			= 11,	// Move to the end of the document.
+		EndOfLine	= 13,	// Move to the end of the current line.
+		EndOfWord	= 14,	// Move to the end of the current word.
+		EndOfBlock	= 15,	// Move to the end of the current block.
+		NextBlock	= 16,	// Move to the beginning of the next block.
+		NextCharacter=17,	// Move to the next character.
+		NextWord	= 18,	// Move to the next word.
+		Down		= 12,	// Move down one line.
+		Right		= 19,	// Move right one character.
+		WordRight	= 20,	// Move right one word.
+		NextCell	= 21,	// Move to the beginning of the next table cell inside the current table. If the current cell is the last cell in the row, the cursor will move to the first cell in the next row.
+		PreviousCell= 22,	// Move to the beginning of the previous table cell inside the current table. If the current cell is the first cell in the row, the cursor will move to the last cell in the previous row.
+		NextRow		= 23,	// Move to the first new cell of the next row in the current table.
+		PreviousRow	= 24	// Move to the last cell of the previous row in the current table.	
+	}
+
+
+
 	~this() {
 		if(!fNoDelete) { (cast(t_v__qp) pFunQt[228])(QtObj); setQtObj(null); }
 	}
@@ -3162,6 +3206,45 @@ class QTextCursor : QObject {
 	int verticalMovementX() { //-> Количество пикселей с левого края
 		return (cast(t_i__qp_i) pFunQt[231])(QtObj, 7);
 	}
+	bool movePosition(
+		QTextCursor.MoveOperation operation, 
+		QTextCursor.MoveMode mode = QTextCursor.MoveMode.MoveAnchor,
+		int n = 1) { //-> Передвинуть текстовый курсор
+		return (cast(t_b__qp_i_i_i) pFunQt[254])(QtObj, operation, mode, n);
+	}
+	// 255
+	QTextCursor beginEditBlock() {
+		(cast(t_v__qp_i) pFunQt[255])(QtObj, 0); return this;
+	}
+	QTextCursor endEditBlock() {
+		(cast(t_v__qp_i) pFunQt[255])(QtObj, 4); return this;
+	}
+	QTextCursor clearSelection() {
+		(cast(t_v__qp_i) pFunQt[255])(QtObj, 1); return this;
+	}
+	QTextCursor deleteChar() {
+		(cast(t_v__qp_i) pFunQt[255])(QtObj, 2); return this;
+	}
+	QTextCursor deletePreviousChar() {
+		(cast(t_v__qp_i) pFunQt[255])(QtObj, 3); return this;
+	}
+	QTextCursor insertBlock() {
+		(cast(t_v__qp_i) pFunQt[255])(QtObj, 5); return this;
+	}
+	QTextCursor removeSelectedText() {
+		(cast(t_v__qp_i) pFunQt[255])(QtObj, 6); return this;
+	}
+	
+	QTextCursor insertText(T: QString)(T str) {
+		(cast(t_v__qp_qp) pFunQt[256])(QtObj, str.QtObj);
+		return this;
+	} /// Установить текст
+	QTextCursor insertText(T)(T str) {
+		(cast(t_v__qp_qp) pFunQt[256])(QtObj, (new QString(to!string(str))).QtObj);
+		return this;
+	} /// Установить текст
+	
+	
 }
 // ================ QRect ================
 class QRect : QObject {

@@ -85,7 +85,7 @@ class CEditWin: QWidget { //=> Окно редактора D кода
 			// mTi[i].setBackground(qbr);
 			teHelp.setItem(i, 0, mTi[i]);
 		}
-		teHelp.setEnabled(false);
+		// teHelp.setEnabled(false);
 		
 		finder1 = new CFinder();
 		finder1.addFile("qte5.d");
@@ -108,19 +108,18 @@ class CEditWin: QWidget { //=> Окно редактора D кода
 	void* runKeyReleaseEvent(void* ev) { //-> Обработка события отпускания кнопки
 		QKeyEvent qe = new QKeyEvent('+', ev); 
 		if( editSost == Sost.Normal) {
-			write("N"); stdout.flush();
-		} else {
-			write("C"); stdout.flush();
-		}
-		
-		if( editSost == Sost.Normal) {
 			if(qe.key == 16777216) { // ESC
 				editSost = Sost.Change; 
 				teHelp.setCurrentCell(pozInTable, 0);
 		        parentQtE5.showInfo(to!string(editSost) ~ "  " ~ to!string(qe.key)); 
 				return null;
 			}
-			teEdit.textCursor(txtCursor);
+			teEdit.textCursor(txtCursor); // Выдернули курсор из QPlainText
+			if(qe.key == 16777264) { // F1 - Вставить верхнне слово из таблицы
+				insWordInText(0, txtCursor);
+				return null;
+			}
+
 			int poz = txtCursor.positionInBlock();
 			QTextBlock tb = new QTextBlock(txtCursor);
 			// Строка под курсором
@@ -148,19 +147,28 @@ class CEditWin: QWidget { //=> Окно редактора D кода
 			//	write("A"); stdout.flush();
 			}
 			if(qe.key == 16777220) { // CR
-				teHelp.setCurrentCell(100, 0);
-				editSost = Sost.Normal;
-				// Слово из таблицы
-				string shabl = mTi[pozInTable].text!string();
-				pozInTable = 0; 
-				teEdit.insertPlainText(shabl);
+				insWordInText(pozInTable, txtCursor);
 			}
-		//	write("+"); stdout.flush();
 			return null;
 		}
 		//write("*"); stdout.flush();
 		return ev;	// Вернуть событие в C++ Qt для дальнейшей обработки
-	}	
+	}
+	// ______________________________________________________________
+	void insWordInText(int poz, QTextCursor txtCursor) { //-> Вставить слово из таблицы по номеру в редактируемый текст
+		// Выключить подсветку таблицы
+		teHelp.setCurrentCell(100, 0); editSost = Sost.Normal;
+		// Слово из таблицы
+		string shabl = mTi[poz].text!string(); pozInTable = 0; 
+		// Замена текущего слова под курсором
+		txtCursor.beginEditBlock();
+		txtCursor.movePosition(QTextCursor.MoveOperation.StartOfWord);
+		txtCursor.movePosition(QTextCursor.MoveOperation.EndOfWord, QTextCursor.MoveMode.KeepAnchor);
+		txtCursor.removeSelectedText();
+		txtCursor.insertText(shabl);
+		teEdit.setTextCursor(txtCursor); // вставили курсор опять в QPlainText
+		txtCursor.endEditBlock();
+	}
 	// ______________________________________________________________
 	string getWordLeft(string str, int poz) { //-> Выдать строку от курсора до начала слова
 		string rez; char[] rezch;
@@ -294,8 +302,9 @@ int main(string[] args) {
 	app = new QApplication(&Runtime.cArgs.argc, Runtime.cArgs.argv, 1);
 	
 	CFormaMain formaMain = new CFormaMain(); formaMain.show().saveThis(&formaMain);
-	QSpinBox sb = new QSpinBox(null); sb.show(); sb.setStyleSheet("font-size: 12pt;");
-	sb.setPrefix("Толщина линии: ").setSuffix(" пкс."); sb.setReadOnly(true);
+	
+	//QSpinBox sb = new QSpinBox(null); sb.show(); sb.setStyleSheet("font-size: 12pt;");
+	//sb.setPrefix("Толщина линии: ").setSuffix(" пкс."); sb.setReadOnly(true);
 	
 	return app.exec();
 }
