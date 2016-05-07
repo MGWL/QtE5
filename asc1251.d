@@ -1,15 +1,15 @@
 /*
-21.04.2016 18:13 - Проверка ИНН на корректность
-31.05.2014 7:36:58
-Add x64
-Repair LTrim and RTrim
-*/
+ 21.04.2016 18:13 - Проверка ИНН на корректность
+ 31.05.2014 7:36:58
+ Add x64
+ Repair LTrim and RTrim
+ */
 /*
-ё - 184  0451  d1-91
-Ё - 168  0401  d0-81
-» -      00BB
-« -      00AB
-*/
+ ё - 184  0451  d1-91
+ Ё - 168  0401  d0-81
+ » -      00BB
+ « -      00AB
+ */
 module asc1251;
 
 import std.ascii;
@@ -198,9 +198,9 @@ unittest {
 // sh  - T - шифрация, F - дешифрция
 // str - указатель на строку
 void shifr(bool sh, char* str) {
-	return;
 	char ch;
 	int z;
+
 	if (sh) {
 		z = -1;
 	} else {
@@ -214,24 +214,24 @@ void shifr(bool sh, char* str) {
 	}
 }
 /* // Шифрует строки utf-8
-// T - зашифровать, F - расшифровать
-string shifr8(bool sh, string str) {
-	string rez; ubyte b;
-	if(str.length == 0) return rez;
-	if(sh) {
-		for(int i; i != str.length; i++) {
-			b = cast(ubyte)str[i];
-			if(b > 31) rez ~= "B" ~ (cast(char)(str[i]-1)); else rez ~= "A" ~ (cast(char)(str[i]+1));
-		}
-	}
-	else {
-		for(int i; i != str.length; i+=2) {
-			b = cast(ubyte)str[i];
-			if(b == 66) rez ~= (cast(char)(str[i+1]+1)); else rez ~= (cast(char)(str[i+1]-1));
-		}
-	}
-	return rez;
-}
+ // T - зашифровать, F - расшифровать
+ string shifr8(bool sh, string str) {
+ string rez; ubyte b;
+ if(str.length == 0) return rez;
+ if(sh) {
+ for(int i; i != str.length; i++) {
+ b = cast(ubyte)str[i];
+ if(b > 31) rez ~= "B" ~ (cast(char)(str[i]-1)); else rez ~= "A" ~ (cast(char)(str[i]+1));
+ }
+ }
+ else {
+ for(int i; i != str.length; i+=2) {
+ b = cast(ubyte)str[i];
+ if(b == 66) rez ~= (cast(char)(str[i+1]+1)); else rez ~= (cast(char)(str[i+1]-1));
+ }
+ }
+ return rez;
+ }
  */
 string shifr8(T)(bool sh, T inStr) {
 	string rez;
@@ -320,10 +320,10 @@ bool isFioii1251(char[] str) {
 	if (!(str[$ - 5] == ' '))
 		return false;
 	if (str.length > 6)
-		foreach (char c; str[1 .. $ - 6]) {
-			if (!(isLower1251E(c) || isLower1251R(c)))
-				return false;
-		}
+	foreach (char c; str[1 .. $ - 6]) {
+		if (!(isLower1251E(c) || isLower1251R(c)))
+			return false;
+	}
 	return rez;
 }
 
@@ -399,7 +399,7 @@ bool tstINN(string s) {
 	}
 	auto ost = summ % 11;
 	if (ost > 9) ost = ost % 10;
-    if (ost == (s1[9] - 48)) rez = true;
+	if (ost == (s1[9] - 48)) rez = true;
 	return rez;
 }
 
@@ -440,92 +440,92 @@ char[] fromUtf8to1251(char[] str) {
 	for (int i;;) {
 		id = stride(str, i);
 		/*
-		if(id == 1) writeln(id, " -- ", str[i], "--@@@-- str[i]=", cast(int)(str[i]));
-		if(id == 2) writeln(id, " -- ", str[i], "--@@@-- str[i]=", cast(int)(str[i]), "   str[i+1]=", cast(int)(str[i+1]));
-		if(id == 3) writeln(id, " -- ", str[i], "--@@@-- str[i]=", cast(int)(str[i]), "   str[i+1]=", cast(int)(str[i+1]), "   str[i+2]=", cast(int)(str[i+2])     );
-		*/
+		 if(id == 1) writeln(id, " -- ", str[i], "--@@@-- str[i]=", cast(int)(str[i]));
+		 if(id == 2) writeln(id, " -- ", str[i], "--@@@-- str[i]=", cast(int)(str[i]), "   str[i+1]=", cast(int)(str[i+1]));
+		 if(id == 3) writeln(id, " -- ", str[i], "--@@@-- str[i]=", cast(int)(str[i]), "   str[i+1]=", cast(int)(str[i+1]), "   str[i+2]=", cast(int)(str[i+2])     );
+		 */
 		if (id == 1)
 			rez ~= str[i];
 		if (id == 3) {
 			if (str[i] == '\xE2') {
 				if (str[i + 1] == '\x80') {
 					switch (str[i + 2]) {
-					case '\x9A':
-						rez ~= 130;
-						break;
-					case '\x9E':
-						rez ~= 132;
-						break;
-					case '\xA6':
-						rez ~= 133;
-						break;
-					case '\xA0':
-						rez ~= 134;
-						break;
-					case '\xA1':
-						rez ~= 135;
-						break;
-						//                    case '\xAC': rez ~= 136; break;
-					case '\xB0':
-						rez ~= 137;
-						break;
-					case '\xB9':
-						rez ~= 139;
-						break;
-					case '\x98':
-						rez ~= 145;
-						break;
-					case '\x99':
-						rez ~= 146;
-						break;
-					case '\x9C':
-						rez ~= 147;
-						break;
-					case '\x9D':
-						rez ~= 148;
-						break;
-					case '\xA2':
-						rez ~= 149;
-						break;
-					case '\x93':
-						rez ~= 150;
-						break;
-					case '\x94':
-						rez ~= 151;
-						break;
-					case '\xBA':
-						rez ~= 155;
-						break;
-					default:
-						// writeln("-- length 3 --> no str[2] == ???");
-						rez ~= '?';
-						break;
+						case '\x9A':
+							rez ~= 130;
+							break;
+						case '\x9E':
+							rez ~= 132;
+							break;
+						case '\xA6':
+							rez ~= 133;
+							break;
+						case '\xA0':
+							rez ~= 134;
+							break;
+						case '\xA1':
+							rez ~= 135;
+							break;
+							//                    case '\xAC': rez ~= 136; break;
+						case '\xB0':
+							rez ~= 137;
+							break;
+						case '\xB9':
+							rez ~= 139;
+							break;
+						case '\x98':
+							rez ~= 145;
+							break;
+						case '\x99':
+							rez ~= 146;
+							break;
+						case '\x9C':
+							rez ~= 147;
+							break;
+						case '\x9D':
+							rez ~= 148;
+							break;
+						case '\xA2':
+							rez ~= 149;
+							break;
+						case '\x93':
+							rez ~= 150;
+							break;
+						case '\x94':
+							rez ~= 151;
+							break;
+						case '\xBA':
+							rez ~= 155;
+							break;
+						default:
+							// writeln("-- length 3 --> no str[2] == ???");
+							rez ~= '?';
+							break;
 					}
 				} else {
 					if (str[i + 1] == '\x82') {
 						switch (str[i + 2]) {
 							//                      case '\xAC': rez ~= 128; break;
-						case '\xAC':
-							rez ~= 136;
-							break;
-						default:
-							//writeln("-- length 3 --> no str[2] == ???");
-							rez ~= '?';
-							break;
-						}
-					} else {
-						if (str[i + 1] == '\x84') {
-							switch (str[i + 2]) {
-							case '\x96':
-								rez ~= 185;
-								break;
-							case '\xA2':
-								rez ~= 153;
+							case '\xAC':
+								rez ~= 136;
 								break;
 							default:
 								//writeln("-- length 3 --> no str[2] == ???");
 								rez ~= '?';
 								break;
+						}
+					} else {
+						if (str[i + 1] == '\x84') {
+							switch (str[i + 2]) {
+								case '\x96':
+									rez ~= 185;
+									break;
+								case '\xA2':
+									rez ~= 153;
+									break;
+								default:
+									//writeln("-- length 3 --> no str[2] == ???");
+									rez ~= '?';
+									break;
 							}
 						}
 						//writeln("-- length 3 --> no str[1] <> x80");
@@ -541,460 +541,460 @@ char[] fromUtf8to1251(char[] str) {
 		}
 		if (id == 2) {
 			switch (str[i]) {
-			case '\xD0':
-				switch (str[i + 1]) {
+				case '\xD0':
+					switch (str[i + 1]) {
 
-				case '\x86':
-					rez ~= 178;
+						case '\x86':
+							rez ~= 178;
+							break;
+						case '\x87':
+							rez ~= 175;
+							break;
+						case '\x84':
+							rez ~= 170;
+							break;
+						case '\x88':
+							rez ~= 163;
+							break;
+						case '\x8E':
+							rez ~= 161;
+							break;
+						case '\x8F':
+							rez ~= 143;
+							break;
+						case '\x8B':
+							rez ~= 142;
+							break;
+						case '\x8C':
+							rez ~= 141;
+							break;
+						case '\x8A':
+							rez ~= 140;
+							break;
+						case '\x89':
+							rez ~= 138;
+							break;
+						case '\x81':
+							rez ~= 168;
+							break;
+						case '\x82':
+							rez ~= 128;
+							break;
+						case '\x83':
+							rez ~= 129;
+							break;
+						case '\x85':
+							rez ~= 189;
+							break;
+						case '\x90':
+							rez ~= 192;
+							break;
+						case '\x91':
+							rez ~= 193;
+							break;
+						case '\x92':
+							rez ~= 194;
+							break;
+						case '\x93':
+							rez ~= 195;
+							break;
+						case '\x94':
+							rez ~= 196;
+							break;
+						case '\x95':
+							rez ~= 197;
+							break;
+						case '\x96':
+							rez ~= 198;
+							break;
+						case '\x97':
+							rez ~= 199;
+							break;
+						case '\x98':
+							rez ~= 200;
+							break;
+						case '\x99':
+							rez ~= 201;
+							break;
+						case '\x9A':
+							rez ~= 202;
+							break;
+						case '\x9B':
+							rez ~= 203;
+							break;
+						case '\x9C':
+							rez ~= 204;
+							break;
+						case '\x9D':
+							rez ~= 205;
+							break;
+						case '\x9E':
+							rez ~= 206;
+							break;
+						case '\x9F':
+							rez ~= 207;
+							break;
+						case '\xA0':
+							rez ~= 208;
+							break;
+						case '\xA1':
+							rez ~= 209;
+							break;
+						case '\xA2':
+							rez ~= 210;
+							break;
+						case '\xA3':
+							rez ~= 211;
+							break;
+						case '\xA4':
+							rez ~= 212;
+							break;
+						case '\xA5':
+							rez ~= 213;
+							break;
+						case '\xA6':
+							rez ~= 214;
+							break;
+						case '\xA7':
+							rez ~= 215;
+							break;
+						case '\xA8':
+							rez ~= 216;
+							break;
+						case '\xA9':
+							rez ~= 217;
+							break;
+						case '\xAA':
+							rez ~= 218;
+							break;
+						case '\xAB':
+							rez ~= 219;
+							break;
+						case '\xAC':
+							rez ~= 220;
+							break;
+						case '\xAD':
+							rez ~= 221;
+							break;
+						case '\xAE':
+							rez ~= 222;
+							break;
+						case '\xAF':
+							rez ~= 223;
+							break;
+						case '\xB0':
+							rez ~= 224;
+							break;
+						case '\xB1':
+							rez ~= 225;
+							break;
+						case '\xB2':
+							rez ~= 226;
+							break;
+						case '\xB3':
+							rez ~= 227;
+							break;
+						case '\xB4':
+							rez ~= 228;
+							break;
+						case '\xB5':
+							rez ~= 229;
+							break;
+						case '\xB6':
+							rez ~= 230;
+							break;
+						case '\xB7':
+							rez ~= 231;
+							break;
+						case '\xB8':
+							rez ~= 232;
+							break;
+						case '\xB9':
+							rez ~= 233;
+							break;
+						case '\xBA':
+							rez ~= 234;
+							break;
+						case '\xBB':
+							rez ~= 235;
+							break;
+						case '\xBC':
+							rez ~= 236;
+							break;
+						case '\xBD':
+							rez ~= 237;
+							break;
+						case '\xBE':
+							rez ~= 238;
+							break;
+						case '\xBF':
+							rez ~= 239;
+							break;
+						default:
+							// writeln("--10--");
+							rez ~= '?';
+							break;
+					}
 					break;
-				case '\x87':
-					rez ~= 175;
+				case '\xD1':
+					switch (str[i + 1]) {
+						case '\x97':
+							rez ~= 191;
+							break;
+						case '\x95':
+							rez ~= 190;
+							break;
+						case '\x98':
+							rez ~= 188;
+							break;
+						case '\x94':
+							rez ~= 186;
+							break;
+						case '\x96':
+							rez ~= 179;
+							break;
+						case '\x9E':
+							rez ~= 162;
+							break;
+						case '\x9F':
+							rez ~= 159;
+							break;
+						case '\x9B':
+							rez ~= 158;
+							break;
+						case '\x9C':
+							rez ~= 157;
+							break;
+						case '\x9A':
+							rez ~= 156;
+							break;
+						case '\x99':
+							rez ~= 154;
+							break;
+						case '\x91':
+							rez ~= 184;
+							break;
+						case '\x93':
+							rez ~= 131;
+							break;
+						case '\x92':
+							rez ~= 144;
+							break;
+						case '\x80':
+							rez ~= 240;
+							break;
+						case '\x81':
+							rez ~= 241;
+							break;
+						case '\x82':
+							rez ~= 242;
+							break;
+						case '\x83':
+							rez ~= 243;
+							break;
+						case '\x84':
+							rez ~= 244;
+							break;
+						case '\x85':
+							rez ~= 245;
+							break;
+						case '\x86':
+							rez ~= 246;
+							break;
+						case '\x87':
+							rez ~= 247;
+							break;
+						case '\x88':
+							rez ~= 248;
+							break;
+						case '\x89':
+							rez ~= 249;
+							break;
+						case '\x8A':
+							rez ~= 250;
+							break;
+						case '\x8B':
+							rez ~= 251;
+							break;
+						case '\x8C':
+							rez ~= 252;
+							break;
+						case '\x8D':
+							rez ~= 253;
+							break;
+						case '\x8E':
+							rez ~= 254;
+							break;
+						case '\x8F':
+							rez ~= 255;
+							break;
+						case '\xA2':
+							rez ~= 210;
+							break;
+						case '\xA3':
+							rez ~= 211;
+							break;
+						case '\xA4':
+							rez ~= 212;
+							break;
+						case '\xA5':
+							rez ~= 213;
+							break;
+						case '\xA6':
+							rez ~= 214;
+							break;
+						case '\xA7':
+							rez ~= 215;
+							break;
+						case '\xA8':
+							rez ~= 216;
+							break;
+						case '\xA9':
+							rez ~= 217;
+							break;
+						case '\xAA':
+							rez ~= 218;
+							break;
+						case '\xAB':
+							rez ~= 219;
+							break;
+						case '\xAC':
+							rez ~= 220;
+							break;
+						case '\xAD':
+							rez ~= 221;
+							break;
+						case '\xAE':
+							rez ~= 222;
+							break;
+						case '\xAF':
+							rez ~= 223;
+							break;
+						case '\xB0':
+							rez ~= 224;
+							break;
+						case '\xB1':
+							rez ~= 225;
+							break;
+						case '\xB2':
+							rez ~= 226;
+							break;
+						case '\xB3':
+							rez ~= 227;
+							break;
+						case '\xB4':
+							rez ~= 228;
+							break;
+						case '\xB5':
+							rez ~= 229;
+							break;
+						case '\xB6':
+							rez ~= 230;
+							break;
+						case '\xB7':
+							rez ~= 231;
+							break;
+						case '\xB8':
+							rez ~= 232;
+							break;
+						case '\xB9':
+							rez ~= 233;
+							break;
+						case '\xBA':
+							rez ~= 234;
+							break;
+						case '\xBB':
+							rez ~= 235;
+							break;
+						case '\xBC':
+							rez ~= 236;
+							break;
+						case '\xBD':
+							rez ~= 237;
+							break;
+						default:
+							// writeln("--0--");
+							// writeln("--0-- str[i]=", to!int(str[i]), "   str[i+1]=", to!int(str[i+1]), "   str[i+2]=", to!int(str[i+2])     );
+							rez ~= '2';
+							break;
+					}
 					break;
-				case '\x84':
-					rez ~= 170;
+				case '\xD2':
+					switch (str[i + 1]) {
+						case '\x91':
+							rez ~= 180;
+							break;
+						case '\x90':
+							rez ~= 165;
+							break;
+						default:
+							rez ~= '7';
+							break;
+					}
 					break;
-				case '\x88':
-					rez ~= 163;
+				case '\xD3':
+					//writeln("--2--");
 					break;
-				case '\x8E':
-					rez ~= 161;
-					break;
-				case '\x8F':
-					rez ~= 143;
-					break;
-				case '\x8B':
-					rez ~= 142;
-					break;
-				case '\x8C':
-					rez ~= 141;
-					break;
-				case '\x8A':
-					rez ~= 140;
-					break;
-				case '\x89':
-					rez ~= 138;
-					break;
-				case '\x81':
-					rez ~= 168;
-					break;
-				case '\x82':
-					rez ~= 128;
-					break;
-				case '\x83':
-					rez ~= 129;
-					break;
-				case '\x85':
-					rez ~= 189;
-					break;
-				case '\x90':
-					rez ~= 192;
-					break;
-				case '\x91':
-					rez ~= 193;
-					break;
-				case '\x92':
-					rez ~= 194;
-					break;
-				case '\x93':
-					rez ~= 195;
-					break;
-				case '\x94':
-					rez ~= 196;
-					break;
-				case '\x95':
-					rez ~= 197;
-					break;
-				case '\x96':
-					rez ~= 198;
-					break;
-				case '\x97':
-					rez ~= 199;
-					break;
-				case '\x98':
-					rez ~= 200;
-					break;
-				case '\x99':
-					rez ~= 201;
-					break;
-				case '\x9A':
-					rez ~= 202;
-					break;
-				case '\x9B':
-					rez ~= 203;
-					break;
-				case '\x9C':
-					rez ~= 204;
-					break;
-				case '\x9D':
-					rez ~= 205;
-					break;
-				case '\x9E':
-					rez ~= 206;
-					break;
-				case '\x9F':
-					rez ~= 207;
-					break;
-				case '\xA0':
-					rez ~= 208;
-					break;
-				case '\xA1':
-					rez ~= 209;
-					break;
-				case '\xA2':
-					rez ~= 210;
-					break;
-				case '\xA3':
-					rez ~= 211;
-					break;
-				case '\xA4':
-					rez ~= 212;
-					break;
-				case '\xA5':
-					rez ~= 213;
-					break;
-				case '\xA6':
-					rez ~= 214;
-					break;
-				case '\xA7':
-					rez ~= 215;
-					break;
-				case '\xA8':
-					rez ~= 216;
-					break;
-				case '\xA9':
-					rez ~= 217;
-					break;
-				case '\xAA':
-					rez ~= 218;
-					break;
-				case '\xAB':
-					rez ~= 219;
-					break;
-				case '\xAC':
-					rez ~= 220;
-					break;
-				case '\xAD':
-					rez ~= 221;
-					break;
-				case '\xAE':
-					rez ~= 222;
-					break;
-				case '\xAF':
-					rez ~= 223;
-					break;
-				case '\xB0':
-					rez ~= 224;
-					break;
-				case '\xB1':
-					rez ~= 225;
-					break;
-				case '\xB2':
-					rez ~= 226;
-					break;
-				case '\xB3':
-					rez ~= 227;
-					break;
-				case '\xB4':
-					rez ~= 228;
-					break;
-				case '\xB5':
-					rez ~= 229;
-					break;
-				case '\xB6':
-					rez ~= 230;
-					break;
-				case '\xB7':
-					rez ~= 231;
-					break;
-				case '\xB8':
-					rez ~= 232;
-					break;
-				case '\xB9':
-					rez ~= 233;
-					break;
-				case '\xBA':
-					rez ~= 234;
-					break;
-				case '\xBB':
-					rez ~= 235;
-					break;
-				case '\xBC':
-					rez ~= 236;
-					break;
-				case '\xBD':
-					rez ~= 237;
-					break;
-				case '\xBE':
-					rez ~= 238;
-					break;
-				case '\xBF':
-					rez ~= 239;
+				case '\xC2':
+					switch (str[i + 1]) {
+						case '\x98':
+							rez ~= 152;
+							break;
+						case '\xA0':
+							rez ~= 160;
+							break;
+						case '\xA4':
+							rez ~= 164;
+							break;
+						case '\xA6':
+							rez ~= 166;
+							break;
+						case '\xA7':
+							rez ~= 167;
+							break;
+						case '\xA9':
+							rez ~= 169;
+							break;
+						case '\xAC':
+							rez ~= 172;
+							break;
+						case '\xAD':
+							rez ~= 173;
+							break;
+						case '\xAE':
+							rez ~= 174;
+							break;
+						case '\xB0':
+							rez ~= 176;
+							break;
+						case '\xB1':
+							rez ~= 177;
+							break;
+						case '\xB5':
+							rez ~= 181;
+							break;
+						case '\xB6':
+							rez ~= 182;
+							break;
+						case '\xB7':
+							rez ~= 183;
+							break;
+						case '\xBB':
+							rez ~= 187;
+							break;
+						case '\xAB':
+							rez ~= 171;
+							break;
+						default:
+							//writeln("--3--");
+							rez ~= '3';
+							break;
+					}
 					break;
 				default:
-					// writeln("--10--");
-					rez ~= '?';
+					//writeln("--4--");
+					rez ~= '4';
 					break;
-				}
-				break;
-			case '\xD1':
-				switch (str[i + 1]) {
-				case '\x97':
-					rez ~= 191;
-					break;
-				case '\x95':
-					rez ~= 190;
-					break;
-				case '\x98':
-					rez ~= 188;
-					break;
-				case '\x94':
-					rez ~= 186;
-					break;
-				case '\x96':
-					rez ~= 179;
-					break;
-				case '\x9E':
-					rez ~= 162;
-					break;
-				case '\x9F':
-					rez ~= 159;
-					break;
-				case '\x9B':
-					rez ~= 158;
-					break;
-				case '\x9C':
-					rez ~= 157;
-					break;
-				case '\x9A':
-					rez ~= 156;
-					break;
-				case '\x99':
-					rez ~= 154;
-					break;
-				case '\x91':
-					rez ~= 184;
-					break;
-				case '\x93':
-					rez ~= 131;
-					break;
-				case '\x92':
-					rez ~= 144;
-					break;
-				case '\x80':
-					rez ~= 240;
-					break;
-				case '\x81':
-					rez ~= 241;
-					break;
-				case '\x82':
-					rez ~= 242;
-					break;
-				case '\x83':
-					rez ~= 243;
-					break;
-				case '\x84':
-					rez ~= 244;
-					break;
-				case '\x85':
-					rez ~= 245;
-					break;
-				case '\x86':
-					rez ~= 246;
-					break;
-				case '\x87':
-					rez ~= 247;
-					break;
-				case '\x88':
-					rez ~= 248;
-					break;
-				case '\x89':
-					rez ~= 249;
-					break;
-				case '\x8A':
-					rez ~= 250;
-					break;
-				case '\x8B':
-					rez ~= 251;
-					break;
-				case '\x8C':
-					rez ~= 252;
-					break;
-				case '\x8D':
-					rez ~= 253;
-					break;
-				case '\x8E':
-					rez ~= 254;
-					break;
-				case '\x8F':
-					rez ~= 255;
-					break;
-				case '\xA2':
-					rez ~= 210;
-					break;
-				case '\xA3':
-					rez ~= 211;
-					break;
-				case '\xA4':
-					rez ~= 212;
-					break;
-				case '\xA5':
-					rez ~= 213;
-					break;
-				case '\xA6':
-					rez ~= 214;
-					break;
-				case '\xA7':
-					rez ~= 215;
-					break;
-				case '\xA8':
-					rez ~= 216;
-					break;
-				case '\xA9':
-					rez ~= 217;
-					break;
-				case '\xAA':
-					rez ~= 218;
-					break;
-				case '\xAB':
-					rez ~= 219;
-					break;
-				case '\xAC':
-					rez ~= 220;
-					break;
-				case '\xAD':
-					rez ~= 221;
-					break;
-				case '\xAE':
-					rez ~= 222;
-					break;
-				case '\xAF':
-					rez ~= 223;
-					break;
-				case '\xB0':
-					rez ~= 224;
-					break;
-				case '\xB1':
-					rez ~= 225;
-					break;
-				case '\xB2':
-					rez ~= 226;
-					break;
-				case '\xB3':
-					rez ~= 227;
-					break;
-				case '\xB4':
-					rez ~= 228;
-					break;
-				case '\xB5':
-					rez ~= 229;
-					break;
-				case '\xB6':
-					rez ~= 230;
-					break;
-				case '\xB7':
-					rez ~= 231;
-					break;
-				case '\xB8':
-					rez ~= 232;
-					break;
-				case '\xB9':
-					rez ~= 233;
-					break;
-				case '\xBA':
-					rez ~= 234;
-					break;
-				case '\xBB':
-					rez ~= 235;
-					break;
-				case '\xBC':
-					rez ~= 236;
-					break;
-				case '\xBD':
-					rez ~= 237;
-					break;
-				default:
-					// writeln("--0--");
-					// writeln("--0-- str[i]=", to!int(str[i]), "   str[i+1]=", to!int(str[i+1]), "   str[i+2]=", to!int(str[i+2])     );
-					rez ~= '2';
-					break;
-				}
-				break;
-			case '\xD2':
-				switch (str[i + 1]) {
-				case '\x91':
-					rez ~= 180;
-					break;
-				case '\x90':
-					rez ~= 165;
-					break;
-				default:
-					rez ~= '7';
-					break;
-				}
-				break;
-			case '\xD3':
-				//writeln("--2--");
-				break;
-			case '\xC2':
-				switch (str[i + 1]) {
-				case '\x98':
-					rez ~= 152;
-					break;
-				case '\xA0':
-					rez ~= 160;
-					break;
-				case '\xA4':
-					rez ~= 164;
-					break;
-				case '\xA6':
-					rez ~= 166;
-					break;
-				case '\xA7':
-					rez ~= 167;
-					break;
-				case '\xA9':
-					rez ~= 169;
-					break;
-				case '\xAC':
-					rez ~= 172;
-					break;
-				case '\xAD':
-					rez ~= 173;
-					break;
-				case '\xAE':
-					rez ~= 174;
-					break;
-				case '\xB0':
-					rez ~= 176;
-					break;
-				case '\xB1':
-					rez ~= 177;
-					break;
-				case '\xB5':
-					rez ~= 181;
-					break;
-				case '\xB6':
-					rez ~= 182;
-					break;
-				case '\xB7':
-					rez ~= 183;
-					break;
-				case '\xBB':
-					rez ~= 187;
-					break;
-				case '\xAB':
-					rez ~= 171;
-					break;
-				default:
-					//writeln("--3--");
-					rez ~= '3';
-					break;
-				}
-				break;
-			default:
-				//writeln("--4--");
-				rez ~= '4';
-				break;
 			}
 		}
 		i = i + id;
@@ -1039,7 +1039,7 @@ const tPrint = 8; // Печатные
 const tRl = 16; // Рус Маленькие
 const tRu = 32; // Рус Большие
 
-private immutable char[] mm1251_Utf8[sByte] = [
+private immutable char[][sByte]  mm1251_Utf8= [
 	/* 0 */
 	"\x00", /* 1 */ "\x01", /* 2 */ "\x02", /* 3 */ "\x03", /* 4 */ "\x04",/* 5 */
 	"\x05", /* 6 */ "\x06", /* 7 */ "\x07", /* 8 */ "\x08", /* 9 */ "\x09",/* 10 */
@@ -1115,8 +1115,8 @@ private immutable char[] mm1251_Utf8[sByte] = [
 	"\xD1\x8E", /* 255 */ "\xD1\x8F"
 ];
 
-private immutable int mm1251[sByte] = [/* 0 */
-tBad, /* 1 */ tBad, /* 2 */ tBad, /* 3 */ tBad, /* 4 */ tBad, /* 5 */ tBad, /* 6 */ tBad, /* 7 */ tBad, /* 8 */ tBad,
+private immutable int[sByte]  mm1251= [/* 0 */
+	tBad, /* 1 */ tBad, /* 2 */ tBad, /* 3 */ tBad, /* 4 */ tBad, /* 5 */ tBad, /* 6 */ tBad, /* 7 */ tBad, /* 8 */ tBad,
 	/* 9 */
 	tBad, /* 10 */ tBad, /* 11 */ tBad, /* 12 */ tBad, /* 13 */ tBad, /* 14 */ tBad, /* 15 */ tBad, /* 16 */ tBad, /* 17 */ tBad,
 	/* 18 */

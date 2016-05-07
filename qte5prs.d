@@ -1,7 +1,7 @@
 module qte5prs;
 
 import asc1251 : fromUtf8to1251;
-import std.string : translate, split, strip, indexOf, toLower;
+import std.string : translate, split, strip, indexOf;
 private import std.stdio; // : File;
 
 // Должен быть объект, получающий на вход строку. Строка раскладываается
@@ -22,7 +22,6 @@ class CFinder { //=> Поисковик. Помнит все слова в фа�
 	// ______________________________________________________________
 	private un[256] harrow; 	//-> гребенка, для 256 списков слов
 	dchar[dchar] transTable1;
-	un[]  masAllWords;			// Список указателей на все слова
 	// ______________________________________________________________
 	ubyte getC0(string s) { //-> Выдать индекс в гребенке
 		import std.utf: stride;
@@ -34,11 +33,10 @@ class CFinder { //=> Поисковик. Помнит все слова в фа�
 	void addWord(string w) { //-> Добавить слово в список, если его нет
 		if(w.length == 0) return;
 		ubyte c0;
-		if(!isWordMono(w)) {
+		if(!isWord(w)) {
 			c0 = getC0(w);	// Первая буква слова, как индекс цепочки в harrow
 			// Создадим узел цепочки (списка)
 			un nod = new fNode;  nod.str = w;
-			masAllWords ~= nod;		// Запомним это слово в полном списке слов
 			nod.link = harrow[c0];	// Вставим новый узел в цепочку
 			harrow[getC0(w)] = nod;	// Подвесим обновленную цепочку
 /* 			
@@ -64,22 +62,6 @@ class CFinder { //=> Поисковик. Помнит все слова в фа�
 		} 
 	}
 	// ______________________________________________________________
-	bool isWordMono(string w) { //-> Есть целое слово в списке?
-		size_t dlw, dln;
-		bool rez; ubyte ind = getC0(w); un ukaz = harrow[ind];
-		dlw = w.length;
-		while(!(ukaz is null)) {
-			dln = ukaz.str.length;
-			if(dln == dlw) {
-				if(ukaz.str == w) {
-					rez = true; break;
-				}
-			}
-			ukaz = ukaz.link;
-		}
-		return rez;
-	}
-	// ______________________________________________________________
 	bool isWord(string w) { //-> Есть целое слово или производные в списке?
 		size_t dlw, dln;
 		bool rez; ubyte ind = getC0(w); un ukaz = harrow[ind];
@@ -92,18 +74,6 @@ class CFinder { //=> Поисковик. Помнит все слова в фа�
 				}
 			}
 			ukaz = ukaz.link;
-		}
-		return rez;
-	}
-	// ______________________________________________________________
-	string[] getSubFromAll(string w) { //-> Выдать массив похожих слов из общего хранилища 
-		string[] rez;
-		string sh = toLower(w);
-		foreach(el; masAllWords) {
-			string wrd = toLower(el.str);
-			if(indexOf(wrd, sh) > 0) {
-				rez ~= el.str;
-			}
 		}
 		return rez;
 	}
@@ -156,13 +126,8 @@ class CFinder { //=> Поисковик. Помнит все слова в фа�
 		File fileSrc = File(nameFile, "r");
 		try {
 			foreach(line; fileSrc.byLine()) {
-				try {
-					addLine(cast(string)strip(line));
-				} catch {}
+				addLine(cast(string)strip(line));
 			}
-		} catch {
-			writeln("Error read file: ", nameFile);
-			readln();
-		}
+		} catch {}
 	}
 }
