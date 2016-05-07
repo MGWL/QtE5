@@ -16,8 +16,8 @@ import qte5prs;
 
 const strElow  = "background: #F8FFA1";
 const strGreen = "background: #F79F81";
-const strEdit  = "font-size: 12pt; font-family: 'DejaVu Sans Mono';";
-const strTabl  = "font-size: 12pt; font-family: 'DejaVu Sans Mono';";
+const strEdit  = "font-size: 12pt; font-family: 'Inconsolata';";
+const strTabl  = "font-size: 12pt; font-family: 'Inconsolata';";
 
 string helps() { 
 	return	toCON(
@@ -131,12 +131,12 @@ class CEditWin: QWidget { //=> Окно редактора D кода
 
 		
 		finder1 = new CFinder();
-		finder1.addFile("/home/gena/.wine/drive_c/dmd2/src/phobos/std/stdio.d");
-		finder1.addFile("/home/gena/.wine/drive_c/dmd2/src/phobos/std/string.d");
+		// finder1.addFile("/home/gena/.wine/drive_c/dmd2/src/phobos/std/stdio.d");
+		// finder1.addFile("/home/gena/.wine/drive_c/dmd2/src/phobos/std/string.d");
 		finder1.addFile("qte5.d");
-		finder1.addFile("ide5.d");
-		finder1.addFile("asc1251.d");
-		nameEditFile = "test.txt";
+		// finder1.addFile("ide5.d");
+		// finder1.addFile("asc1251.d");
+		// nameEditFile = "test.txt";
 	}
 	// ______________________________________________________________
 	void openWinEdit(string nameFile) { //-> Открыть на редактирование окно с файлом
@@ -183,13 +183,13 @@ class CEditWin: QWidget { //=> Окно редактора D кода
 	// ______________________________________________________________
 	void runSliderTab(int nom) { //-> Обработка события слайдера таблицы
 		string zn = to!string(nom);
-		zn = "font-size: " ~ zn ~ "pt; font-family: 'DejaVu Sans Mono';";
+		zn = "font-size: " ~ zn ~ "pt; font-family: 'Inconsolata';";
 		teHelp.setStyleSheet(zn);
 	}
 	// ______________________________________________________________
 	void runSlider(int nom) { //-> Обработка события слайдера
 		string zn = to!string(nom);
-		zn = "font-size: " ~ zn ~ "pt; font-family: 'DejaVu Sans Mono';";
+		zn = "font-size: " ~ zn ~ "pt; font-family: 'Inconsolata';";
 		teEdit.setStyleSheet(zn);
 	}
 	// ______________________________________________________________
@@ -419,7 +419,10 @@ class CFormaMain: QMainWindow { //=> Основной MAIN класс прило
 	}	
 	// ______________________________________________________________
 	void OpenFile() { //-> Запросить файл для редактирования
-		EditFile("ide5.d");
+		// Проверим работу открытия файла
+		QFileDialog fileDlg = new QFileDialog(null);
+		string cmd = fileDlg.getOpenFileName("Open file ...", "", "*.d");
+		if(cmd != "") EditFile(cmd);
 	}
 	// ______________________________________________________________
 	void EditFile(string nameFile) { //-> Открыть файл для редактирования
@@ -478,3 +481,5 @@ int main(string[] args) {
 	
 	return app.exec();
 }
+
+// Проверка изменений

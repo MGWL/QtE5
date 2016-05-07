@@ -51,6 +51,7 @@
 #include <QTextDocument>
 #include <QTextBlock>
 #include <QSpinBox>
+#include <QSyntaxHighlighter>
 
 typedef int PTRINT;
 typedef unsigned int PTRUINT;
@@ -192,6 +193,33 @@ protected:
     void keyPressEvent(QKeyEvent* event);
     void keyReleaseEvent(QKeyEvent* event);
 };
+//___________________________________________________
+class Highlighter : public QSyntaxHighlighter
+{
+    // Q_OBJECT
+public:
+    Highlighter(QTextDocument *parent = 0);
 
+protected:
+    void highlightBlock(const QString &text);
+
+private:
+    struct HighlightingRule
+    {
+        QRegExp pattern;
+        QTextCharFormat format;
+    };
+    QVector<HighlightingRule> highlightingRules;
+
+    QRegExp commentStartExpression;
+    QRegExp commentEndExpression;
+
+    QTextCharFormat keywordFormat;
+    QTextCharFormat classFormat;
+    QTextCharFormat singleLineCommentFormat;
+    QTextCharFormat multiLineCommentFormat;
+    QTextCharFormat quotationFormat;
+    QTextCharFormat functionFormat;
+};
 
 #endif // QTE5WIDGETS_H
