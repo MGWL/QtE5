@@ -1394,9 +1394,9 @@ Highlighter::Highlighter(QTextDocument *parent) : QSyntaxHighlighter(parent) {
                      << "\\bprivate\\b" << "\\bprotected\\b" << "\\bpublic\\b"
                      << "\\bshort\\b" << "\\bsignals\\b" << "\\bsigned\\b"
                      << "\\bslots\\b" << "\\bstatic\\b" << "\\bstruct\\b"
-                     << "\\btemplate\\b" << "\\btypedef\\b" << "\\btypename\\b"
-                     << "\\bunion\\b" << "\\bunsigned\\b" << "\\bvirtual\\b"
-                     << "\\bvoid\\b" << "\\bvolatile\\b";
+                     << "\\btemplate\\b" << "\\balias\\b" << "\\btypename\\b"
+                     << "\\bunion\\b" << "\\buchar\\b" << "\\bvirtual\\b"
+                     << "\\bstring\\b" << "\\bvoid\\b" << "\\bvolatile\\b";
      foreach (const QString &pattern, keywordPatterns) {
          rule.pattern = QRegExp(pattern);
          rule.format = keywordFormat;
@@ -1467,4 +1467,132 @@ extern "C" Highlighter* qteHighlighter_create(QTextDocument* parent) {
 }
 extern "C" void qteHighlighter_delete(Highlighter* wd) {
     delete wd;
+}
+// ===================== QTextEdit ====================
+
+eQTextEdit::eQTextEdit(QWidget *parent): QTextEdit(parent) {
+    aKeyPressEvent = NULL; aDThis = NULL; aKeyReleaseEvent = NULL;
+}
+eQTextEdit::~eQTextEdit() {
+}
+void eQTextEdit::keyPressEvent(QKeyEvent* event) {
+    QKeyEvent* otv;
+    // Если нет перехвата, отдай событие
+    if (aKeyPressEvent == NULL) {QTextEdit::keyPressEvent(event); return; }
+    if (aKeyPressEvent != NULL) {
+        otv = (QKeyEvent*)((ExecZIM_vp__vp_vp)aKeyPressEvent)(*(void**)aDThis, (QtRefH)event);
+        if(otv != NULL) {  QTextEdit::keyPressEvent(otv); }
+    }
+}
+void eQTextEdit::keyReleaseEvent(QKeyEvent* event) {
+    QKeyEvent* otv;
+    // Если нет перехвата, отдай событие
+    if (aKeyReleaseEvent == NULL) {QTextEdit::keyReleaseEvent(event); return; }
+    if (aKeyReleaseEvent != NULL) {
+        otv = (QKeyEvent*)((ExecZIM_vp__vp_vp)aKeyReleaseEvent)(*(void**)aDThis, (QtRefH)event);
+        if(otv != NULL) {  QTextEdit::keyReleaseEvent(otv); }
+    }
+}
+extern "C" eQTextEdit* qteQTextEdit_create1(QWidget* parent) {
+    return new eQTextEdit(parent);
+}
+extern "C" void qteQTextEdit_delete1(eQTextEdit* wd) {
+    delete wd;
+}
+extern "C" void qteQTextEdit_setKeyPressEvent(eQTextEdit* wd, void* adr, void* aThis) {
+    wd->aKeyPressEvent = adr;
+    wd->aDThis = aThis;
+}
+extern "C" void qteQTextEdit_setKeyReleaseEvent(eQTextEdit* wd, void* adr, void* aThis) {
+    wd->aKeyReleaseEvent = adr;
+    wd->aDThis = aThis;
+}
+// extern "C" void qteQTextEdit_appendPlainText(QTextEdit* wd, QtRefH str) {
+//    wd->appendPlainText((const QString &)*str);
+// }
+// extern "C" void qteQTextEdit_appendHtml(QTextEdit* wd, QtRefH str) {
+//    wd->appendHtml((const QString &)*str);
+// }
+extern "C" void qteQTextEdit_setPlainText(QTextEdit* wd, QtRefH str) {
+    wd->setPlainText((const QString &)*str);
+}
+extern "C" void qteQTextEdit_insertPlainText(QTextEdit* wd, QtRefH str) {
+    wd->insertPlainText((const QString &)*str);
+}
+extern "C" void qteQTextEdit_cutn(QTextEdit* wd, int pr) {
+    switch ( pr ) {
+    case 0:   wd->cut();    break;
+    case 1:   wd->clear();  break;
+    case 2:   wd->paste();  break;
+    case 3:   wd->copy();   break;
+    case 4:   wd->selectAll();   break;
+    case 5:   wd->selectionChanged();  break;
+    // case 6:   wd->centerCursor();  break;
+    case 7:   wd->undo();  break;
+    case 8:   wd->redo();  break;
+    }
+}
+extern "C" void qteQTextEdit_toPlainText(QTextEdit* wd, QtRefH qs) {
+    *(QString*)qs = wd->toPlainText();
+}
+extern "C" QTextDocument* qteQTextEdit_document(QTextEdit* wd) {
+    return wd->document();
+}
+// 230
+extern "C" void qteQTextEdit_textCursor(QTextEdit* wd, QTextCursor* tk) {
+    *tk = wd->textCursor();
+}
+// 253
+extern "C" void qteQTextEdit_setTextCursor(QTextEdit* wd, QTextCursor* tk) {
+    wd->setTextCursor(*tk);
+}
+extern "C" void qteQTextEdit_cursorRect(QTextEdit* wd, QRect* tk) {
+    *tk = wd->cursorRect();
+}
+extern "C" void qteQTextEdit_setTabStopWidth(QTextEdit* wd, int width) {
+    wd->setTabStopWidth(width);
+}
+// ===================== QTimer ====================
+// 262
+extern "C" QTimer* qteQTimer_create(QObject* parent) {
+    return new QTimer(parent);
+}
+// 263
+extern "C" void qteQTimer_delete(QTimer* wd) {
+    delete wd;
+}
+// 264
+extern "C" void qteQTimer_setInterval(QTimer* wd, int msek) {
+    wd->setInterval(msek);
+}
+// 265
+extern "C" int qteQTimer_getXX1(QTimer* wd, int pr) {
+    int rez = 0;
+    switch ( pr ) {
+    case 0:   rez = wd->interval();          break;
+    case 1:   rez = wd->remainingTime();     break;
+    case 2:   rez = wd->timerId();           break;
+    }
+    return rez;
+}
+// 266
+extern "C" bool qteQTimer_getXX2(QTimer* wd, int pr) {
+    int rez = 0;
+    switch ( pr ) {
+    case 0:   rez = wd->isActive();          break;
+    case 1:   rez = wd->isSingleShot();      break;
+    }
+    return rez;
+}
+// 267
+extern "C" void qteQTimer_setTimerType(QTimer* wd, Qt::TimerType t) {
+    wd->setTimerType(t);
+}
+// 268
+extern "C" void qteQTimer_setSingleShot(QTimer* wd, bool t) {
+    wd->setSingleShot(t);
+}
+// 269
+extern "C" Qt::TimerType qteQTimer_timerType(QTimer* wd) {
+    return wd->timerType();
 }

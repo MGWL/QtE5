@@ -4,6 +4,7 @@
 #include "qte5widgets_global.h"
 
 #include <QObject>
+#include <QTimer>
 #include <QApplication>
 #include <QWidget>
 #include <QPushButton>
@@ -52,6 +53,7 @@
 #include <QTextBlock>
 #include <QSpinBox>
 #include <QSyntaxHighlighter>
+#include <QTextEdit>
 
 typedef int PTRINT;
 typedef unsigned int PTRUINT;
@@ -220,6 +222,20 @@ private:
     QTextCharFormat multiLineCommentFormat;
     QTextCharFormat quotationFormat;
     QTextCharFormat functionFormat;
+};
+//___________________________________________________
+class eQTextEdit : public QTextEdit {
+    // Q_OBJECT
+public:
+    void* aDThis;       // Хранит адрес экземпляра объекта D
+    void* aKeyPressEvent;
+    void* aKeyReleaseEvent;
+public:
+    explicit eQTextEdit(QWidget* parent);
+    ~eQTextEdit();
+protected:
+    void keyPressEvent(QKeyEvent* event);
+    void keyReleaseEvent(QKeyEvent* event);
 };
 
 #endif // QTE5WIDGETS_H
