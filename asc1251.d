@@ -1026,6 +1026,9 @@ string toCON(T)(T s) {
 		return cast(string)s;
 	}
 }
+string char1251toUtf8(char ch) {
+	return mm1251_Utf8[ch];
+}
 
 private:
 

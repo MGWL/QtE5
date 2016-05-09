@@ -114,6 +114,7 @@ private extern (C) @nogc alias t_bool__vp = bool function(void*);
 private extern (C) @nogc alias t_bool__vp_c = bool function(void*, char);
 private extern (C) @nogc alias t_bool__vp_vp = bool function(void*, void*);
 private extern (C) @nogc alias t_v__qp_bool = void function(QtObjH, bool);
+private extern (C) @nogc alias t_v__qp_b = void function(QtObjH, bool);
 private extern (C) @nogc alias t_v__vp_i_vp_us_i = void function(void*, int, void*, ushort, int);
 private extern (C) @nogc alias t_vp__vp_vp_vp = void* function(void*, void*, void*);
 
@@ -585,8 +586,25 @@ int LoadQt(dll ldll, bool showError) { ///  Загрузить DLL-ки Qt и Qt
 	//  ------- Highlighter -- Временный, подлежит в дальнейшем удалению -----
 	funQt(257, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteHighlighter_create",			showError);
 	funQt(258, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteHighlighter_delete",			showError);
+
+	// ------- QTextEdit -------
+	funQt(260, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQTextEdit_create1",			showError);
+	funQt(261, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQTextEdit_delete1",			showError);
+	funQt(270, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQTextEdit_setPlainText",		showError);
+	funQt(271, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQTextEdit_insertPlainText",	showError);
+	funQt(272, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQTextEdit_cutn",           	 showError);
+
+	// ------- QTimer -------
+	funQt(262, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQTimer_create",				showError);
+	funQt(263, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQTimer_delete",				showError);
+	funQt(264, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQTimer_setInterval",			showError);
+	funQt(265, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQTimer_getXX1",				showError);
+	funQt(266, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQTimer_getXX2",				showError);
+	funQt(267, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQTimer_setTimerType",			showError);
+	funQt(268, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQTimer_setSingleShot",			showError);
+	funQt(269, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQTimer_timerType",				showError);
 	
-	// Последний = 259
+	// Последний = 270
 	return 0;
 } ///  Загрузить DLL-ки Qt и QtE. Найти в них адреса функций и заполнить ими таблицу
 
@@ -3399,8 +3417,110 @@ class Highlighter : QObject {
 	} /// Конструктор
 }
 
+// ================ QTextEdit ================
+/++
+Продвинутый редактор
++/
+class QTextEdit : QAbstractScrollArea {
+	this(){}
+	~this() {
+		if(!fNoDelete) { (cast(t_v__qp) pFunQt[261])(QtObj); setQtObj(null); }
+	}
+	// this() { super(); }
+	this(char ch, void* adr) {
+		if(ch == '+') setQtObj(cast(QtObjH)adr);
+	}
+	this(QWidget parent) {
+		if (parent) {
+			this.setNoDelete(true);
+			setQtObj((cast(t_qp__qp) pFunQt[260])(parent.QtObj));
+		} else {
+			setQtObj((cast(t_qp__qp) pFunQt[260])(null));
+		}
+	} /// Конструктор
+	QTextEdit setPlainText(T: QString)(T str) {  //-> Удалить всё и вставить с начала
+		(cast(t_v__qp_qp) pFunQt[270])(QtObj, str.QtObj); return this;
+	} /// Удалить всё и вставить с начала
+	QTextEdit setPlainText(T)(T str) { //-> Удалить всё и вставить с начала
+		(cast(t_v__qp_qp) pFunQt[270])(QtObj, (new QString(to!string(str))).QtObj); return this;
+	} /// Удалить всё и вставить с начала
+	QTextEdit insertPlainText(T: QString)(T str) {  //-> Вставить текст в месте курсора
+		(cast(t_v__qp_qp) pFunQt[271])(QtObj, str.QtObj); return this;
+	} /// Вставить текст в месте курсора
+	QTextEdit insertPlainText(T)(T str) { //-> Вставить текст в месте курсора
+		(cast(t_v__qp_qp) pFunQt[271])(QtObj, (new QString(to!string(str))).QtObj); return this;
+	} /// Вставить текст в месте курсора
+	QTextEdit cut() { //-> Вырезать кусок
+		(cast(t_v__qp_i) pFunQt[272])(QtObj, 0); return this;
+	} /// cut()
+	QTextEdit clear() { //-> Очистить всё
+		(cast(t_v__qp_i) pFunQt[272])(QtObj, 1); return this;
+	} /// clear()
+	QTextEdit paste() { //-> Вставить из буфера
+		(cast(t_v__qp_i) pFunQt[272])(QtObj, 2); return this;
+	} /// paste()
+	QTextEdit copy() { //-> Скопировать в буфер
+		(cast(t_v__qp_i) pFunQt[272])(QtObj, 3); return this;
+	} /// copy()
+	QTextEdit selectAll() {
+		(cast(t_v__qp_i) pFunQt[272])(QtObj, 4); return this;
+	} /// selectAll()
+	QTextEdit selectionChanged() {
+		(cast(t_v__qp_i) pFunQt[272])(QtObj, 5); return this;
+	} /// selectionChanged()
+	QTextEdit undo() {
+		(cast(t_v__qp_i) pFunQt[272])(QtObj, 7); return this;
+	} /// undo()
+	QTextEdit redo() {
+		(cast(t_v__qp_i) pFunQt[272])(QtObj, 8); return this;
+	} /// redo()
 
+	
+}
+// ================ QTimer ================
+class QTimer : QObject {
+	enum TimerType {
+		PreciseTimer	= 0,	// Precise timers try to keep millisecond accuracy
+		CoarseTimer		= 1,	// Coarse timers try to keep accuracy within 5% of the desired interval
+		VeryCoarseTimer	= 2		// Very coarse timers only keep full second accuracy
+	}
 
+	this(){}
+	this(QObject parent) {
+		setQtObj((cast(t_qp__qp)pFunQt[262])(parent.QtObj));
+	}
+	~this() {
+		if(!fNoDelete) { (cast(t_v__qp) pFunQt[263])(QtObj); setQtObj(null); }
+	}
+	// Установить интервал срабатывания в милисекундах
+	void setInterval(int msek) { //-> интервал в милисек
+		(cast(t_v__qp_i) pFunQt[264])(QtObj, msek);
+	}
+	int interval() { //-> Вернуть интервал срабатывания
+		return (cast(t_i__qp_i) pFunQt[265])(QtObj, 0);
+	}
+	int remainingTime() { //-> Вернуть оставшиеся время. -1=не активен, 0=время закончилось
+		return (cast(t_i__qp_i) pFunQt[265])(QtObj, 1);
+	}
+	int timerId() { //-> Id если работает, -1=не работает
+		return (cast(t_i__qp_i) pFunQt[265])(QtObj, 2);
+	}
+	bool isActive() { //-> Активен?
+		return (cast(t_b__qp_i) pFunQt[266])(QtObj, 0);
+	}
+	bool isSingleShot() { //-> Разового срабатывания?
+		return (cast(t_b__qp_i) pFunQt[266])(QtObj, 1);
+	}
+	void setTimerType(QTimer.TimerType t) { //-> Задать тип таймера
+		return (cast(t_v__qp_i) pFunQt[267])(QtObj, t);
+	}
+	void setSingleShot(bool t) { //-> Задать тип срабатывания. T - один раз
+		return (cast(t_v__qp_b) pFunQt[268])(QtObj, t);
+	}
+	TimerType timerType() { //-> Получить тип таймера
+		return cast(TimerType)(cast(t_i__qp) pFunQt[269])(QtObj);
+	}
+}
 
 
 
