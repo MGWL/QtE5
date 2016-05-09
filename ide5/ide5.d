@@ -151,7 +151,10 @@ class CEditWin: QWidget { //=> Окно редактора D кода
 				~ to!string(__LINE__), QMessageBox.Icon.Critical);
 		}
 		try {
+			int ks;
 			foreach(line; fhFile.byLine()) {
+				// Проверка на BOM
+				if(ks++ == 0) if(line.length>2 && line[0]==239 && line[1]==187 && line[2]==191) line = line[3 .. $].dup;
 				string str = to!string(line);
 				teEdit.appendPlainText(str);
 				finder1.addLine(str);
