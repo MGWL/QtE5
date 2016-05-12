@@ -941,6 +941,12 @@ class QtE {
 Базовый класс.  Хранит в себе ссылку на реальный объект в Qt C++
 Base class. Stores in itself the link to real object in Qt C ++
 +/
+
+// Две этих переменных служат для поиска ошибок связанных с ошибочным
+// уничтожением объектов C++
+// int allCreate;
+// int balCreate;
+
 class QObject {
 	// Тип связи сигнал - слот
 	enum ConnectionType {
@@ -955,10 +961,19 @@ class QObject {
 	private QtObjH p_QObject; /// Адрес самого объекта из C++ Qt
 	private bool  fNoDelete;  /// Если T - не вызывать деструктор
 	private void* adrThis;    /// Адрес собственного экземпляра
+	
+	//int id;
 
-	this() {} /// спец Конструктор, что бы не делать реальный объект из Qt при наследовании
+	this() {
+		// Для подсчета ссылок создания и удаления
+		// allCreate++; balCreate++; id = allCreate;
+		// printf("+[%d]-[%d] ", id, balCreate); stdout.flush();
+
+	} /// спец Конструктор, что бы не делать реальный объект из Qt при наследовании
 	~this() {
-		// writeln("~QObject ", this);
+		// Для подсчета ссылок создания и удаления
+		// balCreate--;
+		// printf("-[%d]-[%d] ", id, balCreate); stdout.flush();
 	}
 	// Ни чего в голову не лезет ... Нужно сделать объект, записав в него пришедший
 	// с наружи указатель. Дабы отличить нужный конструктор, специально делаю
@@ -967,6 +982,7 @@ class QObject {
 	//	if(ch == '+') setQtObj(cast(QtObjH)adr);
 	//}
 	void setNoDelete(bool f) { fNoDelete = f; }
+	@property bool NoDelete() { return fNoDelete; }
 	
 	void setQtObj(QtObjH adr) { p_QObject = adr; } /// Заменить указатель в объекте на новый указатель
 
@@ -1208,7 +1224,11 @@ class QWidget: QPaintDevice {
 	// установить в T если объект подвергся вставке и значит будет удален каскадно. 
 	this(){}
 	~this() {
-		if(!fNoDelete && (QtObj != null)) { (cast(t_v__qp) pFunQt[7])(QtObj); setQtObj(null); }
+		if(!fNoDelete && (QtObj != null)) { 
+			// printf("+[%d]-[%d]-QW ", id, balCreate); stdout.flush();
+			(cast(t_v__qp) pFunQt[7])(QtObj); setQtObj(null); 
+			// printf("-[%d]-[%d]-QW ", id, balCreate); stdout.flush();
+		}
 	}
 
 	
@@ -1483,7 +1503,11 @@ class QApplication : QObject {
 		setQtObj((cast(t_qp__qp_qp_i) pFunQt[0])(cast(QtObjH)m_argc, cast(QtObjH)m_argv, gui));
 	} /// QApplication::QApplication(argc, argv, param);
 	~this() {
-		if(!fNoDelete) { (cast(t_v__qp) pFunQt[3])(QtObj); setQtObj(null); }
+		if(!fNoDelete) { 
+			// printf("+[%d]-[%d]-app ", id, balCreate); stdout.flush();
+			(cast(t_v__qp) pFunQt[3])(QtObj); setQtObj(null); 
+			// printf("-[%d]-[%d]-app ", id, balCreate); stdout.flush();
+		}
 	} ///  QApplication::~QApplication();
 	int exec() {
 		return (cast(t_i__qp) pFunQt[1])(QtObj);
@@ -1524,7 +1548,14 @@ class QString: QObject {
 	this(QtObjH adr) { setQtObj(adr);
 	} /// Изготовить QString из пришедшего из вне указателя на C++ QString
 	~this() {
-		if(!fNoDelete) { (cast(t_v__qp) pFunQt[10])(QtObj); setQtObj(null); }
+		if(!fNoDelete) { 
+			// write("-[1]-Qs = ", QtObj); stdout.flush();
+			(cast(t_v__qp) pFunQt[10])(QtObj); setQtObj(null); 
+			// writeln("  -[2]-Qs = ", QtObj); stdout.flush();
+			
+			
+			
+		}
 	}
 	int size() { return (cast(t_i__qp) pFunQt[19])(QtObj);
 	} /// Размер в UNICODE символах
@@ -2632,7 +2663,11 @@ class QFileDialog : QDialog {
 // ================ QMdiArea ================
 class QMdiArea : QAbstractScrollArea {
 	~this() {
-		if(!fNoDelete) { (cast(t_v__qp) pFunQt[152])(QtObj); setQtObj(null); }
+		if(!fNoDelete) { 
+			// printf("+[%d]-[%d]-MdiSrea ", id, balCreate); stdout.flush();
+			(cast(t_v__qp) pFunQt[152])(QtObj); setQtObj(null); 
+			// printf("-[%d]-[%d]-MdiSrea ", id, balCreate); stdout.flush();
+		}
 	}
 	this(QWidget parent) {
 		if (parent) {
@@ -2789,6 +2824,7 @@ class QTableWidget : QTableView {
 	} /// Удалено содержание, но заголовки и прочее остаётся
 	
 	QTableWidget setItem(int r, int c, QTableWidgetItem twi) {
+		twi.setNoDelete(true);
 		(cast(t_v__qp_qp_i_i) pFunQt[167])(QtObj, twi.QtObj, r, c); return this;
 	}
 	QTableWidget setHorizontalHeaderItem(int c, QTableWidgetItem twi) {
@@ -2812,7 +2848,11 @@ class QTableWidget : QTableView {
 // =========== QTableWidgetItem ========
 class QTableWidgetItem : QObject {
 	~this() {
-		if(!fNoDelete) { (cast(t_v__qp) pFunQt[165])(QtObj); setQtObj(null); }
+		if(!fNoDelete) { 
+			// printf("+[%d]-[%d]-Item ", id, balCreate); stdout.flush();
+			(cast(t_v__qp) pFunQt[165])(QtObj); setQtObj(null); 
+			// printf("-[%d]-[%d]-Item ", id, balCreate); stdout.flush();
+		}
 	}
 	this(QTableWidget tw, int row, int col) {
 		setQtObj((cast(t_qp__qp_i_i)pFunQt[169])(tw.QtObj, row, col));
@@ -3401,7 +3441,14 @@ class QSpinBox : QAbstractSpinBox {
 // ============ Highlighter =======================================
 class Highlighter : QObject {
 	~this() {
-		if(!fNoDelete) { (cast(t_v__qp) pFunQt[258])(QtObj); setQtObj(null); }
+		if(!fNoDelete) { 
+			// printf("+[%d]-[%d]-Hig ", id, balCreate); stdout.flush();
+			(cast(t_v__qp) pFunQt[258])(QtObj); setQtObj(null);
+			// printf("-[%d]-[%d]-Hig ", id, balCreate); stdout.flush();
+		}
+		
+		
+		
 	}
 	this(char ch, void* adr) {
 		if(ch == '+') setQtObj(cast(QtObjH)adr);

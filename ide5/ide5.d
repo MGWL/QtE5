@@ -3,16 +3,16 @@
 // MGW 29.04.2016 17:00:10
 //------------------------------
 
-import asc1251;			// Поддержка cp1251 в консоли
-import std.getopt;		// Раазбор аргументов коммандной строки
-import std.stdio;
-// import std.file;
-// import forth;			// Сам forth написан на 32 разрядном D (asm)
+import asc1251;				// Поддержка cp1251 в консоли
+import std.getopt;			// Раазбор аргументов коммандной строки
+import std.stdio;			// 
+import ini;					// Работа с INI файлами
+import std.string;
+import std.file;
 import qte5;
-import core.runtime;     // Обработка входных параметров
-// import std.string: strip, format, split;
+import core.runtime;		// Обработка входных параметров
 import std.conv;
-import qte5prs;
+import qte5prs;				// Парсер исходного кода
 
 const strElow  = "background: #F8FFA1";
 const strGreen = "background: #F79F81";
@@ -36,7 +36,7 @@ extern (C) {
 	void* onKeyPressEvent(CEditWin* uk, void* ev)   {return (*uk).runKeyPressEvent(ev); }
 	void  onSlider(CEditWin* uk, int n, int nom)    { (*uk).runSlider(nom);    }
 	void  onSliderTab(CEditWin* uk, int n, int nom) { (*uk).runSliderTab(nom); }
-	void  onCtrlS(CEditWin* uk, int n)              { (*uk).runCtrlS(); }
+//	void  onCtrlS(CEditWin* uk, int n)              { (*uk).runCtrlS(); }
 }
 // __________________________________________________________________
 class CEditWin: QWidget { //=> Окно редактора D кода
@@ -63,7 +63,7 @@ class CEditWin: QWidget { //=> Окно редактора D кода
 	QAction acSlider;			// Событие для слайдера
 	QSlider sliderTabl;			// Слайдер для таблицы
 	QAction acSliderTabl;		// Событие для слайдера
-	QAction acCtrlS;			// Событие для CtrlS
+	// QAction acCtrlS;			// Событие для CtrlS
 	Highlighter highlighter;	// Подсветка синтаксиса
 	QStatusBar	sbSoob;			// Строка статуса
 	// ______________________________________________________________
@@ -110,7 +110,6 @@ class CEditWin: QWidget { //=> Окно редактора D кода
 
 		vblAll.addLayout(hb2).addWidget(sbSoob);
 		setLayout(vblAll);
-		// setWindowTitle("--[ FORTH ]--");
 
 		// Обработка клавиш в редакторе
 		teEdit.setKeyReleaseEvent(&onKeyReleaseEvent, aThis);
@@ -121,6 +120,7 @@ class CEditWin: QWidget { //=> Окно редактора D кода
 		// Делаю массив для таблицы
  		for(int i; i != sizeTabHelp; i++) {
 			mTi[i] = new QTableWidgetItem(0); 
+			mTi[i].setNoDelete(true);
 			mTi[i].setText("");
 			// mTi[i].setBackground(qbr);
 			teHelp.setItem(i, 0, mTi[i]);
@@ -128,15 +128,9 @@ class CEditWin: QWidget { //=> Окно редактора D кода
 		// teHelp.setEnabled(false);
 		highlighter = new Highlighter(teEdit.document());
 
-
-		
 		finder1 = new CFinder();
-		// finder1.addFile("/home/gena/.wine/drive_c/dmd2/src/phobos/std/stdio.d");
-		// finder1.addFile("/home/gena/.wine/drive_c/dmd2/src/phobos/std/string.d");
-		finder1.addFile("qte5.d");
-		// finder1.addFile("ide5.d");
-		// finder1.addFile("asc1251.d");
-		// nameEditFile = "test.txt";
+	}
+	~this() {
 	}
 	// ______________________________________________________________
 	void openWinEdit(string nameFile) { //-> Открыть на редактирование окно с файлом
@@ -149,9 +143,14 @@ class CEditWin: QWidget { //=> Окно редактора D кода
 		} catch {
 			msgbox("Не могу открыть: " ~ nameFile, "Внимание! стр: "
 				~ to!string(__LINE__), QMessageBox.Icon.Critical);
+			return;
 		}
 		try {
 			int ks;
+			// Заполним парсер
+			foreach(nameFilePrs; parentQtE5.listFPrs()) {
+				if(exists(nameFilePrs)) finder1.addFile(nameFilePrs);
+			}
 			foreach(line; fhFile.byLine()) {
 				// Проверка на BOM
 				if(ks++ == 0) if(line.length>2 && line[0]==239 && line[1]==187 && line[2]==191) line = line[3 .. $].dup;
@@ -163,10 +162,11 @@ class CEditWin: QWidget { //=> Окно редактора D кода
 		} catch {
 			msgbox("Не могу читать: " ~ nameFile, "Внимание! стр: "
 				~ to!string(__LINE__), QMessageBox.Icon.Critical);
+			return;	
 		}
 		setWindowTitle(nameEditFile);
 	}
-	// ______________________________________________________________
+ 	// ______________________________________________________________
 	void runCtrlS() {
 		File fhFile;
 		try {
@@ -220,10 +220,6 @@ class CEditWin: QWidget { //=> Окно редактора D кода
 			teEdit.textCursor(txtCursor); // Выдернули курсор из QPlainText
 			if(qe.key == 16777264) { // F1 - Вставить верхнне слово из таблицы
 				insWordInText(0, txtCursor);
-				return null;
-			}
-			if(qe.key == 16777249) { // CtrlS
-			 	runCtrlS();
 				return null;
 			}
 			if(qe.key == 16777266) { // F3
@@ -332,6 +328,7 @@ extern (C) {
 }
 // __________________________________________________________________
 class CFormaMain: QMainWindow { //=> Основной MAIN класс приложения
+	string[10]	listFilesForParser;			// Массив с файлами для парсинга
 	const maxKolEdit = 10;
 	QMdiArea		mainWid;				// Область дочерних mdi виджетов
 	CEditWin[maxKolEdit]	winEdit;		// 10 окошек Edit
@@ -395,6 +392,20 @@ class CFormaMain: QMainWindow { //=> Основной MAIN класс прило
 		// Центральный виджет в QMainWindow
 		setCentralWidget(mainWid); 
 		setNoDelete(true); // Не вызывай delete C++ для этой формы
+		
+		// Читаем параметры из INI файла
+		readIniFile();
+	}
+	~this() {
+	}
+	// ______________________________________________________________
+	void readIniFile() { //-> Прочитать INI файл в память
+		Ini ini = new Ini(sIniFile);
+		for(int i; i != 10; i++) listFilesForParser[i] = strip(ini["ForParser"]["FileParser" ~ to!string(i)]);
+	}
+	// ______________________________________________________________
+	string[] listFPrs() { //-> Выдать список имен файлов для парсинга
+		return listFilesForParser;
 	}
 	// ______________________________________________________________
 	int actWinEdit() { //-> либо номер активногоокна, либо -1 если нет активных
@@ -413,8 +424,6 @@ class CFormaMain: QMainWindow { //=> Основной MAIN класс прило
 		int aWinEd = actWinEdit();
 		if(aWinEd > -1) {
 			winEdit[aWinEd].runCtrlS();
-			stBar.showMessage("[" ~ to!string(aWinEd) 
-				~ "] Сохранено: " ~ winEdit[aWinEd].nameEditFile);
 		} else {
 			msgbox("Не выбрано окно исходного текста для сохранения", "Внимание! стр: "
 				~ to!string(__LINE__), QMessageBox.Icon.Critical);
@@ -424,13 +433,14 @@ class CFormaMain: QMainWindow { //=> Основной MAIN класс прило
 	void OpenFile() { //-> Запросить файл для редактирования
 		// Проверим работу открытия файла
 		QFileDialog fileDlg = new QFileDialog(null);
-		string cmd = fileDlg.getOpenFileName("Open file ...", "", "*.d");
+		string cmd = fileDlg.getOpenFileName("Open file ...", "", "*.d;*.ini");
 		if(cmd != "") EditFile(cmd);
 	}
 	// ______________________________________________________________
 	void EditFile(string nameFile) { //-> Открыть файл для редактирования
 		if(winEditKol < maxKolEdit) {
 			winEdit[winEditKol] = new CEditWin(this, QtE.WindowType.Window); 
+			winEdit[winEditKol].setNoDelete(true);
 			winEdit[winEditKol].setParentQtE5(this);
 			winEdit[winEditKol].saveThis(&winEdit[winEditKol]);
 			mainWid.addSubWindow(winEdit[winEditKol]);
@@ -445,7 +455,10 @@ class CFormaMain: QMainWindow { //=> Основной MAIN класс прило
 	// Обработка About и AboutQt
 	void about(int n) {
 		if(n == 1) msgbox("MGW 2016\n\nIDE для D + QtE5 + Qt-5", "about");
-		if(n == 2) app.aboutQt();
+		if(n == 2) {
+			// app.aboutQt();
+			writeln(listFilesForParser);
+		}
 	}
 	// ______________________________________________________________
 	void showInfo(string s) { //-> Отобразить строку состояния
@@ -476,13 +489,20 @@ int main(string[] args) {
 	if (1 == LoadQt(dll.QtE5Widgets, fDebug)) return 1;  // Выйти,если ошибка загрузки библиотеки
 	// Изготавливаем само приложение
 	app = new QApplication(&Runtime.cArgs.argc, Runtime.cArgs.argv, 1);
+	// Проверяем путь до INI файла
+	if(!exists(sIniFile)) { 
+		msgbox("Нет INI файла: " ~ "<b>" ~ sIniFile ~ "</b>", "Внимание! стр: " ~ to!string(__LINE__),
+			QMessageBox.Icon.Critical); return(1); 
+	} 
 	
 	CFormaMain formaMain = new CFormaMain(); formaMain.show().saveThis(&formaMain);
 	
-	//QSpinBox sb = new QSpinBox(null); sb.show(); sb.setStyleSheet("font-size: 12pt;");
-	//sb.setPrefix("Толщина линии: ").setSuffix(" пкс."); sb.setReadOnly(true);
-	
-	return app.exec();
+	try {
+		return app.exec();
+	} catch {
+			writeln("error app.exec()"); stdout.flush();
+	}
+	return 0;
 }
 
 // Проверка изменений
