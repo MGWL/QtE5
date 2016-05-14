@@ -28,14 +28,49 @@ console5_forthd [-d, -e, -i] ...
 ");
 }
 
+
+// =================================================================
+// Область номеров строк в редакторе
+// =================================================================
+extern (C) {
+	void  onPaint(CLineNumberArea* uk, void* ev, void* qpaint)  { (*uk).runPaint(ev, qpaint); };
+}
+// __________________________________________________________________
+class CLineNumberArea : QWidget {
+  private
+	QPlainTextEdit		codeEditor;
+	// ______________________________________________________________
+	// Конструктор по умолчанию
+	this(QPlainTextEdit parent) { //-> Базовый конструктор
+		super(parent);	codeEditor = parent;
+		// Рисование области нумерации строк
+		setPaintEvent(&onPaint, aThis);
+	}
+	~this() {
+		setPaintEvent(null, aThis);
+	}
+	// ______________________________________________________________
+	// Перерисовать себя
+	void runPaint(void* ev, void* qpaint) { //-> Перерисовка области
+ 		QPainter qp = new QPainter('+', qpaint);
+		qp.setText(0, 30, "1");
+		qp.setText(0, 60, "2");
+		qp.setText(0, 90, "3");
+		qp.end();
+	}
+}
+
+
 // =================================================================
 // Форма Окно редактора 
 // =================================================================
 extern (C) {
 	void* onKeyReleaseEvent(CEditWin* uk, void* ev) {return (*uk).runKeyReleaseEvent(ev); }
 	void* onKeyPressEvent(CEditWin* uk, void* ev)   {return (*uk).runKeyPressEvent(ev); }
-	void  onSlider(CEditWin* uk, int n, int nom)    { (*uk).runSlider(nom);    }
+//	void  onSlider(CEditWin* uk, int n, int nom)    { (*uk).runSlider(nom);    }
 	void  onSliderTab(CEditWin* uk, int n, int nom) { (*uk).runSliderTab(nom); }
+	void  onUpdateLineNumberAreaWidth(CEditWin* uk, int n, int nBlok) { (*uk).updateLineNumberAreaWidth(nBlok); }
+	void  onResEventEdit(CEditWin* uk, void* ev)    { (*uk).ResEventEdit(ev); };
 //	void  onCtrlS(CEditWin* uk, int n)              { (*uk).runCtrlS(); }
 }
 // __________________________________________________________________
@@ -66,6 +101,9 @@ class CEditWin: QWidget { //=> Окно редактора D кода
 	// QAction acCtrlS;			// Событие для CtrlS
 	Highlighter highlighter;	// Подсветка синтаксиса
 	QStatusBar	sbSoob;			// Строка статуса
+	// Проверка нумерации строк и новых сигналов
+	QAction		acUpdateLineNumberAreaWidth;
+	CLineNumberArea		lineNumberArea;		// Область нумерации строк
 	// ______________________________________________________________
 	// Конструктор по умолчанию
 	this(QWidget parent, QtE.WindowType fl) { //-> Базовый конструктор
@@ -83,10 +121,10 @@ class CEditWin: QWidget { //=> Окно редактора D кода
 		connects(sliderTabl, "sliderMoved(int)", acSliderTabl, "Slot_v__A_N_i(int)");
 
 		// Делаем слайдер
-		acSlider = new QAction(null, &onSlider, aThis);
-		sliderEdit = new QSlider(this, QtE.Orientation.Vertical);
-		sliderEdit.setSliderPosition(12);
-		connects(sliderEdit, "sliderMoved(int)", acSlider, "Slot_v__A_N_i(int)");
+//		acSlider = new QAction(null, &onSlider, aThis);
+//		sliderEdit = new QSlider(this, QtE.Orientation.Vertical);
+//		sliderEdit.setSliderPosition(12);
+//		connects(sliderEdit, "sliderMoved(int)", acSlider, "Slot_v__A_N_i(int)");
 		
 		// Горизонтальный и вертикальный выравниватели
 		vblAll  = new  QVBoxLayout();		// Главный выравниватель
@@ -102,10 +140,10 @@ class CEditWin: QWidget { //=> Окно редактора D кода
 		sbSoob = new QStatusBar(this);
 		
 		hb2.addWidget(teEdit)
-			.addWidget(sliderEdit)
+//			.addWidget(sliderEdit)
 			.addWidget(teHelp)
 			.addWidget(sliderTabl);
-		sliderEdit.setMinimum(6).setMaximum(20);
+//		sliderEdit.setMinimum(6).setMaximum(20);
 		sliderTabl.setMinimum(6).setMaximum(20);
 
 		vblAll.addLayout(hb2).addWidget(sbSoob);
@@ -116,6 +154,17 @@ class CEditWin: QWidget { //=> Окно редактора D кода
 		teEdit.setKeyPressEvent(&onKeyPressEvent, aThis);
 		// Инициализируем текстовый курсор
 		txtCursor = new QTextCursor();
+
+		// Нумерация строк
+ 		lineNumberArea = new CLineNumberArea(teEdit);		// Область нумерации строк
+		lineNumberArea.saveThis(&lineNumberArea);
+		lineNumberArea.show(); lineNumberArea.setStyleSheet(strElow);
+		teEdit.setViewportMargins(20, 0, 0, 0);
+		setResizeEvent(&onResEventEdit, aThis);
+		
+		
+		acUpdateLineNumberAreaWidth = new QAction(this, &onUpdateLineNumberAreaWidth, aThis);
+		connects(teEdit, "blockCountChanged(int)", acUpdateLineNumberAreaWidth, "Slot_v__A_N_i(int)");
  		
 		// Делаю массив для таблицы
  		for(int i; i != sizeTabHelp; i++) {
@@ -130,6 +179,21 @@ class CEditWin: QWidget { //=> Окно редактора D кода
 		finder1 = new CFinder();
 	}
 	~this() {
+	}
+	// ______________________________________________________________
+	// Обработка изменения размеров редактора. Область нумерации перерисовывается
+	// при изменениии размеров редактора
+	void ResEventEdit(void* ev) {
+		QResizeEvent qe = new QResizeEvent('+', ev);
+		// Взять размер пользовательской области teEdit
+		QRect RectContens = new QRect(); teEdit.contentsRect(RectContens); RectContens.setNoDelete(true);
+		// Изменить размеры области нумерации
+		lineNumberArea.setGeometry(RectContens.x(), RectContens.y(), 20, RectContens.height());
+	}
+	// ______________________________________________________________
+	// Счетчик изменяющихся блоков
+	void updateLineNumberAreaWidth(int nBlok) {
+		// writeln("nBlok ---> ", nBlok);
 	}
 	// ______________________________________________________________
 	void openWinEdit(string nameFile) { //-> Открыть на редактирование окно с файлом
@@ -187,13 +251,14 @@ class CEditWin: QWidget { //=> Окно редактора D кода
 		string zn = to!string(nom);
 		zn = "font-size: " ~ zn ~ "pt; font-family: 'Inconsolata';";
 		teHelp.setStyleSheet(zn);
-	}
-	// ______________________________________________________________
-	void runSlider(int nom) { //-> Обработка события слайдера
-		string zn = to!string(nom);
-		zn = "font-size: " ~ zn ~ "pt; font-family: 'Inconsolata';";
 		teEdit.setStyleSheet(zn);
 	}
+	// ______________________________________________________________
+//	void runSlider(int nom) { //-> Обработка события слайдера
+//		string zn = to!string(nom);
+//		zn = "font-size: " ~ zn ~ "pt; font-family: 'Inconsolata';";
+//		teEdit.setStyleSheet(zn);
+//	}
 	// ______________________________________________________________
 	void setParentQtE5(CFormaMain p) { //-> Задать ссылку на родительскую форму
 		parentQtE5 = p;
@@ -324,6 +389,7 @@ extern (C) {
 	// Обработчик с параметром. Параметр позволяет не плодить обработчики
 	void on_about(CFormaMain* uk) 		{ (*uk).about(1); }
 	void on_aboutQt(CFormaMain* uk)		{ (*uk).about(2); }
+	void on_Exit(CFormaMain* uk)		{ (*uk).runExit(); }
 }
 // __________________________________________________________________
 class CFormaMain: QMainWindow { //=> Основной MAIN класс приложения
@@ -336,7 +402,7 @@ class CFormaMain: QMainWindow { //=> Основной MAIN класс прило
 	QMenu menu1, menu2;						// Меню
 	QMenuBar mb1;							// Строка меню сверху
 	QAction acOpen, acNewFile, acSave, acSaveAs;	// Обработчики
-	QAction acAbout, acAboutQt;
+	QAction acAbout, acAboutQt, acExit;
 	QStatusBar      stBar;					// Строка сообщений
 	// ______________________________________________________________
 	this() { //-> Базовый конструктор
@@ -344,29 +410,33 @@ class CFormaMain: QMainWindow { //=> Основной MAIN класс прило
 		mainWid = new QMdiArea(this);
 
 		// Обработчики
-		acOpen	= new QAction(null, &on_knOpen,   aThis); 
+		acExit	= new QAction(this, &on_Exit,   aThis); 
+		acExit.setText("Exit").setHotKey(QtE.Key.Key_Q | QtE.Key.Key_ControlModifier);
+		acExit.setIcon("ICONS/doc_error.ico").setToolTip("Выйти из ide5");
+		connects(acExit, "triggered()", acExit, "Slot()");
+
+		acOpen	= new QAction(this, &on_knOpen,   aThis); 
 		acOpen.setText("Open").setHotKey(QtE.Key.Key_O | QtE.Key.Key_ControlModifier);
 		connects(acOpen, "triggered()", acOpen, "Slot()");
 
-		acNewFile	= new QAction(null, &on_knOpen,   aThis); 
+		acNewFile	= new QAction(this, &on_knOpen,   aThis); 
 		acNewFile.setText("New").setHotKey(QtE.Key.Key_N | QtE.Key.Key_ControlModifier);
 		connects(acNewFile, "triggered()", acNewFile, "Slot()");
 
-		acSave	= new QAction(null, &on_knSave,   aThis); 
+		acSave	= new QAction(this, &on_knSave,   aThis); 
 		acSave.setText("Save").setHotKey(QtE.Key.Key_S | QtE.Key.Key_ControlModifier);
 		connects(acSave, "triggered()", acSave, "Slot()");
 
-		acSaveAs = new QAction(null, &on_knOpen,   aThis); 
+		// acSaveAs = new QAction(this, &on_knOpen,   aThis); 
 		// acSaveAs.setText("Save as").setHotKey(QtE.Key.Key_S | QtE.Key.Key_ControlModifier);
-		connects(acSaveAs, "triggered()", acSave, "Slot()");
+		// connects(acSaveAs, "triggered()", acSave, "Slot()");
 		
-		acAbout   = new QAction(null, &on_about,    aThis, 1); 	// 1 - парам в обработчик 
-		acAboutQt = new QAction(null, &on_aboutQt,  aThis, 2); 	// 2 - парам в обработчик 
+		acAbout   = new QAction(this, &on_about,    aThis, 1); 	// 1 - парам в обработчик 
+		acAboutQt = new QAction(this, &on_aboutQt,  aThis, 2); 	// 2 - парам в обработчик 
 		// Обработчик для About и AboutQt
 		acAbout.setText("About");
-		connects(acAbout, "triggered()", app, "quit()");
+		connects(acAbout, "triggered()", acAbout, "Slot()");
 		
-		// connects(acAbout, "triggered()", acAbout, "Slot()");
 		acAboutQt.setText("AboutQt");
 		connects(acAboutQt, "triggered()", acAboutQt, "Slot()");
 		// Строка сообщений
@@ -385,14 +455,16 @@ class CFormaMain: QMainWindow { //=> Основной MAIN класс прило
 			.addAction(		acNewFile	)
 			.addAction(		acOpen		)
 			.addAction(		acSave		)
-			.addAction(		acSaveAs	);
+			// .addAction(		acSaveAs	)
+			.addSeparator()
+			.addAction(		acExit		);
 			
 		setMenuBar(mb1);
 		setStatusBar(stBar);
 		
 		// Центральный виджет в QMainWindow
 		setCentralWidget(mainWid); 
-		// setNoDelete(true); // Не вызывай delete C++ для этой формы
+		setNoDelete(true); // Не вызывай delete C++ для этой формы
 		
 		// Читаем параметры из INI файла
 		readIniFile();
@@ -448,6 +520,7 @@ class CFormaMain: QMainWindow { //=> Основной MAIN класс прило
 			winEdit[winEditKol].tekNomer = winEditKol;
 			winEdit[winEditKol].openWinEdit(nameFile);
 			winEdit[winEditKol].showNormal(); 
+			winEdit[winEditKol].teEdit.setFocus();
 			winEditKol++;
 		}
 	}
@@ -455,15 +528,16 @@ class CFormaMain: QMainWindow { //=> Основной MAIN класс прило
 	// Обработка About и AboutQt
 	void about(int n) {
 		if(n == 1) msgbox("MGW 2016\n\nIDE для D + QtE5 + Qt-5", "about");
-		if(n == 2) {
-			// app.aboutQt();
-			// writeln(listFilesForParser);
-			app.quit();
-		}
+		if(n == 2) {	app.aboutQt();	}
 	}
 	// ______________________________________________________________
 	void showInfo(string s) { //-> Отобразить строку состояния
 		stBar.showMessage(s);
+	}
+	// ______________________________________________________________
+	void runExit() { //-> Выйти из программы
+		hide();
+		app.exit(0);
 	}
 }
 
@@ -489,24 +563,15 @@ int main(string[] args) {
 	// Загрузка графической библиотеки
 	if (1 == LoadQt(dll.QtE5Widgets, fDebug)) return 1;  // Выйти,если ошибка загрузки библиотеки
 	// Изготавливаем само приложение
-	app = new QApplication(&Runtime.cArgs.argc, Runtime.cArgs.argv, 1);	
-	// Странно ... В 64 Linux, без этой строки валится при выходе ...
-	app.setNoDelete(true);
+	app = new QApplication(&Runtime.cArgs.argc, Runtime.cArgs.argv, 1);	app.setNoDelete(true);
 
 	// Проверяем путь до INI файла
 	if(!exists(sIniFile)) { 
 		msgbox("Нет INI файла: " ~ "<b>" ~ sIniFile ~ "</b>", "Внимание! стр: " ~ to!string(__LINE__),
 			QMessageBox.Icon.Critical); return(1); 
 	} 
-	
 	CFormaMain formaMain = new CFormaMain(); formaMain.show().saveThis(&formaMain);
-	
-	try {
-		return app.exec();
-	} catch {
-			writeln("error app.exec()"); stdout.flush();
-	}
-	return 0;
+	return app.exec();
 }
 
 // Проверка изменений

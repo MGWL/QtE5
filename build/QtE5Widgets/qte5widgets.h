@@ -30,7 +30,6 @@
 #include <QDate>
 #include <QTime>
 #include <QFileDialog>
-#include <QAbstractScrollArea>
 #include <QMdiArea>
 #include <QMdiSubWindow>
 #include <QAbstractItemView>
@@ -190,6 +189,8 @@ public:
     void* aKeyReleaseEvent;
 public:
     explicit eQPlainTextEdit(QWidget* parent);
+public:
+    void gsetViewportMargins(int left, int top, int right, int bottom);
     ~eQPlainTextEdit();
 protected:
     void keyPressEvent(QKeyEvent* event);

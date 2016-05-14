@@ -288,6 +288,8 @@ int LoadQt(dll ldll, bool showError) { ///  Загрузить DLL-ки Qt и Qt
 	funQt(148,bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQWidget_winid",           showError);
 	funQt(172,bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQWidget_getPr",           showError);
 	funQt(259,bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQWidget_getBoolXX",       showError);
+	funQt(279,bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQWidget_setGeometry",     showError);
+	funQt(280,bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQWidget_contentsRect",    showError);
 	
 	// ------- QString -------
 	funQt(8,  bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQString_create1",         showError);
@@ -377,6 +379,8 @@ int LoadQt(dll ldll, bool showError) { ///  Загрузить DLL-ки Qt и Qt
 	funQt(235,bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQPlainTextEdit_cursorRect",		showError);
 	funQt(236,bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQPlainTextEdit_setTabStopWidth",showError);
 	funQt(253,bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQPlainTextEdit_setTextCursor",	showError);
+	funQt(278,bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQPlainTextEdit_setViewportMargins",	showError);
+	
 	//  ------- QLineEdit -------
 	funQt(82, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQLineEdit_create1",				showError);
 	funQt(83, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQLineEdit_delete1",				showError);
@@ -611,7 +615,7 @@ int LoadQt(dll ldll, bool showError) { ///  Загрузить DLL-ки Qt и Qt
 	funQt(268, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQTimer_setSingleShot",			showError);
 	funQt(269, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQTimer_timerType",				showError);
 	
-	// Последний = 275
+	// Последний = 279
 	return 0;
 } ///  Загрузить DLL-ки Qt и QtE. Найти в них адреса функций и заполнить ими таблицу
 
@@ -969,18 +973,18 @@ class QObject {
 	private bool  fNoDelete;  /// Если T - не вызывать деструктор
 	private void* adrThis;    /// Адрес собственного экземпляра
 	
-	// int id;
+	int id;
 
 	this() {
 		// Для подсчета ссылок создания и удаления
-		// allCreate++; balCreate++; id = allCreate;
-		// printf("+[%d]-[%d]-[%u] ", id, balCreate, this); writeln(this);  stdout.flush();
+		allCreate++; balCreate++; id = allCreate;
+		printf("+[%d]-[%d]-[%u] ", id, balCreate, this); writeln(this);  stdout.flush();
 
 	} /// спец Конструктор, что бы не делать реальный объект из Qt при наследовании
 	~this() {
 		// Для подсчета ссылок создания и удаления
-		// balCreate--;
-		// printf("-[%d]-[%d]-[%u] ", id, balCreate, this); stdout.flush();
+		balCreate--;
+		printf("-[%d]-[%d]-[%u] %d\n", id, balCreate, this, fNoDelete); stdout.flush();
 	}
 	// Ни чего в голову не лезет ... Нужно сделать объект, записав в него пришедший
 	// с наружи указатель. Дабы отличить нужный конструктор, специально делаю
@@ -1301,8 +1305,8 @@ class QWidget: QPaintDevice {
 	+  <br>. . .
 	+ </code>
 +/
-	QWidget  setResizeEvent(void* adr) { 
-		(cast(t_v__qp_vp) pFunQt[52])(QtObj, adr); 
+	QWidget  setResizeEvent(void* adr, void* adrThis = null) { 
+		(cast(t_v__qp_qp_qp) pFunQt[52])(QtObj, cast(QtObj__*)adr, cast(QtObj__*)adrThis); 
 		return this; 
 	} /// Установить обработчик на событие ResizeWidget
 	
@@ -1385,7 +1389,12 @@ class QWidget: QPaintDevice {
 	bool hasFocus() { //-> Виджет имеет фокус
 		return (cast(t_b__qp_i) pFunQt[259])(QtObj, 0); 
 	}
-	
+	QWidget setGeometry(int x, int y, int w, int h) { //-> Установить геометрию виджета
+		(cast(t_v__qp_i_i_i_i) pFunQt[279])(QtObj, x, y, w, h); return this; 
+	}
+	QRect contentsRect(QRect tk) { //-> Вернуть QRect дочерней области
+		(cast(t_v__qp_qp) pFunQt[280])(QtObj, tk.QtObj);	return tk; 
+	}
 }
 // ============ QAbstractButton =======================================
 class QAbstractButton : QWidget {
@@ -1903,6 +1912,10 @@ class QPlainTextEdit : QAbstractScrollArea {
 	override QPlainTextEdit setKeyPressEvent(void* adr, void* adrThis = null) {
 		(cast(t_v__qp_qp_qp) pFunQt[80])(QtObj, cast(QtObjH)adr, cast(QtObjH)adrThis); return this; 
 	} /// Установить обработчик на событие KeyPressEvent. Здесь <u>adr</u> - адрес на функцию D +/
+
+	QPlainTextEdit setViewportMargins(int left, int top, int right, int bottom) { //-> Установить отступы слева, вверхуЮ справа и внизу
+		(cast(t_v__qp_i_i_i_i) pFunQt[278])(QtObj, left, top, right, bottom); return this;
+	}
 	
 	QPlainTextEdit appendPlainText(T: QString)(T str) { //-> Добавить текст в конец
 		(cast(t_v__qp_qp) pFunQt[68])(QtObj, str.QtObj); return this;
