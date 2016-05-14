@@ -127,7 +127,6 @@ class CEditWin: QWidget { //=> Окно редактора D кода
 		}
 		// teHelp.setEnabled(false);
 		highlighter = new Highlighter(teEdit.document());
-
 		finder1 = new CFinder();
 	}
 	~this() {
@@ -365,7 +364,9 @@ class CFormaMain: QMainWindow { //=> Основной MAIN класс прило
 		acAboutQt = new QAction(null, &on_aboutQt,  aThis, 2); 	// 2 - парам в обработчик 
 		// Обработчик для About и AboutQt
 		acAbout.setText("About");
-		connects(acAbout, "triggered()", acAbout, "Slot()");
+		connects(acAbout, "triggered()", app, "quit()");
+		
+		// connects(acAbout, "triggered()", acAbout, "Slot()");
 		acAboutQt.setText("AboutQt");
 		connects(acAboutQt, "triggered()", acAboutQt, "Slot()");
 		// Строка сообщений
@@ -391,7 +392,7 @@ class CFormaMain: QMainWindow { //=> Основной MAIN класс прило
 		
 		// Центральный виджет в QMainWindow
 		setCentralWidget(mainWid); 
-		setNoDelete(true); // Не вызывай delete C++ для этой формы
+		// setNoDelete(true); // Не вызывай delete C++ для этой формы
 		
 		// Читаем параметры из INI файла
 		readIniFile();
@@ -430,10 +431,9 @@ class CFormaMain: QMainWindow { //=> Основной MAIN класс прило
 		}
 	}	
 	// ______________________________________________________________
-	void OpenFile() { //-> Запросить файл для редактирования
-		// Проверим работу открытия файла
-		QFileDialog fileDlg = new QFileDialog(null);
-		string cmd = fileDlg.getOpenFileName("Open file ...", "", "*.d;*.ini");
+	void OpenFile() { //-> Запросить файл для редактирования и открыть редактор
+		QFileDialog fileDlg = new QFileDialog('+', null);
+		string cmd = fileDlg.getOpenFileNameSt("Open file ...", "", "*.d *.ini");
 		if(cmd != "") EditFile(cmd);
 	}
 	// ______________________________________________________________
@@ -457,7 +457,8 @@ class CFormaMain: QMainWindow { //=> Основной MAIN класс прило
 		if(n == 1) msgbox("MGW 2016\n\nIDE для D + QtE5 + Qt-5", "about");
 		if(n == 2) {
 			// app.aboutQt();
-			writeln(listFilesForParser);
+			// writeln(listFilesForParser);
+			app.quit();
 		}
 	}
 	// ______________________________________________________________
@@ -488,7 +489,10 @@ int main(string[] args) {
 	// Загрузка графической библиотеки
 	if (1 == LoadQt(dll.QtE5Widgets, fDebug)) return 1;  // Выйти,если ошибка загрузки библиотеки
 	// Изготавливаем само приложение
-	app = new QApplication(&Runtime.cArgs.argc, Runtime.cArgs.argv, 1);
+	app = new QApplication(&Runtime.cArgs.argc, Runtime.cArgs.argv, 1);	
+	// Странно ... В 64 Linux, без этой строки валится при выходе ...
+	app.setNoDelete(true);
+
 	// Проверяем путь до INI файла
 	if(!exists(sIniFile)) { 
 		msgbox("Нет INI файла: " ~ "<b>" ~ sIniFile ~ "</b>", "Внимание! стр: " ~ to!string(__LINE__),

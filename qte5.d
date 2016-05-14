@@ -260,6 +260,11 @@ int LoadQt(dll ldll, bool showError) { ///  Загрузить DLL-ки Qt и Qt
 	funQt(4,  bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQApplication_sizeof",     showError);
 	funQt(20, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQApplication_appDirPath", showError);
 	funQt(21, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQApplication_appFilePath",showError);
+	funQt(273, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQApplication_quit",	  showError);
+
+	funQt(276, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQApplication_exit",	  showError);
+	funQt(277, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQApplication_setStyleSheet", showError);
+
 	// ------- QWidget -------
 	funQt(5,  bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQWidget_create1",         showError);
 	funQt(6,  bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQWidget_setVisible",      showError);
@@ -456,6 +461,8 @@ int LoadQt(dll ldll, bool showError) { ///  Загрузить DLL-ки Qt и Qt
 	funQt(145, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQFileDialog_setViewMode",		showError);
 	funQt(146, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQFileDialog_getOpenFileName",	showError);
 	funQt(147, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQFileDialog_getSaveFileName",	showError);
+	funQt(274, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQFileDialog_stGetOpenFileName",showError);
+	funQt(275, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQFileDialog_stGetSaveFileName",showError);
 	//  ------- QAbstractScrollArea -------
 	funQt(149, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQAbstractScrollArea_create",	showError);
 	funQt(150, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQAbstractScrollArea_delete",	showError);
@@ -604,7 +611,7 @@ int LoadQt(dll ldll, bool showError) { ///  Загрузить DLL-ки Qt и Qt
 	funQt(268, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQTimer_setSingleShot",			showError);
 	funQt(269, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQTimer_timerType",				showError);
 	
-	// Последний = 270
+	// Последний = 275
 	return 0;
 } ///  Загрузить DLL-ки Qt и QtE. Найти в них адреса функций и заполнить ими таблицу
 
@@ -944,8 +951,8 @@ Base class. Stores in itself the link to real object in Qt C ++
 
 // Две этих переменных служат для поиска ошибок связанных с ошибочным
 // уничтожением объектов C++
-// int allCreate;
-// int balCreate;
+int allCreate;
+int balCreate;
 
 class QObject {
 	// Тип связи сигнал - слот
@@ -962,18 +969,18 @@ class QObject {
 	private bool  fNoDelete;  /// Если T - не вызывать деструктор
 	private void* adrThis;    /// Адрес собственного экземпляра
 	
-	//int id;
+	// int id;
 
 	this() {
 		// Для подсчета ссылок создания и удаления
 		// allCreate++; balCreate++; id = allCreate;
-		// printf("+[%d]-[%d] ", id, balCreate); stdout.flush();
+		// printf("+[%d]-[%d]-[%u] ", id, balCreate, this); writeln(this);  stdout.flush();
 
 	} /// спец Конструктор, что бы не делать реальный объект из Qt при наследовании
 	~this() {
 		// Для подсчета ссылок создания и удаления
 		// balCreate--;
-		// printf("-[%d]-[%d] ", id, balCreate); stdout.flush();
+		// printf("-[%d]-[%d]-[%u] ", id, balCreate, this); stdout.flush();
 	}
 	// Ни чего в голову не лезет ... Нужно сделать объект, записав в него пришедший
 	// с наружи указатель. Дабы отличить нужный конструктор, специально делаю
@@ -1515,6 +1522,9 @@ class QApplication : QObject {
 	void aboutQt() {
 		(cast(t_v__qp) pFunQt[2])(QtObj);
 	} /// QApplication::aboutQt()
+	void quit() {
+		(cast(t_v__qp) pFunQt[273])(QtObj);
+	}
 	int sizeOfQtObj() {
 		return (cast(t_i__vp) pFunQt[4])(QtObj);
 	} /// Размер объекта QApplicatin. Size of QApplicatin
@@ -1531,6 +1541,16 @@ class QApplication : QObject {
 		return qs;
 	}
 	T appFilePath(T)() { return to!T((appFilePath!QString()).String);
+	}
+	void exit(int kod) {
+		(cast(t_v__qp_i) pFunQt[276])(QtObj, kod);
+	}
+	
+	void setStyleSheet(T: QString)(T str) { //-> Установить оформление
+		(cast(t_v__qp_qp) pFunQt[277])(QtObj, str.QtObj);
+	}
+	void setStyleSheet(T)(T str) { //-> Установить оформление
+		(cast(t_v__qp_qp) pFunQt[277])(QtObj, (new QString(to!string(str))).QtObj);
 	}
 }
 
@@ -1552,9 +1572,6 @@ class QString: QObject {
 			// write("-[1]-Qs = ", QtObj); stdout.flush();
 			(cast(t_v__qp) pFunQt[10])(QtObj); setQtObj(null); 
 			// writeln("  -[2]-Qs = ", QtObj); stdout.flush();
-			
-			
-			
 		}
 	}
 	int size() { return (cast(t_i__qp) pFunQt[19])(QtObj);
@@ -2064,7 +2081,9 @@ QStatusBar - строка сообщений
 +/
 class QStatusBar : QWidget {
 	~this() {
-		if(!fNoDelete && (QtObj != null)) { (cast(t_v__qp) pFunQt[92])(QtObj); setQtObj(null); }
+		if(!fNoDelete && (QtObj != null)) { 
+			(cast(t_v__qp) pFunQt[92])(QtObj); setQtObj(null); 
+		}
 	}
 	this(QWidget parent) {
 		// super(); 
@@ -2153,7 +2172,9 @@ QMenu - колонка меню. Вертикальная.
 +/
 class QMenu : QWidget {
 	~this() {
-		if(!fNoDelete && (QtObj != null)) { (cast(t_v__qp) pFunQt[100])(QtObj); setQtObj(null); }
+		if(!fNoDelete && (QtObj != null)) { 
+			(cast(t_v__qp) pFunQt[100])(QtObj); setQtObj(null); 
+		}
 	}
 	this(QWidget parent) {
 		if (parent) {
@@ -2205,7 +2226,9 @@ QMenuBar - строка меню самого верхнего уровня. Г�
 +/
 class QMenuBar : QWidget {
 	~this() {
-		if(!fNoDelete && (QtObj != null)) { (cast(t_v__qp) pFunQt[103])(QtObj); setQtObj(null); }
+		if(!fNoDelete && (QtObj != null)) { 
+			(cast(t_v__qp) pFunQt[103])(QtObj);	setQtObj(null); 
+		}
 	}
 	this(QWidget parent) {
 		if (parent) {
@@ -2571,6 +2594,9 @@ class QFileDialog : QDialog {
 	private extern (C) @nogc alias 
 	t_v__qp_qp_qp_qp_qp_qp_qp_i = 
 		void function(QtObjH, QtObjH, QtObjH, QtObjH, QtObjH, QtObjH, QtObjH, int);
+	private extern (C) @nogc alias 
+	t_v__qp_qp_qp_qp_qp_qp_i = 
+		void function(QtObjH, QtObjH, QtObjH, QtObjH, QtObjH, QtObjH, int);
 
 	this() {}
 	~this() {
@@ -2584,6 +2610,10 @@ class QFileDialog : QDialog {
 			setQtObj((cast(t_qp__qp_i) pFunQt[142])(null, fl));
 		}
 	} /// Конструктор
+	// this() { super(); }
+	this(char ch, void* adr) {
+		if(ch == '+') setQtObj(cast(QtObjH)adr);
+	}
 	QFileDialog setNameFilter(QString shabl) {
 		(cast(t_v__qp_qp_i)pFunQt[144])(QtObj, shabl.QtObj, 0); 
 		return this;
@@ -2620,6 +2650,26 @@ class QFileDialog : QDialog {
 		(cast(t_v__qp_i)pFunQt[145])(QtObj, pr); 
 		return this;
 	}
+
+	// Выбор файла для открытия
+	string getOpenFileNameSt(
+			string caption = "",				// Заголовок
+			string dir = "",					// Начальный каталог
+			string filter = "*",				// Фильтр "*.d;;*.f"
+			string selectedFilter = "",
+			Option options = Option.Null) {
+		QString qrez = new QString();
+		QString qcaption = new QString(caption);
+		QString qdir = new QString(dir);
+		QString qfilter = new QString(filter);
+		QString qselectedFilter = new QString(selectedFilter);
+		
+		(cast(t_v__qp_qp_qp_qp_qp_qp_i)pFunQt[274])
+			(QtObj, qrez.QtObj,
+			qcaption.QtObj, qdir.QtObj, qfilter.QtObj,
+			qselectedFilter.QtObj, options); 
+		return qrez.String;
+	}
 	
 	// Выбор файла для открытия
 	string getOpenFileName(
@@ -2640,6 +2690,26 @@ class QFileDialog : QDialog {
 			qselectedFilter.QtObj, options); 
 		return qrez.String;
 	}
+	// Выбор файла для сохранения. Позволяет выбрать не существующий файл
+	string getSaveFileNameSt(
+			string caption = "",				// Заголовок
+			string dir = "",					// Начальный каталог
+			string filter = "*",				// Фильтр "*.d;;*.f"
+			string selectedFilter = "",
+			Option options = Option.Null) {
+		QString qrez = new QString();
+		QString qcaption = new QString(caption);
+		QString qdir = new QString(dir);
+		QString qfilter = new QString(filter);
+		QString qselectedFilter = new QString(selectedFilter);
+		
+		(cast(t_v__qp_qp_qp_qp_qp_qp_i)pFunQt[275])
+			(QtObj, qrez.QtObj,
+			qcaption.QtObj, qdir.QtObj, qfilter.QtObj,
+			qselectedFilter.QtObj, options); 
+		return qrez.String;
+	}
+
 	// Выбор файла для сохранения. Позволяет выбрать не существующий файл
 	string getSaveFileName(
 			string caption = "",				// Заголовок

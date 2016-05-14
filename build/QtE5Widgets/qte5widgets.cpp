@@ -22,6 +22,18 @@ extern "C" int qteQApplication_exec(QtRefH app) {
 extern "C" void qteQApplication_aboutQt(QtRefH app) {
     ((QApplication*)app)->aboutQt();
 }
+extern "C" void qteQApplication_quit(QtRefH app) {
+    ((QApplication*)app)->quit();
+}
+// 276
+extern "C" void qteQApplication_exit(QtRefH app, int kod) {
+    ((QApplication*)app)->exit(kod);
+}
+// 277
+extern "C" void qteQApplication_setStyleSheet(QtRefH app, QString* str) {
+    ((QApplication*)app)->setStyleSheet(*str);
+}
+
 // =========== QLineEdit ==========
 eQLineEdit::eQLineEdit(QWidget *parent): QLineEdit(parent) {
     aKeyPressEvent = NULL; aDThis = NULL;
@@ -878,10 +890,12 @@ extern "C" void qteQTime_currentTime(QTime* d) {
 }
 // =========== QFileDialog ==========
 extern "C" QFileDialog* qteQFileDialog_create(QWidget* parent, Qt::WindowFlags f) {
-    return new QFileDialog(parent, f);
+    QFileDialog* fd = new QFileDialog(parent, f);
+    // delete(fd);
+    return fd;
 }
 extern "C" void qteQFileDialog_delete(QFileDialog* wd) {
-    delete wd;
+    delete(wd);
 }
 extern "C" void qteQFileDialog_setNameFilter(QFileDialog* wd, QString *qstr, int pr) {
     switch ( pr ) {
@@ -895,6 +909,29 @@ extern "C" void qteQFileDialog_setNameFilter(QFileDialog* wd, QString *qstr, int
 extern "C" void qteQFileDialog_setViewMode(QFileDialog* wd, QFileDialog::ViewMode f) {
     wd->setViewMode(f);
 }
+extern "C" QString* qteQFileDialog_stGetOpenFileName(
+        QWidget* parent,
+        QString* rez,
+        QString* caption,
+        QString* dir,
+        QString* filter,
+        QString* selectedFilter,
+        QFileDialog::Option f) {
+    *rez = QFileDialog::getOpenFileName(parent,*caption,*dir,*filter,selectedFilter,f);
+    return rez;
+}
+extern "C" QString* qteQFileDialog_stGetSaveFileName(
+        QWidget* parent,
+        QString* rez,
+        QString* caption,
+        QString* dir,
+        QString* filter,
+        QString* selectedFilter,
+        QFileDialog::Option f) {
+    *rez = QFileDialog::getSaveFileName(parent,*caption,*dir,*filter,selectedFilter,f);
+    return rez;
+}
+
 extern "C" QString* qteQFileDialog_getOpenFileName(
         QFileDialog* wd,
         QWidget* parent,
@@ -904,6 +941,7 @@ extern "C" QString* qteQFileDialog_getOpenFileName(
         QString* filter,
         QString* selectedFilter,
         QFileDialog::Option f) {
+    // *rez = wd->getOpenFileName(parent,*caption,*dir,*filter,selectedFilter,f);
     *rez = wd->getOpenFileName(parent,*caption,*dir,*filter,selectedFilter,f);
     return rez;
 }
