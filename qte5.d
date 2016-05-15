@@ -61,6 +61,7 @@ private extern (C) @nogc alias t_i__vp_vp_vp = int function(void*, void*, void*)
 private extern (C) @nogc alias t_i__vp_i = int function(void*, int);
 private extern (C) @nogc alias t_i__qp_i = int function(QtObjH, int);
 private extern (C) @nogc alias t_i__qp_i_i = int function(QtObjH, int, int);
+private extern (C) @nogc alias t_i__qp_qp_i = int function(QtObjH, QtObjH, int);
 private extern (C) @nogc alias t_qp__qp_qp = QtObjH function(QtObjH, QtObjH);
 private extern (C) @nogc alias t_vp__vp_c_i = void* function(void*, char, int);
 private extern (C) @nogc alias t_vp__vp_cp_i = void* function(void*, char*, int);
@@ -297,6 +298,7 @@ int LoadQt(dll ldll, bool showError) { ///  Загрузить DLL-ки Qt и Qt
 	funQt(10, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQString_delete",          showError);
 	funQt(18, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQString_data",            showError);
 	funQt(19, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQString_size",            showError);
+	funQt(281,bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQString_sizeOf",          showError);
 	// ------- QColor -------
 	funQt(13, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQColor_create1",          showError);
 	funQt(14, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQColor_delete",           showError);
@@ -380,6 +382,9 @@ int LoadQt(dll ldll, bool showError) { ///  Загрузить DLL-ки Qt и Qt
 	funQt(236,bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQPlainTextEdit_setTabStopWidth",showError);
 	funQt(253,bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQPlainTextEdit_setTextCursor",	showError);
 	funQt(278,bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQPlainTextEdit_setViewportMargins",	showError);
+	funQt(282,bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQPlainTextEdit_firstVisibleBlock",	showError);
+	funQt(284,bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQPlainTextEdit_getXYWH",		showError);
+	
 	
 	//  ------- QLineEdit -------
 	funQt(82, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQLineEdit_create1",				showError);
@@ -583,6 +588,7 @@ int LoadQt(dll ldll, bool showError) { ///  Загрузить DLL-ки Qt и Qt
 	funQt(238, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQTextBlock_create",			showError);
 	funQt(239, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQTextBlock_delete",			showError);
 	funQt(240, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQTextBlock_create2",			showError);
+	funQt(283, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQTextBlock_blockNumber",		showError);
 
 	//  ------- QSpinBox -------
 	funQt(247, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQSpinBox_create",				showError);
@@ -615,7 +621,7 @@ int LoadQt(dll ldll, bool showError) { ///  Загрузить DLL-ки Qt и Qt
 	funQt(268, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQTimer_setSingleShot",			showError);
 	funQt(269, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQTimer_timerType",				showError);
 	
-	// Последний = 279
+	// Последний = 284
 	return 0;
 } ///  Загрузить DLL-ки Qt и QtE. Найти в них адреса функций и заполнить ими таблицу
 
@@ -973,18 +979,18 @@ class QObject {
 	private bool  fNoDelete;  /// Если T - не вызывать деструктор
 	private void* adrThis;    /// Адрес собственного экземпляра
 	
-	int id;
+	// int id;
 
 	this() {
 		// Для подсчета ссылок создания и удаления
-		allCreate++; balCreate++; id = allCreate;
-		printf("+[%d]-[%d]-[%u] ", id, balCreate, this); writeln(this);  stdout.flush();
+		// allCreate++; balCreate++; id = allCreate;
+		// printf("+[%d]-[%d]-[%u] ", id, balCreate, this); writeln(this);  stdout.flush();
 
 	} /// спец Конструктор, что бы не делать реальный объект из Qt при наследовании
 	~this() {
 		// Для подсчета ссылок создания и удаления
-		balCreate--;
-		printf("-[%d]-[%d]-[%u] %d\n", id, balCreate, this, fNoDelete); stdout.flush();
+		// balCreate--;
+		// printf("-[%d]-[%d]-[%u] %d\n", id, balCreate, this, fNoDelete); stdout.flush();
 	}
 	// Ни чего в голову не лезет ... Нужно сделать объект, записав в него пришедший
 	// с наружи указатель. Дабы отличить нужный конструктор, специально делаю
@@ -1594,6 +1600,9 @@ class QString: QObject {
 	} /// Конвертировать внутреннее представление в wstring
 	@property string String() { return toUtf8();
 	} /// return string D from QString
+	int sizeOfQString() {
+		return (cast(t_i__v) pFunQt[281])();
+	}
 }
 // ================ QBoxLayout ================
 /++
@@ -1991,6 +2000,16 @@ class QPlainTextEdit : QAbstractScrollArea {
 	QPlainTextEdit setTabStopWidth(int width) { //-> Размер табуляции в пикселах
 		(cast(t_v__qp_i) pFunQt[236])(QtObj, width); return this;
 	}
+	QPlainTextEdit firstVisibleBlock(QTextBlock tb) { //-> Поучить первый блок (строку)
+		(cast(t_v__qp_qp) pFunQt[282])(QtObj, tb.QtObj); return this;
+	}
+	int topTextBlock(QTextBlock tb) { //-> Поучить верхнию коорд в viewPort
+		return (cast(t_i__qp_qp_i) pFunQt[284])(QtObj, tb.QtObj, 0);
+	}
+	int bottomTextBlock(QTextBlock tb) { //-> Поучить нижнию коорд в viewPort
+		return (cast(t_i__qp_qp_i) pFunQt[284])(QtObj, tb.QtObj, 1);
+	}
+	
 }
 // ================ QLineEdit ================
 /++
@@ -3451,6 +3470,9 @@ class QTextBlock : QObject {
 	} /// Выдать содержимое в QString
 	T text(T)() { return to!T(text!QString().String);
 	} /// Выдать всё содержимое в String
+	int blockNumber() {
+		return (cast(t_i__qp)pFunQt[283])(QtObj);
+	}
 
 }
 // ============ QAbstractSpinBox =======================================

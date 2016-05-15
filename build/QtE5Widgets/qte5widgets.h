@@ -191,6 +191,8 @@ public:
     explicit eQPlainTextEdit(QWidget* parent);
 public:
     void gsetViewportMargins(int left, int top, int right, int bottom);
+    void gfirstVisibleBlock(QTextBlock* tb);
+    int  getXYWH(QTextBlock* tb, int pr);
     ~eQPlainTextEdit();
 protected:
     void keyPressEvent(QKeyEvent* event);

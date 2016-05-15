@@ -334,6 +334,16 @@ extern "C" QtRefH qteQString_data(QtRefH qs) {
 extern "C" int qteQString_size(QtRefH qs) {
     return ((QString*)qs)->size();
 }
+extern "C" int qteQString_sizeOf(void) {
+    int a = 5;
+    printf("adr a = %d", (unsigned int)&a);
+    QString s("ABCD");
+    printf("adr s = %d", (unsigned int)&s);
+    int b = 6;
+    printf("adr b = %d", (unsigned int)&b);
+    return sizeof(s);
+}
+
 // =========== QColor ==========
 extern "C" QtRefH qteQColor_create1(void) {
     return (QtRefH)new QColor();
@@ -685,6 +695,26 @@ eQPlainTextEdit::~eQPlainTextEdit() {
 void eQPlainTextEdit::gsetViewportMargins(int left, int top, int right, int bottom) {
     setViewportMargins(left, top, right, bottom);
 }
+void eQPlainTextEdit::gfirstVisibleBlock(QTextBlock* tb) {
+    *tb = firstVisibleBlock();
+}
+int  eQPlainTextEdit::getXYWH(QTextBlock* tb, int pr) {
+    int rez = 0;
+    switch ( pr ) {
+    case 0:   // top
+        rez = (int) blockBoundingGeometry(*tb).translated(contentOffset()).top();
+        break;
+    case 1:   // bottom
+        rez = (int) blockBoundingGeometry(*tb).translated(contentOffset()).top();
+        rez = rez + (int) blockBoundingRect(*tb).height();
+        break;
+    }
+    return rez;
+}
+extern "C" int qteQPlainTextEdit_getXYWH(eQPlainTextEdit* wd, QTextBlock* tb, int pr) {
+    return wd->getXYWH(tb, pr);
+}
+
 extern "C" void qteQPlainTextEdit_setViewportMargins(eQPlainTextEdit* wd,
                     int left, int top, int right, int bottom) {
     wd->gsetViewportMargins(left, top, right, bottom);
@@ -772,6 +802,10 @@ extern "C" void qteQPlainTextEdit_cursorRect(QPlainTextEdit* wd, QRect* tk) {
 }
 extern "C" void qteQPlainTextEdit_setTabStopWidth(QPlainTextEdit* wd, int width) {
     wd->setTabStopWidth(width);
+}
+// 282
+extern "C" void qteQPlainTextEdit_firstVisibleBlock(eQPlainTextEdit* wd, QTextBlock* tb) {
+    wd->gfirstVisibleBlock(tb);
 }
 
 // ===================== QAction ====================
@@ -1669,6 +1703,11 @@ extern "C" QString* qteQTextBlock_text(QTextBlock* tb, QString* rez) {
     *rez = tb->text();
     return rez;
 }
+// 283
+extern "C" int qteQTextBlock_blockNumber(QTextBlock* tb) {
+    return tb->blockNumber();
+}
+
 // =========== QAbstractSpinBox ==========
 // 252
 extern "C" void qteQAbstractSpinBox_setReadOnly(QAbstractSpinBox* wd, bool f) {

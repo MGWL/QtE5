@@ -52,10 +52,14 @@ class CLineNumberArea : QWidget {
 	// ______________________________________________________________
 	// Перерисовать себя
 	void runPaint(void* ev, void* qpaint) { //-> Перерисовка области
+		QTextBlock tb = new QTextBlock();
+		codeEditor.firstVisibleBlock(tb);  // Забрали текстовый блок из ред.
+		string strFromBlock = tb.text!string();
+		// writeln("[", tb.blockNumber(), "] ", strFromBlock);
  		QPainter qp = new QPainter('+', qpaint);
-		qp.setText(0, 30, "1");
-		qp.setText(0, 60, "2");
-		qp.setText(0, 90, "3");
+		qp.setText(0, codeEditor.bottomTextBlock(tb), "1");
+		// qp.setText(0, 60, "2");
+		// qp.setText(0, 90, "3");
 		qp.end();
 	}
 }
@@ -404,6 +408,7 @@ class CFormaMain: QMainWindow { //=> Основной MAIN класс прило
 	QAction acOpen, acNewFile, acSave, acSaveAs;	// Обработчики
 	QAction acAbout, acAboutQt, acExit;
 	QStatusBar      stBar;					// Строка сообщений
+	QToolBar tb, tbSwWin;					// Строка кнопок
 	// ______________________________________________________________
 	this() { //-> Базовый конструктор
 		// Главный виджет, в который всё вставим
@@ -458,6 +463,19 @@ class CFormaMain: QMainWindow { //=> Основной MAIN класс прило
 			// .addAction(		acSaveAs	)
 			.addSeparator()
 			.addAction(		acExit		);
+
+		// ToolBar
+		tb = new QToolBar(this); tbSwWin = new QToolBar(this);
+		// tb.setStyleSheet(strElow);
+		tbSwWin.setStyleSheet( strElow );
+		// Настраиваем ToolBar
+		tb.setToolButtonStyle(QToolBar.ToolButtonStyle.ToolButtonTextBesideIcon);
+		tb.addAction(acOpen).addSeparator().addAction(acExit);
+		addToolBar(QToolBar.ToolBarArea.TopToolBarArea, tb); 
+
+		tbSwWin.setToolButtonStyle(QToolBar.ToolButtonStyle.ToolButtonTextBesideIcon);
+		tbSwWin.addAction(acOpen).addSeparator().addAction(acExit);
+		addToolBar(QToolBar.ToolBarArea.BottomToolBarArea, tbSwWin); 
 			
 		setMenuBar(mb1);
 		setStatusBar(stBar);
@@ -563,7 +581,7 @@ int main(string[] args) {
 	// Загрузка графической библиотеки
 	if (1 == LoadQt(dll.QtE5Widgets, fDebug)) return 1;  // Выйти,если ошибка загрузки библиотеки
 	// Изготавливаем само приложение
-	app = new QApplication(&Runtime.cArgs.argc, Runtime.cArgs.argv, 1);	app.setNoDelete(true);
+	app = new QApplication(&Runtime.cArgs.argc, Runtime.cArgs.argv, 1);	// app.setNoDelete(true);
 
 	// Проверяем путь до INI файла
 	if(!exists(sIniFile)) { 
