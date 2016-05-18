@@ -1,4 +1,8 @@
-# QtE5
+# QtE5 - is a D wrapper of the Qt-5 graphics library.
+
+This is a small study library to work with GUI Qt-5.
+It is used for dynamic linking and easy in use on Windows 32/64 and Linux 32/64.
+
 It is wrapper Qt 5 for programming language D. (http://www.dlang.org).<br><hr>
 QtE5 - uses the following libraries depending from OS<br>
     QtE5Widgets32.dll     --->  Windows 32<br>
