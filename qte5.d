@@ -361,6 +361,8 @@ int LoadQt(dll ldll, bool showError) { ///  Загрузить DLL-ки Qt и Qt
 	// ------- QKeyEvent -------
 	funQt(62, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQKeyEvent_key",           showError);
 	funQt(63, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQKeyEvent_count",         showError);
+	funQt(285,bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQKeyEvent_modifiers",     showError);
+	
 	// ------- QAbstractScrollArea -------
 	funQt(64, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQAbstractScrollArea_create1", showError);
 	funQt(65, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQAbstractScrollArea_delete1", showError);
@@ -392,7 +394,11 @@ int LoadQt(dll ldll, bool showError) { ///  Загрузить DLL-ки Qt и Qt
 	funQt(84, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQLineEdit_set",					showError);
 	funQt(85, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQLineEdit_clear",				showError);
 	funQt(86, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQLineEdit_text",				showError);
-	funQt(158,bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQLineEdit_setKeyPressEvent",  showError);
+	funQt(158,bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQLineEdit_setKeyPressEvent",	showError);
+	
+	funQt(287,bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQLineEdit_setX1",				showError);
+	funQt(288,bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQLineEdit_getX1",				showError);
+	
 	//  ------- QMainWindow -------
 	funQt(88, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQMainWindow_create1",			showError);
 	funQt(89, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQMainWindow_delete1",			showError);
@@ -577,6 +583,8 @@ int LoadQt(dll ldll, bool showError) { ///  Загрузить DLL-ки Qt и Qt
 	funQt(254, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQTextCursor_movePosition",		showError);
 	funQt(255, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQTextCursor_runXX",			showError);
 	funQt(256, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQTextCursor_insertText1",		showError);
+	funQt(286, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQTextCursor_select",			showError);
+	
 	//  ------- QRect -------
 	funQt(232, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQRect_create1",				showError);
 	funQt(233, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQRect_delete",					showError);
@@ -621,7 +629,7 @@ int LoadQt(dll ldll, bool showError) { ///  Загрузить DLL-ки Qt и Qt
 	funQt(268, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQTimer_setSingleShot",			showError);
 	funQt(269, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQTimer_timerType",				showError);
 	
-	// Последний = 284
+	// Последний = 286
 	return 0;
 } ///  Загрузить DLL-ки Qt и QtE. Найти в них адреса функций и заполнить ими таблицу
 
@@ -1875,7 +1883,10 @@ class QKeyEvent : QEvent {
 	} /// QKeyEvent::key();
 	@property uint count() {
 		return cast(uint)(cast(t_qp__qp)pFunQt[63])(QtObj);
-	} /// QKeyEvent::counte();
+	} /// QKeyEvent::count();
+	QtE.KeyboardModifier modifiers() { //-> Признак модификатора кнопки (Ctrl, Alt ...)
+		return cast(QtE.KeyboardModifier)(cast(t_i__qp)pFunQt[285])(QtObj);
+	}
 }
 // ================ QAbstractScrollArea ================
 class QAbstractScrollArea : QFrame {
@@ -2062,7 +2073,60 @@ class QLineEdit : QWidget {
 	override QLineEdit setKeyPressEvent(void* adr, void* adrThis = null) {
 		(cast(t_v__qp_qp_qp) pFunQt[158])(QtObj, cast(QtObjH)adr, cast(QtObjH)adrThis); return this; 
 	} /// Установить обработчик на событие KeyPressEvent. Здесь <u>adr</u> - адрес на функцию D +/
-	
+	QLineEdit cursorWordBackward(bool t) { //->
+		(cast(t_v__qp_b_i) pFunQt[287])(QtObj, t, 0); return this;
+	}
+	QLineEdit cursorWordForward(bool t) { //->
+		(cast(t_v__qp_b_i) pFunQt[287])(QtObj, t, 1); return this;
+	}
+	QLineEdit end(bool t) { //->
+		(cast(t_v__qp_b_i) pFunQt[287])(QtObj, t, 2); return this;
+	}
+	QLineEdit home(bool t) { //->
+		(cast(t_v__qp_b_i) pFunQt[287])(QtObj, t, 3); return this;
+	}
+	QLineEdit setClearButtonEnabled(bool t) { //->
+		(cast(t_v__qp_b_i) pFunQt[287])(QtObj, t, 4); return this;
+	}
+	QLineEdit setDragEnabled(bool t) { //->
+		(cast(t_v__qp_b_i) pFunQt[287])(QtObj, t, 5); return this;
+	}
+	QLineEdit setFrame(bool t) { //->
+		(cast(t_v__qp_b_i) pFunQt[287])(QtObj, t, 6); return this;
+	}
+	QLineEdit setModified(bool t) { //->
+		(cast(t_v__qp_b_i) pFunQt[287])(QtObj, t, 7); return this;
+	}
+	QLineEdit setReadOnly(bool t) { //->
+		(cast(t_v__qp_b_i) pFunQt[287])(QtObj, t, 8); return this;
+	}
+	bool dragEnabled() { //->
+		return (cast(t_b__qp_i) pFunQt[288])(QtObj, 0);
+	}
+	bool hasAcceptableInput() { //->
+		return (cast(t_b__qp_i) pFunQt[288])(QtObj, 1);
+	}
+	bool hasFrame() { //->
+		return (cast(t_b__qp_i) pFunQt[288])(QtObj, 2);
+	}
+	bool hasSelectedText() { //->
+		return (cast(t_b__qp_i) pFunQt[288])(QtObj, 3);
+	}
+	bool isClearButtonEnabled() { //->
+		return (cast(t_b__qp_i) pFunQt[288])(QtObj, 4);
+	}
+	bool isModified() { //->
+		return (cast(t_b__qp_i) pFunQt[288])(QtObj, 5);
+	}
+	bool isReadOnly() { //->
+		return (cast(t_b__qp_i) pFunQt[288])(QtObj, 6);
+	}
+	bool isRedoAvailable() { //->
+		return (cast(t_b__qp_i) pFunQt[288])(QtObj, 7);
+	}
+	bool isUndoAvailable() { //->
+		return (cast(t_b__qp_i) pFunQt[288])(QtObj, 8);
+	}
 }
 // ===================== QMainWindow =====================
 	/++
@@ -3333,8 +3397,13 @@ class QTextCursor : QObject {
 		NextRow		= 23,	// Move to the first new cell of the next row in the current table.
 		PreviousRow	= 24	// Move to the last cell of the previous row in the current table.	
 	}
-
-
+	enum SelectionType {
+		Document	= 3,	// Selects the entire document.
+		BlockUnderCursor	= 2,	// Selects the block of text under the cursor.
+		LineUnderCursor		= 1,	// Selects the line of text under the cursor.
+		WordUnderCursor		= 0		// Selects the word under the cursor.
+		// If the cursor is not positioned within a string of selectable characters, no text is selected.
+	}
 
 	~this() {
 		if(!fNoDelete) { (cast(t_v__qp) pFunQt[228])(QtObj); setQtObj(null); }
@@ -3409,6 +3478,9 @@ class QTextCursor : QObject {
 		(cast(t_v__qp_qp) pFunQt[256])(QtObj, (new QString(to!string(str))).QtObj);
 		return this;
 	} /// Установить текст
+	QTextCursor select(SelectionType type) { //-> Установить выделение
+		(cast(t_v__qp_i) pFunQt[286])(QtObj, type); return this;
+	}
 	
 	
 }

@@ -1,0 +1,92 @@
+;// <------ Это коментарий для файла шаблонов
+ 
+;// Номера менюшек допустимы с 0 до 9 (одна цифра)
+;// %0|ИмяМенюГориз|ToolType
+;//  +--> Номер 0..9 для менюшки
+;//
+;// %0010|ИмяПунктаМеню|ToolType
+;//  |||+--> 1-стереть экран, 0-не стирать
+;//  ||+---> 0-нет оступа, 1-есть отступ
+;//  |+----> номер вертикальной менюшки
+;//  +-----> номер горизонтальной менюшки
+
+;// Можно коментировать различные структуры
+%0|Блоки|Структурные элементы
+
+
+
+%0010|writeln|Отладочный оператор
+writeln("--X--"); stdout.flush();  // Отладка
+
+%0110|if|Обычный If
+// ...
+if(...) {
+;// Можно в тексте шаблона
+}
+
+%0210|if ... else|
+// ...
+if(...) {		// ...
+} else {		// ...
+}
+
+%0310|Action ...|
+// Обработчик --> в блок extern (C)
+void on????(CForma????* uk, int n) { (*uk).run????(n);  }
+// Актион
+ac????	= new QAction(this, &on????, aThis); 
+ac????.setText("ТекстКнопки").setHotKey(QtE.Key.Key_??? | QtE.Key.Key_ControlModifier);
+connects(acOpen, "triggered()", acOpen, "Slot()");
+// Метод
+void run????(int n) { //-> ...
+}
+
+%0410|function()|
+// ...
+void XXX( ... ) {
+}
+%0510|вставка №5|<<>>AV
+// ...
+%0610|вставка №6|
+// ...
+%0710|вставка №7|
+// ...
+%0810|вставка №8|
+// ...
+%0910|вставка №9|
+// ...
+
+%1|Вставки|Логически-связанные вставки кода
+
+%1010|Вставка №1|Обычный If
+// ...
+if(...) {
+}
+
+
+%2|Демо|Демонстрационные программы
+%2010|Демо №1 (проще некуда)|Обычный If
+import std.stdio;
+
+// Простейшая программа
+void main() {
+	writeln("Hello...");
+}
+%2110|Демо №2 (QtE5 - одиночная форма)|Одиночная форма
+import std.stdio;
+import qte5;				// Графическая библиотека QtE5
+import core.runtime;		// Обработка входных параметров
+
+const strRed   = "background: red";
+
+void main(string[] ards) {
+	bool fDebug = true; 
+	if (1 == LoadQt(dll.QtE5Widgets, fDebug)) return;
+	QApplication app = new QApplication(&Runtime.cArgs.argc, Runtime.cArgs.argv, 1);
+	// ---- код программы
+	QWidget widget = new QWidget(null);
+	widget.setWindowTitle("Привет из QtE5!");
+	widget.setStyleSheet(strRed).show();
+	// ----
+	app.exec();
+}

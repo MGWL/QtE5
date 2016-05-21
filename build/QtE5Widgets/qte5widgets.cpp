@@ -94,6 +94,37 @@ extern "C" void qteQLineEdit_clear(eQLineEdit* qw) {
 extern "C" void qteQLineEdit_text(eQLineEdit* wd, QString* qs) {
     *qs = wd->text();
 }
+// 287
+extern "C" void qteQLineEdit_setX1(eQLineEdit* wd, bool r, int pr) {
+    switch ( pr ) {
+    case 0:   wd->cursorWordBackward(r);    break;
+    case 1:   wd->cursorWordForward(r);    break;
+    case 2:   wd->end(r);   break;
+    case 3:   wd->home(r);   break;
+    case 4:   wd->setClearButtonEnabled(r);     break;
+    case 5:   wd->setDragEnabled(r);      break;
+    case 6:   wd->setFrame(r); break;
+    case 7:   wd->setModified(r); break;
+    case 8:   wd->setReadOnly(r); break;
+    }
+}
+// 288
+extern "C" bool qteQLineEdit_getX1(eQLineEdit* wd, int pr) {
+    bool rez = false;
+    switch ( pr ) {
+    case 0:   rez = wd->dragEnabled();              break;
+    case 1:   rez = wd->hasAcceptableInput();       break;
+    case 2:   rez = wd->hasFrame();                 break;
+    case 3:   rez = wd->hasSelectedText();          break;
+    case 4:   rez = wd->isClearButtonEnabled();     break;
+    case 5:   rez = wd->isModified();               break;
+    case 6:   rez = wd->isReadOnly();               break;
+    case 7:   rez = wd->isRedoAvailable();          break;
+    case 8:   rez = wd->isUndoAvailable();          break;
+    }
+    return rez;
+}
+
 // =========== QStatusBar ==========
 extern "C" QStatusBar* qteQStatusBar_create1(QWidget* parent) {
     return new QStatusBar(parent);
@@ -335,12 +366,12 @@ extern "C" int qteQString_size(QtRefH qs) {
     return ((QString*)qs)->size();
 }
 extern "C" int qteQString_sizeOf(void) {
-    int a = 5;
-    printf("adr a = %d", (unsigned int)&a);
+    // int a = 5;
+    // printf("adr a = %d", (unsigned int)&a);
     QString s("ABCD");
-    printf("adr s = %d", (unsigned int)&s);
-    int b = 6;
-    printf("adr b = %d", (unsigned int)&b);
+    // printf("adr s = %d", (unsigned int)&s);
+    // int b = 6;
+    // printf("adr b = %d", (unsigned int)&b);
     return sizeof(s);
 }
 
@@ -671,6 +702,11 @@ extern "C" int qteQKeyEvent_key(QKeyEvent* ev) {
 extern "C" int qteQKeyEvent_count(QKeyEvent* ev) {
     return ev->count();
 }
+// 285
+extern "C" Qt::KeyboardModifiers qteQKeyEvent_modifiers(QKeyEvent* ev) {
+    return ev->modifiers();
+}
+
 // ===================== QAbstractScrollArea ====================
 extern "C" QtRefH qteQAbstractScrollArea_create1(QtRefH parent) {
     return (QtRefH)new QAbstractScrollArea((QWidget*)parent);
@@ -1626,6 +1662,11 @@ extern "C" bool qteQTextCursor_movePosition(
                 int n) {
     return wd->movePosition(op, mode, n);
 }
+// 286
+extern "C" void qteQTextCursor_select(QTextCursor* wd, QTextCursor::SelectionType type) {
+    wd->select(type);
+}
+
 /*
 // Выделим Hello и покрасим в зелёный цвет
 QTextCursor cursor = edit.textCursor();
