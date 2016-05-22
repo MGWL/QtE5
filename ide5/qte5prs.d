@@ -127,7 +127,9 @@ class CFinder { //=> Поисковик. Помнит все слова в фа�
 	}
 	// ______________________________________________________________
 	void addLine(string line) { //-> Добавить строку в хранилище
-		import std.stdio;
+		// import std.stdio;
+		string clearLine = strip(line);
+		if(clearLine == "") return;
 		dchar[dchar] transTable = [
 			'(':' ',
 			')':' ',
@@ -148,7 +150,7 @@ class CFinder { //=> Поисковик. Помнит все слова в фа�
 		];
 		
 		// if( indexOf(line, "//->") > 0 ) writeln(line);
-		string zish = translate(line, transTable);
+		string zish = translate(clearLine, transTable);
 		auto ms = split(zish, ' ');
 		foreach(string el; ms) {
 			string z = cast(string)strip(el);

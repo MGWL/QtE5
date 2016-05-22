@@ -703,8 +703,8 @@ extern "C" int qteQKeyEvent_count(QKeyEvent* ev) {
     return ev->count();
 }
 // 285
-extern "C" Qt::KeyboardModifiers qteQKeyEvent_modifiers(QKeyEvent* ev) {
-    return ev->modifiers();
+extern "C" unsigned int qteQKeyEvent_modifiers(QKeyEvent* ev) {
+    return (unsigned int)ev->modifiers();
 }
 
 // ===================== QAbstractScrollArea ====================

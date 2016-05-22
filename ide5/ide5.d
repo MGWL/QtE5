@@ -2,6 +2,7 @@
 // Прототип IDE для D + QtE5
 // MGW 29.04.2016 17:00:10
 //------------------------------
+//	writeln("--1--"); stdout.flush();
 
 import asc1251;				// Поддержка cp1251 в консоли
 import std.getopt;			// Раазбор аргументов коммандной строки
@@ -119,25 +120,13 @@ class CEditWin: QWidget { //=> Окно редактора D кода
 	// Конструктор по умолчанию
 	this(QWidget parent, QtE.WindowType fl) { //-> Базовый конструктор
 		super(parent, fl);
-
-		// Делаю актион на Ctrl+S
-		// acCtrlS 	  = new QAction(null, &onCtrlS,   aThis); 
-		// acCtrlS.setText("Save").setHotKey(QtE.Key.Key_S | QtE.Key.Key_ControlModifier);
-		// acIncl.setIcon("ICONS/ArrowDownGreen.ico").setToolTip("Загрузить и выполнить файл");
-		
-		
+	
 		// Делаем слайдер для таблицы
 		acSliderTabl = new QAction(null, &onSliderTab, aThis);
 		sliderTabl = new QSlider(this, QtE.Orientation.Vertical);
 		sliderTabl.setSliderPosition(12);
 		connects(sliderTabl, "sliderMoved(int)", acSliderTabl, "Slot_v__A_N_i(int)");
 
-		// Делаем слайдер
-//		acSlider = new QAction(null, &onSlider, aThis);
-//		sliderEdit = new QSlider(this, QtE.Orientation.Vertical);
-//		sliderEdit.setSliderPosition(12);
-//		connects(sliderEdit, "sliderMoved(int)", acSlider, "Slot_v__A_N_i(int)");
-		
 		// Горизонтальный и вертикальный выравниватели
 		vblAll  = new  QVBoxLayout();		// Главный выравниватель
 		hb2  	= new  QHBoxLayout();		// Горизонтальный выравниватель
@@ -160,7 +149,6 @@ class CEditWin: QWidget { //=> Окно редактора D кода
 			.addWidget(teHelp)
 			.addWidget(teEdit)
 			.addWidget(sliderTabl);
-//		sliderEdit.setMinimum(6).setMaximum(20);
 		sliderTabl.setMinimum(6).setMaximum(20);
 
 		vblAll.addLayout(hb2).addWidget(spNumStr).addWidget(sbSoob);
@@ -250,13 +238,14 @@ class CEditWin: QWidget { //=> Окно редактора D кода
 		loadParser(); // Заполним парсер
 		try {
 			int ks;
-			// writeln("--2--");
 			foreach(line; fhFile.byLine()) {
-				// writeln("--3--");
-				// writeln("-->", toCON(line));
 				// Проверка на BOM
 				if(ks++ == 0) if(line.length>2 && line[0]==239 && line[1]==187 && line[2]==191) line = line[3 .. $].dup;
 				string str = to!string(line);
+				// Для Linux надо обрезать символы CR в файлах из Windows
+				version (linux) {
+					if( (str.length > 0) && (str[$-1] == 13)  ) str = str[0 .. $-1];
+				}
 				teEdit.appendPlainText(str);
 				finder1.addLine(str);
 			}
@@ -269,7 +258,7 @@ class CEditWin: QWidget { //=> Окно редактора D кода
 		setWindowTitle(nameEditFile);
 	}
  	// ______________________________________________________________
-	void runCtrlS() {
+	void runCtrlS() { //-> Сохранить файл на диске
 		if(nameEditFile == "") {
 			
 		}
@@ -324,15 +313,16 @@ class CEditWin: QWidget { //=> Окно редактора D кода
 	// ______________________________________________________________
 	void* runKeyReleaseEvent(void* ev) { //-> Обработка события отпускания кнопки
 		QKeyEvent qe = new QKeyEvent('+', ev); 
-		if( editSost == Sost.Normal) {
+		if(editSost == Sost.Normal) {
 			if(qe.key == 16777216) { // ESC
 				editSost = Sost.Change; 
 				teHelp.setCurrentCell(pozInTable, 0);
 		        parentQtE5.showInfo(to!string(editSost) ~ "  " ~ to!string(qe.key)); 
 				return null;
 			}
+
 			teEdit.textCursor(txtCursor); // Выдернули курсор из QPlainText
-			
+
 			// Ctrl+Spase вставка верхнего слова с таблицы
 			if( (qe.key == QtE.Key.Key_Space) & (qe.modifiers == QtE.KeyboardModifier.ControlModifier) ) { 
 				insWordFromTableByNomer(0, txtCursor); 
@@ -347,11 +337,11 @@ class CEditWin: QWidget { //=> Окно редактора D кода
 				teEdit.setTextCursor(txtCursor);
 				return null;
 			}
+
 			// Ctrl+K - удаление до конца строки
 			if( (qe.key == QtE.Key.Key_K) & (qe.modifiers == QtE.KeyboardModifier.ControlModifier) ) {
 				return null;
 			}
-			
 			
 			if(qe.key == 16777266) { // F3
 				int poz = txtCursor.positionInBlock();
@@ -427,7 +417,6 @@ class CEditWin: QWidget { //=> Окно редактора D кода
 			
 			return null;
 		}
-		//write("*"); stdout.flush();
 		return ev;	// Вернуть событие в C++ Qt для дальнейшей обработки
 	}
 	// ______________________________________________________________
@@ -486,11 +475,14 @@ extern (C) {
 	void on_Exit(CFormaMain* uk)			{ (*uk).runExit(); }
 	void on_DynAct(CFormaMain* uk, int n) { (*uk).runDynAct(n);  }
 	void onRunApp(CFormaMain* uk)       { (*uk).runRunApp(); }
+	void onRunProj(CFormaMain* uk)       { (*uk).runRunProj(); }
 }
 // __________________________________________________________________
 class CFormaMain: QMainWindow { //=> Основной MAIN класс приложения
 	string[10]	listFilesForParser;			// Массив с файлами для парсинга
 	string 		nameFileShablons;			// Имя файла шаблонов
+	string		nameMainFile;				// Имя main файла
+	string[10]	listFileModul;				// Список с файлами модулями
 	
 	const maxKolEdit = 10;
 	QMdiArea		mainWid;				// Область дочерних mdi виджетов
@@ -502,13 +494,16 @@ class CFormaMain: QMainWindow { //=> Основной MAIN класс прило
 	QMenu[] menuDyn;				// Динамическое меню
 	QMenuBar mb1;							// Строка меню сверху
 	QAction acOpen, acNewFile, acSave, acSaveAs;	// Обработчики
-	QAction acAbout, acAboutQt, acExit, acRunApp;
+	QAction acAbout, acAboutQt, acExit, acRunApp, acRunProj;
 	QStatusBar      stBar;					// Строка сообщений
 	QToolBar tb, tbSwWin;					// Строка кнопок
 	string[]	sShabl;						// Массив шаблонов. Первые 2 цифры - индекс
+	const constNameLog = "dmderror.log";
+
 	// ______________________________________________________________
 	this() { //-> Базовый конструктор
 		// Главный виджет, в который всё вставим
+		super();
 		mainWid = new QMdiArea(this);
 
 		// Обработчики
@@ -519,14 +514,17 @@ class CFormaMain: QMainWindow { //=> Основной MAIN класс прило
 
 		acOpen	= new QAction(this, &on_knOpen,   aThis); 
 		acOpen.setText("Open").setHotKey(QtE.Key.Key_O | QtE.Key.Key_ControlModifier);
+		acOpen.setIcon("ICONS/DocAdd.ico").setToolTip("Загрузить файл с диска ...");
 		connects(acOpen, "triggered()", acOpen, "Slot()");
 
 		acNewFile	= new QAction(this, &on_knNew,   aThis); 
 		acNewFile.setText("New").setHotKey(QtE.Key.Key_N | QtE.Key.Key_ControlModifier);
+		acNewFile.setIcon("ICONS/DocEdit.ico").setToolTip("Новый файл ...");
 		connects(acNewFile, "triggered()", acNewFile, "Slot()");
 
 		acSave	= new QAction(this, &on_knSave,   aThis); 
 		acSave.setText("Save").setHotKey(QtE.Key.Key_S | QtE.Key.Key_ControlModifier);
+		acSave.setIcon("ICONS/save.ico").setToolTip("Сохранить на диск ...");
 		connects(acSave, "triggered()", acSave, "Slot()");
 
 		// acSaveAs = new QAction(this, &on_knOpen,   aThis); 
@@ -538,6 +536,11 @@ class CFormaMain: QMainWindow { //=> Основной MAIN класс прило
 		acRunApp.setText("Старт").setHotKey(QtE.Key.Key_R | QtE.Key.Key_ControlModifier);
 		acRunApp.setIcon("ICONS/document_into.ico").setToolTip("Компилировать и выполнить ...");
 		connects(acRunApp, "triggered()", acRunApp, "Slot()");
+
+		acRunProj = new QAction(this, &onRunProj, aThis);
+		acRunProj.setText("СтартПоект").setHotKey(QtE.Key.Key_P | QtE.Key.Key_ControlModifier);
+		acRunProj.setIcon("ICONS/nsi.ico").setToolTip("Компилировать и выполнить проект ...");
+		connects(acRunProj, "triggered()", acRunProj, "Slot()");
 		
 		acAbout   = new QAction(this, &on_about,    aThis, 1); 	// 1 - парам в обработчик 
 		acAboutQt = new QAction(this, &on_aboutQt,  aThis, 2); 	// 2 - парам в обработчик 
@@ -586,7 +589,13 @@ class CFormaMain: QMainWindow { //=> Основной MAIN класс прило
 		tbSwWin.setStyleSheet( strElow );
 		// Настраиваем ToolBar
 		tb.setToolButtonStyle(QToolBar.ToolButtonStyle.ToolButtonTextBesideIcon);
-		tb.addAction(acOpen).addSeparator().addAction(acExit).addAction(acRunApp);
+		tb
+			.addAction(acOpen)
+			.addSeparator()
+			// .addAction(acExit)
+			.addAction(acRunApp)
+			.addAction(acRunProj);
+			
 		addToolBar(QToolBar.ToolBarArea.TopToolBarArea, tb); 
 
 		tbSwWin.setToolButtonStyle(QToolBar.ToolButtonStyle.ToolButtonTextBesideIcon);
@@ -660,19 +669,70 @@ class CFormaMain: QMainWindow { //=> Основной MAIN класс прило
 	~this() {
 	}
 	// ______________________________________________________________
+	void runRunProj() { //-> Компиляция и запуск проекта
+		string[] listModuls; // Список модулей
+		if(nameMainFile == "") {
+			msgbox("Не задано имя файла с main()", "Внимание! стр: "
+				~ to!string(__LINE__), QMessageBox.Icon.Critical);
+			return;
+		}
+		listModuls ~= "dmd"; 		// Имя компилятора
+		listModuls ~= nameMainFile; // Файл с именем main() - имя программы
+		for(int i; i != 10; i++) {
+			if(listFileModul[i] != "") {
+				listModuls ~= listFileModul[i];
+			}
+		}
+		// Готовимся к компиляции
+		string nameLog = constNameLog;
+		auto logFile = File(nameLog, "w");
+			auto pid = spawnProcess(listModuls,
+				std.stdio.stdin,
+				std.stdio.stdout,
+				logFile
+			);
+		if (wait(pid) != 0) {
+			string sLog = cast(string)read(nameLog);
+			msgbox(sLog, "Ошибки компиляции ...");
+		} else {
+			string nameRunFile;
+			version (Windows) {
+				nameRunFile = nameMainFile[0..$-2];
+			}
+			version (linux) {
+				nameRunFile = "./" ~ nameMainFile[0..$-2];
+			}
+			writeln(toCON("---- Выполняю: " ~ nameRunFile), " ------------------------");			
+			msgbox(nameRunFile ~ " -- запускаю программу", "Внимание!");
+			try {
+				auto pid2 = spawnProcess([nameRunFile]);
+			} catch {
+				msgbox(nameRunFile ~ " -- Ошибка выполнения ...", "Внимание! стр: "
+					~ to!string(__LINE__), QMessageBox.Icon.Critical);
+				return;
+			}
+		}
+	}
+	// ______________________________________________________________
 	void runRunApp() { //-> Компиляция и запуск
 		// Определим активное окно редактора
+		writeln(actWinEdit());
 		int aWinEd = actWinEdit();
+		if(aWinEd == -1) {
+			msgbox("Нет активного окна для выполнения кода!", "Внимание! стр: "
+				~ to!string(__LINE__), QMessageBox.Icon.Critical);
+			return;
+		}
 		string nameFile = winEdit[aWinEd].getNameEditFile();
-		string nameLog = "dmderror.log";
+		string nameLog = constNameLog;
 		if(nameFile == "") {
-			msgbox("Не задано имя файла для сохранения", "Внимание! стр: "
+			msgbox("Не задано имя файла, не могу компилировать", "Внимание! стр: "
 				~ to!string(__LINE__), QMessageBox.Icon.Critical);
 			return;
 		}
 		if(aWinEd > -1) {
 			auto logFile = File(nameLog, "w");
-				auto pid = spawnProcess(["dmd", nameFile, "asc1251", "qte5", "functors"],
+				auto pid = spawnProcess(["dmd", nameFile, "asc1251", "qte5"],
 					std.stdio.stdin,
 					std.stdio.stdout,
 					logFile
@@ -714,6 +774,8 @@ class CFormaMain: QMainWindow { //=> Основной MAIN класс прило
 		Ini ini = new Ini(sIniFile);
 		for(int i; i != 10; i++) listFilesForParser[i] = strip(ini["ForParser"]["FileParser" ~ to!string(i)]);
 		nameFileShablons = ini["Main"]["FileShablons"];
+		nameMainFile = ini["Project"]["FileMain"];
+		for(int i; i != 10; i++) listFileModul[i] = strip(ini["Project"]["FileMod" ~ to!string(i)]);
 	}
 	// ______________________________________________________________
 	string[] listFPrs() { //-> Выдать список имен файлов для парсинга
@@ -723,9 +785,12 @@ class CFormaMain: QMainWindow { //=> Основной MAIN класс прило
 	int actWinEdit() { //-> либо номер активногоокна, либо -1 если нет активных
 		int rez = -1;
 		foreach(ed; winEdit) {
+			if(ed is null) continue;
 			try {
 				if(ed.teEdit.hasFocus()) { rez = ed.tekNomer; break; }
-			} catch {}
+			} catch {
+				return -1;
+			}
 		}
 		return rez;
 	}
@@ -773,7 +838,7 @@ class CFormaMain: QMainWindow { //=> Основной MAIN класс прило
 			if(nameFile != "") {
 				winEdit[winEditKol].openWinEdit(nameFile);
 			} else {
-				winEdit[winEditKol].loadParser();
+				winEdit[winEditKol].loadParser(); // Заполним парсер
 			}
 			winEdit[winEditKol].showNormal(); 
 			winEdit[winEditKol].teEdit.setFocus();
@@ -783,7 +848,10 @@ class CFormaMain: QMainWindow { //=> Основной MAIN класс прило
 	// ______________________________________________________________
 	// Обработка About и AboutQt
 	void about(int n) {
-		if(n == 1) msgbox("MGW 2016\n\nIDE для D + QtE5 + Qt-5", "about");
+		if(n == 1) { 
+			
+			msgbox("MGW 2016\n\nIDE для D + QtE5 + Qt-5", "about"); 
+		}
 		if(n == 2) {	app.aboutQt();	}
 	}
 	// ______________________________________________________________

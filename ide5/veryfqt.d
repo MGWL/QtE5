@@ -29,18 +29,25 @@ int main(string[] args) {
 				"qt5-qtbase-devel", "libQtE5Widgets64.so from https://github.com/MGWL/QtE5/tree/master/linux64"];
 		}
 	}
+	version (Windows) {
+		version (X86) {		// ... 32 bit code ...
+			namesDll = ["Qt5Core.dll", "Qt5Gui.dll", "Qt5Widgets.dll", "QtE5Widgets32.dll"];
+			namesRpm = ["Qt5Core.dll", "Qt5Gui.dll", 
+				"Qt5Widgets.dll", "QtE5Widgets32.dll"];
+		}
+	}
 	foreach(i, nameLibrary; namesDll) {
 		try {
 			auto h = Runtime.loadLibrary(nameLibrary);
 			if(h is null) {
 				rez = 1;
 				writeln("Error load: ", nameLibrary);
-				writeln("install ", namesRpm[i], " and set variable enveroment LD_LIBRARY_PATH"); 
+				writeln("copy ", namesRpm[i], " from https://github.com/MGWL/QtE5/blob/master/windows32"); 
 				break;
 			}
 		} catch {
 			rez = 1;
-			writeln("Error verification: ", nameLibrary, " - problem in librarys D");
+			writeln("Error verification: ", nameLibrary, " - problems in libraries D");
 			break;
 		}
 	}

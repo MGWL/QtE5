@@ -629,7 +629,7 @@ int LoadQt(dll ldll, bool showError) { ///  Загрузить DLL-ки Qt и Qt
 	funQt(268, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQTimer_setSingleShot",			showError);
 	funQt(269, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQTimer_timerType",				showError);
 	
-	// Последний = 286
+	// Последний = 288
 	return 0;
 } ///  Загрузить DLL-ки Qt и QtE. Найти в них адреса функций и заполнить ими таблицу
 
@@ -1884,8 +1884,8 @@ class QKeyEvent : QEvent {
 	@property uint count() {
 		return cast(uint)(cast(t_qp__qp)pFunQt[63])(QtObj);
 	} /// QKeyEvent::count();
-	QtE.KeyboardModifier modifiers() { //-> Признак модификатора кнопки (Ctrl, Alt ...)
-		return cast(QtE.KeyboardModifier)(cast(t_i__qp)pFunQt[285])(QtObj);
+	@property QtE.KeyboardModifier modifiers() { //-> Признак модификатора кнопки (Ctrl, Alt ...)
+		return cast(QtE.KeyboardModifier)(cast(t_qp__qp)pFunQt[285])(QtObj);
 	}
 }
 // ================ QAbstractScrollArea ================
