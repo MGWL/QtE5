@@ -312,11 +312,11 @@ int LoadQt(dll ldll, bool showError) { ///  Загрузить DLL-ки Qt и Qt
 	funQt(210,bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQPushButton_setXX",       showError);
 
 	// ------- QSlot -------
-	funQt(24, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQSlot_create",            showError);
-	funQt(25, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "QSlot_setSlotN",             showError);
-	funQt(26, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQSlot_delete",            showError);
+//	funQt(24, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQSlot_create",            showError);
+//	funQt(25, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "QSlot_setSlotN",             showError);
+//	funQt(26, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQSlot_delete",            showError);
 	funQt(27, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteConnect",                 showError);
-	funQt(81, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "QSlot_setSlotN2",            showError);
+//	funQt(81, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "QSlot_setSlotN2",            showError);
 	// ------- QAbstractButton -------
 	funQt(28, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQAbstractButton_setText", showError);
 	funQt(29, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQAbstractButton_text",    showError);
@@ -341,6 +341,8 @@ int LoadQt(dll ldll, bool showError) { ///  Загрузить DLL-ки Qt и Qt
 	funQt(43, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQFrame_setFrameShape",    showError);
 	funQt(44, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQFrame_setFrameShadow",   showError);
 	funQt(45, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQFrame_setLineWidth",     showError);
+	funQt(290,bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteFrame_listChildren",      showError);
+
 	// ------- QLabel --------
 	funQt(46, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQLabel_create1",          showError);
 	funQt(47, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQLabel_delete1",          showError);
@@ -386,6 +388,7 @@ int LoadQt(dll ldll, bool showError) { ///  Загрузить DLL-ки Qt и Qt
 	funQt(278,bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQPlainTextEdit_setViewportMargins",	showError);
 	funQt(282,bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQPlainTextEdit_firstVisibleBlock",	showError);
 	funQt(284,bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQPlainTextEdit_getXYWH",		showError);
+	funQt(294,bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQPlainTextEdit_setWordWrapMode",showError);
 	
 	
 	//  ------- QLineEdit -------
@@ -411,6 +414,7 @@ int LoadQt(dll ldll, bool showError) { ///  Загрузить DLL-ки Qt и Qt
 	//  ------- QAction -------
 	funQt(95, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQAction_create",				showError);
 	funQt(96, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQAction_delete",				showError);
+	funQt(289,bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQAction_getParent",				showError);
 	funQt(97, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQAction_setXX1",				showError);
 	funQt(98, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQAction_setSlotN2",				showError);
 	funQt(105, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets,"qteQAction_setHotKey",				showError);
@@ -628,8 +632,13 @@ int LoadQt(dll ldll, bool showError) { ///  Загрузить DLL-ки Qt и Qt
 	funQt(267, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQTimer_setTimerType",			showError);
 	funQt(268, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQTimer_setSingleShot",			showError);
 	funQt(269, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQTimer_timerType",				showError);
+
+	// ------- QTextOption -------
+	funQt(291, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "QTextOption_create",				showError);
+	funQt(292, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "QTextOption_delete",				showError);
+	funQt(293, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "QTextOption_setWrapMode",			showError);
 	
-	// Последний = 288
+	// Последний = 294
 	return 0;
 } ///  Загрузить DLL-ки Qt и QtE. Найти в них адреса функций и заполнить ими таблицу
 
@@ -992,13 +1001,13 @@ class QObject {
 	this() {
 		// Для подсчета ссылок создания и удаления
 		// allCreate++; balCreate++; id = allCreate;
-		// printf("+[%d]-[%d]-[%u] ", id, balCreate, this); writeln(this);  stdout.flush();
+		// printf("+[%d]-[%d]-[%u]->[%p] ", id, balCreate, this, QtObj); writeln(this);  stdout.flush();
 
 	} /// спец Конструктор, что бы не делать реальный объект из Qt при наследовании
 	~this() {
 		// Для подсчета ссылок создания и удаления
 		// balCreate--;
-		// printf("-[%d]-[%d]-[%u] %d\n", id, balCreate, this, fNoDelete); stdout.flush();
+		// printf("-[%d]-[%d]-[%u] %d ->[%p] \n", id, balCreate, this, fNoDelete, QtObj); stdout.flush();
 	}
 	// Ни чего в голову не лезет ... Нужно сделать объект, записав в него пришедший
 	// с наружи указатель. Дабы отличить нужный конструктор, специально делаю
@@ -1006,7 +1015,11 @@ class QObject {
 	// this(char ch, void* adr) {
 	//	if(ch == '+') setQtObj(cast(QtObjH)adr);
 	//}
-	void setNoDelete(bool f) { fNoDelete = f; }
+	void setNoDelete(bool f) { 
+		// printf("--1--%d\n", fNoDelete); stdout.flush();
+		fNoDelete = f; 
+		// printf("--2--%d\n", fNoDelete); stdout.flush();
+	}
 	@property bool NoDelete() { return fNoDelete; }
 	
 	void setQtObj(QtObjH adr) { p_QObject = adr; } /// Заменить указатель в объекте на новый указатель
@@ -1055,6 +1068,7 @@ Example:
 connect(xxx, "send(n)", QSlot, "Slot_Int(int)"); for integet argument signal
 connect(xxx, "send(b)", QSlot, "Slot_Bool(bool)"); for bool argument signal
 +/
+/*
 class QSlot : QObject {
 	this() { setQtObj((cast(t_qp__qp)pFunQt[24])(null));
 	}
@@ -1085,13 +1099,11 @@ class QSlot : QObject {
 	
 	
 	
-/* 	
 	void emitSignal0() {
 		(cast(t_eSlot_setSignal0) pFunQt[25])(p_QObject);
 	} /// Послать сигнал "Signal0()"без аргументов
- */
 }
-
+*/
 // ================ QPalette ================
 /++
 QPalette - Палитры цветов
@@ -1259,7 +1271,7 @@ class QWidget: QPaintDevice {
 	
 	this(QWidget parent = null, QtE.WindowType fl = QtE.WindowType.Widget) {
 		if (parent) {
-			this.setNoDelete(true);	// Не удалять текущий экземпляр, при условии, что он вставлен в другой
+			setNoDelete(true);
 			setQtObj((cast(t_qp__qp_i)pFunQt[5])(parent.QtObj, cast(int)fl));
 		} else {
 			setQtObj((cast(t_qp__qp_i)pFunQt[5])(null, cast(int)fl));
@@ -1301,7 +1313,6 @@ class QWidget: QPaintDevice {
 		(cast(t_v__qp_bool) pFunQt[32])(QtObj, fl); return this; 
 	} /// Доступен или нет
 	QWidget setLayout(QBoxLayout layout) {
-		layout.setNoDelete(true);	// Не удалять текущий экземпляр, при условии, что он вставлен в другой
 		(cast(t_v__qp_qp) pFunQt[40])(QtObj, layout.QtObj); return this; 
 	} /// Вставить в виджет выравниватель
 /++ Установить обработчик на событие ResizeWidget. Здесь <u>adr</u> - адрес на функцию D
@@ -1486,7 +1497,7 @@ class QPushButton : QAbstractButton {
 		// super(); // Это фактически заглушка, что бы сделать наследование,
 		// не создавая промежуточного экземпляра в Qt
 		if (parent) {
-			this.setNoDelete(true);	// Не удалять текущий экземпляр, при условии, что он вставлен в другой
+			setNoDelete(true);
 			setQtObj((cast(t_qp__qp_qp) pFunQt[22])(parent.QtObj, str.QtObj));
 		} else {
 			setQtObj((cast(t_qp__qp_qp) pFunQt[22])(null, str.QtObj));
@@ -1500,6 +1511,7 @@ class QPushButton : QAbstractButton {
 		// super(); // Это фактически заглушка, что бы сделать наследование,
 		// не создавая промежуточного экземпляра в Qt
 		if (parent) {
+			setNoDelete(true);
 			setQtObj((cast(t_qp__qp_qp) pFunQt[22])(parent.QtObj, (new QString(to!string(str))).QtObj));
 		} else {
 			setQtObj((cast(t_qp__qp_qp) pFunQt[22])(null, (new QString(to!string(str))).QtObj));
@@ -1516,7 +1528,27 @@ class QPushButton : QAbstractButton {
 	} /// 
 	
 }
-
+// ================ QEndApplication ================
+// Идея: D уничтожает объеты в порядке FIFO, а Qt в порядке LIFO и к тому же
+// Qt имеетт каскадное удаление объектов типа QWidget. 
+// В связи с этим, все каскадные объекты (дети) получают признак setNoDelete(true); в QtE5.
+// Сам QApplication удаляется первым (первым создан), но его нужно удалить последним
+// Для этого создаётся класс QEndApplication, задача которого вызвать деструктор
+// Qt-шного QApplication воследним в программе.
+// QEndApplication должен быть определен непосредственно перед выходом из процедуры main()
+// для того, что бы гарантировать что будет создан последним и соответственно удален 
+// последним при завершениии программы
+class QEndApplication : QObject {
+	this(char ch, void* adr) {
+		if(ch == '+') setQtObj(cast(QtObjH)adr);
+	}
+	~this() {
+		// printf("DELETE app fro QEndApplication ... %d \n"); stdout.flush();
+		// delete app;
+		(cast(t_v__qp) pFunQt[3])(QtObj); setQtObj(null);
+		
+	}
+}
 // ================ QApplication ================
 /++
 Класс приложения. <b>Внимание:</b>
@@ -1534,9 +1566,7 @@ class QApplication : QObject {
 	} /// QApplication::QApplication(argc, argv, param);
 	~this() {
 		if(!fNoDelete) { 
-			// printf("+[%d]-[%d]-app ", id, balCreate); stdout.flush();
-			(cast(t_v__qp) pFunQt[3])(QtObj); setQtObj(null); 
-			// printf("-[%d]-[%d]-app ", id, balCreate); stdout.flush();
+			// (cast(t_v__qp) pFunQt[3])(QtObj); setQtObj(null); 
 		}
 	} ///  QApplication::~QApplication();
 	int exec() {
@@ -1628,22 +1658,20 @@ class QBoxLayout : QObject {
 	this(QWidget parent, QBoxLayout.Direction dir = QBoxLayout.Direction.TopToBottom) {
 		// super();
 		if (parent) {
-			this.setNoDelete(true);	// Не удалять текущий экземпляр, при условии, что он вставлен в другой
+			setNoDelete(true);
 			setQtObj((cast(t_qp__qp_i) pFunQt[34])(parent.QtObj, dir));
 		} else {
 			setQtObj((cast(t_qp__qp_i) pFunQt[34])(null, dir));
 		}
 	} /// Создаёт выравниватель, типа dir и вставляет в parent
 	~this() {
-		if(!fNoDelete) { (cast(t_v__qp) pFunQt[37])(QtObj); setQtObj(null); }
+		if(!fNoDelete && (QtObj != null)) { (cast(t_v__qp) pFunQt[37])(QtObj); setQtObj(null); }
 	}
 	QBoxLayout addWidget(QWidget wd, int stretch = 0, QtE.AlignmentFlag alignment = QtE.AlignmentFlag.AlignExpanding) {
-		wd.setNoDelete(true);	// Не удалять текущий экземпляр, при условии, что он вставлен в другой
 		(cast(t_v__qp_qp_i_i) pFunQt[38])(QtObj, wd.QtObj, cast(int)stretch, cast(int)alignment);
 		return this;
 	} /// Добавить виджет в выравниватель
 	QBoxLayout addLayout(QBoxLayout layout) {
-		layout.setNoDelete(true);	// Не удалять текущий экземпляр, при условии, что он вставлен в другой
 		(cast(t_v__qp_qp) pFunQt[39])(QtObj, layout.QtObj);
 		return this;
 	} /// Добавить выравниватель в выравниватель
@@ -1694,11 +1722,13 @@ class QFrame : QWidget {
 	}
 	this() {	}
 	~this() {
-		if(!fNoDelete) { (cast(t_v__qp) pFunQt[42])(QtObj); setQtObj(null); }
+		// printf("in ~QFrame -1- \n"); stdout.flush();
+		if(!fNoDelete && (QtObj != null)) { (cast(t_v__qp) pFunQt[42])(QtObj); setQtObj(null); }
+		// printf("in ~QFrame -2- \n"); stdout.flush();
 	}
 	this(QWidget parent, QtE.WindowType fl = QtE.WindowType.Widget) {
-		if (parent) {
-			this.setNoDelete(true);	// Не удалять текущий экземпляр, при условии, что он вставлен в другой
+		if (parent !is null) {
+			setNoDelete(true);
 			setQtObj((cast(t_qp__qp_i) pFunQt[41])(parent.QtObj, fl));
 		} else {
 			setQtObj((cast(t_qp__qp_i) pFunQt[41])(null, fl));
@@ -1716,11 +1746,15 @@ class QFrame : QWidget {
 		if (sh > 3) sh = 3; (cast(t_v__qp_i) pFunQt[45])(QtObj, sh);
 		return this;
 	} /// Установить толщину окантовки в пикселах от 0 до 3
+	QFrame listChildren() {
+		(cast(t_v__qp) pFunQt[290])(QtObj);
+		return this;
+	}
 }
 // ============ QLabel =======================================
 class QLabel : QFrame {
 	~this() {
-		if(!fNoDelete) { (cast(t_v__qp) pFunQt[47])(QtObj); setQtObj(null); }
+		if(!fNoDelete && (QtObj != null)) { (cast(t_v__qp) pFunQt[47])(QtObj); setQtObj(null); }
 	}
 	this(char ch, void* adr) {
 		if(ch == '+') setQtObj(cast(QtObjH)adr);
@@ -1728,7 +1762,7 @@ class QLabel : QFrame {
 	this(QWidget parent, QtE.WindowType fl = QtE.WindowType.Widget) {
 		super();
 		if (parent) {
-			this.setNoDelete(true);	// Не удалять текущий экземпляр, при условии, что он вставлен в другой
+			setNoDelete(true);
 			setQtObj((cast(t_qp__qp_i) pFunQt[46])(parent.QtObj, fl));
 		} else {
 			setQtObj((cast(t_qp__qp_i) pFunQt[46])(null, fl));
@@ -1752,7 +1786,7 @@ class QSize : QObject {
 		if(ch == '+') setQtObj(cast(QtObjH)adr);
 	} /// При создании своего объекта сохраняет в себе объект событие QEvent пришедшее из Qt
 	~this() {
-		if(!fNoDelete) { (cast(t_v__qp) pFunQt[57])(QtObj); setQtObj(null); }
+		if(!fNoDelete && (QtObj != null)) { (cast(t_v__qp) pFunQt[57])(QtObj); setQtObj(null); }
 	}
 	@property int width() {
 		return (cast(t_i__qp) pFunQt[58])(QtObj);
@@ -1892,14 +1926,14 @@ class QKeyEvent : QEvent {
 class QAbstractScrollArea : QFrame {
 	this() {}
 	~this() {
-		if(!fNoDelete) { (cast(t_v__qp) pFunQt[65])(QtObj); setQtObj(null); }
+		if(!fNoDelete && (QtObj != null)) { (cast(t_v__qp) pFunQt[65])(QtObj); setQtObj(null); }
 	}
 	this(char ch, void* adr) {
 		if(ch == '+') setQtObj(cast(QtObjH)adr);
 	}
 	this(QWidget parent) {
 		if (parent) {
-			this.setNoDelete(true);	// Не удалять текущий экземпляр, при условии, что он вставлен в другой
+			setNoDelete(true);
 			setQtObj((cast(t_qp__qp) pFunQt[64])(parent.QtObj));
 		} else {
 			setQtObj((cast(t_qp__qp) pFunQt[64])(null));
@@ -1914,7 +1948,7 @@ class QAbstractScrollArea : QFrame {
 class QPlainTextEdit : QAbstractScrollArea {
 	this(){}
 	~this() {
-		if(!fNoDelete) { (cast(t_v__qp) pFunQt[67])(QtObj); setQtObj(null); }
+		if(!fNoDelete && (QtObj != null)) { (cast(t_v__qp) pFunQt[67])(QtObj); setQtObj(null); }
 	}
 	// this() { super(); }
 	this(char ch, void* adr) {
@@ -1922,7 +1956,7 @@ class QPlainTextEdit : QAbstractScrollArea {
 	}
 	this(QWidget parent) {
 		if (parent) {
-			this.setNoDelete(true);	// Не удалять текущий экземпляр, при условии, что он вставлен в другой
+			setNoDelete(true);
 			setQtObj((cast(t_qp__qp) pFunQt[66])(parent.QtObj));
 		} else {
 			setQtObj((cast(t_qp__qp) pFunQt[66])(null));
@@ -2020,6 +2054,9 @@ class QPlainTextEdit : QAbstractScrollArea {
 	int bottomTextBlock(QTextBlock tb) { //-> Поучить нижнию коорд в viewPort
 		return (cast(t_i__qp_qp_i) pFunQt[284])(QtObj, tb.QtObj, 1);
 	}
+	QPlainTextEdit setWordWrapMode(QTextOption option) { //-> Установить режим переноса текста
+		(cast(t_v__qp_qp) pFunQt[294])(QtObj, option.QtObj); return this;
+	}
 	
 }
 // ================ QLineEdit ================
@@ -2040,18 +2077,15 @@ class QLineEdit : QWidget {
 		if(ch == '+') setQtObj(cast(QtObjH)adr);
 	}
 	this(QWidget parent) {
-		writeln("");
-		// super(); // Это фактически заглушка, что бы сделать наследование,
-		// не создавая промежуточного экземпляра в Qt
 		if(parent) {
-			this.setNoDelete(true);	// Не удалять текущий экземпляр, при условии, что он вставлен в другой
+			setNoDelete(true);
 			p_QObject = (cast(t_qp__qp) pFunQt[82])(parent.QtObj);
 		} else {
 			p_QObject = (cast(t_qp__qp) pFunQt[82])(null);
 		}
 	} /// Создать LineEdit.
 	~this() {
-		if(!fNoDelete) { (cast(t_v__qp) pFunQt[83])(QtObj); setQtObj(null); }
+		if(!fNoDelete && (QtObj != null)) { (cast(t_v__qp) pFunQt[83])(QtObj); setQtObj(null); }
 	}
 	QLineEdit setText(T: QString)(T str) {
 		(cast(t_v__qp_qp) pFunQt[84])(QtObj, str.QtObj);
@@ -2139,7 +2173,7 @@ class QMainWindow : QWidget {
 	}
 	this(QWidget parent = null, QtE.WindowType fl = QtE.WindowType.Widget) {
 		if (parent) {
-			this.setNoDelete(true);	// Не удалять текущий экземпляр, при условии, что он вставлен в другой
+			setNoDelete(true);
 			setQtObj((cast(t_qp__qp_i)pFunQt[88])(parent.QtObj, cast(int)fl));
 		} else {
 			setQtObj((cast(t_qp__qp_i)pFunQt[88])(null, cast(int)fl));
@@ -2184,7 +2218,7 @@ class QStatusBar : QWidget {
 	this(QWidget parent) {
 		// super(); 
 		if (parent) {
-			this.setNoDelete(true);	// Не удалять текущий экземпляр, при условии, что он вставлен в другой
+			setNoDelete(true);
 			setQtObj((cast(t_qp__qp)pFunQt[91])(parent.QtObj));
 		} else {
 			setQtObj((cast(t_qp__qp)pFunQt[91])(null));
@@ -2219,7 +2253,7 @@ class QAction : QObject {
 	// всегда передают Адрес и N (см выше) и дальше сами параметры
 	this(QWidget parent, void* adr, void* adrThis, int n = 0) {
 		if (parent) {
-			this.setNoDelete(true);	// Не удалять текущий экземпляр, при условии, что он вставлен в другой
+			setNoDelete(true);
 			setQtObj((cast(t_qp__qp)pFunQt[95])(parent.QtObj));
 		} else {
 			setQtObj((cast(t_qp__qp)pFunQt[95])(null));
@@ -2228,6 +2262,9 @@ class QAction : QObject {
 	} /// Установить слот с параметром
 
 // ----------------------------------------------------
+	void* parent() {
+		return (cast(t_vp__qp) pFunQt[289])(QtObj);
+	}
 	QAction setText(T: QString)(T str) {
 		(cast(t_v__qp_qp_i) pFunQt[97])(QtObj, str.QtObj, 0);
 		return this;
@@ -2274,7 +2311,7 @@ class QMenu : QWidget {
 	}
 	this(QWidget parent) {
 		if (parent) {
-			this.setNoDelete(true);
+			setNoDelete(true);
 			setQtObj((cast(t_qp__qp)pFunQt[99])(parent.QtObj));
 		} else {
 			setQtObj((cast(t_qp__qp)pFunQt[99])(null));
@@ -2328,7 +2365,7 @@ class QMenuBar : QWidget {
 	}
 	this(QWidget parent) {
 		if (parent) {
-			this.setNoDelete(true);
+			setNoDelete(true);
 			setQtObj((cast(t_qp__qp)pFunQt[102])(parent.QtObj));
 		} else {
 			setQtObj((cast(t_qp__qp)pFunQt[102])(null));
@@ -2342,7 +2379,7 @@ class QMenuBar : QWidget {
 // ================ QFont ================
 class QFont : QObject {
 	~this() {
-		if(!fNoDelete) { (cast(t_v__qp) pFunQt[128])(QtObj); setQtObj(null); }
+		if(!fNoDelete && (QtObj != null)) { (cast(t_v__qp) pFunQt[128])(QtObj); setQtObj(null); }
 	}
 	this() {
 		setQtObj((cast(t_qp__v)pFunQt[127])());
@@ -2364,7 +2401,7 @@ class QFont : QObject {
 // ================ QIcon ================
 class QIcon : QObject {
 	~this() {
-		if(!fNoDelete) { (cast(t_v__qp) pFunQt[111])(QtObj); setQtObj(null); }
+		if(!fNoDelete && (QtObj != null)) { (cast(t_v__qp) pFunQt[111])(QtObj); setQtObj(null); }
 	}
 	this() {
 		setQtObj((cast(t_qp__v)pFunQt[110])());
@@ -2408,7 +2445,7 @@ class QToolBar : QWidget {
 	}
 	this(QWidget parent) {
 		if (parent) {
-			this.setNoDelete(true);
+			setNoDelete(true);
 			setQtObj((cast(t_qp__qp)pFunQt[114])(parent.QtObj));
 		} else {
 			setQtObj((cast(t_qp__qp)pFunQt[114])(null));
@@ -2444,11 +2481,11 @@ class QToolBar : QWidget {
 class QDialog : QWidget {
 	this() {}
 	~this() {
-		if(!fNoDelete) { (cast(t_v__qp) pFunQt[118])(QtObj); setQtObj(null); }
+		if(!fNoDelete && (QtObj != null)) { (cast(t_v__qp) pFunQt[118])(QtObj); setQtObj(null); }
 	}
 	this(QWidget parent, QtE.WindowType fl = QtE.WindowType.Widget) {
 		if (parent) {
-			this.setNoDelete(true);	// Не удалять текущий экземпляр, при условии, что он вставлен в другой
+			setNoDelete(true);
 			setQtObj((cast(t_qp__qp_i) pFunQt[117])(parent.QtObj, fl));
 		} else {
 			setQtObj((cast(t_qp__qp_i) pFunQt[117])(null, fl));
@@ -2525,11 +2562,11 @@ class QMessageBox : QDialog {
 
 	this() {}
 	~this() {
-		if(!fNoDelete) { (cast(t_v__qp) pFunQt[121])(QtObj); setQtObj(null); }
+		if(!fNoDelete && (QtObj != null)) { (cast(t_v__qp) pFunQt[121])(QtObj); setQtObj(null); }
 	}
 	this(QWidget parent) {
 		if (parent) {
-			this.setNoDelete(true);	// Не удалять текущий экземпляр, при условии, что он вставлен в другой
+			setNoDelete(true);
 			setQtObj((cast(t_qp__qp) pFunQt[120])(parent.QtObj));
 		} else {
 			setQtObj((cast(t_qp__qp) pFunQt[120])(null));
@@ -2584,11 +2621,11 @@ QProgressBar - это ....
 class QProgressBar : QWidget {
 	this() {}
 	~this() {
-		if(!fNoDelete) { (cast(t_v__qp) pFunQt[134])(QtObj); setQtObj(null); }
+		if(!fNoDelete && (QtObj != null)) { (cast(t_v__qp) pFunQt[134])(QtObj); setQtObj(null); }
 	}
 	this(QWidget parent) {
 		if (parent) {
-			this.setNoDelete(true);	// Не удалять текущий экземпляр, при условии, что он вставлен в другой
+			setNoDelete(true);
 			setQtObj((cast(t_qp__qp) pFunQt[133])(parent.QtObj));
 		} else {
 			setQtObj((cast(t_qp__qp) pFunQt[133])(null));
@@ -2620,7 +2657,7 @@ yyyy	the year as four digit number. If the year is negative, a minus sign is pre
 */
 class QDate : QObject {
 	~this() {
-		if(!fNoDelete) { (cast(t_v__qp) pFunQt[137])(QtObj); setQtObj(null); }
+		if(!fNoDelete && (QtObj != null)) { (cast(t_v__qp) pFunQt[137])(QtObj); setQtObj(null); }
 	}
 	this() {
 		setQtObj((cast(t_qp__v)pFunQt[136])());
@@ -2654,7 +2691,7 @@ t		the timezone (for example "CEST")
 */
 class QTime : QObject {
 	~this() {
-		if(!fNoDelete) { (cast(t_v__qp) pFunQt[139])(QtObj); setQtObj(null); }
+		if(!fNoDelete && (QtObj != null)) { (cast(t_v__qp) pFunQt[139])(QtObj); setQtObj(null); }
 	}
 	this() {
 		setQtObj((cast(t_qp__v)pFunQt[138])());
@@ -2696,11 +2733,11 @@ class QFileDialog : QDialog {
 
 	this() {}
 	~this() {
-		if(!fNoDelete) { (cast(t_v__qp) pFunQt[143])(QtObj); setQtObj(null); }
+		if(!fNoDelete && (QtObj != null)) { (cast(t_v__qp) pFunQt[143])(QtObj); setQtObj(null); }
 	}
 	this(QWidget parent, QtE.WindowType fl = QtE.WindowType.Widget) {
 		if (parent) {
-			this.setNoDelete(true);
+			setNoDelete(true);
 			setQtObj((cast(t_qp__qp_i) pFunQt[142])(parent.QtObj, fl));
 		} else {
 			setQtObj((cast(t_qp__qp_i) pFunQt[142])(null, fl));
@@ -2829,15 +2866,11 @@ class QFileDialog : QDialog {
 // ================ QMdiArea ================
 class QMdiArea : QAbstractScrollArea {
 	~this() {
-		if(!fNoDelete) { 
-			// printf("+[%d]-[%d]-MdiSrea ", id, balCreate); stdout.flush();
-			(cast(t_v__qp) pFunQt[152])(QtObj); setQtObj(null); 
-			// printf("-[%d]-[%d]-MdiSrea ", id, balCreate); stdout.flush();
-		}
+		if(!fNoDelete && (QtObj != null)) { (cast(t_v__qp) pFunQt[152])(QtObj); setQtObj(null); }
 	}
 	this(QWidget parent) {
 		if (parent) {
-			this.setNoDelete(true);
+			setNoDelete(true);
 			setQtObj((cast(t_qp__qp) pFunQt[151])(parent.QtObj));
 		} else {
 			setQtObj((cast(t_qp__qp) pFunQt[151])(null));
@@ -2850,11 +2883,11 @@ class QMdiArea : QAbstractScrollArea {
 // ================ QMdiSubWindow ================
 class QMdiSubWindow : QWidget {
 	~this() {
-		if(!fNoDelete) { (cast(t_v__qp) pFunQt[154])(QtObj); setQtObj(null); }
+		if(!fNoDelete && (QtObj != null)) { (cast(t_v__qp) pFunQt[154])(QtObj); setQtObj(null); }
 	}
 	this(QWidget parent, QtE.WindowType fl = QtE.WindowType.Widget) {
 		if (parent) {
-			this.setNoDelete(true);
+			setNoDelete(true);
 			setQtObj((cast(t_qp__qp_i) pFunQt[153])(parent.QtObj, fl));
 		} else {
 			setQtObj((cast(t_qp__qp_i) pFunQt[153])(null, fl));
@@ -2873,7 +2906,6 @@ class QAbstractItemView : QAbstractScrollArea {
 	}
 	this(QWidget parent) {
 /* 		if (parent) {
-			this.setNoDelete(true);	// Не удалять текущий экземпляр, при условии, что он вставлен в другой
 			setQtObj((cast(t_qp__qp) pFunQt[66])(parent.QtObj));
 		} else {
 			setQtObj((cast(t_qp__qp) pFunQt[66])(null));
@@ -2897,7 +2929,6 @@ class QHeaderView : QAbstractItemView {
 		if(ch == '+') setQtObj(cast(QtObjH)adr);
 	}
 /* 	this(QWidget parent) {
-		this.setNoDelete(true);
 		setQtObj((cast(t_qp__qp) pFunQt[159])(parent ? parent.QtObj : null));
  	} /// Конструктор
  */
@@ -2906,14 +2937,14 @@ class QHeaderView : QAbstractItemView {
 class QTableView : QAbstractItemView {
 	this(){}
 	~this() {
-		if(!fNoDelete) { (cast(t_v__qp) pFunQt[160])(QtObj); setQtObj(null); }
+		if(!fNoDelete && (QtObj != null)) { (cast(t_v__qp) pFunQt[160])(QtObj); setQtObj(null); }
 	}
 	// this() { super(); }
 	this(char ch, void* adr) {
 		if(ch == '+') setQtObj(cast(QtObjH)adr);
 	}
 	this(QWidget parent) {
-		this.setNoDelete(true);
+		if(parent !is null) setNoDelete(true);
 		setQtObj((cast(t_qp__qp) pFunQt[159])(parent ? parent.QtObj : null));
  	} /// Конструктор
 	QTableView setColumnWidth(int column, int width) {
@@ -2960,14 +2991,14 @@ class QTableView : QAbstractItemView {
 class QTableWidget : QTableView {
 	this(){}
 	~this() {
-		if(!fNoDelete) { (cast(t_v__qp) pFunQt[162])(QtObj); setQtObj(null); }
+		if(!fNoDelete && (QtObj != null)) { (cast(t_v__qp) pFunQt[162])(QtObj); setQtObj(null); }
 	}
 	// this() { super(); }
 	this(char ch, void* adr) {
 		if(ch == '+') setQtObj(cast(QtObjH)adr);
 	}
 	this(QWidget parent) {
-		this.setNoDelete(true);
+		if(parent !is null) setNoDelete(true);
 		setQtObj((cast(t_qp__qp) pFunQt[161])(parent ? parent.QtObj : null));
  	} /// Конструктор
 	QTableWidget setRowCount(int row) {
@@ -2990,7 +3021,6 @@ class QTableWidget : QTableView {
 	} /// Удалено содержание, но заголовки и прочее остаётся
 	
 	QTableWidget setItem(int r, int c, QTableWidgetItem twi) {
-		twi.setNoDelete(true);
 		(cast(t_v__qp_qp_i_i) pFunQt[167])(QtObj, twi.QtObj, r, c); return this;
 	}
 	QTableWidget setHorizontalHeaderItem(int c, QTableWidgetItem twi) {
@@ -3014,11 +3044,7 @@ class QTableWidget : QTableView {
 // =========== QTableWidgetItem ========
 class QTableWidgetItem : QObject {
 	~this() {
-		if(!fNoDelete) { 
-			// printf("+[%d]-[%d]-Item ", id, balCreate); stdout.flush();
-			(cast(t_v__qp) pFunQt[165])(QtObj); setQtObj(null); 
-			// printf("-[%d]-[%d]-Item ", id, balCreate); stdout.flush();
-		}
+		if(!fNoDelete && (QtObj != null)) { (cast(t_v__qp) pFunQt[165])(QtObj); setQtObj(null); }
 	}
 	this(QTableWidget tw, int row, int col) {
 		setQtObj((cast(t_qp__qp_i_i)pFunQt[169])(tw.QtObj, row, col));
@@ -3099,11 +3125,11 @@ QComboBox (Выподающий список), но немного модифи�
 class QComboBox : QWidget {
 	this() {}
 	~this() {
-		if(!fNoDelete) { (cast(t_v__qp) pFunQt[184])(QtObj); setQtObj(null); }
+		if(!fNoDelete && (QtObj != null)) { (cast(t_v__qp) pFunQt[184])(QtObj); setQtObj(null); }
 	}
 	this(QWidget parent) {
 		if (parent) {
-			this.setNoDelete(true);	// Не удалять текущий экземпляр, при условии, что он вставлен в другой
+			setNoDelete(true);
 			setQtObj((cast(t_qp__qp) pFunQt[183])(parent.QtObj));
 		} else {
 			setQtObj((cast(t_qp__qp) pFunQt[183])(null));
@@ -3183,7 +3209,7 @@ class QLCDNumber : QFrame {
 		Flat				// Плоский
 	}
 	~this() {
-		if(!fNoDelete) { (cast(t_v__qp) pFunQt[199])(QtObj); setQtObj(null); }
+		if(!fNoDelete && (QtObj != null)) { (cast(t_v__qp) pFunQt[199])(QtObj); setQtObj(null); }
 	}
 	this(char ch, void* adr) {
 		if(ch == '+') setQtObj(cast(QtObjH)adr);
@@ -3191,7 +3217,7 @@ class QLCDNumber : QFrame {
 	this(QWidget parent) {
 		super();
 		if (parent) {
-			this.setNoDelete(true);	// Не удалять текущий экземпляр, при условии, что он вставлен в другой
+			setNoDelete(true);
 			setQtObj((cast(t_qp__qp) pFunQt[198])(parent.QtObj));
 		} else {
 			setQtObj((cast(t_qp__qp) pFunQt[198])(null));
@@ -3200,7 +3226,7 @@ class QLCDNumber : QFrame {
 	this(QWidget parent, int kolNumber) {
 		super();
 		if (parent) {
-			this.setNoDelete(true);	// Не удалять текущий экземпляр, при условии, что он вставлен в другой
+			setNoDelete(true);
 			setQtObj((cast(t_qp__qp_i) pFunQt[200])(parent.QtObj, kolNumber));
 		} else {
 			setQtObj((cast(t_qp__qp_i) pFunQt[200])(null, kolNumber));
@@ -3252,7 +3278,7 @@ class QAbstractSlider : QWidget {
 // ============ QSlider =======================================
 class QSlider : QAbstractSlider {
 	~this() {
-		if(!fNoDelete) { (cast(t_v__qp) pFunQt[207])(QtObj); setQtObj(null); }
+		if(!fNoDelete && (QtObj != null)) { (cast(t_v__qp) pFunQt[207])(QtObj); setQtObj(null); }
 	}
 	this(char ch, void* adr) {
 		if(ch == '+') setQtObj(cast(QtObjH)adr);
@@ -3260,7 +3286,7 @@ class QSlider : QAbstractSlider {
 	this(QWidget parent, QtE.Orientation n = QtE.Orientation.Horizontal) {
 		super();
 		if (parent) {
-			this.setNoDelete(true);	// Не удалять текущий экземпляр, при условии, что он вставлен в другой
+			setNoDelete(true);
 			setQtObj((cast(t_qp__qp_i) pFunQt[206])(parent.QtObj, cast(int)n));
 		} else {
 			setQtObj((cast(t_qp__qp_i) pFunQt[206])(null, cast(int)n));
@@ -3277,7 +3303,7 @@ class QGroupBox : QWidget {
 	} /// Конструктор
 	this(QWidget parent) {
 		if (parent) {
-			this.setNoDelete(true);
+			setNoDelete(true);
 			setQtObj((cast(t_qp__qp)pFunQt[212])(parent.QtObj));
 		} else {
 			setQtObj((cast(t_qp__qp)pFunQt[212])(null));
@@ -3304,7 +3330,7 @@ class QCheckBox : QAbstractButton { //=> Кнопки CheckBox независи�
 		// super(); // Это фактически заглушка, что бы сделать наследование,
 		// не создавая промежуточного экземпляра в Qt
 		if (parent) {
-			this.setNoDelete(true);	// Не удалять текущий экземпляр, при условии, что он вставлен в другой
+			setNoDelete(true);
 			setQtObj((cast(t_qp__qp_qp) pFunQt[216])(parent.QtObj, str.QtObj));
 		} else {
 			setQtObj((cast(t_qp__qp_qp) pFunQt[216])(null, str.QtObj));
@@ -3318,6 +3344,7 @@ class QCheckBox : QAbstractButton { //=> Кнопки CheckBox независи�
 		// super(); // Это фактически заглушка, что бы сделать наследование,
 		// не создавая промежуточного экземпляра в Qt
 		if (parent) {
+			setNoDelete(true);
 			setQtObj((cast(t_qp__qp_qp) pFunQt[216])(parent.QtObj, (new QString(to!string(str))).QtObj));
 		} else {
 			setQtObj((cast(t_qp__qp_qp) pFunQt[216])(null, (new QString(to!string(str))).QtObj));
@@ -3343,7 +3370,7 @@ class QRadioButton : QAbstractButton { //=> Кнопки РадиоБатоны 
 		// super(); // Это фактически заглушка, что бы сделать наследование,
 		// не создавая промежуточного экземпляра в Qt
 		if (parent) {
-			this.setNoDelete(true);	// Не удалять текущий экземпляр, при условии, что он вставлен в другой
+			setNoDelete(true);
 			setQtObj((cast(t_qp__qp_qp) pFunQt[222])(parent.QtObj, str.QtObj));
 		} else {
 			setQtObj((cast(t_qp__qp_qp) pFunQt[222])(null, str.QtObj));
@@ -3357,6 +3384,7 @@ class QRadioButton : QAbstractButton { //=> Кнопки РадиоБатоны 
 		// super(); // Это фактически заглушка, что бы сделать наследование,
 		// не создавая промежуточного экземпляра в Qt
 		if (parent) {
+			setNoDelete(true);
 			setQtObj((cast(t_qp__qp_qp) pFunQt[222])(parent.QtObj, (new QString(to!string(str))).QtObj));
 		} else {
 			setQtObj((cast(t_qp__qp_qp) pFunQt[222])(null, (new QString(to!string(str))).QtObj));
@@ -3406,7 +3434,7 @@ class QTextCursor : QObject {
 	}
 
 	~this() {
-		if(!fNoDelete) { (cast(t_v__qp) pFunQt[228])(QtObj); setQtObj(null); }
+		if(!fNoDelete && (QtObj != null)) { (cast(t_v__qp) pFunQt[228])(QtObj); setQtObj(null); }
 	}
 	this(char ch, void* adr) {
 		if(ch == '+') setQtObj(cast(QtObjH)adr);
@@ -3487,7 +3515,7 @@ class QTextCursor : QObject {
 // ================ QRect ================
 class QRect : QObject {
 	~this() {
-		if(!fNoDelete) { (cast(t_v__qp) pFunQt[233])(QtObj); setQtObj(null); }
+		if(!fNoDelete && (QtObj != null)) { (cast(t_v__qp) pFunQt[233])(QtObj); setQtObj(null); }
 	}
 	this(char ch, void* adr) {
 		if(ch == '+') setQtObj(cast(QtObjH)adr);
@@ -3535,7 +3563,7 @@ class QTextBlock : QObject {
 		setQtObj((cast(t_qp__qp)pFunQt[240])(tk.QtObj));
 	}
 	~this() {
-		if(!fNoDelete) { (cast(t_v__qp) pFunQt[239])(QtObj); setQtObj(null); }
+		if(!fNoDelete && (QtObj != null)) { (cast(t_v__qp) pFunQt[239])(QtObj); setQtObj(null); }
 	}
 	T text(T: QString)() { //-> Содержимое блока в QString
 		QString qs = new QString(); (cast(t_v__qp_qp)pFunQt[237])(QtObj, qs.QtObj); return qs;
@@ -3561,7 +3589,7 @@ class QAbstractSpinBox : QWidget {
 // ============ QSpinBox =======================================
 class QSpinBox : QAbstractSpinBox {
 	~this() {
-		if(!fNoDelete) { (cast(t_v__qp) pFunQt[248])(QtObj); setQtObj(null); }
+		if(!fNoDelete && (QtObj != null)) { (cast(t_v__qp) pFunQt[248])(QtObj); setQtObj(null); }
 	}
 	this(char ch, void* adr) {
 		if(ch == '+') setQtObj(cast(QtObjH)adr);
@@ -3569,7 +3597,7 @@ class QSpinBox : QAbstractSpinBox {
 	this(QWidget parent) {
 		super();
 		if (parent) {
-			this.setNoDelete(true);
+			setNoDelete(true);
 			setQtObj((cast(t_qp__qp) pFunQt[247])(parent.QtObj));
 		} else {
 			setQtObj((cast(t_qp__qp) pFunQt[247])(null));
@@ -3618,14 +3646,7 @@ class QSpinBox : QAbstractSpinBox {
 // ============ Highlighter =======================================
 class Highlighter : QObject {
 	~this() {
-		if(!fNoDelete) { 
-			// printf("+[%d]-[%d]-Hig ", id, balCreate); stdout.flush();
-			(cast(t_v__qp) pFunQt[258])(QtObj); setQtObj(null);
-			// printf("-[%d]-[%d]-Hig ", id, balCreate); stdout.flush();
-		}
-		
-		
-		
+		if(!fNoDelete && (QtObj != null)) { (cast(t_v__qp) pFunQt[258])(QtObj); setQtObj(null); }
 	}
 	this(char ch, void* adr) {
 		if(ch == '+') setQtObj(cast(QtObjH)adr);
@@ -3633,7 +3654,6 @@ class Highlighter : QObject {
 	this(void* parent) {
 		super();
 		if (parent) {
-			this.setNoDelete(true);
 			setQtObj((cast(t_qp__vp) pFunQt[257])(parent));
 		} else {
 			setQtObj((cast(t_qp__vp) pFunQt[257])(null));
@@ -3648,7 +3668,7 @@ class Highlighter : QObject {
 class QTextEdit : QAbstractScrollArea {
 	this(){}
 	~this() {
-		if(!fNoDelete) { (cast(t_v__qp) pFunQt[261])(QtObj); setQtObj(null); }
+		if(!fNoDelete && (QtObj != null)) { (cast(t_v__qp) pFunQt[261])(QtObj); setQtObj(null); }
 	}
 	// this() { super(); }
 	this(char ch, void* adr) {
@@ -3656,7 +3676,7 @@ class QTextEdit : QAbstractScrollArea {
 	}
 	this(QWidget parent) {
 		if (parent) {
-			this.setNoDelete(true);
+			setNoDelete(true);
 			setQtObj((cast(t_qp__qp) pFunQt[260])(parent.QtObj));
 		} else {
 			setQtObj((cast(t_qp__qp) pFunQt[260])(null));
@@ -3714,7 +3734,7 @@ class QTimer : QObject {
 		setQtObj((cast(t_qp__qp)pFunQt[262])(parent.QtObj));
 	}
 	~this() {
-		if(!fNoDelete) { (cast(t_v__qp) pFunQt[263])(QtObj); setQtObj(null); }
+		if(!fNoDelete && (QtObj != null)) { (cast(t_v__qp) pFunQt[263])(QtObj); setQtObj(null); }
 	}
 	// Установить интервал срабатывания в милисекундах
 	void setInterval(int msek) { //-> интервал в милисек
@@ -3745,7 +3765,29 @@ class QTimer : QObject {
 		return cast(TimerType)(cast(t_i__qp) pFunQt[269])(QtObj);
 	}
 }
+// ================ QTextOption ================
+class QTextOption : QObject {
+	enum	WrapMode { 
+		NoWrap, 
+		WordWrap, 
+		ManualWrap, 
+		WrapAnywhere, 
+		WrapAtWordBoundaryOrAnywhere 
+	}
 
+	this() {
+		setQtObj((cast(t_qp__v)pFunQt[291])());
+	}
+	~this() {
+		if(!fNoDelete && (QtObj != null)) { (cast(t_v__qp) pFunQt[292])(QtObj); setQtObj(null); }
+	}
+	QTextOption setWrapMode(QTextOption.WrapMode wrap) { //-> Перенос текста в редакторах
+		(cast(t_v__qp_qp) pFunQt[293])(QtObj, cast(QtObjH)wrap);
+		return this;
+	}
+	
+	
+}
 
 
 

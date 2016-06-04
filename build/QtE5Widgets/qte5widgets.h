@@ -79,25 +79,6 @@ extern "C" typedef void* (*ExecZIM_vp__vp_vp)(void*, void*);
 extern "C" typedef void* (*ExecZIM_vp__vp)(void*);
 
 //___________________________________________________
-class QSlot : public QObject {
-    Q_OBJECT
-
-public:
-    void* aSlotN;       // Хранит адрес D функции для вызова с параметром
-    void* aDThis;       // Хранит адрес экземпляра объекта D
-    int        N;       // параметр для aSlotN. Идея запомнить параметр при установке слота и выдать
-                        // при срабатывании слота. А ля - диспечерезация
-public:
-    explicit QSlot(QObject* parent = 0);
-    ~QSlot();
-private slots:
-    void Slot();
-    void SlotN();
-    void Slot_Bool(bool);
-    void Slot_Int(int);
-//    void Slot_v__A_N_i(int);
-};
-//___________________________________________________
 class eAction : public QAction {
     Q_OBJECT
 
@@ -118,6 +99,7 @@ private slots:
     void Slot_v__A_N_i(int);
     void Slot_v__A_N_b(bool);
     void Slot_v__A_N_v();
+    void Slot_v__A_N_QObject(QObject*);
 };
 
 //___________________________________________________

@@ -1,17 +1,20 @@
 #include "qte5widgets.h"
 // #define debDelete 1
+#define debDestr 1
 
 // =========== QApplication ==========
 extern "C" QtRefH qteQApplication_create1(int* argc, char *argv[], int AnParam3) {
     return (QtRefH)new QApplication(*argc, argv, AnParam3);
 }
-extern "C" void qteQApplication_delete1(QtRefH app) {
+extern "C" void qteQApplication_delete1(QApplication* app) {
 #ifdef debDelete
-    printf("del QApplication --> ");
+    printf("del QApplication --> \n");
 #endif
+#ifdef debDestr
     delete (QApplication*)app;
+#endif
 #ifdef debDelete
-    printf("Ok\n");
+    printf("------------> Ok\n");
 #endif
 }
 extern "C" int qteQApplication_sizeof(QtRefH app) {
@@ -73,7 +76,10 @@ extern "C" eQLineEdit* qteQLineEdit_create1(QWidget* parent) {
 }
 extern "C" void qteQLineEdit_delete1(eQLineEdit* wd) {
 #ifdef debDelete
-    printf("del eQLineEdit --> n");
+    printf("del eQLineEdit --> n\n");
+#endif
+#ifdef debDestr
+    if(wd->parent() == NULL) delete wd;
 #endif
     delete wd;
 #ifdef debDelete
@@ -131,9 +137,11 @@ extern "C" QStatusBar* qteQStatusBar_create1(QWidget* parent) {
 }
 extern "C" void qteQStatusBar_delete1(QStatusBar* wd) {
 #ifdef debDelete
-    printf("del QStatusBar --> ");
+    printf("del QStatusBar --> \n");
 #endif
-    delete wd;
+#ifdef debDestr
+    if(wd->parent() == NULL) delete wd;
+#endif
 #ifdef debDelete
     printf("Ok\n");
 #endif
@@ -152,9 +160,11 @@ extern "C" eQMainWindow* qteQMainWindow_create1(QWidget* parent, Qt::WindowFlags
 }
 extern "C" void qteQMainWindow_delete1(eQMainWindow* wd) {
 #ifdef debDelete
-    printf("del eQMainWindow --> ");
+    printf("del eQMainWindow --> \n");
 #endif
-    delete wd;
+#ifdef debDestr
+    if(wd->parent() == NULL) delete wd;
+#endif
 #ifdef debDelete
     printf("Ok\n");
 #endif
@@ -243,11 +253,13 @@ void eQWidget::resizeEvent(QResizeEvent *event) {
 extern "C" QtRefH qteQWidget_create1(QtRefH parent, Qt::WindowFlags f) {
     return (QtRefH)new eQWidget((eQWidget*)parent, f);
 }
-extern "C" void qteQWidget_delete1(QtRefH wd) {
+extern "C" void qteQWidget_delete1(eQWidget* wd) {
 #ifdef debDelete
-    printf("del QWidget --> ");
+    printf("del QWidget --> \n");
 #endif
-    delete (eQWidget*)wd;
+#ifdef debDestr
+    if(wd->parent() == NULL) delete wd;
+#endif
 #ifdef debDelete
     printf("Ok\n");
 #endif
@@ -350,13 +362,15 @@ extern "C" QtRefH qteQString_create1(void) {
 extern "C" QtRefH qteQString_create2(QChar* s, int size) {
     return (QtRefH)new QString(s, size);
 }
-extern "C" void qteQString_delete(QtRefH qs) {
+extern "C" void qteQString_delete(QString* wd) {
 #ifdef debDelete
-    printf("del QString --> ");
+    printf("del QString --> \n");
 #endif
-    delete (QString*)qs;
+#ifdef debDestr
+    delete wd;
+#endif
 #ifdef debDelete
-    printf("Ok\n");
+    printf("-----------> Ok\n");
 #endif
 }
 extern "C" QtRefH qteQString_data(QtRefH qs) {
@@ -379,11 +393,13 @@ extern "C" int qteQString_sizeOf(void) {
 extern "C" QtRefH qteQColor_create1(void) {
     return (QtRefH)new QColor();
 }
-extern "C" void qteQColor_delete(QtRefH qs) {
+extern "C" void qteQColor_delete(QColor* wd) {
 #ifdef debDelete
-    printf("del QColor --> ");
+    printf("del QColor --> \n");
 #endif
-    delete (QColor*)qs;
+#ifdef debDestr
+    delete wd;
+#endif
 #ifdef debDelete
     printf("Ok\n");
 #endif
@@ -395,11 +411,13 @@ extern "C" void qteQColor_setRgb(QtRefH wc, int r, int g, int b, int a) {
 extern "C" QtRefH qteQBrush_create1(void) {
     return (QtRefH)new QBrush();
 }
-extern "C" void qteQBrush_delete(QtRefH qs) {
+extern "C" void qteQBrush_delete(QBrush* wd) {
 #ifdef debDelete
-    printf("del QBrush --> ");
+    printf("del QBrush --> \n");
 #endif
-    delete (QBrush*)qs;
+#ifdef debDestr
+    delete wd;
+#endif
 #ifdef debDelete
     printf("Ok\n");
 #endif
@@ -415,11 +433,13 @@ extern "C" void qteQBrush_setStyle(QBrush* qs, Qt::BrushStyle bs) {
 extern "C" QtRefH qteQPen_create1(void) {
     return (QtRefH)new QPen();
 }
-extern "C" void qteQPen_delete(QtRefH qs) {
+extern "C" void qteQPen_delete(QPen* wd) {
 #ifdef debDelete
-    printf("del QPen --> ");
+    printf("del QPen --> \n");
 #endif
-    delete (QPen*)qs;
+#ifdef debDestr
+    delete wd;
+#endif
 #ifdef debDelete
     printf("Ok\n");
 #endif
@@ -438,11 +458,13 @@ extern "C" void qteQPen_setWidth(QPen* qs, int w) {
 extern "C" QtRefH qteQPalette_create1(void) {
     return (QtRefH)new QPalette();
 }
-extern "C" void qteQPalette_delete(QtRefH qs) {
+extern "C" void qteQPalette_delete(QPalette* wd) {
 #ifdef debDelete
-    printf("del QPalette --> ");
+    printf("del QPalette --> \n");
 #endif
-    delete (QPalette*)qs;
+#ifdef debDestr
+    delete wd;
+#endif
 #ifdef debDelete
     printf("Ok\n");
 #endif
@@ -451,11 +473,13 @@ extern "C" void qteQPalette_delete(QtRefH qs) {
 extern "C" QtRefH qteQPushButton_create1(QtRefH parent, QtRefH name) {
     return  (QtRefH) new QPushButton((const QString &)*name, (QWidget*)parent);
 }
-extern "C" void qteQPushButton_delete(QtRefH qs) {
+extern "C" void qteQPushButton_delete(QPushButton* wd) {
 #ifdef debDelete
-    printf("del QPushButton --> ");
+    printf("del QPushButton --> \n");
 #endif
-    delete (QPushButton*)qs;
+#ifdef debDestr
+    if(wd->parent() == NULL) delete wd;
+#endif
 #ifdef debDelete
     printf("Ok\n");
 #endif
@@ -500,52 +524,12 @@ extern "C" bool qteQAbstractButton_getXX(QAbstractButton* wd, int pr) {
 }
 
 // =========== QSlot ==========
-QSlot::QSlot(QObject* parent) : QObject(parent) {
-    aSlotN = NULL;
-         N = 0;
-}
-QSlot::~QSlot() {
-}
-// Вызов конструктора слота
-extern "C" QtRefH qteQSlot_create(QtRefH parent) {
-    return (QtRefH) new QSlot((QObject*)parent);
-}
-extern "C" void qteQSlot_delete(QtRefH parent) {
-#ifdef debDelete
-    printf("del QSlot --> ");
-#endif
-    delete (QSlot*)parent;
-#ifdef debDelete
-    printf("Ok\n");
-#endif
-}
-void QSlot::SlotN() { // Вызвать глобальную функцию с параметром N (диспетчерезатор)
-    if (aSlotN != NULL)  ((ExecZIM_v__i)aSlotN)(N);
-}
-void QSlot::Slot() {
-    if ((aSlotN != NULL) && (aDThis == NULL)) { ((ExecZIM_v__v)aSlotN)(); }
-    if ((aSlotN != NULL) && (aDThis != NULL)) { ((ExecZIM_v__vp)aSlotN)(*(void**)aDThis); }
-}
-extern "C" void QSlot_setSlotN(QSlot* slot, void* adr, int n) {
-    slot->aSlotN = adr;
-    slot->N = n;
-}
-extern "C" void QSlot_setSlotN2(QSlot* slot, void* adr, void* adrTh, int n) {
-    slot->aSlotN = adr;
-    slot->aDThis = adrTh;
-    slot->N = n;
-}
 
 extern "C" void qteConnect(QtRefH obj1, char* signal, QtRefH slot, char* sslot, int n) {
     QObject::connect((const QObject*)obj1, (const char*)signal, (const QObject*)slot,
                      (const char*)sslot, (Qt::ConnectionType)n);
 }
-void QSlot::Slot_Bool(bool b) { // Вызвать глобальную функцию с параметром b - булево
-    if (aSlotN != NULL)  ((ExecZIM_v__b)aSlotN)(b);
-}
-void QSlot::Slot_Int(int i) { // Вызвать глобальную функцию с параметром
-    if (aSlotN != NULL)  ((ExecZIM_v__i)aSlotN)(i);
-}
+
 // ===================== QLyout ====================
 extern "C" QtRefH qteQVBoxLayout(void) {
     return  (QtRefH) new QVBoxLayout();
@@ -556,13 +540,20 @@ extern "C" QtRefH qteQHBoxLayout(void) {
 extern "C" QtRefH qteQBoxLayout(QtRefH wd, QBoxLayout::Direction dir) {
     return  (QtRefH) new QBoxLayout(dir, (QWidget*)wd);
 }
-extern "C" void qteQBoxLayout_delete(QtRefH parent) {
+extern "C" void qteQBoxLayout_delete(QBoxLayout* wd) {
 #ifdef debDelete
-    printf("del QBoxLayout --> ");
+    printf("del QBoxLayout --> %p\n", wd->parent());
+    // printf("%s", wd->objectName().Data);
 #endif
-    delete (QBoxLayout*)parent;
+#ifdef debDestr
+    try {
+        if(wd->parent() == NULL) delete wd;
+    } catch(...) {
+        printf("error del QBoxLayout --> \n");
+    }
+#endif
 #ifdef debDelete
-    printf("Ok\n");
+    printf("----------------> Ok\n");
 #endif
 }
 extern "C" void qteQBoxLayout_addWidget(QtRefH BoxLyout, QtRefH widget, int stretch, int align) {
@@ -595,11 +586,13 @@ eQFrame::~eQFrame() {
 extern "C" QtRefH qteQFrame_create1(QtRefH parent, Qt::WindowFlags f) {
     return (QtRefH)new eQFrame((QWidget*)parent, f);
 }
-extern "C" void qteQFrame_delete1(QtRefH wd) {
+extern "C" void qteQFrame_delete1(eQFrame* wd) {
 #ifdef debDelete
-    printf("del eQFrame --> ");
+    printf("del eQFrame --> \n");
 #endif
-    delete (eQFrame*)wd;
+#ifdef debDestr
+    if(wd->parent() == NULL) delete wd;
+#endif
 #ifdef debDelete
     printf("Ok\n");
 #endif
@@ -636,15 +629,25 @@ extern "C" void qteQFrame_setLineWidth(QtRefH fr, int sh)
 {
     ((eQFrame*)fr)->setLineWidth(sh);
 }
+extern "C" void qteFrame_listChildren(eQFrame* wd) {
+    QObjectList list = wd->children();
+
+    for(int i = 0; i != list.count(); i++) {
+        printf("qt ==> %p\n", list[i]);
+    }
+}
+
 // ===================== QLabel ====================
 extern "C" QtRefH qteQLabel_create1(QtRefH parent, Qt::WindowFlags f) {
     return (QtRefH)new QLabel((QWidget*)parent, f);
 }
-extern "C" void qteQLabel_delete1(QtRefH wd) {
+extern "C" void qteQLabel_delete1(QLabel* wd) {
 #ifdef debDelete
-    printf("del QLabel --> ");
+    printf("del QLabel --> \n");
 #endif
-    delete (QLabel*)wd;
+#ifdef debDestr
+    if(wd->parent() == NULL) delete wd;
+#endif
 #ifdef debDelete
     printf("Ok\n");
 #endif
@@ -674,11 +677,13 @@ extern "C" QtRefH qteQResizeEvent_oldSize(QResizeEvent* ev) {
 extern "C" QtRefH qteQSize_create1(int wd, int ht) {
     return (QtRefH)new QSize(wd, ht);
 }
-extern "C" void qteQSize_delete1(QtRefH wd) {
+extern "C" void qteQSize_delete1(QSize* wd) {
 #ifdef debDelete
-    printf("del QSize --> ");
+    printf("del QSize --> \n");
 #endif
-    delete (QSize*)wd;
+#ifdef debDestr
+    delete wd;
+#endif
 #ifdef debDelete
     printf("Ok\n");
 #endif
@@ -711,11 +716,13 @@ extern "C" unsigned int qteQKeyEvent_modifiers(QKeyEvent* ev) {
 extern "C" QtRefH qteQAbstractScrollArea_create1(QtRefH parent) {
     return (QtRefH)new QAbstractScrollArea((QWidget*)parent);
 }
-extern "C" void qteQAbstractScrollArea_delete1(QtRefH wd) {
+extern "C" void qteQAbstractScrollArea_delete1(QAbstractScrollArea* wd) {
 #ifdef debDelete
-    printf("del QAbstractScrollArea --> ");
+    printf("del QAbstractScrollArea --> \n");
 #endif
-    delete (QAbstractScrollArea*)wd;
+#ifdef debDestr
+    if(wd->parent() == NULL) delete wd;
+#endif
 #ifdef debDelete
     printf("Ok\n");
 #endif
@@ -779,9 +786,11 @@ extern "C" eQPlainTextEdit* qteQPlainTextEdit_create1(QWidget* parent) {
 }
 extern "C" void qteQPlainTextEdit_delete1(eQPlainTextEdit* wd) {
 #ifdef debDelete
-    printf("del eQPlainTextEdit --> ");
+    printf("del eQPlainTextEdit --> \n");
 #endif
-    delete wd;
+#ifdef debDestr
+    if(wd->parent() == NULL) delete wd;
+#endif
 #ifdef debDelete
     printf("Ok\n");
 #endif
@@ -843,6 +852,11 @@ extern "C" void qteQPlainTextEdit_setTabStopWidth(QPlainTextEdit* wd, int width)
 extern "C" void qteQPlainTextEdit_firstVisibleBlock(eQPlainTextEdit* wd, QTextBlock* tb) {
     wd->gfirstVisibleBlock(tb);
 }
+// 294
+extern "C" void qteQPlainTextEdit_setWordWrapMode(eQPlainTextEdit* wd, QTextOption* tb) {
+    wd->setWordWrapMode(tb->wrapMode());
+}
+
 
 // ===================== QAction ====================
 // Скорее всего будет сделано так:
@@ -883,18 +897,26 @@ void eAction::Slot_v__A_N_b(bool pr) { // Новый тип слота - уни�
 void eAction::Slot_v__A_N_i(int pn) { // Новый тип слота - универсальный
     if (aSlotN != NULL)  ((ExecZIM_v__vp_n_i)aSlotN)(*(void**)aDThis, N, pn);
 }
+void eAction::Slot_v__A_N_QObject(QObject* pn) {
+    if (aSlotN != NULL)  ((ExecZIM_v__vp_n_i)aSlotN)(*(void**)aDThis, N, (int)pn);
+}
 
 
 // -------------------------------------------------------
 extern "C" void* qteQAction_create(QObject * parent) {  return new eAction(parent); }
 extern "C" void  qteQAction_delete(eAction* wd)      {
 #ifdef debDelete
-    printf("del eAction --> ");
+    printf("del eAction --> %p\n", wd->parent());
 #endif
-    delete wd;
+#ifdef debDestr
+    if(wd->parent() == NULL) delete wd;
+#endif
 #ifdef debDelete
     printf("Ok\n");
 #endif
+}
+extern "C" void* qteQAction_getParent(eAction* qw) {
+    return qw->parent();
 }
 
 extern "C" void qteQAction_setXX1(eAction* qw, QString *qstr, int pr) {
@@ -936,9 +958,11 @@ extern "C"  void* qteQMenu_create(QWidget * parent) {
 }
 extern "C" void qteQMenu_delete(QMenu* wd) {
 #ifdef debDelete
-    printf("del QMenu --> ");
+    printf("del QMenu --> \n");
 #endif
-    delete wd;
+#ifdef debDestr
+    if(wd->parent() == NULL) delete wd;
+#endif
 #ifdef debDelete
     printf("Ok\n");
 #endif
@@ -961,9 +985,11 @@ extern "C"  void* qteQMenuBar_create(QWidget * parent) {
 }
 extern "C" void qteQMenuBar_delete(QMenuBar* wd) {
 #ifdef debDelete
-    printf("del QMenuBar --> ");
+    printf("del QMenuBar --> \n");
 #endif
-    delete wd;
+#ifdef debDestr
+    if(wd->parent() == NULL) delete wd;
+#endif
 #ifdef debDelete
     printf("Ok\n");
 #endif
@@ -977,9 +1003,11 @@ extern "C"  void* qteQFont_create() {
 }
 extern "C" void qteQFont_delete(QFont* wd) {
 #ifdef debDelete
-    printf("del QFont --> ");
+    printf("del QFont --> \n");
 #endif
+#ifdef debDestr
     delete wd;
+#endif
 #ifdef debDelete
     printf("Ok\n");
 #endif
@@ -996,9 +1024,11 @@ extern "C"  void* qteQIcon_create() {
 }
 extern "C" void qteQIcon_delete(QIcon* wd) {
 #ifdef debDelete
-    printf("del QIcon --> ");
+    printf("del QIcon --> \n");
 #endif
+#ifdef debDestr
     delete wd;
+#endif
 #ifdef debDelete
     printf("Ok\n");
 #endif
@@ -1016,9 +1046,11 @@ extern "C"  void* qteQToolBar_create() {
 }
 extern "C" void qteQToolBar_delete(QToolBar* wd) {
 #ifdef debDelete
-    printf("del QToolBar --> ");
+    printf("del QToolBar --> \n");
 #endif
-    delete wd;
+#ifdef debDestr
+    if(wd->parent() == NULL) delete wd;
+#endif
 #ifdef debDelete
     printf("Ok\n");
 #endif
@@ -1048,9 +1080,11 @@ extern "C" QDialog* qteQDialog_create(QWidget* parent, Qt::WindowFlags f) {
 }
 extern "C" void qteQDialog_delete(QDialog* wd) {
 #ifdef debDelete
-    printf("del QDialog --> ");
+    printf("del QDialog --> \n");
 #endif
-    delete wd;
+#ifdef debDestr
+    if(wd->parent() == NULL) delete wd;
+#endif
 #ifdef debDelete
     printf("Ok\n");
 #endif
@@ -1064,9 +1098,11 @@ extern "C" QMessageBox* qteQMessageBox_create(QWidget* parent) {
 }
 extern "C" void qteQMessageBox_delete(QMessageBox* wd) {
 #ifdef debDelete
-    printf("del QMessageBox --> ");
+    printf("del QMessageBox --> \n");
 #endif
-    delete wd;
+#ifdef debDestr
+    if(wd->parent() == NULL) delete wd;
+#endif
 #ifdef debDelete
     printf("Ok\n");
 #endif
@@ -1093,9 +1129,11 @@ extern "C" QProgressBar* qteQProgressBar_create(QWidget* parent) {
 }
 extern "C" void qteQProgressBar_delete(QProgressBar* wd) {
 #ifdef debDelete
-    printf("del QProgressBar --> ");
+    printf("del QProgressBar --> \n");
 #endif
-    delete wd;
+#ifdef debDestr
+    if(wd->parent() == NULL) delete wd;
+#endif
 #ifdef debDelete
     printf("Ok\n");
 #endif
@@ -1114,9 +1152,11 @@ extern "C"  void* qteQDate_create() {
 }
 extern "C" void qteQDate_delete(QDate* wd) {
 #ifdef debDelete
-    printf("del QDate --> ");
+    printf("del QDate --> \n");
 #endif
+#ifdef debDestr
     delete wd;
+#endif
 #ifdef debDelete
     printf("Ok\n");
 #endif
@@ -1138,9 +1178,11 @@ extern "C"  void* qteQTime_create() {
 }
 extern "C" void qteQTime_delete(QTime* wd) {
 #ifdef debDelete
-    printf("del QTime --> ");
+    printf("del QTime --> \n");
 #endif
+#ifdef debDestr
     delete wd;
+#endif
 #ifdef debDelete
     printf("Ok\n");
 #endif
@@ -1162,9 +1204,11 @@ extern "C" QFileDialog* qteQFileDialog_create(QWidget* parent, Qt::WindowFlags f
 }
 extern "C" void qteQFileDialog_delete(QFileDialog* wd) {
 #ifdef debDelete
-    printf("del QFileDialog --> ");
+    printf("del QFileDialog --> \n");
 #endif
-    delete wd;
+#ifdef debDestr
+    if(wd->parent() == NULL) delete wd;
+#endif
 #ifdef debDelete
     printf("Ok\n");
 #endif
@@ -1235,9 +1279,11 @@ extern "C" QAbstractScrollArea* qteQAbstractScrollArea_create(QWidget* parent) {
 }
 extern "C" void qteQAbstractScrollArea_delete(QAbstractScrollArea* wd) {
 #ifdef debDelete
-    printf("del QAbstractScrollArea --> ");
+    printf("del QAbstractScrollArea --> \n");
 #endif
-    delete wd;
+#ifdef debDestr
+    if(wd->parent() == NULL) delete wd;
+#endif
 #ifdef debDelete
     printf("Ok\n");
 #endif
@@ -1248,9 +1294,11 @@ extern "C" QMdiArea* qteQMdiArea_create(QWidget* parent) {
 }
 extern "C" void qteQMdiArea_delete(QMdiArea* wd) {
 #ifdef debDelete
-    printf("del QMdiArea --> ");
+    printf("del QMdiArea --> \n");
 #endif
-    delete wd;
+#ifdef debDestr
+    if(wd->parent() == NULL) delete wd;
+#endif
 #ifdef debDelete
     printf("Ok\n");
 #endif
@@ -1265,9 +1313,11 @@ extern "C" QMdiSubWindow* qteQMdiSubWindow_create(QWidget* parent, Qt::WindowFla
 }
 extern "C" void qteQMdiSubWindow_delete(QMdiSubWindow* wd) {
 #ifdef debDelete
-    printf("del QMdiSubWindow --> ");
+    printf("del QMdiSubWindow --> \n");
 #endif
-    delete wd;
+#ifdef debDestr
+    if(wd->parent() == NULL) delete wd;
+#endif
 #ifdef debDelete
     printf("Ok\n");
 #endif
@@ -1282,9 +1332,11 @@ extern "C" QTableView* qteQTableView_create(QWidget* parent) {
 }
 extern "C" void qteQTableView_delete(QTableView* wd) {
 #ifdef debDelete
-    printf("del QTableView --> ");
+    printf("del QTableView --> \n");
 #endif
-    delete wd;
+#ifdef debDestr
+    if(wd->parent() == NULL) delete wd;
+#endif
 #ifdef debDelete
     printf("Ok\n");
 #endif
@@ -1324,9 +1376,11 @@ extern "C" void* qteQTableWidgetItem_create(int t) {
 }
 extern "C" void qteQTableWidgetItem_delete(QTableWidgetItem* wd) {
 #ifdef debDelete
-    printf("del QTableWidgetItem --> ");
+    printf("del QTableWidgetItem --> \n");
 #endif
+#ifdef debDestr
     delete wd;
+#endif
 #ifdef debDelete
     printf("Ok\n");
 #endif
@@ -1368,9 +1422,11 @@ extern "C" QTableWidget* qteQTableWidget_create(QWidget* parent) {
 }
 extern "C" void qteQTableWidget_delete(QTableWidget* wd) {
 #ifdef debDelete
-    printf("del QTableWidget --> ");
+    printf("del QTableWidget --> \n");
 #endif
-    delete wd;
+#ifdef debDestr
+    if(wd->parent() == NULL) delete wd;
+#endif
 #ifdef debDelete
     printf("Ok\n");
 #endif
@@ -1417,9 +1473,11 @@ extern "C" QComboBox* qteQComboBox_create(QWidget* parent) {
 }
 extern "C" void qteQComboBox_delete(QComboBox* wd) {
 #ifdef debDelete
-    printf("del QComboBox --> ");
+    printf("del QComboBox --> \n");
 #endif
-    delete wd;
+#ifdef debDestr
+    if(wd->parent() == NULL) delete wd;
+#endif
 #ifdef debDelete
     printf("Ok\n");
 #endif
@@ -1495,9 +1553,11 @@ extern "C" QLCDNumber* qteQLCDNumber_create2(QWidget* parent, int n) {
 }
 extern "C" void qteQLCDNumber_delete1(QLCDNumber* wd) {
 #ifdef debDelete
-    printf("del QLCDNumber --> ");
+    printf("del QLCDNumber --> \n");
 #endif
-    delete wd;
+#ifdef debDestr
+    if(wd->parent() == NULL) delete wd;
+#endif
 #ifdef debDelete
     printf("Ok\n");
 #endif
@@ -1544,9 +1604,11 @@ extern "C" QSlider* qteQSlider_create1(QWidget* parent, Qt::Orientation n) {
 }
 extern "C" void qteQSlider_delete1(QSlider* wd) {
 #ifdef debDelete
-    printf("del QSlider --> ");
+    printf("del QSlider --> \n");
 #endif
-    delete wd;
+#ifdef debDestr
+    if(wd->parent() == NULL) delete wd;
+#endif
 #ifdef debDelete
     printf("Ok\n");
 #endif
@@ -1557,9 +1619,11 @@ extern "C" QGroupBox* qteQGroupBox_create(QWidget* parent) {
 }
 extern "C" void qteQGroupBox_delete(QGroupBox* wd) {
 #ifdef debDelete
-    printf("del QGroupBox --> ");
+    printf("del QGroupBox --> \n");
 #endif
-    delete wd;
+#ifdef debDestr
+    if(wd->parent() == NULL) delete wd;
+#endif
 #ifdef debDelete
     printf("Ok\n");
 #endif
@@ -1574,11 +1638,13 @@ extern "C" void qteQGroupBox_setAlignment(QGroupBox* wd, Qt::AlignmentFlag str) 
 extern "C" QCheckBox* qteQCheckBox_create1(QWidget* parent, QString* name) {
     return  new QCheckBox(*name, parent);
 }
-extern "C" void qteQCheckBox_delete(QCheckBox* qs) {
+extern "C" void qteQCheckBox_delete(QCheckBox* wd) {
 #ifdef debDelete
-    printf("del QCheckBox --> ");
+    printf("del QCheckBox --> \n");
 #endif
-    delete qs;
+#ifdef debDestr
+    if(wd->parent() == NULL) delete wd;
+#endif
 #ifdef debDelete
     printf("Ok\n");
 #endif
@@ -1599,11 +1665,13 @@ extern "C" bool qteQCheckBox_isTristate(QCheckBox* qs) {
 extern "C" QRadioButton* qteQRadioButton_create1(QWidget* parent, QString* name) {
     return  new QRadioButton(*name, parent);
 }
-extern "C" void qteQRadioButton_delete(QRadioButton* qs) {
+extern "C" void qteQRadioButton_delete(QRadioButton* wd) {
 #ifdef debDelete
-    printf("del QRadioButton --> ");
+    printf("del QRadioButton --> \n");
 #endif
-    delete qs;
+#ifdef debDestr
+    if(wd->parent() == NULL) delete wd;
+#endif
 #ifdef debDelete
     printf("Ok\n");
 #endif
@@ -1615,11 +1683,13 @@ extern "C" QTextCursor* qteQTextCursor_create1(QTextDocument * document) {
 extern "C" QTextCursor* qteQTextCursor_create2() {
     return  new QTextCursor();
 }
-extern "C" void qteQTextCursor_delete(QTextCursor* qs) {
+extern "C" void qteQTextCursor_delete(QTextCursor* wd) {
 #ifdef debDelete
-    printf("del QTextCursor --> ");
+    printf("del QTextCursor --> \n");
 #endif
-    delete qs;
+#ifdef debDestr
+    delete wd;
+#endif
 #ifdef debDelete
     printf("Ok\n");
 #endif
@@ -1687,11 +1757,13 @@ cursor.setCharFormat(charFormat);
 extern "C" QRect* qteQRect_create1() {
     return  new QRect();
 }
-extern "C" void qteQRect_delete(QRect* qs) {
+extern "C" void qteQRect_delete(QRect* wd) {
 #ifdef debDelete
-    printf("del QRect --> ");
+    printf("del QRect --> \n");
 #endif
-    delete qs;
+#ifdef debDestr
+    delete wd;
+#endif
 #ifdef debDelete
     printf("Ok\n");
 #endif
@@ -1729,11 +1801,13 @@ extern "C" QTextBlock* qteQTextBlock_create() {
     return new QTextBlock();
 }
 // 239
-extern "C" void qteQTextBlock_delete(QTextBlock* qs) {
+extern "C" void qteQTextBlock_delete(QTextBlock* wd) {
 #ifdef debDelete
-    printf("del QTextBlock --> ");
+    printf("del QTextBlock --> \n");
 #endif
-    delete qs;
+#ifdef debDestr
+    delete wd;
+#endif
 #ifdef debDelete
     printf("Ok\n");
 #endif
@@ -1762,9 +1836,11 @@ extern "C" QSpinBox* qteQSpinBox_create(QWidget* parent) {
 // 248
 extern "C" void qteQSpinBox_delete(QSpinBox* wd) {
 #ifdef debDelete
-    printf("del QSpinBox --> ");
+    printf("del QSpinBox --> \n");
 #endif
-    delete wd;
+#ifdef debDestr
+    if(wd->parent() == NULL) delete wd;
+#endif
 #ifdef debDelete
     printf("Ok\n");
 #endif
@@ -1883,9 +1959,11 @@ extern "C" Highlighter* qteHighlighter_create(QTextDocument* parent) {
 }
 extern "C" void qteHighlighter_delete(Highlighter* wd) {
 #ifdef debDelete
-    printf("del Highlighter --> ");
+    printf("del Highlighter --> \n");
 #endif
-    delete wd;
+#ifdef debDestr
+    if(wd->parent() == NULL) delete wd;
+#endif
 #ifdef debDelete
     printf("Ok\n");
 #endif
@@ -1920,9 +1998,11 @@ extern "C" eQTextEdit* qteQTextEdit_create1(QWidget* parent) {
 }
 extern "C" void qteQTextEdit_delete1(eQTextEdit* wd) {
 #ifdef debDelete
-    printf("del eQTextEdit --> ");
+    printf("del eQTextEdit --> \n");
 #endif
-    delete wd;
+#ifdef debDestr
+    if(wd->parent() == NULL) delete wd;
+#endif
 #ifdef debDelete
     printf("Ok\n");
 #endif
@@ -1988,9 +2068,11 @@ extern "C" QTimer* qteQTimer_create(QObject* parent) {
 // 263
 extern "C" void qteQTimer_delete(QTimer* wd) {
 #ifdef debDelete
-    printf("del QTimer --> ");
+    printf("del QTimer --> \n");
 #endif
-    delete wd;
+#ifdef debDestr
+    if(wd->parent() == NULL) delete wd;
+#endif
 #ifdef debDelete
     printf("Ok\n");
 #endif
@@ -2029,4 +2111,25 @@ extern "C" void qteQTimer_setSingleShot(QTimer* wd, bool t) {
 // 269
 extern "C" Qt::TimerType qteQTimer_timerType(QTimer* wd) {
     return wd->timerType();
+}
+// ===================== QTextOption ====================
+// 291
+extern "C" QTextOption* QTextOption_create() {
+    return new QTextOption();
+}
+// 292
+extern "C" void QTextOption_delete(QTextOption* wd) {
+#ifdef debDelete
+    printf("del QTextOption* --> \n");
+#endif
+#ifdef debDestr
+    delete wd;
+#endif
+#ifdef debDelete
+    printf("Ok\n");
+#endif
+}
+// 293
+extern "C" void QTextOption_setWrapMode(QTextOption* wd, QTextOption::WrapMode mode) {
+    wd->setWrapMode(mode);
 }
