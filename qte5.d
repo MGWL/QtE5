@@ -535,6 +535,9 @@ int LoadQt(dll ldll, bool showError) { ///  Загрузить DLL-ки Qt и Qt
 	funQt(186, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQComboBox_getXX",				showError);
 	funQt(187, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQComboBox_text",				showError);
 	//  ------- QPainter -------
+	funQt(301, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQPainter_create",				showError);
+	funQt(302, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQPainter_delete",				showError);
+
 	funQt(188, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQPainter_drawPoint",			showError);
 	funQt(189, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQPainter_drawLine",			showError);
 	funQt(190, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQPainter_setXX1",				showError);
@@ -544,6 +547,7 @@ int LoadQt(dll ldll, bool showError) { ///  Загрузить DLL-ки Qt и Qt
 	funQt(244, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQPainter_drawRect2",			showError);
 	funQt(245, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQPainter_fillRect2",			showError);
 	funQt(246, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQPainter_fillRect3",			showError);
+	funQt(298, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQPainter_getFont",				showError);
 	//  ------- QPen -------
 	funQt(191, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQPen_create1",					showError);
 	funQt(192, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQPen_delete",					showError);
@@ -601,6 +605,8 @@ int LoadQt(dll ldll, bool showError) { ///  Загрузить DLL-ки Qt и Qt
 	funQt(239, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQTextBlock_delete",			showError);
 	funQt(240, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQTextBlock_create2",			showError);
 	funQt(283, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQTextBlock_blockNumber",		showError);
+	funQt(299, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQTextBlock_next2",				showError);
+	funQt(300, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQTextBlock_isValid2",			showError);
 
 	//  ------- QSpinBox -------
 	funQt(247, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQSpinBox_create",				showError);
@@ -638,7 +644,12 @@ int LoadQt(dll ldll, bool showError) { ///  Загрузить DLL-ки Qt и Qt
 	funQt(292, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "QTextOption_delete",				showError);
 	funQt(293, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "QTextOption_setWrapMode",			showError);
 	
-	// Последний = 294
+	// ------- QFontMetrics -------
+	funQt(295, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "QFontMetrics_create",				showError);
+	funQt(296, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "QFontMetrics_delete",				showError);
+	funQt(297, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "QFontMetrics_getXX1",				showError);
+
+	// Последний = 302
 	return 0;
 } ///  Загрузить DLL-ки Qt и QtE. Найти в них адреса функций и заполнить ими таблицу
 
@@ -1803,11 +1814,21 @@ class QSize : QObject {
 }
 // ============ QPainter =======================================
 class QPainter : QObject {
-	this() {	}
+	this(QWidget parent) {
+		super();
+		if (parent) {
+			msgbox("Создаю QPainter()", "Внимание!", QMessageBox.Icon.Critical);
+			setNoDelete(true);
+			setQtObj((cast(t_qp__qp) pFunQt[301])(parent.QtObj));
+		} else {
+			msgbox("Запрещено создание QPainter сродителем NULL", "Внимание!", QMessageBox.Icon.Critical);
+		}
+	} /// Конструктор
  	this(char ch, void* adr) {
 		if(ch == '+') setQtObj(cast(QtObjH)adr);
 	} /// При создании своего объекта сохраняет в себе объект событие QPainter пришедшее из Qt
 	~this() {
+		if(!fNoDelete && (QtObj != null)) { (cast(t_v__qp) pFunQt[302])(QtObj); setQtObj(null); }
 	}
 	QPainter drawPoint(int x, int y) {
 		(cast(t_v__qp_i_i_i) pFunQt[188])(QtObj, x, y, 0); return this;
@@ -1848,6 +1869,9 @@ class QPainter : QObject {
 	}
 	bool end() {
 		return (cast(t_b__qp) pFunQt[197])(QtObj);
+	}
+	QFont font(QFont fn) { //-> Выдать шрифт
+		(cast(t_v__qp_qp) pFunQt[298])(QtObj, fn.QtObj); return fn;
 	}
 /* 	@property int type() {
 		return (cast(t_i__qp) pFunQt[53])(QtObj);
@@ -3573,6 +3597,18 @@ class QTextBlock : QObject {
 	int blockNumber() {
 		return (cast(t_i__qp)pFunQt[283])(QtObj);
 	}
+	void next(QTextBlock tb) {
+		(cast(t_v__qp_qp_i)pFunQt[299])(QtObj, tb.QtObj, 0);
+	}
+	void previous(QTextBlock tb) {
+		(cast(t_v__qp_qp_i)pFunQt[299])(QtObj, tb.QtObj, 1);
+	}
+	bool isValid() {
+		return (cast(t_b__qp_i)pFunQt[300])(QtObj, 0);
+	}
+	bool isVisible() {
+		return (cast(t_b__qp_i)pFunQt[300])(QtObj, 1);
+	}
 
 }
 // ============ QAbstractSpinBox =======================================
@@ -3789,6 +3825,59 @@ class QTextOption : QObject {
 	
 }
 
+// ================ QFontMetrics ================
+class QFontMetrics : QObject {
+
+	this(QFont fn) {
+		setQtObj((cast(t_qp__qp)pFunQt[295])(fn.QtObj));
+	}
+	~this() {
+		if(!fNoDelete && (QtObj != null)) { (cast(t_v__qp) pFunQt[296])(QtObj); setQtObj(null); }
+	}
+	int ascent() { //-> Подъём шрифта. Расстояние от базовой линии до самых высоких символов.
+		return ((cast(t_i__qp_i)pFunQt[297])(QtObj, 0));
+	}
+	int averageCharWidth() { //-> Возвращает среднюю ширину глифов в шрифте.
+		return ((cast(t_i__qp_i)pFunQt[297])(QtObj, 1));
+	}
+	int descent() { //-> Расстояние от базовой линии до самых нижних точек
+		return ((cast(t_i__qp_i)pFunQt[297])(QtObj, 2));
+	}
+	int height() { //-> Высота шрифта. = ascent + descent
+		return ((cast(t_i__qp_i)pFunQt[297])(QtObj, 3));
+	}
+	int leading() { //-> Интерлиньяж - расстояние между базовыми линиями двух строк
+		return ((cast(t_i__qp_i)pFunQt[297])(QtObj, 4));
+	}
+	int lineSpacing() { //-> Межстроковый интервал = leading()+height().
+		return ((cast(t_i__qp_i)pFunQt[297])(QtObj, 5));
+	}
+	int lineWidth() { //-> Возвращает ширину подчеркивания и зачеркнутых строк.
+		return ((cast(t_i__qp_i)pFunQt[297])(QtObj, 6));
+	}
+	int maxWidth() { //-> Ширина самго широкого символа
+		return ((cast(t_i__qp_i)pFunQt[297])(QtObj, 7));
+	}
+	int minLeftBearing() { //-> Минимальный левый перенос шрифта
+		return ((cast(t_i__qp_i)pFunQt[297])(QtObj, 8));
+	}
+	int minRightBearing() { //-> Минимальный правый перенос шрифта
+		return ((cast(t_i__qp_i)pFunQt[297])(QtObj, 9));
+	}
+	int overlinePos() { //-> От базовой линии до overLine
+		return ((cast(t_i__qp_i)pFunQt[297])(QtObj, 10));
+	}
+	int strikeOutPos() { //-> От базы до зачеркнутой линии
+		return ((cast(t_i__qp_i)pFunQt[297])(QtObj, 11));
+	}
+	int underlinePos() { //-> От базовой линии до underline
+		return ((cast(t_i__qp_i)pFunQt[297])(QtObj, 12));
+	}
+	int xHeight() { //-> Высота символа 'x'
+		return ((cast(t_i__qp_i)pFunQt[297])(QtObj, 13));
+	}
+
+}
 
 
 

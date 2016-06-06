@@ -898,7 +898,7 @@ void eAction::Slot_v__A_N_i(int pn) { // Новый тип слота - унив
     if (aSlotN != NULL)  ((ExecZIM_v__vp_n_i)aSlotN)(*(void**)aDThis, N, pn);
 }
 void eAction::Slot_v__A_N_QObject(QObject* pn) {
-    if (aSlotN != NULL)  ((ExecZIM_v__vp_n_i)aSlotN)(*(void**)aDThis, N, (int)pn);
+    if (aSlotN != NULL)  ((ExecZIM_v__vp_n_i)aSlotN)(*(void**)aDThis, N, (size_t)pn);
 }
 
 
@@ -1506,6 +1506,22 @@ extern "C" void qteQComboBox_text(QComboBox* wd, QString* qs) {
     *qs = wd->currentText();
 }
 // =========== QPainter ==========
+// 301
+extern "C" QPainter* qteQPainter_create(QPaintDevice* parent) {
+    return new QPainter(parent);
+}
+// 302
+extern "C" void qteQPainter_delete(QPainter* wd) {
+#ifdef debDelete
+    printf("del QPainter --> \n");
+#endif
+#ifdef debDestr
+    delete wd;
+#endif
+#ifdef debDelete
+    printf("Ok\n");
+#endif
+}
 extern "C" void qteQPainter_drawPoint(QPainter* qp, int x, int y, int pr) {
     switch ( pr ) {
     case 0:   qp->drawPoint(x, y);          break;
@@ -1544,6 +1560,10 @@ extern "C" void qteQPainter_setText(QPainter* qp, QString* ob, int x, int y) {
 extern "C" bool qteQPainter_end(QPainter* qp) {
     return qp->end();
 }
+extern "C" void qteQPainter_getFont(QPainter* qp, QFont* font) {
+    *font = qp->font();
+}
+
 // =========== QLCDNumber ==========
 extern "C" QLCDNumber* qteQLCDNumber_create1(QWidget* parent) {
     return new QLCDNumber(parent);
@@ -1821,6 +1841,21 @@ extern "C" QString* qteQTextBlock_text(QTextBlock* tb, QString* rez) {
 // 283
 extern "C" int qteQTextBlock_blockNumber(QTextBlock* tb) {
     return tb->blockNumber();
+}
+
+extern "C" void qteQTextBlock_next2(QTextBlock* tb, QTextBlock* ntb, int pr) {
+    switch ( pr ) {
+    case 0:   *ntb = tb->next();           break;
+    case 1:   *ntb = tb->previous();       break;
+    }
+}
+extern "C" bool qteQTextBlock_isValid2(QTextBlock* tb, int pr) {
+    bool rez = false;
+    switch ( pr ) {
+    case 0:   rez = tb->isValid();           break;
+    case 1:   rez = tb->isVisible();         break;
+    }
+    return rez;
 }
 
 // =========== QAbstractSpinBox ==========
@@ -2132,4 +2167,42 @@ extern "C" void QTextOption_delete(QTextOption* wd) {
 // 293
 extern "C" void QTextOption_setWrapMode(QTextOption* wd, QTextOption::WrapMode mode) {
     wd->setWrapMode(mode);
+}
+// ===================== QFontMetrics ====================
+// 295
+extern "C" QFontMetrics* QFontMetrics_create(QFont* fn) {
+    return new QFontMetrics(*fn);
+}
+// 296
+extern "C" void QFontMetrics_delete(QFontMetrics* wd) {
+#ifdef debDelete
+    printf("del QFontMetrics* --> \n");
+#endif
+#ifdef debDestr
+    delete wd;
+#endif
+#ifdef debDelete
+    printf("Ok\n");
+#endif
+}
+// 297
+extern "C" int QFontMetrics_getXX1(QFontMetrics* wd, int pr) {
+    int rez = 0;
+    switch ( pr ) {
+    case 0:   rez = wd->ascent();           break;        // Подъем шрифта
+    case 1:   rez = wd->averageCharWidth(); break;
+    case 2:   rez = wd->descent();          break;
+    case 3:   rez = wd->height();           break;
+    case 4:   rez = wd->leading();          break;
+    case 5:   rez = wd->lineSpacing();      break;
+    case 6:   rez = wd->lineWidth();        break;
+    case 7:   rez = wd->maxWidth();         break;
+    case 8:   rez = wd->minLeftBearing();   break;
+    case 9:   rez = wd->minRightBearing();  break;
+    case 10:  rez = wd->overlinePos();      break;
+    case 11:  rez = wd->strikeOutPos();     break;
+    case 12:  rez = wd->underlinePos();     break;
+    case 13:  rez = wd->xHeight();          break;
+    }
+    return rez;
 }
