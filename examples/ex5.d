@@ -14,10 +14,11 @@ extern (C) {
 class CTest : QFrame {
 	QVBoxLayout	vblAll;			// Общий вертикальный выравниватель
 	QHBoxLayout	hb2;			// Горизонтальный выравниватель
-	QPlainTextEdit	edTextEdit;		// Сам редактор для проверки
+	QTextEdit	edTextEdit;		// Сам редактор для проверки
 	QPushButton kn1, kn2;
 	QAction acKn1, acKn2, acDes1, acDes2;
 	QLineEdit lineEdit;			// Строка строчного редактора
+	QFrame view;
 	~this() {
 		// printf("--20--\n"); stdout.flush();
 	}
@@ -26,16 +27,21 @@ class CTest : QFrame {
 	this(QWidget parent, QtE.WindowType fl) { //-> Базовый конструктор
 		super(parent, fl);
 		// Горизонтальный и вертикальный выравниватели
-		vblAll  = new  QVBoxLayout();		// Главный выравниватель
-		hb2  	= new  QHBoxLayout();		// Горизонтальный выравниватель
-		vblAll.setNoDelete(true);
-		hb2.setNoDelete(true);
+		vblAll  = new  QVBoxLayout(null);		// Главный выравниватель
+		hb2  	= new  QHBoxLayout(null);		// Горизонтальный выравниватель
 		// Изготавливаем редактор
-		edTextEdit = new QPlainTextEdit(this);
+		edTextEdit = new QTextEdit(this);
 		vblAll.addWidget(edTextEdit);
 		lineEdit = new QLineEdit(this);  lineEdit.setNoDelete(true);
 		lineEdit.setText("Привет ребята ...");
 		lineEdit.setReadOnly(true);
+		// Область изображения
+		view = new QFrame(this); 
+		view.setMinimumHeight(200); 
+setFrameShape( QFrame.Shape.Box );
+		view.setFrameShape( QFrame.Shape.Box );
+		view.setFrameShadow( QFrame.Shadow.Raised );
+		// view.setStyleSheet("background: Red");
 		// Кнопки
 		kn1  = new QPushButton("Укажите имя файла:", this);
 		kn2  = new QPushButton("Вторая кнопка",  this); 
@@ -43,7 +49,7 @@ class CTest : QFrame {
 		acKn2 = new QAction(this, &onKn2, aThis); connects(kn2, "clicked()", acKn2, "Slot()");
 		// Кнопки в выравниватель
 		hb2.addWidget(kn1).addWidget(kn2);
-		vblAll.addWidget(lineEdit).addLayout(hb2);
+		vblAll.addWidget(lineEdit).addWidget(view).addLayout(hb2);
 		resize(700, 500); setWindowTitle("Проверка QTextEdit");
 		setLayout(vblAll);
 }
@@ -62,10 +68,6 @@ class CTest : QFrame {
 	}
 	// ______________________________________________________________
 	void runKn2() { //-> Обработка кнопки №2
-		QTextOption textOption = new QTextOption();
-		writeln("--1--> ", textOption.QtObj);
-		textOption.setWrapMode(QTextOption.WrapMode.NoWrap);
-		edTextEdit.setWordWrapMode(textOption);
 		writeln("this is Button 2");
 	}
 	
@@ -76,12 +78,7 @@ int main(string[] args) {
 	QApplication  app = new QApplication(&Runtime.cArgs.argc, Runtime.cArgs.argv, 1);
 	
 	CTest ct = new CTest(null, QtE.WindowType.Window); ct.show().saveThis(&ct);
-//	printf("--2--\n"); stdout.flush();
-	// CTest ct1 = new CTest(null, QtE.WindowType.Window); ct1.show().saveThis(&ct1);
-//	ct.listChildren();
-//	printf("--3--\n"); stdout.flush();
-	int rez = app.exec();
-//	printf("--4--\n"); stdout.flush();
+
 	QEndApplication endApp = new QEndApplication('+', app.QtObj);
-	return rez;
+	return app.exec();
 }

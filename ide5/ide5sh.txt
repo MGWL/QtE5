@@ -90,3 +90,55 @@ void main(string[] ards) {
 	// ----
 	app.exec();
 }
+%2310|Демо №3 (QtE5 - Изображение в окне QImage)|Одиночная форма
+import std.stdio;
+import qte5;				// Графическая библиотека QtE5
+import core.runtime;		// Обработка входных параметров
+import asc1251;
+
+// =================================================================
+// Форма: Проверка QImage
+// =================================================================
+extern (C) {
+	void  onPaintWidget(CView* uk, void* ev, void* qpaint)  { (*uk).runPaint(ev, qpaint); };
+}
+class CView : QWidget {
+	QImage im;
+	QPoint pointer;
+	this() {
+		super(null);	resize(600, 400);
+
+		// Запросить файл для редактирования и открыть редактор
+		QFileDialog fileDlg = new QFileDialog('+', null);
+		string cmd = fileDlg.getOpenFileNameSt("Укажите графический файл ...", 
+				"", "*.jpg *.png *.ppt *.gif");
+		if(cmd != "") {
+			im = new QImage(); im.load(cmd);
+			pointer = new QPoint(10, 10);
+			setPaintEvent(&onPaintWidget, aThis());
+			 setWindowTitle(cmd);
+		}
+	}
+	// ______________________________________________________________
+	// Перерисовать себя
+	void runPaint(void* ev, void* qpaint) { //-> Перерисовка области
+		QPainter qp = new QPainter('+', qpaint);
+		// В полном размере
+		// qp.drawImage(pointer, im); // В полном размере
+
+		// Масштабируем по размеру виджета
+		qp.drawImage(contentsRect(new QRect()), im);
+		qp.end();
+	}
+}
+
+void main(string[] ards) {
+	bool fDebug = true; 
+	if (1 == LoadQt(dll.QtE5Widgets, fDebug)) return;
+	QApplication app = new QApplication(&Runtime.cArgs.argc, Runtime.cArgs.argv, 1);
+	// ---- код программы
+	CView widget = new CView(); widget.saveThis(&widget); widget.show();
+	// ----
+	QEndApplication endApp = new QEndApplication('+', app.QtObj);
+	app.exec();
+}

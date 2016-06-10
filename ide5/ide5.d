@@ -40,61 +40,20 @@ console5_forthd [-d, -e, -i] ...
 // Область номеров строк в редакторе
 // =================================================================
 extern (C) {
-	// void  onPaint(CLineNumberArea* uk, void* ev, void* qpaint)  { (*uk).runPaint(ev, qpaint); };
+//	void  onPaintCLineNumberArea(CLineNumberArea* uk, void* ev, void* qpaint)  {
+//		(*uk).runPaint(ev, qpaint);
+//	}
 }
 // __________________________________________________________________
 class CLineNumberArea : QWidget {
   private
-	QPlainTextEdit		codeEditor;
-	int 				widthArea = 50;	// Ширина области номеров строк
+	QPlainTextEdit		teEdit;
+//	int 				widthArea = 50;	// Ширина области номеров строк
+//	int 				oldWidthArea;
 	// ______________________________________________________________
 	// Конструктор по умолчанию
 	this(QPlainTextEdit parent) { //-> Базовый конструктор
-		super(parent);	codeEditor = parent;
-		// Рисование области нумерации строк
-		// setPaintEvent(&onPaint, aThis);
-	}
-	~this() {
-		// setPaintEvent(null, aThis);
-	}
-	// ______________________________________________________________
-	void drawContent(int y, int nomerLine) { //-> Рисуй номер строки (единичной)
-		QPainter qp = new QPainter(this);
-		qp.setText(0, 50, "Да!");
-		qp.end();
-	}
-/*
-	// ______________________________________________________________
-	// Перерисовать себя
-	void runPaint(void* ev, void* qpaint) { //-> Перерисовка области
-		int blockNumber; // Номер строки (блока)
-		string strNomerStr;
-
-		QTextBlock tb = new QTextBlock();
-		codeEditor.firstVisibleBlock(tb);  // Забрали текстовый блок из ред.
-		blockNumber = tb.blockNumber();
-		string strFromBlock = tb.text!string();
-		// writeln("[", tb.blockNumber(), "] ", strFromBlock);
- 		QPainter qp = new QPainter('+', qpaint);
-		// Получим шрифт, которым рисует painter
-		QFont font = new QFont(); qp.font(font);
-		// Получим объект метрик фонта
-		QFontMetrics fontMetrics = new QFontMetrics(font);
-		// Вычислим высоту шрифта
-		int heightFont = fontMetrics.height();
-		// Вычислим ширину области и сохраним её в объекте
-		widthArea = fontMetrics.maxWidth() * 6; // '0001 *'
-
-		while(tb.isValid() && tb.isVisible()) {
-			strNomerStr = format("%4d", 1 + tb.blockNumber());
-			qp.setText(0, codeEditor.bottomTextBlock(tb) - fontMetrics.descent(), strNomerStr);
-			tb.next(tb);
-		}
-		qp.end();
-	}
-*/
-	int getWidthArea() { //-> Выдать ширину области
-		return widthArea;
+		super(parent); teEdit = parent; setStyleSheet(strElow);
 	}
 }
 
@@ -111,7 +70,7 @@ extern (C) {
 	void  onResEventEdit(CEditWin* uk, void* ev)    { (*uk).ResEventEdit(ev); };
 	void  onNumStr(CEditWin* uk, int n)             { (*uk).runNumStr(); };
 //	void  onCtrlS(CEditWin* uk, int n)              { (*uk).runCtrlS(); }
-	void  onPaint(CEditWin* uk, void* ev, void* qpaint)  { (*uk).runPaint(ev, qpaint); };
+	void  onPaintCEditWin(CEditWin* uk, void* ev, void* qpaint)  { (*uk).runPaint(ev, qpaint); };
 }
 // __________________________________________________________________
 class CEditWin: QWidget { //=> Окно редактора D кода
@@ -159,8 +118,8 @@ class CEditWin: QWidget { //=> Окно редактора D кода
 		connects(sliderTabl, "sliderMoved(int)", acSliderTabl, "Slot_v__A_N_i(int)");
 
 		// Горизонтальный и вертикальный выравниватели
-		vblAll  = new  QVBoxLayout();		// Главный выравниватель
-		hb2  	= new  QHBoxLayout();		// Горизонтальный выравниватель
+		vblAll  = new  QVBoxLayout(null);		// Главный выравниватель
+		hb2  	= new  QHBoxLayout(null);		// Горизонтальный выравниватель
 		vblAll.setNoDelete(true);
 		hb2.setNoDelete(true);
 
@@ -198,15 +157,12 @@ class CEditWin: QWidget { //=> Окно редактора D кода
 		// Инициализируем текстовый курсор
 		txtCursor = new QTextCursor();
 
-		// Нумерация строк
- 		lineNumberArea = new CLineNumberArea(teEdit);		// Область нумерации строк
-		lineNumberArea.saveThis(&lineNumberArea);
-		lineNumberArea.show(); // lineNumberArea.setStyleSheet(strElow);
-		teEdit.setViewportMargins(50, 0, 0, 0); // getWidthArea
+		// Область нумерации строк
+ 		lineNumberArea = new CLineNumberArea(teEdit); lineNumberArea.saveThis(&lineNumberArea);
 		setResizeEvent(&onResEventEdit, aThis);
 
-		acUpdateLineNumberAreaWidth = new QAction(this, &onUpdateLineNumberAreaWidth, aThis);
-		connects(teEdit, "blockCountChanged(int)", acUpdateLineNumberAreaWidth, "Slot_v__A_N_i(int)");
+//		acUpdateLineNumberAreaWidth = new QAction(this, &onUpdateLineNumberAreaWidth, aThis);
+//		connects(teEdit, "blockCountChanged(int)", acUpdateLineNumberAreaWidth, "Slot_v__A_N_i(int)");
 
 		// Делаю массив для таблицы
  		for(int i; i != sizeTabHelp; i++) {
@@ -218,71 +174,43 @@ class CEditWin: QWidget { //=> Окно редактора D кода
 		}
 		// teHelp.setEnabled(false);
 		highlighter = new Highlighter(teEdit.document());
+
+		lineNumberArea.setPaintEvent(&onPaintCEditWin, aThis());
+
 		setNoDelete(true);
-		lineNumberArea.setPaintEvent(&onPaint, aThis);
 	}
 	~this() {
 	}
 	// ______________________________________________________________
 	// Перерисовать себя
 	void runPaint(void* ev, void* qpaint) { //-> Перерисовка области
-		QPainter qp = new QPainter('+', qpaint); qp.setNoDelete(true);
-		// write("."); stdout.flush();
+		QPainter qp = new QPainter('+', qpaint);
+
 		// Получим шрифт, которым рисует painter
 		QFont font = new QFont(); qp.font(font);
-		// Получим объект метрик фонта
 		QFontMetrics fontMetrics = new QFontMetrics(font);
 
-		int blockNumber; // Номер строки (блока)
 		QTextBlock tb = new QTextBlock();
 		teEdit.firstVisibleBlock(tb);  // Забрали текстовый блок из ред.
-		// Вычислим ширину области и сохраним её в объекте
-		lineNumberArea.widthArea = fontMetrics.maxWidth() * 6; // '0001 *'
 
 		string strNomerStr;
+		int blockNumber; // Номер строки (блока)
+		int lineUnderCursor = getNomerLineUnderCursor();
+
+		int kol = 100;
 		while(tb.isValid() && tb.isVisible()) {
 			blockNumber = tb.blockNumber();
-			if(blockNumber == getNomerLineUnderCursor()) {
-				strNomerStr = format("%4d->", 1 + tb.blockNumber());
+			if(blockNumber == lineUnderCursor) {
+				strNomerStr = format("%4d->", blockNumber + 1);
 			} else {
-				strNomerStr = format("%4d", 1 + tb.blockNumber());
+				strNomerStr = format("%4d", blockNumber + 1);
 			}
-			qp.setText(0, teEdit.bottomTextBlock(tb) - fontMetrics.descent(),
-			  strNomerStr);
+			qp.setText(0, teEdit.bottomTextBlock(tb) - fontMetrics.descent(), strNomerStr);
 			tb.next(tb);
+			if(kol-- == 0) break; // Ограничение на перерисовку больших файлов
 		}
 		qp.end();
 	}
-	/*
-		// ______________________________________________________________
-		// Перерисовать себя
-		void runPaint(void* ev, void* qpaint) { //-> Перерисовка области
-			int blockNumber; // Номер строки (блока)
-			string strNomerStr;
-
-			QTextBlock tb = new QTextBlock();
-			codeEditor.firstVisibleBlock(tb);  // Забрали текстовый блок из ред.
-			blockNumber = tb.blockNumber();
-			string strFromBlock = tb.text!string();
-			// writeln("[", tb.blockNumber(), "] ", strFromBlock);
-	 		QPainter qp = new QPainter('+', qpaint);
-			// Получим шрифт, которым рисует painter
-			QFont font = new QFont(); qp.font(font);
-			// Получим объект метрик фонта
-			QFontMetrics fontMetrics = new QFontMetrics(font);
-			// Вычислим высоту шрифта
-			int heightFont = fontMetrics.height();
-			// Вычислим ширину области и сохраним её в объекте
-			widthArea = fontMetrics.maxWidth() * 6; // '0001 *'
-
-			while(tb.isValid() && tb.isVisible()) {
-				strNomerStr = format("%4d", 1 + tb.blockNumber());
-				qp.setText(0, codeEditor.bottomTextBlock(tb) - fontMetrics.descent(), strNomerStr);
-				tb.next(tb);
-			}
-			qp.end();
-		}
-	*/
 	// ______________________________________________________________
 	void runNumStr() { //-> Обработка события перехода на строку
 		int num = spNumStr.value();
@@ -297,12 +225,12 @@ class CEditWin: QWidget { //=> Окно редактора D кода
 	// Обработка изменения размеров редактора. Область нумерации перерисовывается
 	// при изменениии размеров редактора
 	void ResEventEdit(void* ev) {
-		QResizeEvent qe = new QResizeEvent('+', ev);
 		// Взять размер пользовательской области teEdit
-		QRect RectContens = new QRect(); teEdit.contentsRect(RectContens); RectContens.setNoDelete(true);
+		QRect RectContens = new QRect();
+		teEdit.contentsRect(RectContens);
 		// Изменить размеры области нумерации
-		lineNumberArea.setGeometry(RectContens.x(), RectContens.y(),
-			lineNumberArea.widthArea, RectContens.height());
+		teEdit.setViewportMargins(70, 0, 0, 0);
+		lineNumberArea.setGeometry(1, 1, 70, RectContens.height() -1 );
 	}
 	// ______________________________________________________________
 	// Счетчик изменяющихся блоков
@@ -370,9 +298,9 @@ class CEditWin: QWidget { //=> Окно редактора D кода
 		zn = "font-size: " ~ zn ~ "pt; font-family: 'Inconsolata';";
 		teHelp.setStyleSheet(zn);
 		teEdit.setStyleSheet(zn);
-		lineNumberArea.setStyleSheet(zn);
+		// lineNumberArea.setStyleSheet(zn);
 		// Вычислим ширину lineNumberArea
-		teEdit.setViewportMargins(lineNumberArea.getWidthArea(), 0, 0, 0); // getWidthArea
+		// teEdit.setViewportMargins(lineNumberArea.getWidthArea(), 0, 0, 0); // getWidthArea
 	}
 	// ______________________________________________________________
 //	void runSlider(int nom) { //-> Обработка события слайдера
@@ -984,7 +912,7 @@ class CFormaMain: QMainWindow { //=> Основной MAIN класс прило
 			if(activeWinEdit !is null) preNomAct = activeWinEdit.tekNomer;
 			// writeln(preNomAct, " is active ", activeWinEdit);
 			winEdit[winEditKol] = new CEditWin(this, QtE.WindowType.Window);
-			winEdit[winEditKol].setNoDelete(true);
+			// winEdit[winEditKol].setNoDelete(true);
 			winEdit[winEditKol].setParentQtE5(this);
 			winEdit[winEditKol].saveThis(&winEdit[winEditKol]);
 			mainWid.addSubWindow(winEdit[winEditKol]);
@@ -1067,7 +995,7 @@ int main(string[] args) {
 	// Загрузка графической библиотеки
 	if (1 == LoadQt(dll.QtE5Widgets, fDebug)) return 1;  // Выйти,если ошибка загрузки библиотеки
 	// Изготавливаем само приложение
-	app = new QApplication(&Runtime.cArgs.argc, Runtime.cArgs.argv, 1);	// app.setNoDelete(true);
+	app = new QApplication(&Runtime.cArgs.argc, Runtime.cArgs.argv, 1);
 
 	// Проверяем путь до INI файла
 	if(!exists(sIniFile)) {

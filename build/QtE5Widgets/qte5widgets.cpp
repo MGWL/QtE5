@@ -214,12 +214,15 @@ extern "C" void qteQWidget_setPaintEvent(QtRefH wd, void* adr, void* dThis) {
 }
 void eQWidget::paintEvent(QPaintEvent *event) {
     if (aPaintEvent == NULL) return;
-    QPainter* qp = new QPainter(this);
+
+    QPainter qp(this);
+    // QPainter* qp = &(QPainter(this));
+    // QPainter* qp = new QPainter(this);
     if (aDThis == NULL) {
-        ((ExecZIM_v__vp_vp)aPaintEvent)((QtRefH)event, (QtRefH)qp);
+        ((ExecZIM_v__vp_vp)aPaintEvent)((QtRefH)event, (QtRefH)&qp);
     }
     else  {
-        ((ExecZIM_v__vp_vp_vp)aPaintEvent)(*(void**)aDThis, (QtRefH)event, (QtRefH)qp);
+        ((ExecZIM_v__vp_vp_vp)aPaintEvent)(*(void**)aDThis, (QtRefH)event, (QtRefH)&qp);
     }
 }
 
@@ -531,26 +534,21 @@ extern "C" void qteConnect(QtRefH obj1, char* signal, QtRefH slot, char* sslot, 
 }
 
 // ===================== QLyout ====================
-extern "C" QtRefH qteQVBoxLayout(void) {
-    return  (QtRefH) new QVBoxLayout();
+extern "C" QtRefH qteQVBoxLayout(QWidget* wd) {
+    return  (QtRefH) new QVBoxLayout(wd);
 }
-extern "C" QtRefH qteQHBoxLayout(void) {
-    return  (QtRefH) new QHBoxLayout();
+extern "C" QtRefH qteQHBoxLayout(QWidget* wd) {
+    return  (QtRefH) new QHBoxLayout(wd);
 }
 extern "C" QtRefH qteQBoxLayout(QtRefH wd, QBoxLayout::Direction dir) {
     return  (QtRefH) new QBoxLayout(dir, (QWidget*)wd);
 }
 extern "C" void qteQBoxLayout_delete(QBoxLayout* wd) {
 #ifdef debDelete
-    printf("del QBoxLayout --> %p\n", wd->parent());
-    // printf("%s", wd->objectName().Data);
+    printf("del QBoxLayout --> %p\n");
 #endif
 #ifdef debDestr
-    try {
-        if(wd->parent() == NULL) delete wd;
-    } catch(...) {
-        printf("error del QBoxLayout --> \n");
-    }
+    delete wd;
 #endif
 #ifdef debDelete
     printf("----------------> Ok\n");
@@ -1507,8 +1505,12 @@ extern "C" void qteQComboBox_text(QComboBox* wd, QString* qs) {
 }
 // =========== QPainter ==========
 // 301
-extern "C" QPainter* qteQPainter_create(QPaintDevice* parent) {
-    return new QPainter(parent);
+extern "C" QPainter* qteQPainter_create(QWidget* parent) {
+    QPainter* qp = new QPainter(parent);
+    // qp->setPen(QColor(0,0,0,250));
+    // qp->drawLine(10, 30, 90, 110);
+    // qp->end();
+    return qp;
 }
 // 302
 extern "C" void qteQPainter_delete(QPainter* wd) {
@@ -1562,6 +1564,12 @@ extern "C" bool qteQPainter_end(QPainter* qp) {
 }
 extern "C" void qteQPainter_getFont(QPainter* qp, QFont* font) {
     *font = qp->font();
+}
+extern "C" void qteQPainter_drawImage1(QPainter* qp, QPoint* point, QImage* im) {
+   qp->drawImage(*point, *im);
+}
+extern "C" void qteQPainter_drawImage2(QPainter* qp, QRect* rect, QImage* im) {
+   qp->drawImage(*rect, *im);
 }
 
 // =========== QLCDNumber ==========
@@ -2203,6 +2211,61 @@ extern "C" int QFontMetrics_getXX1(QFontMetrics* wd, int pr) {
     case 11:  rez = wd->strikeOutPos();     break;
     case 12:  rez = wd->underlinePos();     break;
     case 13:  rez = wd->xHeight();          break;
+    }
+    return rez;
+}
+// ===================== QImage ====================
+// 303
+extern "C" QImage* qteQImage_create1() {
+    return new QImage();
+}
+// 304
+extern "C" void qteQImage_delete(QImage* wd) {
+#ifdef debDelete
+    printf("del QImage* --> \n");
+#endif
+#ifdef debDestr
+    delete wd;
+#endif
+#ifdef debDelete
+    printf("Ok\n");
+#endif
+}
+// 305
+extern "C" bool qteQImage_load(QImage* im, QString* str) {
+    return im->load(*str);
+}
+// ===================== QPoint ====================
+// 306
+extern "C" QPoint* qteQPoint_create1(int x, int y) {
+    QPoint* wd = new QPoint(x, y);
+    return wd;
+}
+// 307
+extern "C" void qteQPoint_delete(QPoint* wd) {
+#ifdef debDelete
+    printf("del QPoint* --> \n");
+#endif
+#ifdef debDestr
+    delete wd;
+#endif
+#ifdef debDelete
+    printf("Ok\n");
+#endif
+}
+// 308
+extern "C" void qteQPoint_setXX1(QPoint* wd, int zn, int pr) {
+    switch ( pr ) {
+    case 0:   wd->setX(zn);           break;
+    case 1:   wd->setY(zn);           break;
+    }
+}
+// 309
+extern "C" int qteQPoint_getXX1(QPoint* wd, int pr) {
+    int rez = 0;
+    switch ( pr ) {
+    case 0:   rez = wd->x();           break;
+    case 1:   rez = wd->y();           break;
     }
     return rez;
 }

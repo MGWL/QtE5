@@ -47,6 +47,7 @@ private extern (C) @nogc alias t_v__qp_i_i = void function(QtObjH, int, int);
 private extern (C) @nogc alias t_v__qp_qp_i_i = void function(QtObjH, QtObjH, int, int);
 
 private extern (C) @nogc alias t_b__qp = bool function(QtObjH);
+private extern (C) @nogc alias t_b__qp_qp = bool function(QtObjH, QtObjH);
 private extern (C) @nogc alias t_b__qp_i = bool function(QtObjH, int);
 private extern (C) @nogc alias t_b__qp_i_i_i = bool function(QtObjH, int, int, int);
 
@@ -548,6 +549,8 @@ int LoadQt(dll ldll, bool showError) { ///  Загрузить DLL-ки Qt и Qt
 	funQt(245, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQPainter_fillRect2",			showError);
 	funQt(246, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQPainter_fillRect3",			showError);
 	funQt(298, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQPainter_getFont",				showError);
+	funQt(310, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQPainter_drawImage1",			showError);
+	funQt(311, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQPainter_drawImage2",			showError);
 	//  ------- QPen -------
 	funQt(191, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQPen_create1",					showError);
 	funQt(192, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQPen_delete",					showError);
@@ -649,7 +652,18 @@ int LoadQt(dll ldll, bool showError) { ///  Загрузить DLL-ки Qt и Qt
 	funQt(296, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "QFontMetrics_delete",				showError);
 	funQt(297, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "QFontMetrics_getXX1",				showError);
 
-	// Последний = 302
+	// ------- QImage -------
+	funQt(303, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQImage_create1",					showError);
+	funQt(304, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQImage_delete",					showError);
+	funQt(305, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQImage_load",						showError);
+
+	// ------- QPoint -------
+	funQt(306, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQPoint_create1",					showError);
+	funQt(307, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQPoint_delete",					showError);
+	funQt(308, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQPoint_setXX1",					showError);
+	funQt(309, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQPoint_getXX1",					showError);
+
+	// Последний = 311
 	return 0;
 } ///  Загрузить DLL-ки Qt и QtE. Найти в них адреса функций и заполнить ими таблицу
 
@@ -1706,13 +1720,29 @@ class QBoxLayout : QObject {
 	
 }
 class QVBoxLayout : QBoxLayout {
-	this() {
-		setQtObj((cast(t_qp__v)pFunQt[35])());
+	this(QWidget parent) {
+		if (parent) {
+			setNoDelete(true);
+			setQtObj((cast(t_qp__qp) pFunQt[35])(parent.QtObj));
+		} else {
+			setQtObj((cast(t_qp__qp) pFunQt[35])(null));
+		}
+	}
+	~this() {
+		if(!fNoDelete && (QtObj != null)) { (cast(t_v__qp) pFunQt[37])(QtObj); setQtObj(null); }
 	}
 }
 class QHBoxLayout : QBoxLayout {
-	this() {
-		setQtObj((cast(t_qp__v)pFunQt[36])());
+	this(QWidget parent) {
+		if (parent) {
+			setNoDelete(true);
+			setQtObj((cast(t_qp__qp) pFunQt[36])(parent.QtObj));
+		} else {
+			setQtObj((cast(t_qp__qp) pFunQt[36])(null));
+		}
+	}
+	~this() {
+		if(!fNoDelete && (QtObj != null)) { (cast(t_v__qp) pFunQt[37])(QtObj); setQtObj(null); }
 	}
 }
 // ================ QFrame ================
@@ -1817,7 +1847,7 @@ class QPainter : QObject {
 	this(QWidget parent) {
 		super();
 		if (parent) {
-			msgbox("Создаю QPainter()", "Внимание!", QMessageBox.Icon.Critical);
+			// msgbox("Создаю QPainter()", "Внимание!", QMessageBox.Icon.Critical);
 			setNoDelete(true);
 			setQtObj((cast(t_qp__qp) pFunQt[301])(parent.QtObj));
 		} else {
@@ -1825,7 +1855,7 @@ class QPainter : QObject {
 		}
 	} /// Конструктор
  	this(char ch, void* adr) {
-		if(ch == '+') setQtObj(cast(QtObjH)adr);
+		if(ch == '+') { setQtObj(cast(QtObjH)adr); setNoDelete(true); }
 	} /// При создании своего объекта сохраняет в себе объект событие QPainter пришедшее из Qt
 	~this() {
 		if(!fNoDelete && (QtObj != null)) { (cast(t_v__qp) pFunQt[302])(QtObj); setQtObj(null); }
@@ -1872,6 +1902,12 @@ class QPainter : QObject {
 	}
 	QFont font(QFont fn) { //-> Выдать шрифт
 		(cast(t_v__qp_qp) pFunQt[298])(QtObj, fn.QtObj); return fn;
+	}
+	QPainter drawImage(QPoint point, QImage image) { //-> Изображение на точку
+		(cast(t_v__qp_qp_qp) pFunQt[310])(QtObj, point.QtObj, image.QtObj); return this;
+	}
+	QPainter drawImage(QRect rect, QImage image) { //-> Изображение в прямоугольник
+		(cast(t_v__qp_qp_qp) pFunQt[311])(QtObj, rect.QtObj, image.QtObj); return this;
 	}
 /* 	@property int type() {
 		return (cast(t_i__qp) pFunQt[53])(QtObj);
@@ -3879,5 +3915,83 @@ class QFontMetrics : QObject {
 
 }
 
+// ================ QImage ================
+class QImage: QPaintDevice {
 
+	enum	Format { 
+		Format_Invalid		= 0,	// The image is invalid.
+		Format_Mono			= 1,	// The image is stored using 1-bit per pixel. Bytes are packed with the most significant bit (MSB) first.
+		Format_MonoLSB		= 2,	// The image is stored using 1-bit per pixel. Bytes are packed with the less significant bit (LSB) first.
+		Format_Indexed8		= 3,	// The image is stored using 8-bit indexes into a colormap.
+		Format_RGB32		= 4,	// The image is stored using a 32-bit RGB format (0xffRRGGBB).
+		Format_ARGB32		= 5,	// The image is stored using a 32-bit ARGB format (0xAARRGGBB).
+		Format_ARGB32_Premultiplied		= 6,	// The image is stored using a premultiplied 32-bit ARGB format (0xAARRGGBB), i.e. the red, green, and blue channels are multiplied by the alpha component divided by 255. (If RR, GG, or BB has a higher value than the alpha channel, the results are undefined.) Certain operations (such as image composition using alpha blending) are faster using premultiplied ARGB32 than with plain ARGB32.
+		Format_RGB16		= 7,	// The image is stored using a 16-bit RGB format (5-6-5).
+		Format_ARGB8565_Premultiplied	= 8,	// The image is stored using a premultiplied 24-bit ARGB format (8-5-6-5).
+		Format_RGB666		= 9,	// The image is stored using a 24-bit RGB format (6-6-6). The unused most significant bits is always zero.
+		Format_ARGB6666_Premultiplied	= 10,	// The image is stored using a premultiplied 24-bit ARGB format (6-6-6-6).
+		Format_RGB555		= 11,	// The image is stored using a 16-bit RGB format (5-5-5). The unused most significant bit is always zero.
+		Format_ARGB8555_Premultiplied	= 12,	// The image is stored using a premultiplied 24-bit ARGB format (8-5-5-5).
+		Format_RGB888		= 13,	// The image is stored using a 24-bit RGB format (8-8-8).
+		Format_RGB444		= 14,	// The image is stored using a 16-bit RGB format (4-4-4). The unused bits are always zero.
+		Format_ARGB4444_Premultiplied	= 15,	// The image is stored using a premultiplied 16-bit ARGB format (4-4-4-4).
+		Format_RGBX8888		= 16,	// The image is stored using a 32-bit byte-ordered RGB(x) format (8-8-8-8). This is the same as the Format_RGBA8888 except alpha must always be 255.
+		Format_RGBA8888		= 17,	// The image is stored using a 32-bit byte-ordered RGBA format (8-8-8-8). Unlike ARGB32 this is a byte-ordered format, which means the 32bit encoding differs between big endian and little endian architectures, being respectively (0xRRGGBBAA) and (0xAABBGGRR). The order of the colors is the same on any architecture if read as bytes 0xRR,0xGG,0xBB,0xAA.
+		Format_RGBA8888_Premultiplied	= 18,	// The image is stored using a premultiplied 32-bit byte-ordered RGBA format (8-8-8-8).
+		Format_BGR30		= 19,	// The image is stored using a 32-bit BGR format (x-10-10-10).
+		Format_A2BGR30_Premultiplied	= 20,	// The image is stored using a 32-bit premultiplied ABGR format (2-10-10-10).
+		Format_RGB30		= 21,	// The image is stored using a 32-bit RGB format (x-10-10-10).
+		Format_A2RGB30_Premultiplied	= 22,	// The image is stored using a 32-bit premultiplied ARGB format (2-10-10-10).
+		Format_Alpha8		= 23,	// The image is stored using an 8-bit alpha only format.
+		Format_Grayscale8	= 24	// The image is stored using an 8-bit grayscale format.
+	}
 
+	this() {
+		setQtObj((cast(t_qp__v)pFunQt[303])());
+	}
+	~this() {
+		if(!fNoDelete && (QtObj != null)) { (cast(t_v__qp) pFunQt[304])(QtObj); setQtObj(null); }
+	}
+	bool load(T: QString)(T str) { //-> Загрузить картинку
+		return (cast(t_b__qp_qp) pFunQt[305])(QtObj, str.QtObj);
+	}
+	bool load(T)(T str) { //-> Загрузить картинку
+		return (cast(t_b__qp_qp) pFunQt[305])(QtObj, (new QString(to!string(str))).QtObj);
+	}
+	
+	
+}
+
+// ================ QPoint ================
+class QPoint : QObject {
+	~this() {
+		if(!fNoDelete && (QtObj != null)) { (cast(t_v__qp) pFunQt[307])(QtObj); setQtObj(null); }
+	}
+	this(char ch, void* adr) {
+		if(ch == '+') setQtObj(cast(QtObjH)adr);
+	} /// Конструктор
+	this(int x, int y) {
+		setQtObj((cast(t_qp__i_i)pFunQt[306])(x, y));
+	}
+	QPoint setX(int x) {
+		(cast(t_v__qp_i_i)pFunQt[308])(QtObj, x, 0); return this;
+	}
+	QPoint setY(int y) {
+		(cast(t_v__qp_i_i)pFunQt[308])(QtObj, y, 1); return this;
+	}
+	@property int x() {
+		return (cast(t_i__qp_i)pFunQt[309])(QtObj, 0);
+	}
+	@property int y() {
+		return (cast(t_i__qp_i)pFunQt[309])(QtObj, 1);
+	}
+	@property int x(int x) {
+		(cast(t_v__qp_i_i)pFunQt[308])(QtObj, x, 0); return x;
+	}
+	@property int y(int y) {
+		(cast(t_v__qp_i_i)pFunQt[308])(QtObj, y, 1); return y;
+	}
+	
+	
+	
+}
