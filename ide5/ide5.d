@@ -336,11 +336,23 @@ class CEditWin: QWidget { //=> Окно редактора D кода
 		}
 	}
 	// ______________________________________________________________
+	void insParaSkobki(string s) {
+		txtCursor.insertText(s).movePosition(QTextCursor.MoveOperation.PreviousCharacter);
+		teEdit.setTextCursor(txtCursor);
+	}
+	// ______________________________________________________________
 	void* runKeyReleaseEvent(void* ev) { //-> Обработка события отпускания кнопки
 		// Перерисуем номера строк, вызвам событие Paint через Update
 		lineNumberArea.update();
 		QKeyEvent qe = new QKeyEvent('+', ev);
 		if(editSost == Sost.Normal) {
+			// Вставим парные символы
+			if(qe.key == '"') { insParaSkobki("\""); return null; }
+			if(qe.key == '(') { insParaSkobki(")");  return null; }
+			if(qe.key == '[') { insParaSkobki("]");  return null; }
+			if(qe.key == '{') { insParaSkobki("}");  return null; }
+			if(qe.key == '/') { insParaSkobki("/  ");return null; }
+
 			if(qe.key == 16777216) { // ESC
 				editSost = Sost.Change;
 				teHelp.setCurrentCell(pozInTable, 0);
