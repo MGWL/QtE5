@@ -404,6 +404,7 @@ int LoadQt(dll ldll, bool showError) { ///  Загрузить DLL-ки Qt и Qt
 	funQt(294,bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQPlainTextEdit_setWordWrapMode",showError);
 	funQt(325,bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "eQPlainTextEdit_setPaintEvent",    showError);
 	funQt(326,bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQPlainTextEdit_getXX1",         showError);
+	funQt(328,bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQPlainTextEdit_setCursorPosition", showError);
 	
 	
 	//  ------- QLineEdit -------
@@ -613,6 +614,7 @@ int LoadQt(dll ldll, bool showError) { ///  Загрузить DLL-ки Qt и Qt
 	funQt(255, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQTextCursor_runXX",			showError);
 	funQt(256, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQTextCursor_insertText1",		showError);
 	funQt(286, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQTextCursor_select",			showError);
+	funQt(327, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQTextCursor_setPosition",		showError);
 	
 	//  ------- QRect -------
 	funQt(232, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQRect_create1",				showError);
@@ -2215,6 +2217,10 @@ class QPlainTextEdit : QAbstractScrollArea {
 	int cursorWidth() { //-> Толщина курсора в пикселах
 		return (cast(t_i__qp_i) pFunQt[326])(QtObj, 1);
 	}
+	QPlainTextEdit setCursorPosition(int line, int col) { //-> Переставить визуальный курсор
+		(cast(t_v__qp_i_i) pFunQt[328])(QtObj, line, col); return this;
+	}
+	
 	
 }
 // ================ QLineEdit ================
@@ -3681,6 +3687,9 @@ class QTextCursor : QObject {
 	int verticalMovementX() { //-> Количество пикселей с левого края
 		return (cast(t_i__qp_i) pFunQt[231])(QtObj, 7);
 	}
+	QTextCursor setPosition(int pos, QTextCursor.MoveMode mode = QTextCursor.MoveMode.MoveAnchor) {
+		(cast(t_v__qp_i_i) pFunQt[327])(QtObj, pos, mode); return this;
+	}
 	bool movePosition(
 		QTextCursor.MoveOperation operation, 
 		QTextCursor.MoveMode mode = QTextCursor.MoveMode.MoveAnchor,
@@ -3827,6 +3836,9 @@ class QSpinBox : QAbstractSpinBox {
 			setQtObj((cast(t_qp__qp) pFunQt[247])(null));
 		}
 	} /// Конструктор
+	QSpinBox selectAll() { //-> Выбрать всё
+		(cast(t_v__qp_i_i) pFunQt[249])(QtObj, 0, 4); return this;
+	}
 	QSpinBox setMinimum(int n) { //-> Установить минимум
 		(cast(t_v__qp_i_i) pFunQt[249])(QtObj, n, 0); return this;
 	}

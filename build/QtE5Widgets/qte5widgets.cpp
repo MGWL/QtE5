@@ -940,6 +940,14 @@ extern "C" int qteQPlainTextEdit_getXX1(eQPlainTextEdit* wd, int pr) {
     }
     return rez;
 }
+extern "C" void qteQPlainTextEdit_setCursorPosition(eQPlainTextEdit* wd, int line, int col) {
+    QTextCursor cursor = wd->textCursor();
+    cursor.setPosition(wd->document()->findBlockByNumber(line).position());
+    cursor.movePosition(QTextCursor::NextCharacter,
+                        QTextCursor::MoveAnchor,
+                        col);
+    wd->setTextCursor(cursor);
+}
 
 
 // ===================== QAction ====================
@@ -1836,6 +1844,11 @@ extern "C" void qteQTextCursor_delete(QTextCursor* wd) {
     printf("Ok\n");
 #endif
 }
+// 327
+extern "C" void qteQTextCursor_setPosition(QTextCursor* wd, int n, QTextCursor::MoveMode mode) {
+    wd->setPosition(n, mode);
+}
+
 extern "C" int qteQTextCursor_getXX1(QTextCursor* wd, int pr) {
     int rez = 0;
     switch ( pr ) {
@@ -2009,6 +2022,7 @@ extern "C" void qteQSpinBox_setXX1(QSpinBox* wd, int n, int pr) {
     case 1:   wd->setMaximum(n);           break;
     case 2:   wd->setSingleStep(n);        break;
     case 3:   wd->setValue(n);             break;
+    case 4:   wd->selectAll();             break;
     }
 }
 // 250

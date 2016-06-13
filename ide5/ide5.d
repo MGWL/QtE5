@@ -106,6 +106,8 @@ class CEditWin: QWidget { //=> Окно редактора D кода
 	QAction		acUpdateLineNumberAreaWidth;
 	CLineNumberArea		lineNumberArea;		// Область нумерации строк
 	QSpinBox	spNumStr;		// Спин для перехода на строку
+	
+	bool trigerNumStr;			// Странно, но 2 раза вызывается ... отсечем 2 раз
 	// ______________________________________________________________
 	// Конструктор по умолчанию
 	this(QWidget parent, QtE.WindowType fl) { //-> Базовый конструктор
@@ -233,12 +235,12 @@ class CEditWin: QWidget { //=> Окно редактора D кода
 	}
 	// ______________________________________________________________
 	void runNumStr() { //-> Обработка события перехода на строку
-		int num = spNumStr.value();
 		spNumStr.hide();
-
-		// msgbox("Переход на строку №" ~ to!string(spNumStr.value()));
-		writeln("N = ", num);
+		if(trigerNumStr) { trigerNumStr = false; return; }
+		int num = spNumStr.value();
+		teEdit.setCursorPosition(num - 1, 0);
 		teEdit.setFocus();
+		trigerNumStr = true;
 	}
 	// ______________________________________________________________
 	// Обработка изменения размеров редактора. Область нумерации перерисовывается
@@ -784,7 +786,7 @@ class CFormaMain: QMainWindow { //=> Основной MAIN класс прило
 		QSpinBox sp = winEdit[aWinEd].spNumStr;
 		sp.setMinimum(1).setMaximum(winEdit[aWinEd].teEdit.blockCount());
 		sp.setValue(1 + winEdit[aWinEd].getNomerLineUnderCursor());
-		sp.show(); sp.setFocus();
+		sp.show(); sp.setFocus(); sp.selectAll();
 	}
 	// ______________________________________________________________
 	void loadParser() { //-> Загрузить парсер файлами из проекта
