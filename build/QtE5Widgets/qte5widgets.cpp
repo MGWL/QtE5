@@ -149,6 +149,13 @@ extern "C" void qteQStatusBar_delete1(QStatusBar* wd) {
 extern "C" void qteQStatusBar_showMessage(QStatusBar* wd, QString* qs) {
     wd->showMessage(*qs);
 }
+// 314
+extern "C" void qteQStatusBar_addWidgetXX1(QStatusBar* wd, QWidget* awd, int st, int pr) {
+    switch ( pr ) {
+        case 0:   wd->addPermanentWidget(awd, st);     break;
+        case 1:   wd->addWidget(awd, st);              break;
+    }
+}
 
 // =========== QMainWinsow ==========
 eQMainWindow::eQMainWindow(QWidget *parent, Qt::WindowFlags f): QMainWindow(parent, f) {
@@ -353,6 +360,20 @@ extern "C" bool qteQWidget_getBoolXX(QWidget* wd, int pr) {
     bool rez = false;
     switch ( pr ) {
     case 0:   rez = wd->hasFocus();     break;
+    case 1:   rez = wd->acceptDrops();  break;
+    case 2:   rez = wd->autoFillBackground();  break;
+    case 3:   rez = wd->hasMouseTracking();  break;
+    case 4:   rez = wd->isActiveWindow();  break;
+    case 5:   rez = wd->isEnabled();  break;
+    case 6:   rez = wd->isFullScreen();  break;
+    case 7:   rez = wd->isHidden();  break;
+    case 8:   rez = wd->isMaximized();  break;
+    case 9:   rez = wd->isMinimized();  break;
+    case 10:  rez = wd->isModal();  break;
+    case 11:  rez = wd->isWindow();  break;
+    case 12:  rez = wd->isWindowModified();  break;
+    case 13:  rez = wd->underMouse();  break;
+    case 14:  rez = wd->updatesEnabled();  break;
     }
     return rez;
 }
@@ -396,6 +417,11 @@ extern "C" int qteQString_sizeOf(void) {
 extern "C" QtRefH qteQColor_create1(void) {
     return (QtRefH)new QColor();
 }
+// 324
+extern "C" QColor* qteQColor_create2(QRgb r) {
+    return new QColor(r);
+}
+
 extern "C" void qteQColor_delete(QColor* wd) {
 #ifdef debDelete
     printf("del QColor --> \n");
@@ -410,6 +436,19 @@ extern "C" void qteQColor_delete(QColor* wd) {
 extern "C" void qteQColor_setRgb(QtRefH wc, int r, int g, int b, int a) {
     ((QColor*)wc)->setRgb(r,g,b,a);
 }
+extern "C" void qteQColor_getRgb(QColor* wc, int* r, int* g, int* b, int* a) {
+    wc->getRgb(r, g, b, a);
+}
+// 322
+extern "C" QRgb qteQColor_rgb(QColor* wc) {
+    return wc->rgb();
+}
+// 323
+extern "C" void qteQColor_setRgb2(QColor* wc, QRgb r) {
+    return wc->setRgba(r);
+}
+
+
 // =========== QBrush ==========
 extern "C" QtRefH qteQBrush_create1(void) {
     return (QtRefH)new QBrush();
@@ -575,14 +614,26 @@ extern "C" int qteQBoxLayout_margin(QBoxLayout* BoxLyout) {
 // ===================== QFrame ====================
 eQFrame::eQFrame(QWidget *parent, Qt::WindowFlags f): QFrame(parent, f) {
     aKeyPressEvent = NULL;
-    aPaintEvent = NULL;
+    // aPaintEvent = NULL;
     aCloseEvent = NULL;
     aResizeEvent = NULL;
 }
 eQFrame::~eQFrame() {
 }
-extern "C" QtRefH qteQFrame_create1(QtRefH parent, Qt::WindowFlags f) {
-    return (QtRefH)new eQFrame((QWidget*)parent, f);
+/*
+extern "C" QFrame* qteQFrame_create1(QWidget* parent, Qt::WindowFlags f) {
+    QFrame* nf = new QFrame(parent);
+    nf->setFrameShape(QFrame::Box); //>setFrameStyle(QFrame::Panel | QFrame::Raised);
+    nf->show();
+    return new QFrame(parent, f);
+}
+extern "C" QFrame* qteQFrame_create1(QWidget* parent, Qt::WindowFlags f) {
+    return new QFrame(parent, f);
+}
+*/
+
+extern "C" eQFrame* qteQFrame_create1(QWidget* parent, Qt::WindowFlags f) {
+    return new eQFrame(parent, f);
 }
 extern "C" void qteQFrame_delete1(eQFrame* wd) {
 #ifdef debDelete
@@ -600,11 +651,14 @@ void eQFrame::keyPressEvent(QKeyEvent *event) {
         ((ExecZIM_v__vp)aKeyPressEvent)((QtRefH)event);
     }
 }
+/*  Переопределив Paint - получаем обычный QWidget
+ *  ---------------------------------------------
 void eQFrame::paintEvent(QPaintEvent *event) {
     if(aPaintEvent != NULL) {
         ((ExecZIM_v__vp)aPaintEvent)((QtRefH)event);
     }
 }
+*/
 void eQFrame::closeEvent(QCloseEvent *event) {
     if(aCloseEvent != NULL) {
         ((ExecZIM_v__vp)aCloseEvent)((QtRefH)event);
@@ -617,15 +671,15 @@ void eQFrame::resizeEvent(QResizeEvent *event) {
 }
 extern "C" void qteQFrame_setFrameShape(QtRefH fr, QFrame::Shape sh)
 {
-    ((eQFrame*)fr)->setFrameShape(sh);
+    ((QFrame*)fr)->setFrameShape(sh);
 }
 extern "C" void qteQFrame_setFrameShadow(QtRefH fr, QFrame::Shadow sh)
 {
-    ((eQFrame*)fr)->setFrameShadow(sh);
+    ((QFrame*)fr)->setFrameShadow(sh);
 }
 extern "C" void qteQFrame_setLineWidth(QtRefH fr, int sh)
 {
-    ((eQFrame*)fr)->setLineWidth(sh);
+    ((QFrame*)fr)->setLineWidth(sh);
 }
 extern "C" void qteFrame_listChildren(eQFrame* wd) {
     QObjectList list = wd->children();
@@ -729,9 +783,31 @@ extern "C" void qteQAbstractScrollArea_delete1(QAbstractScrollArea* wd) {
 
 eQPlainTextEdit::eQPlainTextEdit(QWidget *parent): QPlainTextEdit(parent) {
     aKeyPressEvent = NULL; aDThis = NULL; aKeyReleaseEvent = NULL;
+    aPaintEvent = NULL;
 }
 eQPlainTextEdit::~eQPlainTextEdit() {
 }
+
+// -------------------------------------------------
+
+extern "C" void eQPlainTextEdit_setPaintEvent(eQPlainTextEdit* wd, void* adr, void* dThis) {
+    wd->aPaintEvent = adr;
+    wd->aDThis = dThis;
+}
+void eQPlainTextEdit::paintEvent(QPaintEvent *event) {
+    QPlainTextEdit::paintEvent(event);
+    if (aPaintEvent == NULL) return;
+
+    // QPainter qp(this);
+    if (aDThis == NULL) {
+        ((ExecZIM_v__vp_vp)aPaintEvent)((QtRefH)event, (QtRefH)NULL);
+    }
+    else  {
+        ((ExecZIM_v__vp_vp_vp)aPaintEvent)(*(void**)aDThis, (QtRefH)event, (QtRefH)NULL);
+    }
+}
+
+// -------------------------------------------------
 
 void eQPlainTextEdit::gsetViewportMargins(int left, int top, int right, int bottom) {
     setViewportMargins(left, top, right, bottom);
@@ -853,6 +929,16 @@ extern "C" void qteQPlainTextEdit_firstVisibleBlock(eQPlainTextEdit* wd, QTextBl
 // 294
 extern "C" void qteQPlainTextEdit_setWordWrapMode(eQPlainTextEdit* wd, QTextOption* tb) {
     wd->setWordWrapMode(tb->wrapMode());
+}
+//
+extern "C" int qteQPlainTextEdit_getXX1(eQPlainTextEdit* wd, int pr) {
+    int rez = 0;
+    switch ( pr ) {
+    case 0:   rez = wd->blockCount();           break;
+    case 1:   rez = wd->maximumBlockCount();    break;
+    case 2:   rez = wd->cursorWidth();          break;
+    }
+    return rez;
 }
 
 
@@ -1016,6 +1102,33 @@ extern "C" void qteQFont_setPointSize(QFont* wd, int pr) {
 extern "C" void qteQFont_setFamily(QFont* wd, QString *qstr) {
     wd->setFamily(*qstr);
 }
+// 312
+extern "C" void qteQFont_setBoolXX1(QFont* wd, bool z, int pr) {
+    switch ( pr ) {
+    case 0:   wd->setBold(z);             break;
+    case 1:   wd->setFixedPitch(z);       break;
+    case 2:   wd->setItalic(z);           break;
+    case 3:   wd->setKerning(z);          break;
+    case 4:   wd->setOverline(z);         break;
+    case 5:   wd->setStrikeOut(z);        break;
+    case 6:   wd->setUnderline(z);        break;
+    }
+}
+// 313
+extern "C" bool qteQFont_getBoolXX1(QFont* wd, int pr) {
+    bool rez = false;
+    switch ( pr ) {
+    case 0:   rez = wd->bold();             break;
+    case 1:   rez = wd->fixedPitch();       break;
+    case 2:   rez = wd->italic();           break;
+    case 3:   rez = wd->kerning();          break;
+    case 4:   rez = wd->overline();         break;
+    case 5:   rez = wd->strikeOut();        break;
+    case 6:   rez = wd->underline();        break;
+    }
+    return rez;
+}
+
 // ============ QIcon =======================================
 extern "C"  void* qteQIcon_create() {
      return new QIcon();
@@ -1554,6 +1667,7 @@ extern "C" void qteQPainter_setXX1(QPainter* qp, void* ob, int pr) {
     switch ( pr ) {
     case 0:   qp->setBrush(*((QBrush*)ob)); break;
     case 1:   qp->setPen(*((QPen*)ob)); break;
+    case 2:   qp->setFont(*((QFont*)ob)); break;
     }
 }
 extern "C" void qteQPainter_setText(QPainter* qp, QString* ob, int x, int y) {
@@ -1894,6 +2008,7 @@ extern "C" void qteQSpinBox_setXX1(QSpinBox* wd, int n, int pr) {
     case 0:   wd->setMinimum(n);           break;
     case 1:   wd->setMaximum(n);           break;
     case 2:   wd->setSingleStep(n);        break;
+    case 3:   wd->setValue(n);             break;
     }
 }
 // 250
@@ -1919,8 +2034,14 @@ extern "C" void qteQSpinBox_setXX2(QSpinBox* wd, QString *str, int pr) {
 Highlighter::Highlighter(QTextDocument *parent) : QSyntaxHighlighter(parent) {
      HighlightingRule rule;
 
-     keywordFormat.setForeground(Qt::magenta);
+     //Numbers
+     classFormat.setForeground(Qt::red);
+     rule.pattern = QRegExp("\\b\\d+(\\.)?\\d*\\b");
+     rule.format = classFormat;
+     highlightingRules.append(rule);
+
      // keywordFormat.setFontWeight(QFont::Bold);
+     keywordFormat.setForeground(Qt::darkBlue);
      QStringList keywordPatterns;
      keywordPatterns << "\\bchar\\b" << "\\bclass\\b" << "\\bconst\\b"
                      << "\\bdouble\\b" << "\\benum\\b" << "\\bexplicit\\b"
@@ -1944,23 +2065,25 @@ Highlighter::Highlighter(QTextDocument *parent) : QSyntaxHighlighter(parent) {
      rule.format = classFormat;
      highlightingRules.append(rule);
 
-     singleLineCommentFormat.setForeground(Qt::darkGreen);
-     rule.pattern = QRegExp("//[^\n]*");
-     rule.format = singleLineCommentFormat;
+     // functionFormat.setFontItalic(true);
+     functionFormat.setForeground(Qt::blue);
+     rule.pattern = QRegExp("\\b[A-Za-z0-9_]+(?=\\()");
+     rule.format = functionFormat;
      highlightingRules.append(rule);
 
-     multiLineCommentFormat.setForeground(Qt::darkGreen);
+     multiLineCommentFormat.setForeground(Qt::gray);
 
      quotationFormat.setForeground(Qt::darkGreen);
      rule.pattern = QRegExp("\".*\"");
      rule.format = quotationFormat;
      highlightingRules.append(rule);
 
-     // functionFormat.setFontItalic(true);
-     functionFormat.setForeground(Qt::blue);
-     rule.pattern = QRegExp("\\b[A-Za-z0-9_]+(?=\\()");
-     rule.format = functionFormat;
+     singleLineCommentFormat.setForeground(Qt::gray);
+     rule.pattern = QRegExp("//[^\n]*");
+     rule.format = singleLineCommentFormat;
      highlightingRules.append(rule);
+
+
 
      commentStartExpression = QRegExp("/\\*");
      commentEndExpression = QRegExp("\\*/");
@@ -2219,6 +2342,43 @@ extern "C" int QFontMetrics_getXX1(QFontMetrics* wd, int pr) {
 extern "C" QImage* qteQImage_create1() {
     return new QImage();
 }
+// 315
+extern "C" QImage* qteQImage_create2(int w, int h, QImage::Format f) {
+    return new QImage(w, h, f);
+}
+// 316
+extern "C" void qteQImage_fill1(QImage* wd, QColor* cl) {
+    wd->fill(*cl);
+}
+// 317
+extern "C" void qteQImage_fill2(QImage* wd, Qt::GlobalColor gc) {
+    wd->fill( gc);
+}
+// 318
+extern "C" void qteQImage_setPixel1(QImage* wd, int x, int y, uint rgb) {
+    wd->setPixel(x, y, rgb);
+}
+// 319
+extern "C" int qteQImage_getXX1(QImage* wd, int pr) {
+    int rez = 0;
+    switch ( pr ) {
+    case 0:   rez = wd->width();           break;
+    case 1:   rez = wd->height();          break;
+    case 2:   rez = wd->bitPlaneCount();   break;
+    case 3:   rez = wd->byteCount();       break;
+    case 4:   rez = wd->bytesPerLine();    break;
+    case 5:   rez = wd->colorCount();      break;
+    case 6:   rez = wd->depth();           break;
+    case 7:   rez = wd->dotsPerMeterX();   break;
+    case 8:   rez = wd->dotsPerMeterY();   break;
+    }
+    return rez;
+}
+// 321
+extern "C" QRgb qteQImage_pixel(QImage* wd, int x, int y) {
+    return wd->pixel(x, y);
+}
+
 // 304
 extern "C" void qteQImage_delete(QImage* wd) {
 #ifdef debDelete

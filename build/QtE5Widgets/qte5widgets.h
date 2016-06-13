@@ -150,7 +150,7 @@ class eQFrame : public QFrame {
     // Q_OBJECT
 public:
     void* aKeyPressEvent;
-    void* aPaintEvent;
+    // void* aPaintEvent;
     void* aCloseEvent;
     void* aResizeEvent;
 public:
@@ -158,7 +158,7 @@ public:
     ~eQFrame();
 protected:
     void keyPressEvent(QKeyEvent* event);
-    void paintEvent(QPaintEvent* event);
+    // void paintEvent(QPaintEvent* event);
     void closeEvent(QCloseEvent* event);
     void resizeEvent(QResizeEvent* event);
 };
@@ -169,6 +169,7 @@ public:
     void* aDThis;       // Хранит адрес экземпляра объекта D
     void* aKeyPressEvent;
     void* aKeyReleaseEvent;
+    void* aPaintEvent;
 public:
     explicit eQPlainTextEdit(QWidget* parent);
 public:
@@ -179,6 +180,7 @@ public:
 protected:
     void keyPressEvent(QKeyEvent* event);
     void keyReleaseEvent(QKeyEvent* event);
+    void paintEvent(QPaintEvent* event);
 };
 //___________________________________________________
 class Highlighter : public QSyntaxHighlighter

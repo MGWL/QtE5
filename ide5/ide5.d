@@ -71,6 +71,7 @@ extern (C) {
 	void  onNumStr(CEditWin* uk, int n)             { (*uk).runNumStr(); };
 //	void  onCtrlS(CEditWin* uk, int n)              { (*uk).runCtrlS(); }
 	void  onPaintCEditWin(CEditWin* uk, void* ev, void* qpaint)  { (*uk).runPaint(ev, qpaint); };
+	void  onPaintCEditWinTeEdit(CEditWin* uk, void* ev, void* qpaint)  { (*uk).runPaintTeEdit(ev, qpaint); };
 }
 // __________________________________________________________________
 class CEditWin: QWidget { //=> Окно редактора D кода
@@ -105,7 +106,6 @@ class CEditWin: QWidget { //=> Окно редактора D кода
 	QAction		acUpdateLineNumberAreaWidth;
 	CLineNumberArea		lineNumberArea;		// Область нумерации строк
 	QSpinBox	spNumStr;		// Спин для перехода на строку
-
 	// ______________________________________________________________
 	// Конструктор по умолчанию
 	this(QWidget parent, QtE.WindowType fl) { //-> Базовый конструктор
@@ -138,7 +138,9 @@ class CEditWin: QWidget { //=> Окно редактора D кода
 		sbSoob = new QStatusBar(this);
 
 		// Делаю спин
-		spNumStr = new QSpinBox(this); spNumStr.hide(); spNumStr. setStyleSheet(strGreen);
+		spNumStr = new QSpinBox(this); spNumStr.hide(); spNumStr.setStyleSheet(strGreen);
+		spNumStr.setPrefix("Goto №:  ");
+		sbSoob.addPermanentWidget(spNumStr);
 		acNumStr = new QAction(this, &onNumStr, aThis);
 		connects(spNumStr, "editingFinished()", acNumStr, "Slot_v__A_N_v()");
 
@@ -148,7 +150,7 @@ class CEditWin: QWidget { //=> Окно редактора D кода
 			.addWidget(sliderTabl);
 		sliderTabl.setMinimum(6).setMaximum(20);
 
-		vblAll.addLayout(hb2).addWidget(spNumStr).addWidget(sbSoob);
+		vblAll.addLayout(hb2).addWidget(sbSoob);
 		setLayout(vblAll);
 
 		// Обработка клавиш в редакторе
@@ -177,9 +179,16 @@ class CEditWin: QWidget { //=> Окно редактора D кода
 
 		lineNumberArea.setPaintEvent(&onPaintCEditWin, aThis());
 
+		teEdit.setPaintEvent(&onPaintCEditWinTeEdit, aThis());
+
 		setNoDelete(true);
 	}
 	~this() {
+	}
+	// ______________________________________________________________
+	void runPaintTeEdit(void* ev, void* qpaint) { //-> 
+		// При использовании Paint на QPlainTextEdit пользоваться самим Paint нельзя ...
+		lineNumberArea.update();
 	}
 	// ______________________________________________________________
 	// Перерисовать себя
@@ -197,17 +206,28 @@ class CEditWin: QWidget { //=> Окно редактора D кода
 		int blockNumber; // Номер строки (блока)
 		int lineUnderCursor = getNomerLineUnderCursor();
 
-		int kol = 100;
+		// Вычислим высоту видимой области редактора
+		int hightTeEdit;
+		{
+			QRect RectContens = new QRect(); teEdit.contentsRect(RectContens);
+			hightTeEdit = RectContens.height();
+		}
 		while(tb.isValid() && tb.isVisible()) {
 			blockNumber = tb.blockNumber();
+			int bottomTb = teEdit.bottomTextBlock(tb);
+			strNomerStr = format("%4d  ", blockNumber + 1);
 			if(blockNumber == lineUnderCursor) {
-				strNomerStr = format("%4d->", blockNumber + 1);
+				font.setBold(true).setOverline(true).setUnderline(true); 
+				qp.setFont(font);
+				qp.setText(0, bottomTb - fontMetrics.descent(), strNomerStr);
+				font.setBold(false).setOverline(false).setUnderline(false); 
+				qp.setFont(font);
 			} else {
-				strNomerStr = format("%4d", blockNumber + 1);
+				qp.setText(0, bottomTb - fontMetrics.descent(), strNomerStr);
 			}
-			qp.setText(0, teEdit.bottomTextBlock(tb) - fontMetrics.descent(), strNomerStr);
 			tb.next(tb);
-			if(kol-- == 0) break; // Ограничение на перерисовку больших файлов
+			// Если видимая высота блока больше, чем высота окна редактора, то закончить
+			if(hightTeEdit < bottomTb) break;
 		}
 		qp.end();
 	}
@@ -215,7 +235,6 @@ class CEditWin: QWidget { //=> Окно редактора D кода
 	void runNumStr() { //-> Обработка события перехода на строку
 		int num = spNumStr.value();
 		spNumStr.hide();
-
 
 		// msgbox("Переход на строку №" ~ to!string(spNumStr.value()));
 		writeln("N = ", num);
@@ -329,7 +348,17 @@ class CEditWin: QWidget { //=> Окно редактора D кода
 	}
 	// ______________________________________________________________
 	void* runKeyPressEvent(void* ev) { //-> Обработка события нажатия кнопки
+		lineNumberArea.update();
 		if( editSost == Sost.Normal) {
+			QKeyEvent qe = new QKeyEvent('+', ev);
+			switch(qe.key) {
+				case '"': insParaSkobki("\"");	break;
+				case '(': insParaSkobki(")");	break;
+				case '[': insParaSkobki("]");	break;
+				case '{': insParaSkobki("}");	break;
+				// case '/': insParaSkobki("/ ");	break;
+				default: break;
+			}
 			return ev;
 		} else {
 			return null;
@@ -343,16 +372,9 @@ class CEditWin: QWidget { //=> Окно редактора D кода
 	// ______________________________________________________________
 	void* runKeyReleaseEvent(void* ev) { //-> Обработка события отпускания кнопки
 		// Перерисуем номера строк, вызвам событие Paint через Update
-		lineNumberArea.update();
+		// lineNumberArea.update();
 		QKeyEvent qe = new QKeyEvent('+', ev);
 		if(editSost == Sost.Normal) {
-			// Вставим парные символы
-			if(qe.key == '"') { insParaSkobki("\""); return null; }
-			if(qe.key == '(') { insParaSkobki(")");  return null; }
-			if(qe.key == '[') { insParaSkobki("]");  return null; }
-			if(qe.key == '{') { insParaSkobki("}");  return null; }
-			if(qe.key == '/') { insParaSkobki("/  ");return null; }
-
 			if(qe.key == 16777216) { // ESC
 				editSost = Sost.Change;
 				teHelp.setCurrentCell(pozInTable, 0);
@@ -512,10 +534,12 @@ extern (C) {
 	void on_about(CFormaMain* uk) 		{ (*uk).about(1); }
 	void on_aboutQt(CFormaMain* uk)		{ (*uk).about(2); }
 	void on_Exit(CFormaMain* uk)			{ (*uk).runExit(); }
-	void on_DynAct(CFormaMain* uk, int n) { (*uk).runDynAct(n);  }
-	void onRunApp(CFormaMain* uk)       { (*uk).runRunApp(); }
-	void onRunProj(CFormaMain* uk)       { (*uk).runRunProj(); }
-	void onSwEdit(CFormaMain* uk, int n) {  (*uk).runSwEdit(n); }
+	void on_DynAct(CFormaMain* uk, int n)  { (*uk).runDynAct(n);  }
+	void onRunApp(CFormaMain* uk)          { (*uk).runRunApp(); }
+	void onRunProj(CFormaMain* uk)         { (*uk).runRunProj(); }
+	void onSwEdit(CFormaMain* uk, int n)   { (*uk).runSwEdit(n); }
+	void onGotoNum(CFormaMain* uk)         { (*uk).runGotoNum(); }
+	void onOnOffHelp(CFormaMain* uk)       { (*uk).runOnOffHelp(); }
 }
 // __________________________________________________________________
 class CFormaMain: QMainWindow { //=> Основной MAIN класс приложения
@@ -538,7 +562,7 @@ class CFormaMain: QMainWindow { //=> Основной MAIN класс прило
 	QMenu[] menuDyn;						// Динамическое меню
 	QMenuBar mb1;							// Строка меню сверху
 	QAction acOpen, acNewFile, acSave, acSaveAs;	// Обработчики
-	QAction acAbout, acAboutQt, acExit, acRunApp, acRunProj;
+	QAction acAbout, acAboutQt, acExit, acRunApp, acRunProj, acOnOffHelp, acGotoNum;
 	QStatusBar      stBar;					// Строка сообщений
 	QToolBar tb, tbSwWin;					// Строка кнопок
 	string[]	sShabl;						// Массив шаблонов. Первые 2 цифры - индекс
@@ -586,6 +610,16 @@ class CFormaMain: QMainWindow { //=> Основной MAIN класс прило
 		acRunProj.setIcon("ICONS/nsi.ico").setToolTip("Компилировать и выполнить проект ...");
 		connects(acRunProj, "triggered()", acRunProj, "Slot()");
 
+		acGotoNum = new QAction(this, &onGotoNum, aThis);
+		acGotoNum.setText("На строку №").setHotKey(QtE.Key.Key_G | QtE.Key.Key_ControlModifier);
+		// acGotoNum.setIcon("ICONS/nsi.ico").setToolTip("Компилировать и выполнить проект ...");
+		connects(acGotoNum, "triggered()", acGotoNum, "Slot()");
+		
+		acOnOffHelp = new QAction(this, &onOnOffHelp, aThis);
+		acOnOffHelp.setText("On/Off Таблица").setHotKey(QtE.Key.Key_H | QtE.Key.Key_ControlModifier);
+		// acGotoNum.setIcon("ICONS/nsi.ico").setToolTip("Компилировать и выполнить проект ...");
+		connects(acOnOffHelp, "triggered()", acOnOffHelp, "Slot()");
+		
 		acAbout   = new QAction(this, &on_about,    aThis, 1); 	// 1 - парам в обработчик
 		acAboutQt = new QAction(this, &on_aboutQt,  aThis, 2); 	// 2 - парам в обработчик
 		// Обработчик для About и AboutQt
@@ -611,6 +645,8 @@ class CFormaMain: QMainWindow { //=> Основной MAIN класс прило
 			.addAction(		acOpen		)
 			.addAction(		acSave		)
 			// .addAction(		acSaveAs	)
+			.addAction(     acGotoNum	)
+			.addAction(     acOnOffHelp )
 			.addSeparator()
 			.addAction(		acExit		);
 
@@ -713,7 +749,42 @@ class CFormaMain: QMainWindow { //=> Основной MAIN класс прило
 			return;
 		}
 	}
+	// ______________________________________________________________
 	~this() {
+	}
+	// ______________________________________________________________
+	// Включить/выключить таблицу подсказок
+	void runOnOffHelp() { //-> Включить выключить таблицу подсказок
+		// Определим активное окно редактора
+		int aWinEd = actWinEdit();
+		if(aWinEd == -1) {
+			msgbox("Нет активного окна для выполнения кода!", "Внимание! стр: "
+				~ to!string(__LINE__), QMessageBox.Icon.Critical);
+			return;
+		}
+		if(winEdit[aWinEd].teHelp.isHidden) {
+			winEdit[aWinEd].teHelp.show();
+		} else {
+			winEdit[aWinEd].teHelp.hide();
+		}
+	}
+	// ______________________________________________________________
+	// Запросить номер строки и перейти на неё
+	void runGotoNum() { //-> переход на строку N
+		// Определим активное окно редактора
+		int aWinEd = actWinEdit();
+		if(aWinEd == -1) {
+			msgbox("Нет активного окна для выполнения кода!", "Внимание! стр: "
+				~ to!string(__LINE__), QMessageBox.Icon.Critical);
+			return;
+		}
+		// Выключить таблицу подсказок
+		// winEdit[aWinEd].teHelp.hide();
+
+		QSpinBox sp = winEdit[aWinEd].spNumStr;
+		sp.setMinimum(1).setMaximum(winEdit[aWinEd].teEdit.blockCount());
+		sp.setValue(1 + winEdit[aWinEd].getNomerLineUnderCursor());
+		sp.show(); sp.setFocus();
 	}
 	// ______________________________________________________________
 	void loadParser() { //-> Загрузить парсер файлами из проекта

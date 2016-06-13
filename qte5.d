@@ -11,8 +11,8 @@ import std.stdio;
 
 
 int verQt5Eu = 0;
-int verQt5El = 03;
-string verQt5Ed = "25.04.16 07:53";
+int verQt5El = 04;
+string verQt5Ed = "12.06.16 11:07";
 
 alias PTRINT = int;
 alias PTRUINT = uint;
@@ -39,7 +39,9 @@ private extern (C) @nogc alias t_v__qp = void function(QtObjH);
 private extern (C) @nogc alias t_v__qp_qp = void function(QtObjH, QtObjH);
 private extern (C) @nogc alias t_v__qp_vp = void function(QtObjH, void*);
 private extern (C) @nogc alias t_v__qp_i = void function(QtObjH, int);
+private extern (C) @nogc alias t_v__qp_i_i_ui = void function(QtObjH, int, int, uint);
 private extern (C) @nogc alias t_v__vp_c = void function(void*, char);
+private extern (C) @nogc alias t_v__qp_ui = void function(QtObjH, uint);
 
 private extern (C) @nogc alias t_vp__qp = void* function(void*);
 private extern (C) @nogc alias t_v__vp_vp_vp = void function(void*, void*, void*);
@@ -55,6 +57,7 @@ private extern (C) @nogc alias t_v__qp_qp_i = void function(QtObjH, QtObjH, int)
 private extern (C) @nogc alias t_v__qp_qp_qp_i = void function(QtObjH, QtObjH, QtObjH, int);
 private extern (C) @nogc alias t_v__qp_qp_qp = void function(QtObjH, QtObjH, QtObjH);
 private extern (C) @nogc alias t_v__qp_i_i_i_i_i = void function(QtObjH, int, int, int, int, int);
+private extern (C) @nogc alias t_v__qp_ip_ip_ip_ip = void function(QtObjH, int*, int*, int*, int*);
 
 
 
@@ -69,6 +72,7 @@ private extern (C) @nogc alias t_vp__vp_cp_i = void* function(void*, char*, int)
 
 private extern (C) @nogc alias t_vpp__vp = void** function(void*);
 private extern (C) @nogc alias t_qp__qp = QtObjH function(QtObjH);
+private extern (C) @nogc alias t_qp__ui = QtObjH function(uint);
 private extern (C) @nogc alias t_qp__vp = QtObjH function(void*);
 private extern (C) @nogc alias t_c_vp__vp = const void* function(void*);
 
@@ -79,6 +83,8 @@ private extern (C) @nogc alias t_vp__vp_vp_i = void* function(void*, void*, int)
 private extern (C) @nogc alias t_qp__qp_qp_i = QtObjH function(QtObjH, QtObjH, int);
 private extern (C) @nogc alias t_vp__vp_i = void* function(void*, int);
 private extern (C) @nogc alias t_qp__qp_i = QtObjH function(QtObjH, int);
+private extern (C) @nogc alias t_ui__qp_i_i = uint function(QtObjH, int, int);
+private extern (C) @nogc alias t_ui__qp = uint function(QtObjH);
 private extern (C) @nogc alias t_qp__qp_i_i = QtObjH function(QtObjH, int, int);
 private extern (C) @nogc alias t_vp__v = void* function();
 private extern (C) @nogc alias t_qp__v = QtObjH function();
@@ -90,6 +96,7 @@ private extern (C) @nogc alias t_v__qp_b_i = void function(QtObjH, bool, int);
 
 private extern (C) @nogc alias t_vp__i_i = void* function(int, int);
 private extern (C) @nogc alias t_qp__i_i = QtObjH function(int, int);
+private extern (C) @nogc alias t_qp__i_i_i = QtObjH function(int, int, int);
 private extern (C) @nogc alias t_qp__i = QtObjH function(int);
 
 private extern (C) @nogc alias t_vp__i_i_i_i = void* function(int, int, int, int);
@@ -304,6 +311,11 @@ int LoadQt(dll ldll, bool showError) { ///  Загрузить DLL-ки Qt и Qt
 	funQt(13, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQColor_create1",          showError);
 	funQt(14, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQColor_delete",           showError);
 	funQt(15, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQColor_setRgb",           showError);
+	funQt(320,bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQColor_getRgb",           showError);
+	funQt(322,bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQColor_rgb",              showError);
+	funQt(323,bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQColor_setRgb2",          showError);
+	funQt(324,bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQColor_create2",          showError);
+	
 	// ------- QPalette -------
 	funQt(16, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQPalette_create1",        showError);
 	funQt(17, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQPalette_delete",         showError);
@@ -390,6 +402,8 @@ int LoadQt(dll ldll, bool showError) { ///  Загрузить DLL-ки Qt и Qt
 	funQt(282,bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQPlainTextEdit_firstVisibleBlock",	showError);
 	funQt(284,bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQPlainTextEdit_getXYWH",		showError);
 	funQt(294,bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQPlainTextEdit_setWordWrapMode",showError);
+	funQt(325,bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "eQPlainTextEdit_setPaintEvent",    showError);
+	funQt(326,bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQPlainTextEdit_getXX1",         showError);
 	
 	
 	//  ------- QLineEdit -------
@@ -412,6 +426,8 @@ int LoadQt(dll ldll, bool showError) { ///  Загрузить DLL-ки Qt и Qt
 	funQt(91, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQStatusBar_create1",			showError);
 	funQt(92, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQStatusBar_delete1",			showError);
 	funQt(93, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQStatusBar_showMessage",		showError);
+	funQt(314,bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQStatusBar_addWidgetXX1",		showError);
+	
 	//  ------- QAction -------
 	funQt(95, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQAction_create",				showError);
 	funQt(96, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQAction_delete",				showError);
@@ -460,6 +476,8 @@ int LoadQt(dll ldll, bool showError) { ///  Загрузить DLL-ки Qt и Qt
 	funQt(128, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQFont_delete",					showError);
 	funQt(129, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQFont_setPointSize",			showError);
 	funQt(130, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQFont_setFamily",				showError);
+	funQt(312, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQFont_setBoolXX1",				showError);
+	funQt(313, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQFont_getBoolXX1",				showError);
 	//  ------- QProgressBar -------
 	funQt(133, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQProgressBar_create",			showError);
 	funQt(134, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQProgressBar_delete",			showError);
@@ -656,14 +674,21 @@ int LoadQt(dll ldll, bool showError) { ///  Загрузить DLL-ки Qt и Qt
 	funQt(303, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQImage_create1",					showError);
 	funQt(304, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQImage_delete",					showError);
 	funQt(305, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQImage_load",						showError);
+	funQt(315, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQImage_create2",					showError);
 
+	funQt(316, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQImage_fill1",						showError);
+	funQt(317, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQImage_fill2",						showError);
+	funQt(318, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQImage_setPixel1",					showError);
+	funQt(319, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQImage_getXX1",					showError);
+	funQt(321, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQImage_pixel",						showError);
+	
 	// ------- QPoint -------
 	funQt(306, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQPoint_create1",					showError);
 	funQt(307, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQPoint_delete",					showError);
 	funQt(308, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQPoint_setXX1",					showError);
 	funQt(309, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQPoint_getXX1",					showError);
 
-	// Последний = 311
+	// Последний = 325
 	return 0;
 } ///  Загрузить DLL-ки Qt и QtE. Найти в них адреса функций и заполнить ими таблицу
 
@@ -1187,12 +1212,27 @@ class QColor : QObject {
 	this() {
 		setQtObj((cast(t_qp__v) pFunQt[13])());
 	} /// Конструктор
+	this(uint color) {
+		setQtObj((cast(t_qp__ui) pFunQt[324])(color));
+	}
 	~this() {
 		if(!fNoDelete && (QtObj != null)) { (cast(t_v__qp) pFunQt[14])(QtObj); setQtObj(null); }
 	} /// Деструктор
-	void setRgb(int r, int g, int b, int a = 255) {
+	QColor setRgb(int r, int g, int b, int a = 255) {
 		(cast(t_v__qp_i_i_i_i) pFunQt[15])(QtObj, r, g, b, a);
+		return this;
 	} /// Sets the RGB value to r, g, b and the alpha value to a. All the values must be in the range 0-255.
+	QColor getRgb(int* r, int* g, int* b, int* a) {
+		(cast(t_v__qp_ip_ip_ip_ip) pFunQt[320])(QtObj, r, g, b, a);
+		return this;
+	} /// Sets the RGB value to r, g, b and the alpha value to a. All the values must be in the range 0-255.
+	QColor setRgba(uint r) { //-> Установить цвет (QRgb Qt)
+		(cast(t_v__qp_ui) pFunQt[323])(QtObj, r);
+		return this;
+	}
+	uint rgb() { //-> Получить цвет (QRgb Qt)
+		return (cast(t_ui__qp) pFunQt[322])(QtObj);
+	}
 }
 // ================ QBrush ================
 /++
@@ -1438,6 +1478,48 @@ class QWidget: QPaintDevice {
 	}
 	bool hasFocus() { //-> Виджет имеет фокус
 		return (cast(t_b__qp_i) pFunQt[259])(QtObj, 0); 
+	}
+	bool acceptDrops() { //->
+		return (cast(t_b__qp_i) pFunQt[259])(QtObj, 1); 
+	}
+	bool autoFillBackground() { //->
+		return (cast(t_b__qp_i) pFunQt[259])(QtObj, 2); 
+	}
+	bool hasMouseTracking() { //->
+		return (cast(t_b__qp_i) pFunQt[259])(QtObj, 3); 
+	}
+	bool isActiveWindow() { //->
+		return (cast(t_b__qp_i) pFunQt[259])(QtObj, 4); 
+	}
+	bool isEnabled() { //->
+		return (cast(t_b__qp_i) pFunQt[259])(QtObj, 5); 
+	}
+	bool isFullScreen() { //->
+		return (cast(t_b__qp_i) pFunQt[259])(QtObj, 6); 
+	}
+	bool isHidden() { //->
+		return (cast(t_b__qp_i) pFunQt[259])(QtObj, 7); 
+	}
+	bool isMaximized() { //->
+		return (cast(t_b__qp_i) pFunQt[259])(QtObj, 8); 
+	}
+	bool isMinimized() { //->
+		return (cast(t_b__qp_i) pFunQt[259])(QtObj, 9); 
+	}
+	bool isModal() { //->
+		return (cast(t_b__qp_i) pFunQt[259])(QtObj, 10); 
+	}
+	bool isWindow() { //->
+		return (cast(t_b__qp_i) pFunQt[259])(QtObj, 11); 
+	}
+	bool isWindowModified() { //->
+		return (cast(t_b__qp_i) pFunQt[259])(QtObj, 12); 
+	}
+	bool underMouse() { //->
+		return (cast(t_b__qp_i) pFunQt[259])(QtObj, 13); 
+	}
+	bool updatesEnabled() { //->
+		return (cast(t_b__qp_i) pFunQt[259])(QtObj, 14); 
 	}
 	QWidget setGeometry(int x, int y, int w, int h) { //-> Установить геометрию виджета
 		(cast(t_v__qp_i_i_i_i) pFunQt[279])(QtObj, x, y, w, h); return this; 
@@ -1891,6 +1973,9 @@ class QPainter : QObject {
 	QPainter setPen(QPen qp) {
 		(cast(t_v__qp_qp_i) pFunQt[190])(QtObj, qp.QtObj, 1); return this;
 	}
+	QPainter setFont(QFont qp) {
+		(cast(t_v__qp_qp_i) pFunQt[190])(QtObj, qp.QtObj, 2); return this;
+	}
 	QPainter setText(int x, int y, QString qs) {
 		(cast(t_v__qp_qp_i_i) pFunQt[196])(QtObj, qs.QtObj, x, y); return this;
 	}
@@ -2023,6 +2108,10 @@ class QPlainTextEdit : QAbstractScrollArea {
 		}
 	} /// Конструктор
 
+	override QPlainTextEdit setPaintEvent(void* adr, void* adrThis = null) { 
+		(cast(t_v__qp_qp_qp) pFunQt[325])(QtObj, cast(QtObjH)adr, cast(QtObjH)adrThis); return this; 
+	} /// Установить обработчик на событие PaintEvent. Здесь <u>adr</u> - адрес на функцию D +/
+
 	override QPlainTextEdit setKeyPressEvent(void* adr, void* adrThis = null) {
 		(cast(t_v__qp_qp_qp) pFunQt[80])(QtObj, cast(QtObjH)adr, cast(QtObjH)adrThis); return this; 
 	} /// Установить обработчик на событие KeyPressEvent. Здесь <u>adr</u> - адрес на функцию D +/
@@ -2116,6 +2205,15 @@ class QPlainTextEdit : QAbstractScrollArea {
 	}
 	QPlainTextEdit setWordWrapMode(QTextOption option) { //-> Установить режим переноса текста
 		(cast(t_v__qp_qp) pFunQt[294])(QtObj, option.QtObj); return this;
+	}
+	int blockCount() { //-> Количество строчек
+		return (cast(t_i__qp_i) pFunQt[326])(QtObj, 0);
+	}
+	int maximumBlockCount() { //-> Макс кол строчек возможных в документе
+		return (cast(t_i__qp_i) pFunQt[326])(QtObj, 1);
+	}
+	int cursorWidth() { //-> Толщина курсора в пикселах
+		return (cast(t_i__qp_i) pFunQt[326])(QtObj, 1);
 	}
 	
 }
@@ -2292,6 +2390,12 @@ class QStatusBar : QWidget {
 		showMessage!QString(new QString(to!string(str)), timeout);
 		return this;
 	} /// Установить текст на кнопке
+	QStatusBar addPermanentWidget(QWidget wd, int stretch = 0) { //-> Установить закрепленный справа виджет
+		(cast(t_v__qp_qp_i_i)pFunQt[314])(QtObj, wd.QtObj, stretch, 0);	return this;
+	} /// Установить закрепленный справа виджет
+	QStatusBar addWidget(QWidget wd, int stretch = 0) { //-> Установить закрепленный справа виджет
+		(cast(t_v__qp_qp_i_i)pFunQt[314])(QtObj, wd.QtObj, stretch, 1);	return this;
+	} /// Установить закрепленный справа виджет
 }
 
 // ================ QAction ================
@@ -2456,6 +2560,54 @@ class QFont : QObject {
 		setFamily((new QString(to!string(str))).QtObj);
 		return this;
 	} /// Наименование шрифта Например: "True Times"
+	QFont setFamily(T)(T str) {
+		setFamily((new QString(to!string(str))).QtObj);
+		return this;
+	} /// Наименование шрифта Например: "True Times"
+	QFont setBold(bool enable) { //->
+		(cast(t_v__qp_b_i) pFunQt[312])(QtObj, enable, 0);	return this;
+	}
+	QFont setFixedPitch(bool enable) { //->
+		(cast(t_v__qp_b_i) pFunQt[312])(QtObj, enable, 1);	return this;
+	}
+	QFont setItalic(bool enable) { //->
+		(cast(t_v__qp_b_i) pFunQt[312])(QtObj, enable, 2);	return this;
+	}
+	QFont setKerning(bool enable) { //->
+		(cast(t_v__qp_b_i) pFunQt[312])(QtObj, enable, 3);	return this;
+	}
+	QFont setOverline(bool enable) { //-> Верхнее подчеркивание
+		(cast(t_v__qp_b_i) pFunQt[312])(QtObj, enable, 4);	return this;
+	}
+	QFont setStrikeOut(bool enable) { //->
+		(cast(t_v__qp_b_i) pFunQt[312])(QtObj, enable, 5);	return this;
+	}
+	QFont setUnderline(bool enable) { //->
+		(cast(t_v__qp_b_i) pFunQt[312])(QtObj, enable, 6);	return this;
+	}
+	bool bold() { //->
+		return (cast(t_b__qp_i) pFunQt[313])(QtObj, 0);
+	}
+	bool fixedPitch() { //->
+		return (cast(t_b__qp_i) pFunQt[313])(QtObj, 1);
+	}
+	bool italic() { //->
+		return (cast(t_b__qp_i) pFunQt[313])(QtObj, 2);
+	}
+	bool kerning() { //->
+		return (cast(t_b__qp_i) pFunQt[313])(QtObj, 3);
+	}
+	bool overline() { //->
+		return (cast(t_b__qp_i) pFunQt[313])(QtObj, 4);
+	}
+	bool strikeOut() { //->
+		return (cast(t_b__qp_i) pFunQt[313])(QtObj, 5);
+	}
+	bool underline() { //->
+		return (cast(t_b__qp_i) pFunQt[313])(QtObj, 6);
+	}
+
+	
 }
 
 // ================ QIcon ================
@@ -3684,6 +3836,9 @@ class QSpinBox : QAbstractSpinBox {
 	QSpinBox setSingleStep(int n) { //-> Установить приращение
 		(cast(t_v__qp_i_i) pFunQt[249])(QtObj, n, 2); return this;
 	}
+	QSpinBox setValue(int n) { //-> Установить значение
+		(cast(t_v__qp_i_i) pFunQt[249])(QtObj, n, 3); return this;
+	}
 	int minimum() { //-> Получить минимальное
 		return (cast(t_i__qp_i) pFunQt[250])(QtObj, 0);
 	}
@@ -3949,6 +4104,11 @@ class QImage: QPaintDevice {
 	this() {
 		setQtObj((cast(t_qp__v)pFunQt[303])());
 	}
+	// Warning: This will create a QImage with uninitialized data.
+	// Call fill() to fill the image with an appropriate pixel value before drawing onto it with QPainter.
+	this(int width, int height, QImage.Format format) {
+		setQtObj((cast(t_qp__i_i_i)pFunQt[315])(width, height, format));
+	}
 	~this() {
 		if(!fNoDelete && (QtObj != null)) { (cast(t_v__qp) pFunQt[304])(QtObj); setQtObj(null); }
 	}
@@ -3959,7 +4119,48 @@ class QImage: QPaintDevice {
 		return (cast(t_b__qp_qp) pFunQt[305])(QtObj, (new QString(to!string(str))).QtObj);
 	}
 	
-	
+	QImage fill(QColor cl) { //-> заполнить цветом
+		(cast(t_v__qp_qp) pFunQt[316])(QtObj, cl.QtObj); return this;
+	}
+	QImage fill(QtE.GlobalColor gc) { //-> заполнить цветом
+		(cast(t_v__qp_i) pFunQt[317])(QtObj, gc); return this;
+	}
+	QImage setPixel(int x, int y, uint index_or_rgb) { //->
+		(cast(t_v__qp_i_i_ui) pFunQt[318])(QtObj, x, y, index_or_rgb); return this;
+	}
+	int width() { //-> Ширина
+		return (cast(t_i__qp_i) pFunQt[319])(QtObj, 0);
+	}
+	int height() { //-> Высота
+		return (cast(t_i__qp_i) pFunQt[319])(QtObj, 1);
+	}
+	int bitPlaneCount() { //-> Похоже, что глубина цвета
+		return (cast(t_i__qp_i) pFunQt[319])(QtObj, 2);
+	}
+	int byteCount() { //-> Общее количество байтов в IMage (4 байта на пиксел для 24 глубины)
+		return (cast(t_i__qp_i) pFunQt[319])(QtObj, 3);
+	}
+	int bytesPerLine() { //-> Количество байт на строку изображения
+		return (cast(t_i__qp_i) pFunQt[319])(QtObj, 4);
+	}
+	int colorCount() {  //-> Возвращает размер таблицы цветов для изображения.
+						// Заметьте, что colorCount () возвращается 0 для изображений на 32 бит/пкс,
+						// потому что эти изображения не используют таблицы цветов,
+						// но вместо этого кодируют пиксельные значения квадруплетными ARGB.
+		return (cast(t_i__qp_i) pFunQt[319])(QtObj, 5);
+	}
+	int depth() { //->
+		return (cast(t_i__qp_i) pFunQt[319])(QtObj, 6);
+	}
+	int dotsPerMeterX() { //->
+		return (cast(t_i__qp_i) pFunQt[319])(QtObj, 7);
+	}
+	int dotsPerMeterY() { //->
+		return (cast(t_i__qp_i) pFunQt[319])(QtObj, 8);
+	}
+	uint pixel(int x, int y) { //-> Вернуть uint (QRgb Qt) quadruplet on the format #AARRGGBB, equivalent to an unsigned int.
+		return (cast(t_ui__qp_i_i) pFunQt[321])(QtObj, x, y);
+	}
 }
 
 // ================ QPoint ================
