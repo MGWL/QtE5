@@ -828,6 +828,7 @@ class CFormaMain: QMainWindow { //=> Основной MAIN класс прило
 		string rez;
 		version (Windows) {	rez = nameCompile;         }
 		version (linux)   { rez = nameCompile[0..$-4]; }
+		version (OSX)   { rez = nameCompile[0..$-4]; }
 		return rez;
 	}
 	// ______________________________________________________________
@@ -893,7 +894,7 @@ class CFormaMain: QMainWindow { //=> Основной MAIN класс прило
 			return;
 		}
 		if(aWinEd > -1) {
-			auto logFile = File(nameLog, "w");
+			auto logFile = File("./nameLog.txt", "w");
 				auto pid = spawnProcess([nameDMDonOs(), nameFile, "asc1251", "qte5"],
 					std.stdio.stdin,
 					std.stdio.stdout,
@@ -903,9 +904,18 @@ class CFormaMain: QMainWindow { //=> Основной MAIN класс прило
 				string sLog = cast(string)read(nameLog);
 				msgbox(sLog, "Ошибки компиляции ...");
 			} else {
-				writeln(toCON("---- Выполняю: " ~ nameFile[0..$-2]), " ------------------------");
-				// msgbox(nameFile[0..$-2]);
-				auto pid2 = spawnProcess([nameFile[0..$-2]]);
+				string nameRunFile;
+				version (Windows) {
+					nameRunFile = nameFile[0..$-2];
+				}
+				version (linux) {
+					nameRunFile = nameFile[0..$-2];
+				}
+				version (OSX) {
+					nameRunFile = nameFile[0..$-2];
+				}
+				writeln(toCON("---- Выполняю: " ~ nameRunFile ~ " ----"));
+				auto pid2 = spawnProcess(nameRunFile);
 			}
 		} else {
 			msgbox("Не выбрано окно исходного текста для сохранения", "Внимание! стр: "
