@@ -58,10 +58,726 @@ void XXX( ... ) {
 
 %1|Вставки|Логически-связанные вставки кода
 
-%1010|Вставка №1|Обычный If
-// ...
-if(...) {
+%1010|Форматное чтение файла|Обычный If
+int nomer; string fam, nam, jt, dtr;
+File f = File(r"c:\qte_work\sql\all_260715.csv","r");
+while(!f.eof()) {
+    f.readf("%s;%s;%s;%s;%s\n", &nomer, &fam, &nam, &ot, &dtr);
+    writeln(i, " [", nomer, "] - [", fam, "] - [", nam, "] - [", ot, "] - [", dtr, "]");
 }
+%1110|Примеры работы с файлами|
+// -----------  Читаем файл --------
+try {
+		// 2ой параметр File — это режим доступа к файлу, он идентичен режиму из функции fopen стандартной библиотеки C.
+		//
+		// r — открыть файл на чтение. Файл должен существовать.
+		// w — создать пустой файл для записи. Если файл с таким же
+		// именем уже существует, его содержимое будет удалено, и
+		// файл считается пустым.
+		// a — открыть файл на запись в конце файла. Операции вывода
+		// всегда записывают данные в конец файла, увеличивая его объём.
+		// Операции переразмещения данных игнорируются.
+		// Если файл не существует, он создаётся.
+		// r+ — открыть файл на обновление (чтение и запись).
+		// Файл должен существовать.
+		// w+ — создать пустой файл и открыть его на обновление (на чтение
+		// и запись). Если файл с таким именем уже существует,
+		//    его содержимое удаляется, и файл считается пустым.
+		// a+ — открыть файл на обновление (чтение и запись), причём все
+		// операции вывода записывают данные в конец файла.
+		// Операции переразмещения влияют на следующие операции чтения,
+		// однако операции записи перемещают позицию в конец файла.
+		// Если файл не существует, он создаётся.
+
+		auto file = File("test.txt", "r");
+
+		// Файл закрывается автоматически, но можно его закрыть вручную,
+		// если нужно.
+		file.close();
+		// прим. перев.: Если кто-то параноик вроде меня и таки сомневается, что файл
+		// закрывается при выходе из программы, можно использовать приблизительный аналог
+		// Go'шного defer:
+		// scope(exit) file.close();
+	}
+	catch (ErrnoException ex)
+	{
+		switch(ex.errno)
+		{
+			case EPERM:
+			case EACCES:
+				// Доступ запрещён
+				break;
+			case ENOENT:
+				// Файл не существует
+				break;
+			default:
+				// Обрабатываем другие ошибки
+				break;
+		}
+	}
+
+// -----------  Ищем позицию в файле --------
+
+import std.exception;
+import std.stdio;
+
+void main(string[] args)
+{
+	try
+	{
+		auto file = File("test.txt", "r");
+
+		// Переходим на 10 байт от начала файла.
+		file.seek(10, SEEK_SET);
+
+		// Переходим на 2 байта назад от текущей позиции.
+		file.seek(-2, SEEK_CUR);
+
+		// Переходим на 4 байта назад от конца файла.
+		file.seek(-4, SEEK_END);
+
+		// Получить текущую позицию смещения.
+		auto pos = file.tell();
+
+		// Переходим назад к началу файла.
+		file.rewind();
+	}
+	catch (ErrnoException ex)
+	{
+		// Обрабатываем ошибки
+	}
+}
+// ----------- Записываем байты в файл --------
+import std.exception;
+import std.stdio;
+
+void main(string[] args)
+{
+	try
+	{
+		byte[] data = [0x68, 0x65, 0x6c, 0x6c, 0x6f];
+		auto file = File("test.txt", "w");
+		file.rawWrite(data);
+	}
+	catch (ErrnoException ex)
+	{
+		// Обрабатываем ошибки
+	}
+}
+// ----------- Быстрая запись в файл --------
+import std.file;
+
+void main(string[] args)
+{
+	try
+	{
+		write("test.txt", [0x68, 0x65, 0x6c, 0x6c, 0x6f]);
+	}
+	catch (FileException ex)
+	{
+		// Обрабатываем ошибки
+	}
+}
+// ----------- Записываем строки в файл --------
+import std.exception;
+import std.stdio;
+
+void main(string[] args)
+{
+	try
+	{
+		auto file = File("test.txt", "w");
+		// Записываем строку.
+		file.write("1: Lorem ipsum\n");
+		// Записываем строку, за которой следует символ перевода строки.
+		file.writeln("2: Lorem ipsum");
+		// Записываем форматированную строку.
+		file.writef("3: %s", "Lorem ipsum\n");
+		// Записываем форматированную строку, за которой следует символ перевода строки.
+		file.writefln("4: %s", "Lorem ipsum");
+	}
+	catch (ErrnoException ex)
+	{
+		// Обрабатываем ошибки
+	}
+}
+// ----------- Использование буфера ввода-вывода перед записью в файл --------
+import std.file;
+import std.outbuffer;
+
+void main(string[] args)
+{
+	auto buffer  = new OutBuffer();
+	ubyte[] data = [0x68, 0x65, 0x6c, 0x6c, 0x6f];
+	buffer.write(data);
+	buffer.write(' ');
+	buffer.write("world");
+	try
+	{
+		write("test.txt", buffer.toBytes());
+	}
+	catch (FileException ex)
+	{
+		// Обрабатываем ошибки
+	}
+}
+// ----------- Читаем байты из файла --------
+import std.exception;
+import std.stdio;
+
+void main(string[] args)
+{
+	try
+	{
+		byte[] buffer;
+		buffer.length = 1024;
+		auto file = File("test.txt", "r");
+		auto data = file.rawRead(buffer);
+	}
+	catch (ErrnoException ex)
+	{
+		// Обрабатываем ошибки
+	}
+}
+// ----------- Быстрое чтение из файла --------
+import std.file;
+
+void main(string[] args)
+{
+	try
+	{
+		auto data = cast(byte[]) read("test.txt");
+	}
+	catch (FileException ex)
+	{
+		// Обрабатываем ошибки
+	}
+}
+// ----------- Читаем n байт из файла --------
+import std.file;
+
+void main(string[] args)
+{
+	try
+	{
+		auto data = cast(byte[]) read("test.txt", 5);
+	}
+	catch (FileException ex)
+	{
+		// Обрабатываем ошибки
+	}
+}
+// ----------- Чтение файла порциями --------
+import std.exception;
+import std.stdio;
+
+void main(string[] args)
+{
+	try
+	{
+		auto file = File("test.txt", "r");
+
+		foreach (buffer; file.byChunk(1024))
+		{
+			// Используем переменную buffer
+		}
+	}
+	catch (ErrnoException ex)
+	{
+		// Обрабатываем ошибки
+	}
+}
+// ----------- Читаем строки из файла --------
+import std.exception;
+import std.stdio;
+
+void main(string[] args)
+{
+	try
+	{
+		auto file = File("test.txt", "r");
+		string line;
+
+		while ((line = file.readln()) !is null)
+		{
+			// Используем переменную line
+		}
+	}
+	catch (ErrnoException ex)
+	{
+		// Обрабатываем ошибки
+	}
+}
+// ----------- Читаем строки из файла в выделенный буфер --------
+import std.exception;
+import std.stdio;
+
+void main(string[] args)
+{
+	try
+	{
+		auto file = File("test.txt", "r");
+		char[] buffer;
+
+		while (file.readln(buffer))
+		{
+			// Используем переменную buffer
+		}
+	}
+	catch (ErrnoException ex)
+	{
+		// Обрабатываем ошибки
+	}
+}
+// ----------- Читаем файл как диапазон строк --------
+// Чтение файла как диапазона позволяет вам использовать множество
+// типовых алгоритмов, определённых в библиотеке Phobos.
+
+import std.exception;
+import std.stdio;
+
+void main(string[] args)
+{
+	try
+	{
+		auto file = File("test.txt", "r");
+
+		foreach (line; file.byLine)
+		{
+			// Используем переменную line
+		}
+	}
+	catch (ErrnoException ex)
+	{
+		// Обрабатываем ошибки
+	}
+}
+
+// Метод byLine возвращает входной диапазон, который считывает
+// из дескриптора файла одну строку за раз. При каждом вызове буфер
+// используется снова, поэтому если вам нужно сохранять данные между
+// вызовами, вы должны их копировать. Впрочем, существует удобный метод byLineCopy,
+// который делает это автоматически.
+
+// ----------- Быстрое чтение целого файла как одна строка --------
+import std.file;
+import std.utf;
+
+void main(string[] args)
+{
+	try
+	{
+		// Чтение и валидация UTF8-файла.
+		auto utf8Data  = readText("test.txt");
+		// Чтение и валидация UTF16-файла.
+		auto utf16Data = readText!(wstring)("test.txt");
+		// Чтение и валидация utf32-файла..
+		auto utf32Data = readText!(dstring)("test.txt");
+	}
+	catch (UTFException ex)
+	{
+		// Обрабатываем ошибки валидации
+	}
+	catch (FileException ex)
+	{
+		// Обрабатываем ошибки
+	}
+}
+
+Базовые операции
+
+Создание пустого файла
+
+Нижеприведённый код создаёт пустой файл (если он уже не существует) при инициализации структуры типа File. Если файл с таким именем уже существует, его содержимое удаляется, и файл считается пустым.
+
+import std.exception;
+
+void main(string[] args)
+{
+	try
+	{
+		File("test.txt", "w");
+	}
+	catch (ErrnoException ex)
+	{
+		// Обрабатываем ошибки
+	}
+}
+
+Документация.
+
+Проверка на существование файла
+
+Этот код просто проверяет, существует ли файл.
+
+import std.file;
+
+void main(string[] args)
+{
+	if (exists("test.txt"))
+	{
+		// Используем файл
+	}
+}
+
+Документация.
+
+Переименование и перемещение файла
+
+Этот код переименовывает и/или перемещает файл. Если целевой файл существует, он будет перезаписан.
+
+import std.file;
+
+void main(string[] args)
+{
+	try
+	{
+		rename("source.txt", "destination.txt");
+	}
+	catch (FileException ex)
+	{
+		// Обрабатываем ошибки
+	}
+}
+
+Документация.
+
+Копирование файла
+
+Этот код копирует файл. Если целевой файл существует, он будет перезаписан.
+
+import std.file;
+
+void main(string[] args)
+{
+	try
+	{
+		copy("source.txt", "destination.txt");
+	}
+	catch (FileException ex)
+	{
+		// Обрабатываем ошибки
+	}
+}
+
+Документация.
+
+Удаление файла
+
+Этот код просто удаляет файл.
+
+import std.file;
+
+void main(string[] args)
+{
+	try
+	{
+		remove("test.txt");
+	}
+	catch (FileException ex)
+	{
+		// Обрабатываем ошибки
+	}
+}
+
+Документация.
+
+Получение информации о файле
+
+Этот код получает информацию о файле подобно тому, как вы бы сделали это командой stat (англ.: сорри, в Википедии пока нет русскоязычной статьи — прим. перев.) в POSIX-совместимой операционной системе. Ниже показано получение только кроссплатформенной информации. Другая информация доступна в зависимости от операционной системы, её можно получить декодированием свойства attributes.
+
+import std.file;
+import std.stdio : writefln;
+
+void main(string[] args)
+{
+	try
+	{
+		auto file = DirEntry("test.txt");
+
+		writefln("Имя файла: %s", file.name);
+		writefln("Является каталогом: %s", file.isDir);
+		writefln("Является файлом: %s", file.isFile);
+		writefln("Является символической ссылкой: %s", file.isSymlink);
+		writefln("Размер в байтах: %s", file.size);
+		writefln("Время последнего доступа: %s", file.timeLastAccessed);
+		writefln("Время последнего изменения: %s", file.timeLastModified);
+		writefln("Атрибуты: %b", file.attributes);
+	}
+	catch (FileException ex)
+	{
+		// Обрабатываем ошибки
+	}
+}
+
+Документация.
+
+Усечение существующего файла
+
+Этот код усекает существующий файл до 100 байт. Если исходный файл меньше, усечения не происходит.
+
+import std.file;
+
+void main(string[] args)
+{
+	auto file = "test.txt";
+	auto size = 100;
+
+	try
+	{
+		if (file.exists() && file.isFile())
+		{
+			write(file, read(file, size));
+		}
+	}
+	catch (FileException ex)
+	{
+		// Обрабатываем ошибки
+	}
+}
+
+Документация.
+
+Архивирование
+
+Создание zip-архива
+
+Основываясь на следующих примерах, этот код показывает, как создать zip-архив.
+
+import std.file;
+import std.outbuffer;
+import std.string;
+import std.zip;
+
+void main(string[] args)
+{
+	try
+	{
+		auto file = new ArchiveMember();
+		file.name = "test.txt";
+
+		auto data = new OutBuffer();
+		data.write("Lorem ipsum");
+		file.expandedData = data.toBytes();
+
+		auto zip = new ZipArchive();
+		zip.addMember(file);
+
+		write("test.zip", zip.build());
+	}
+	catch (ZipException ex)
+	{
+		// Обрабатываем ошибки
+	}
+}
+
+Документация.
+
+Чтение zip-архива
+
+В следующем примере показано, как прочитать zip-архив.
+
+import std.file;
+import std.zip;
+
+void main(string[] args)
+{
+	try
+	{
+		auto zip = new ZipArchive(read("test.zip"));
+
+		foreach (filename, member; zip.directory)
+		{
+			auto data = zip.expand(member);
+
+			// Используем переменную data
+		}
+	}
+	catch (ZipException ex)
+	{
+		// Обрабатываем ошибки
+	}
+}
+
+Документация.
+
+Сжатие данных
+
+Запись сжатых данных в файл
+
+В следующем примере показано, как сжимать данные перед отправкой их в файл.
+
+import std.file;
+import std.zlib;
+
+void main(string[] args)
+{
+	try
+	{
+		auto data = compress("Lorem ipsum dolor sit amet");
+
+		write("test.dat", data);
+	}
+	catch (ZlibException ex)
+	{
+		// Обрабатываем ошибки
+	}
+}
+
+В предыдущем примере сжимается строка, однако сжать можно любые данные. Модуль std.zlib использует библиотеку Zlib языка C.
+
+Документация.
+
+Чтение сжатых данных из файла
+
+Ниже показано, как читать сжатые данные из файла.
+
+import std.file;
+import std.zlib;
+
+void main(string[] args)
+{
+	try
+	{
+		auto data = uncompress(read("test.dat"));
+
+		// Используем несжатые данные
+	}
+	catch (ZlibException ex)
+	{
+		// Обрабатываем ошибки
+	}
+}
+
+Документация.
+
+POSIX-операции
+
+Изменение прав доступа к файлу
+
+Этот код изменяет права доступа к файлам в POSIX-совместимых операционных системах, таких, как Linux или Mac OS. В библиотеке Phobos для этой задачи нет кроссплатформенного решения, поэтому мы можем использовать только системные вызовы, специфичные для POSIX.
+
+import core.stdc.errno;
+import core.sys.posix.sys.stat;
+import std.conv;
+import std.string;
+
+void main(string[] args)
+{
+	auto file   = "test.txt";
+	auto result = chmod(file.toStringz(), octal!(666));
+
+	if (result != 0)
+	{
+		switch(errno)
+		{
+			case EPERM:
+			case EACCES:
+				// Доступ запрещён
+				break;
+
+			case ENOENT:
+				// Файл не существует
+				break;
+
+			default:
+				// Обрабатываем остальные ошибки
+				break;
+		}
+	}
+}
+
+Системный вызов chmod работает абсолютно идентично команде chmod из командной оболочки Unix. Указывается имя файла и его новые права доступа (выраженные в виде восьмеричного числа). Чтобы изменять файл таким образом, вам нужны права доступа на саму эту операцию. Для этого вам нужно быть владельцем файла или суперпользователем.
+
+Документация.
+
+Изменение владельца файла
+
+Этот код изменяет владельца файла в POSIX-совместимых системах. Когда вы становитесь владельцем, можно изменять права доступа файла, не будучи суперпользователем.
+
+import core.stdc.errno;
+import core.sys.posix.pwd;
+import core.sys.posix.unistd;
+import std.string;
+
+void main(string[] args)
+{
+	auto username = "gary";
+	auto file     = "test.txt";
+	auto record   = getpwnam(username.toStringz());
+
+	if (record !is null)
+	{
+		auto user   = record.pw_uid;
+		auto group  = record.pw_gid;
+		auto result = chown(file.toStringz(), user, group);
+
+		if (result != 0)
+		{
+			switch(errno)
+			{
+				case EPERM:
+					// Доступ запрещён
+					break;
+
+				default:
+					// Обрабатываем остальные ошибки
+					break;
+			}
+		}
+	}
+}
+
+// Системный вызов chown работает абсолютно аналогично команде chown оболочки Unix. Указывается имя файла и его новый владелец и группа. Чтобы изменять владельца файла, ваша программа должна обладать правами суперпользователя.
+
+Создание жёстких и символических ссылок
+
+Иногда в POSIX-совместимых системах бывает нужно создать жёсткую или символическую ссылку. В следующем примере показано, как создать жёсткую ссылку.
+
+import core.stdc.errno;
+import core.sys.posix.unistd;
+import std.string;
+
+void main(string[] args)
+{
+	auto file   = "test.txt";
+	auto linked = "link.txt";
+	auto result = link(file.toStringz(), linked.toStringz());
+
+	if (result != 0)
+	{
+		switch(errno)
+		{
+			case EPERM:
+			case EACCES:
+				// Доступ запрещён
+				break;
+
+			case EEXIST:
+				// Ссылка с таким именем уже существует
+				break;
+
+			case ENOENT:
+				// Файл не существует
+
+			default:
+				// Обрабатываем остальные ошибки
+				break;
+		}
+	}
+}
+
+Чтобы создать символическую ссылку, замените строку
+auto result = link(file.toStringz(), linked.toStringz());
+строкой
+auto result = symlink(file.toStringz(), linked.toStringz());
+
+Заключение
+
+Редко существует один канонический способ работы с файлами, и разработчикам нравится выполнять различные файловые задачи собственным, особым образом. Надеюсь, эта статья показала мощь и удобство языка D и позволила выделить удобные функции стандартной библиотеки для работы с файлами.
+
+
+
 
 
 %2|Демо|Демонстрационные программы
@@ -167,4 +883,12 @@ int main(string[] args) {
 	app.exec();
 	return 0;
 }
+%2510|Форматное чтение|Форматное чтение
+// Файл example1.d - example Hello world!
+// -------- compile ---------
 
+File f = File(r"c:\qte_work\sql\all_260715.csv","r");
+while(!f.eof()) {
+    f.readf("%s;%s;%s;%s;%s\n", &nomer, &fam, &nam, &ot, &dtr);
+    writeln(i, " [", nomer, "] - [", fam, "] - [", nam, "] - [", ot, "] - [", dtr, "]");
+}

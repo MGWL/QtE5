@@ -569,6 +569,8 @@ class CFormaMain: QMainWindow { //=> Основной MAIN класс прило
 	QToolBar tb, tbSwWin;					// Строка кнопок
 	string[]	sShabl;						// Массив шаблонов. Первые 2 цифры - индекс
 	CFinder finder1;						// Поисковик
+	QCheckBox cbDebug;
+	string[] swCompile = [ "qte5", "asc1251" ];
 
 	// ______________________________________________________________
 	this() { //-> Базовый конструктор
@@ -669,6 +671,12 @@ class CFormaMain: QMainWindow { //=> Основной MAIN класс прило
 		tb = new QToolBar(this); tbSwWin = new QToolBar(this);
 		// tb.setStyleSheet(strElow);
 		tbSwWin.setStyleSheet( strElow );
+		
+		// CheckBox for debug compole options
+		cbDebug = new QCheckBox(this);
+		cbDebug.setText("debug");
+		cbDebug.setToolTip("-debug --> in parametrs of compile");
+		
 		// Настраиваем ToolBar
 		tb.setToolButtonStyle(QToolBar.ToolButtonStyle.ToolButtonTextBesideIcon);
 		tb
@@ -676,7 +684,9 @@ class CFormaMain: QMainWindow { //=> Основной MAIN класс прило
 			.addSeparator()
 			// .addAction(acExit)
 			.addAction(acRunApp)
-			.addAction(acRunProj);
+			.addAction(acRunProj)
+			.addSeparator()
+			.addWidget(cbDebug);
 
 		addToolBar(QToolBar.ToolBarArea.TopToolBarArea, tb);
 
@@ -828,7 +838,6 @@ class CFormaMain: QMainWindow { //=> Основной MAIN класс прило
 		string rez;
 		version (Windows) {	rez = nameCompile;         }
 		version (linux)   { rez = nameCompile[0..$-4]; }
-		version (OSX)   { rez = nameCompile[0..$-4]; }
 		return rez;
 	}
 	// ______________________________________________________________
@@ -894,8 +903,14 @@ class CFormaMain: QMainWindow { //=> Основной MAIN класс прило
 			return;
 		}
 		if(aWinEd > -1) {
-			auto logFile = File("./nameLog.txt", "w");
-				auto pid = spawnProcess([nameDMDonOs(), nameFile, "asc1251", "qte5"],
+			auto logFile = File(nameLog, "w");
+				string[] swCompileMain = [ nameDMDonOs(), nameFile ];
+				if(cbDebug.checkState == QtE.CheckState.Checked) {
+					swCompileMain ~= (swCompile ~ "-debug");
+				} else {
+					swCompileMain ~= swCompile;
+				}
+				auto pid = spawnProcess(swCompileMain,
 					std.stdio.stdin,
 					std.stdio.stdout,
 					logFile
@@ -904,18 +919,9 @@ class CFormaMain: QMainWindow { //=> Основной MAIN класс прило
 				string sLog = cast(string)read(nameLog);
 				msgbox(sLog, "Ошибки компиляции ...");
 			} else {
-				string nameRunFile;
-				version (Windows) {
-					nameRunFile = nameFile[0..$-2];
-				}
-				version (linux) {
-					nameRunFile = nameFile[0..$-2];
-				}
-				version (OSX) {
-					nameRunFile = nameFile[0..$-2];
-				}
-				writeln(toCON("---- Выполняю: " ~ nameRunFile ~ " ----"));
-				auto pid2 = spawnProcess(nameRunFile);
+				writeln(toCON("---- Выполняю: " ~ nameFile[0..$-2]), " ------------------------");
+				// msgbox(nameFile[0..$-2]);
+				auto pid2 = spawnProcess([nameFile[0..$-2]]);
 			}
 		} else {
 			msgbox("Не выбрано окно исходного текста для сохранения", "Внимание! стр: "
