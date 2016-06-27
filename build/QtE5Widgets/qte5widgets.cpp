@@ -12,10 +12,9 @@
 
 // =========== QApplication ==========
 extern "C" MSVC_API  QtRefH qteQApplication_create1(int* argc, char *argv[], int AnParam3) {
-    
-	// Warning!!!
-	// This string only for CLang Mac OSX. Delete comment for Mac OSX ....
-    // void* zz = QCoreApplication::libraryPaths().join(",").toUtf8().data();
+    // This string for CLang Mac OSX. No work witchout this string ....
+    // void* zz =
+            QCoreApplication::libraryPaths().join(",").toUtf8().data();
 
     return (QtRefH)new QApplication(*argc, argv, AnParam3);
 }
@@ -915,6 +914,17 @@ extern "C" MSVC_API  void qteQPlainTextEdit_cutn(QPlainTextEdit* wd, int pr) {
     case 8:   wd->redo();  break;
     }
 }
+// 329
+extern "C" MSVC_API bool qteQPlainTextEdit_find1(QPlainTextEdit* wd, QString* qs, QTextDocument::FindFlags fl) {
+    // QMessageBox::information(NULL, *qs, *qs);
+    return wd->find(*qs, fl);
+}
+// 330
+extern "C" MSVC_API bool qteQPlainTextEdit_find2(QPlainTextEdit* wd, QRegExp* qs, QTextDocument::FindFlags fl) {
+    // QMessageBox::information(NULL, *qs, *qs);
+    return wd->find(*qs, fl);
+}
+
 extern "C" MSVC_API  void qteQPlainTextEdit_toPlainText(QPlainTextEdit* wd, QtRefH qs) {
     *(QString*)qs = wd->toPlainText();
 }

@@ -50,6 +50,7 @@ private extern (C) @nogc alias t_v__qp_qp_i_i = void function(QtObjH, QtObjH, in
 
 private extern (C) @nogc alias t_b__qp = bool function(QtObjH);
 private extern (C) @nogc alias t_b__qp_qp = bool function(QtObjH, QtObjH);
+private extern (C) @nogc alias t_b__qp_qp_i = bool function(QtObjH, QtObjH, int);
 private extern (C) @nogc alias t_b__qp_i = bool function(QtObjH, int);
 private extern (C) @nogc alias t_b__qp_i_i_i = bool function(QtObjH, int, int, int);
 
@@ -175,6 +176,9 @@ private void MessageErrorLoad(bool showError, string s, string nameDll = "" ) {
 	if (showError) {
 		if (!nameDll.length) writeln("Error load: " ~ s);
 		else writeln("Error find function: " ~ nameDll ~ " ---> " ~ s);
+	} else {
+		if (!nameDll.length) writeln("Load: " ~ s);
+		else writeln("Find function: " ~ nameDll ~ " ---> " ~ s);
 	}
 } /// Message on error. s - text error, sw=1 - error load dll and sw=2 - error find function
 
@@ -193,6 +197,7 @@ enum dll {
 // Найти и сохранить адрес функции DLL
 void funQt(int n, bool b, void* h, string s, string name, bool she) {
 	pFunQt[n] = GetPrAddres(b, h, name); if (!pFunQt[n]) MessageErrorLoad(she, name, s);
+	// writeln(name, " ", pFunQt[n]);
 }
 
 int LoadQt(dll ldll, bool showError) { ///  Загрузить DLL-ки Qt и QtE
@@ -233,9 +238,18 @@ int LoadQt(dll ldll, bool showError) { ///  Загрузить DLL-ки Qt и Qt
 	// Use symlink for create link on realy file Qt5
 	// Only 64 bit version Mac OS X (10.9.5 Maveric)
 	version (OSX) {
-		sCore5			= "libQt5Core.dylib";
-		sGui5			= "libQt5Gui.dylib";
-		sWidget5		= "libQt5Widgets.dylib";
+		
+	string[] libs = ["QtCore", "QtGui", "QtWidgets", "QtDBus" , "QtPrintSupport" /*  ,"libqcocoa.dylib" */ ];
+	foreach(l; libs) {
+		void* h = GetHlib(l);
+		// writeln(l, " = ", h);
+	}
+
+
+
+		// sCore5			= "QtCore";
+		// sGui5			= "QtGui";
+		// sWidget5		= "QtWidgets";
 		sQtE5Widgets	= "libQtE5Widgets64.dylib";
 	}
 	
@@ -245,17 +259,18 @@ int LoadQt(dll ldll, bool showError) { ///  Загрузить DLL-ки Qt и Qt
 	if(bQtE5Widgets) { bCore5 = true; bGui5 = true; bWidget5 = true; }
 
 	// Load library in memory
-/* 	
+
  	if (bCore5) {
-		hCore5 = GetHlib(sCore5); if (!hCore5) { MessageErrorLoad(showError, sCore5); return 1; }
+		// hCore5 = GetHlib(sCore5); if (!hCore5) { MessageErrorLoad(showError, sCore5); return 1; }
 	}
+
 	if (bGui5) {
-		hGui5 = GetHlib(sGui5);	if (!hGui5) { MessageErrorLoad(showError, sGui5); return 1; }
+		// hGui5 = GetHlib(sGui5);	if (!hGui5) { MessageErrorLoad(showError, sGui5); return 1; }
 	}
 	if (bWidget5) {
-		hWidget5 = GetHlib(sWidget5); if (!hWidget5) { MessageErrorLoad(showError, sWidget5); return 1; }
+		// hWidget5 = GetHlib(sWidget5); if (!hWidget5) { MessageErrorLoad(showError, sWidget5); return 1; }
 	}
- */
+
 	if (bQtE5Widgets) {
 		hQtE5Widgets = GetHlib(sQtE5Widgets); if (!hQtE5Widgets) { MessageErrorLoad(showError, sQtE5Widgets); return 1; }
 	}
@@ -405,8 +420,9 @@ int LoadQt(dll ldll, bool showError) { ///  Загрузить DLL-ки Qt и Qt
 	funQt(325,bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "eQPlainTextEdit_setPaintEvent",    showError);
 	funQt(326,bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQPlainTextEdit_getXX1",         showError);
 	funQt(328,bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQPlainTextEdit_setCursorPosition", showError);
-	
-	
+	funQt(329,bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQPlainTextEdit_find1",          showError);
+	funQt(330,bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQPlainTextEdit_find2",          showError);
+		
 	//  ------- QLineEdit -------
 	funQt(82, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQLineEdit_create1",				showError);
 	funQt(83, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQLineEdit_delete1",				showError);
@@ -690,7 +706,7 @@ int LoadQt(dll ldll, bool showError) { ///  Загрузить DLL-ки Qt и Qt
 	funQt(308, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQPoint_setXX1",					showError);
 	funQt(309, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQPoint_getXX1",					showError);
 
-	// Последний = 325
+	// Последний = 330
 	return 0;
 } ///  Загрузить DLL-ки Qt и QtE. Найти в них адреса функций и заполнить ими таблицу
 
@@ -2087,6 +2103,15 @@ class QAbstractScrollArea : QFrame {
 		}
 	} /// Конструктор
 }
+// ================ QTextDocument ================
+alias int FindFlags;
+class QTextDocument : QObject {
+	enum FindFlag {
+		FindBackward		= 0x00001,	// Search backwards instead of forwards.
+		FindCaseSensitively	= 0x00002,	// By default find works case insensitive.
+		FindWholeWords		= 0x00004	// Makes find match only complete words.
+	}
+}
 // ================ QPlainTextEdit ================
 /++
 Чистый QPlainTextEdit (ТекстовыйРедактор).
@@ -2220,8 +2245,12 @@ class QPlainTextEdit : QAbstractScrollArea {
 	QPlainTextEdit setCursorPosition(int line, int col) { //-> Переставить визуальный курсор
 		(cast(t_v__qp_i_i) pFunQt[328])(QtObj, line, col); return this;
 	}
-	
-	
+	bool find(T: QString)(T str, FindFlags flags) { //-> Найти в тексте
+		return (cast(t_b__qp_qp_i) pFunQt[329])(QtObj, str.QtObj, flags);
+	}
+	bool find(T)(T str, FindFlags flags) { //-> Найти в тексте
+		return (cast(t_b__qp_qp_i) pFunQt[329])(QtObj, (new QString(to!string(str))).QtObj, flags);
+	}
 }
 // ================ QLineEdit ================
 /++
@@ -2453,6 +2482,10 @@ class QAction : QObject {
 	} /// Установить текст
 	QAction setHotKey(QtE.Key key) {
 		(cast(t_v__qp_i) pFunQt[105])(p_QObject, cast(int) key);
+		return this;
+	} /// Определить горячую кнопку
+	QAction setHotKey(int key) {
+		(cast(t_v__qp_i) pFunQt[105])(p_QObject, key);
 		return this;
 	} /// Определить горячую кнопку
 // ----------------------------------------------------

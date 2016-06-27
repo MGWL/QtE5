@@ -776,8 +776,27 @@ auto result = symlink(file.toStringz(), linked.toStringz());
 
 Редко существует один канонический способ работы с файлами, и разработчикам нравится выполнять различные файловые задачи собственным, особым образом. Надеюсь, эта статья показала мощь и удобство языка D и позволила выделить удобные функции стандартной библиотеки для работы с файлами.
 
-
-
+%1210|Пример форматного чтения из файла|
+//_______________________________________________
+	int i, nomer; string fam, nam, ot, dtr;
+	string nameFile = "AnketaNOAP.csv";
+	// 1234;Мохов;Геннадий;Иванович;03.02.1961
+	File f;
+	try {
+		f = File(nameFile,"r");
+	} catch {
+		writeln("He могу открыть файл: ", nameFile);
+	}
+	while(true) {
+		try {
+	  		f.readf("%s;%s;%s;%s;%s\r\n", &nomer, &fam, &nam, &ot, &dtr);
+		} catch {
+			break;
+		}
+		if(f.eof()) break;
+  		writeln(i++, " [", nomer, "] - [", fam, "] - [", nam, "] - [", ot, "] - [", dtr, "]");
+	}
+//_______________________________________________
 
 
 %2|Демо|Демонстрационные программы
@@ -883,12 +902,35 @@ int main(string[] args) {
 	app.exec();
 	return 0;
 }
-%2510|Форматное чтение|Форматное чтение
-// Файл example1.d - example Hello world!
-// -------- compile ---------
+%2510|Пример диапазона|
+import std.stdio;
+import std.file;
+import std.conv;
+import std.algorithm;
 
-File f = File(r"c:\qte_work\sql\all_260715.csv","r");
-while(!f.eof()) {
-    f.readf("%s;%s;%s;%s;%s\n", &nomer, &fam, &nam, &ot, &dtr);
-    writeln(i, " [", nomer, "] - [", fam, "] - [", nam, "] - [", ot, "] - [", dtr, "]");
+struct t1 {
+	int max = 1;
+	string front = "[0]";
+	// string back;
+	bool empty;
+	// __________________________
+	string opIndex(int ind) {
+		return "[" ~ to!string(ind) ~ "]";
+	}
+	// __________________________
+	void popFront() {
+		front = "[" ~ to!string(max) ~ "]";
+		if(max++ != 10) empty = false; else empty = true;
+	}
+	// __________________________
+	void popBack() {
+		if(--max != 0) empty = false; else empty = true;
+		front = "[" ~ to!string(max) ~ "]";
+	}
+}
+
+void main() {
+	t1 t;
+	writeln(t);
+	writeln(t[4]);
 }
