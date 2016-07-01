@@ -83,6 +83,8 @@ class CEditWin: QWidget { //=> Окно редактора D кода
 		Normal,			// Нормальное состояние
 		Change			// Режим работы с таблицей подсказок
 	}
+	// Текущее слово поиска для finder1
+	string ffWord;
 	// Для поиска
 	struct FindSost { //-> Состояние поиска
 		string strFind;	// Строка поиска
@@ -439,12 +441,11 @@ class CEditWin: QWidget { //=> Окно редактора D кода
 			// }
 
 			if(qe.key == 16777266) { // F3
-				int poz = txtCursor.positionInBlock();
-				QTextBlock tb = new QTextBlock(txtCursor);
+				QTextBlock tb = new QTextBlock(txtCursor); int poz = txtCursor.positionInBlock();
 				// Строка под курсором
 				string strFromBlock = tb.text!string();
 				// Вычленить слово и по нему заполнить таблицу
-				string ffWord = getWordLeft(strFromBlock, poz);
+				ffWord = getWordLeft(strFromBlock, poz);
 				parentQtE5.finder1.getSubFromAll(ffWord);
 				setTablHelp( parentQtE5.finder1.getSubFromAll(ffWord) );
 				sbSoob.showMessage("[" ~ ffWord ~ "]  --> Список вхождений");
@@ -467,18 +468,21 @@ class CEditWin: QWidget { //=> Окно редактора D кода
 				return null;
 			}
 
-			int poz = txtCursor.positionInBlock();
-			QTextBlock tb = new QTextBlock(txtCursor);
+			QTextBlock tb = new QTextBlock(txtCursor); int poz = txtCursor.positionInBlock();
 			// Строка под курсором
 			string strFromBlock = tb.text!string();
 
 			// Вычленить слово и по нему заполнить таблицу
-			string ffWord = getWordLeft(strFromBlock, poz);
+			ffWord = getWordLeft(strFromBlock, poz);
+			// wordFindFinder = ffWord; setWindowTitle(wordFindFinder);
 			sbSoob.showMessage("[" ~ ffWord ~ "]");
-			// setWindowTitle("[" ~ ffWord ~ "]");
-			setTablHelp(parentQtE5.finder1.getEq(ffWord));
-			// Добавим в поисковик текущую строку
-			parentQtE5.finder1.addLine(strFromBlock);
+
+			// Если таблица подсказки открыта, то искать слово
+			if(!teHelp.isHidden) setTablHelp(parentQtE5.finder1.getEq(ffWord));
+
+			// Добавим в поисковик текущую строку, если введен пробел
+			if(qe.key == QtE.Key.Key_Space) parentQtE5.finder1.addLine(strFromBlock);
+
 			// Показать строку статуса
 			parentQtE5.showInfo(to!string(editSost) ~ "  " ~ to!string(qe.key) ~ "  " ~ format("%s", qe.modifiers()));
 		} else {
@@ -516,15 +520,17 @@ class CEditWin: QWidget { //=> Окно редактора D кода
 	}
 	// ______________________________________________________________
 	void insWordFromTableByNomer(int poz, QTextCursor txtCursor) { //-> Вставить слово из таблицы по номеру в редактируемый текст
+		static import std.utf;
 		// Выключить подсветку таблицы
 		teHelp.setCurrentCell(100, 0); editSost = Sost.Normal;
 		// Слово из таблицы
 		string shabl = mTi[poz].text!string(); pozInTable = 0;
-		// Замена текущего слова под курсором
+		// Замена слова для поиска, словом из таблицы
 		txtCursor.beginEditBlock();
-		txtCursor.movePosition(QTextCursor.MoveOperation.StartOfWord);
-		txtCursor.movePosition(QTextCursor.MoveOperation.EndOfWord, QTextCursor.MoveMode.KeepAnchor);
-		txtCursor.removeSelectedText();
+		for(int i; i != std.utf.count(ffWord); i++) {
+			txtCursor.movePosition(QTextCursor.MoveOperation.PreviousCharacter, QTextCursor.MoveMode.KeepAnchor);
+			txtCursor.removeSelectedText();
+		}
 		txtCursor.insertText(shabl);
 		teEdit.setTextCursor(txtCursor); // вставили курсор опять в QPlainText
 		txtCursor.endEditBlock();
@@ -603,6 +609,8 @@ class CFormaMain: QMainWindow { //=> Основной MAIN класс прило
 	QToolBar tb, tbSwWin;					// Строка кнопок
 	string[]	sShabl;						// Массив шаблонов. Первые 2 цифры - индекс
 	CFinder finder1;						// Поисковик
+	QCheckBox cbDebug;
+	string[] swCompile = [ "qte5", "asc1251" ];
 
 	// ______________________________________________________________
 	this() { //-> Базовый конструктор
@@ -656,7 +664,7 @@ class CFormaMain: QMainWindow { //=> Основной MAIN класс прило
 			QtE.Key.Key_F | QtE.KeyboardModifier.ControlModifier);
 		// acFind.setIcon("ICONS/nsi.ico").setToolTip("Компилировать и выполнить проект ...");
 		connects(acFind, "triggered()", acFind, "Slot()");
-		
+
 		acFindA = new QAction(this, &onFindA, aThis);
 		acFindA.setText("Поиск A").setHotKey(
 			QtE.Key.Key_F | QtE.KeyboardModifier.ControlModifier  | QtE.KeyboardModifier.ShiftModifier);
@@ -718,6 +726,12 @@ class CFormaMain: QMainWindow { //=> Основной MAIN класс прило
 		tb = new QToolBar(this); tbSwWin = new QToolBar(this);
 		// tb.setStyleSheet(strElow);
 		tbSwWin.setStyleSheet( strElow );
+
+		// CheckBox for debug compole options
+		cbDebug = new QCheckBox(this);
+		cbDebug.setText("debug");
+		cbDebug.setToolTip("-debug --> in parametrs of compile");
+
 		// Настраиваем ToolBar
 		tb.setToolButtonStyle(QToolBar.ToolButtonStyle.ToolButtonTextBesideIcon);
 		tb
@@ -725,7 +739,9 @@ class CFormaMain: QMainWindow { //=> Основной MAIN класс прило
 			.addSeparator()
 			// .addAction(acExit)
 			.addAction(acRunApp)
-			.addAction(acRunProj);
+			.addAction(acRunProj)
+			.addSeparator()
+			.addWidget(cbDebug);
 
 		addToolBar(QToolBar.ToolBarArea.TopToolBarArea, tb);
 
@@ -984,7 +1000,13 @@ class CFormaMain: QMainWindow { //=> Основной MAIN класс прило
 		}
 		if(aWinEd > -1) {
 			auto logFile = File(nameLog, "w");
-				auto pid = spawnProcess([nameDMDonOs(), nameFile, "asc1251", "qte5"],
+				string[] swCompileMain = [ nameDMDonOs(), nameFile ];
+				if(cbDebug.checkState == QtE.CheckState.Checked) {
+					swCompileMain ~= (swCompile ~ "-debug");
+				} else {
+					swCompileMain ~= swCompile;
+				}
+				auto pid = spawnProcess(swCompileMain,
 					std.stdio.stdin,
 					std.stdio.stdout,
 					logFile
