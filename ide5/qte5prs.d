@@ -148,16 +148,20 @@ class CFinder { //=> Поисковик. Помнит все слова в фа�
 			':':' ',
 			'@':' '
 		];
-		
-		// if( indexOf(line, "//->") > 0 ) writeln(line);
+		static import asc1251;
 		string zish = translate(clearLine, transTable);
 		auto ms = split(zish, ' ');
-		foreach(string el; ms) {
+		foreach(i, string el; ms) {
 			string z = cast(string)strip(el);
-			if(z.length > 2) {
-				addWord(z);
-			}
+			if(z.length > 2) 	addWord(z);
+			// Всё добавлено в список поиска, можно проверить на нужные
+			// мне строки
+			if((z == "class") && (i == 0)) writeln(i, " -- K=> ", line);
+			if(z == "->")  writeln(i, " -- M-> ", asc1251.toCON(line));
+
 		}
+		// if( indexOf(line, "//->") > 0 ) { writeln(zish);
+		// }
 	}
 	// ______________________________________________________________
 	void addFile(string nameFile) { //-> Добавить файл в хранилище

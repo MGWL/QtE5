@@ -299,7 +299,7 @@ class CEditWin: QWidget { //=> Окно редактора D кода
 				~ to!string(__LINE__), QMessageBox.Icon.Critical);
 			return;
 		}
-		parentQtE5.loadParser(); // Заполним парсер
+		// parentQtE5.loadParser(); // Заполним парсер
 		try {
 			int ks;
 			foreach(line; fhFile.byLine()) {
