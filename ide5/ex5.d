@@ -64,14 +64,7 @@ class CTest : QFrame {
 		pointer = new QPoint(10, 10);
 
 		for(int i; i != 90; i++) {
-			im.setPixel(i, i, 23456);//  
-		}
-
-		QColor testColor = new QColor(); testColor.setRgb(255, 0, 0, 255);
-		for(int i = 100; i != 170; i++) {
-			for(int j = 30; j != 90; j++) {
-				im.setPixel(i, j, testColor.rgb());  
-			}
+			im.setPixel(i, i, 0);//  
 		}
 		//  im.load("Lenna.ppm");
 		// Паинт для VIEW  !!!, но сама обработка в CTest 
@@ -149,6 +142,6 @@ int main(string[] args) {
 	
 	CTest ct = new CTest(null, QtE.WindowType.Window); ct.show().saveThis(&ct);
 
-	QEndApplication endApp = new QEndApplication('+', app.QtObj);
+	// QEndApplication endApp = new QEndApplication('+', app.QtObj);
 	return app.exec();
 }

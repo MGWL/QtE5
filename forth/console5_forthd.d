@@ -72,10 +72,10 @@ class CSetting : QWidget {
 	this(QWidget parent, QtE.WindowType fl) {
 		super(parent, fl); // resize(100, 100); 
 		setWindowTitle("--[ Settings ]--");
-		vblAll  = new  QVBoxLayout();		// Главный выравниватель
-		vblGr   = new  QVBoxLayout();		// для группы
-		vblGr2  = new  QVBoxLayout();		// для второй группы
-		vblLong = new  QHBoxLayout();		// для групп кнопок
+		vblAll  = new  QVBoxLayout(null);		// Главный выравниватель
+		vblGr   = new  QVBoxLayout(null);		// для группы
+		vblGr2  = new  QVBoxLayout(null);		// для второй группы
+		vblLong = new  QHBoxLayout(null);		// для групп кнопок
 		// Экранный редактор
 		pte = new QPlainTextEdit(this);
 		
@@ -211,8 +211,8 @@ class CModel : QWidget {
 		super(parent, fl); resize(100, 100); 
 		setWindowTitle("--[ Model ]--");
 		// Горизонтальный и вертикальный выравниватели
-		vblAll  = new  QVBoxLayout();		// Главный выравниватель
-		laHkn   = new  QHBoxLayout();
+		vblAll  = new  QVBoxLayout(null);		// Главный выравниватель
+		laHkn   = new  QHBoxLayout(null);
 		// Группировка
 		gr1 = new QGroupBox(this); gr1.setMaximumHeight(70); gr1.setText("Группа");
 		gr1.setAlignment(QtE.AlignmentFlag.AlignCenter);
@@ -368,8 +368,8 @@ class CMdiDump : QWidget {
 		super(parent, fl);
 		resize(200, 180);
 		// Горизонтальный и вертикальный выравниватели
-		vblAll  = new  QVBoxLayout();		// Главный выравниватель
-		laHkn   = new  QHBoxLayout();
+		vblAll  = new  QVBoxLayout(null);		// Главный выравниватель
+		laHkn   = new  QHBoxLayout(null);
 		//Строка адреса
 		leAdr   = new QLineEdit(this);		// Строка адреса
 		leAdr.setToolTip("Адрес для DUMP (можно редактировать)");
@@ -575,7 +575,7 @@ class CMdiFormLogCmd : QWidget, IFormLogCmd {
 			// mTi[i].setBackground(qbr);
 			teHelp.setItem(i, 0, mTi[i]);
 		}
-		hb2 = new QHBoxLayout; hb2.addWidget(teLog).addWidget(teHelp);
+		hb2 = new QHBoxLayout(null); hb2.addWidget(teLog).addWidget(teHelp);
 		
 		// Установка заголовка на колонку таблицы
 		teHelpС1header = new QTableWidgetItem(0); 
@@ -719,7 +719,7 @@ class FormaMain: QMainWindow {
 		// Главный виджет, в который всё вставим
 		mainWid = new QMdiArea(this);
 		// Горизонтальный и вертикальный выравниватели
-		vblAll  = new  QVBoxLayout();			// Главный выравниватель
+		vblAll  = new  QVBoxLayout(null);			// Главный выравниватель
 		zz = new QProgressBar(null);
 		// Строка сообщений
 		stBar = new QStatusBar(this); stBar.setStyleSheet(strGreen);

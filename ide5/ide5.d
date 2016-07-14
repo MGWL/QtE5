@@ -1210,7 +1210,7 @@ int main(string[] args) {
 			QMessageBox.Icon.Critical); return(1);
 	}
 	CFormaMain formaMain = new CFormaMain(); formaMain.show().saveThis(&formaMain);
-	QEndApplication endApp = new QEndApplication('+', app.QtObj);
+	// QEndApplication endApp = new QEndApplication('+', app.QtObj);
 	return app.exec();
 }
 
