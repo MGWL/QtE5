@@ -446,7 +446,7 @@ class CEditWin: QWidget { //=> Окно редактора D кода
 				string strFromBlock = tb.text!string();
 				// Вычленить слово и по нему заполнить таблицу
 				ffWord = getWordLeft(strFromBlock, poz);
-				parentQtE5.finder1.getSubFromAll(ffWord);
+				// parentQtE5.finder1.getSubFromAll(ffWord);
 				setTablHelp( parentQtE5.finder1.getSubFromAll(ffWord) );
 				sbSoob.showMessage("[" ~ ffWord ~ "]  --> Список вхождений");
 				return null;
@@ -905,6 +905,7 @@ class CFormaMain: QMainWindow { //=> Основной MAIN класс прило
 				~ to!string(__LINE__), QMessageBox.Icon.Critical);
 			return;
 		}
+		// finder1.printUc();
 	}
 	// ______________________________________________________________
 	void setActWinForNom(int nom, bool y) { //-> Покрась в активный цвет кнопку
