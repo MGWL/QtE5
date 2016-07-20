@@ -389,6 +389,11 @@ class CEditWin: QWidget { //=> Окно редактора D кода
 				// case '/': insParaSkobki("/ ");	break;
 				default: break;
 			}
+			if((qe.key == QtE.Key.Key_Return)) {
+				QTextBlock tb = new QTextBlock(txtCursor);
+				string strFromBlock = tb.text!string();
+				parentQtE5.finder1.addLine(strFromBlock);
+			}			
 			return ev;
 		} else {
 			return null;
