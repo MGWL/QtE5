@@ -26,39 +26,86 @@ class CFinder { //=> Поисковик. Помнит все слова в фа�
 	~this() {
 	}
 	// ______________________________________________________________
-	private struct fNode { //-> Узел списка гирлянды
+	private 
+	struct fNode { //-> Узел списка гирлянды
 		string 		str;		// Строка (слово)
 		//-----------------
 		un	 		link;		// Указатель на следующий или null
 	}
 	alias fNode* un; // Ссылка на узел цепочки
 
-	private struct fMetod { //-> Узел списка метода
-		string name;			// Имя самого  метода
-		string rawStr;			// Исходная строка описания
-		//-----------------
-		uc	 	link;			// Указатель на следующий или null
-	}
-	alias fMetod* um; // Ссылка на узел цепочки
-
-	private struct fClass { //-> Узел списка гирлянды для класса
+	private 
+	struct fClass { //-> Узел списка гирлянды для класса
 		string name;			// Имя самого класса
 		string rawStr;			// Исходная строка описания
 		uc		parent;			// Указатель на родителя или null
+		um		metod;				// указатель на цепочку методов
 		//-----------------
 		uc	 	link;			// Указатель на следующий или null
 	}
 	alias fClass* uc; // Ссылка на узел цепочки класса
+
+	private 
+	struct fMetod { //-> Узел списка гирлянды для метода
+		string name;			// Имя самого метода
+		string rawStr;			// Исходная строка описания метода
+		uc		parent;			// Указатель на родителя или null
+		//-----------------
+		um	 	link;			// Указатель на следующий или null
+		um		allLink;		// Общий список методов
+	}
+	alias fMetod* um; // Ссылка на узел цепочки метода
 	// ______________________________________________________________
-	void printUc() {
+	um findMethod(uc klass, string metod) { //-> Найти или добавить метод
+		if(klass is null) return null;
+		um nod = klass.metod;	// Начало цепочки
+m1:		if(nod is null) {		// Цепочка пуста, вставка 1-го элемента
+			nod = new fMetod; nod.name = metod;
+			nod.link = klass.metod; nod.parent = klass;
+			klass.metod = nod;
+			nod.allLink = trapMetod; trapMetod = nod;
+		} else {							// Цепочка не пуста, ищем ...
+			while(nod !is null) {
+				// writeln("compare: ", nameClass, " == ", nod.name);
+				if(nod.name == metod) { return nod; } 
+				else { nod = nod.link; }
+			}
+		}
+		if(nod is null) goto m1;
+		return nod;
+	}
+	// ______________________________________________________________
+	void printMet() { //-> Распечатать список всех методов
+		um nod = trapMetod;
+		while(nod !is null) {
+			writeln("[", nod.name, "] --> ", nod.rawStr);
+			nod = nod.allLink;
+		}
+	}
+	// ______________________________________________________________
+	void printUc() { //-> Распечатать список всех классов
 		uc nod = trapClass;
 		while(nod !is null) {
-			writeln(nod," --> [", nod.name, "]");
+			writeln(nod, " --> [", nod.name, "][", (nod.parent is null) ? "" : nod.parent.name, "] - ", nod.rawStr);
+			um nodm = nod.metod;
+			while(nodm !is null) {
+				writeln("\t", nodm.name, " --> ", nodm.rawStr);
+				nodm = nodm.link;
+			}
 			nod = nod.link;
 		}
-		nod = findClass("QFrame");
-		writeln("QFrame.Parent = ", nod.parent.name);
-		writeln(nod.rawStr);
+//		nod = findClass("QFrame");
+// 		writeln("QFrame.Parent = ", nod.parent.name);
+// 		writeln(nod.rawStr);
+	}
+	// ______________________________________________________________
+	uc findClassOnly(string nameClass) { //-> Найти класс
+		uc nod = trapClass;
+		while(nod !is null) {
+			if(nod.name == nameClass) { return nod; } 
+			else { nod = nod.link; }
+		}
+		return nod;
 	}
 	// ______________________________________________________________
 	uc findClass(string nameClass) { //-> Найти или добавить класс
@@ -87,13 +134,16 @@ m1:		if(nod is null) {
 		if(cp.c == "") return null;
 		uclass = findClass(cp.c);
 		uclass.name = cp.c; uclass.rawStr = rewStr; uclass.parent = uparent;
+		lastClass = uclass; 
 		return uclass;
 	}
 	// ______________________________________________________________
 	private un[256] harrow; 	//-> гребенка, для 256 списков слов
 	dchar[dchar] transTable1;
-	un[]  masAllWords;			// Список указателей на все слова
-	uc    trapClass;			// Базовый якорь для цепочки Классов
+	un[]	masAllWords;			// Список указателей на все слова
+	uc		trapClass;				// Базовый якорь для цепочки Классов
+	um		trapMetod;				// Базовый якорь для цепочки всех Методов
+	uc		lastClass;				// Активный в данный момент класс
 	// ______________________________________________________________
 	ubyte getC0(string s) { //-> Выдать индекс в гребенке
 		import std.utf: stride;
@@ -191,7 +241,7 @@ m1:		if(nod is null) {
 	// ______________________________________________________________
 	void addLine(string line) { //-> Добавить строку в хранилище
 		// import std.stdio;
-		string clearLine = strip(line);
+		immutable string clearLine = strip(line);
 		if(clearLine == "") return;
 		dchar[dchar] transTable = [
 			'(':' ',
@@ -213,7 +263,10 @@ m1:		if(nod is null) {
 		];
 		static import asc1251;
 		string zish = translate(clearLine, transTable);
-		auto ms = split(zish, ' ');
+		auto msRaw = split(zish, ' ');
+		string[] ms; 
+		foreach(el; msRaw) {	if(el == "") continue; ms ~= el;	}
+		// Нужно удалить пустышки
 	try {
 		foreach(i, string el; ms) {
 			if(el == "") continue;
@@ -222,12 +275,33 @@ m1:		if(nod is null) {
 			// Всё добавлено в список поиска, можно проверить на нужные
 			// мне строки
 			if((el == "class") && (i == 0)) {
-				insertClassParent(nameClass(zish), strip(line.dup));
+				insertClassParent(nameClass(zish), clearLine.dup);
+				continue;
 			}
 			if(el == "->") {
-				// writeln(i, " -- M-> ", asc1251.toCON(zish));
-				// writeln(nameMethod(zish));
+				// writeln(lastClass.name, " --> [", nameMethod(zish), "] -- ", clearLine);
+				um met = findMethod(lastClass, nameMethod(zish));
+				if(met !is null) {
+					met.rawStr = clearLine.dup;
+				}
+				continue;
 			}
+/*			
+			mar
+			if(i == ms.length - 1) continue;
+			uc fnod = findClassOnly(el);
+			if(fnod is null) continue;
+			writeln(fnod.name, " = ", ms[i+1], " --> ", clearLine.dup);
+			if(el == "new") {
+				if(i == 0) continue;
+				if(i == ms.length - 1) continue;
+				
+				writeln("var=[", ms[i-1], "]     class = [", ms[i+1],"] = ", ms);
+				continue;
+				// Нужна функция, которая выдаёт s2 = Переменная|Тип или пусто
+				// - Взять предыдущее и следующие за new слово. Если нет, то null
+			}
+*/
 		}
 	} catch {
 		// writeln("catch: ", line);

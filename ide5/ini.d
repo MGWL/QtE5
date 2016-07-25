@@ -1,4 +1,4 @@
-﻿/*
+/*
 	Copyright (C) 2004-2006 Christopher E. Miller
 	http://www.dprogramming.com/ini.php
 
@@ -105,13 +105,13 @@ public:
 
 // public: +++ GENA
 	/// Property: get key _name.
-	@property string name() {
+	@property string name() { //-> имя
 		return _name;
 	}
 
 
 	/// Property: get key _value.
-	@property string value() {
+	@property string value() { //-> значение
 		return _value;
 	}
 }
@@ -138,19 +138,21 @@ protected:
 public:
 	/// Property: get section _name. Вернуть имя секции
 	@property @safe nothrow
-	string name() { return _name; }
+	string name() { //-> Вернуть/установить имя секции
+		return _name; 
+	}
 
 
 	/// Property: set section _name. Установить имя секции. Взвести флаг модификации
 	@property @safe nothrow
-	void name(string newName) {
+	void name(string newName) { //-> Вернуть/установить имя секции
 		_ini._modified = true;
 		_name = newName;
 	}
 
 
 	/// foreach key. Перебор ключей в цикле
-	int opApply(int delegate(ref IniKey) dg) {
+	int opApply(int delegate(ref IniKey) dg) { //-> Найти нужный ключ
 		int result = 0;
 		uint i;
 		IniKey ikey;
@@ -168,7 +170,7 @@ public:
 
 	/// Property: get all _keys. Дай перечень всех ключей
 	//better to use foreach unless this array is needed
-	@property IniKey[] keys() {
+	@property IniKey[] keys() { //-> Дай перечень всех ключей
 		IniKey[] ikeys = new IniKey[lines.length];
 		uint i = 0;
 		foreach(IniKey ikey; this) {
@@ -179,7 +181,7 @@ public:
 
 
 	/// Returns: _key matching keyName, or null if not present. Вернуть ключ или null если отсутствует
-	IniKey key(string keyName) {
+	IniKey key(string keyName) { //-> Вернуть ключ или null если отсутствует
 		foreach(IniKey ikey; this) {
 			if(_ini.match(ikey._name, keyName))
 				return ikey;
@@ -190,7 +192,7 @@ public:
 
 	/// Set an existing key's value.
 	@safe nothrow
-	void setValue(IniKey ikey, string newValue) {
+	void setValue(IniKey ikey, string newValue) { //-> Установить значение если существует
 		ikey._value = newValue;
 		_ini._modified = true;
 		ikey.data = null;
@@ -198,7 +200,7 @@ public:
 
 
 	/// Find or create key keyName and set its _value to newValue.
-	void setValue(string keyName, string newValue) {
+	void setValue(string keyName, string newValue) { //-> Найти или создать и установить значение
 		IniKey ikey = key(keyName);
 		if(!ikey.data) { // MGW Add ref on .data in ikey
 			ikey = new IniKey(keyName);
@@ -243,25 +245,25 @@ public:
 
 	// /// Returns: _value of the existing key keyName, or null if not present.
 	/// Same as getValue(keyName, null).
-	string value(string keyName) {
+	string value(string keyName) { //->
 		return getValue(keyName, null);
 	}
 
 
 	/// Shortcut for getValue(keyName).
-	string opIndex(string keyName) {
+	string opIndex(string keyName) { //-> Доступ по имени
 		return value(keyName);
 	}
 
 
 	/// Shortcut for setValue(keyName, newValue).
-	void opIndexAssign(string newValue, string keyName) {
+	void opIndexAssign(string newValue, string keyName) { //->
 		value(keyName, newValue);
 	}
 
 
 	/// _Remove key keyName.
-	void remove(string keyName) {
+	void remove(string keyName) { //-> Удалить ключ
 		uint i;
 		IniKey ikey;
 		for(i = 0; i != lines.length; i++) {
@@ -827,4 +829,3 @@ unittest {
 	ini.save();
 	delete ini;
 }
-

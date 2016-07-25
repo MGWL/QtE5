@@ -81,6 +81,7 @@ class CEditWin: QWidget { //=> Окно редактора D кода
   private
 	enum Sost { //-> Состояние редактора
 		Normal,			// Нормальное состояние
+		Cmd,			// Командный режим
 		Change			// Режим работы с таблицей подсказок
 	}
 	// Текущее слово поиска для finder1
@@ -122,6 +123,7 @@ class CEditWin: QWidget { //=> Окно редактора D кода
 	QAction		acUpdateLineNumberAreaWidth;
 	CLineNumberArea		lineNumberArea;		// Область нумерации строк
 	QSpinBox	spNumStr;		// Спин для перехода на строку
+	QLabel		labelHelp;		// Строка подсветки имен функций
 
 	bool trigerNumStr;			// Странно, но 2 раза вызывается ... отсечем 2 раз
 	// ______________________________________________________________
@@ -154,6 +156,7 @@ class CEditWin: QWidget { //=> Окно редактора D кода
 
 		// Строка сообщений
 		sbSoob = new QStatusBar(this);
+		labelHelp = new QLabel(this); labelHelp.setStyleSheet("background: white");
 
 		// Готовлю сттруктуру и виджет для поиска
 		wdFind = new QWidget(this); wdFind.hide();
@@ -179,7 +182,7 @@ class CEditWin: QWidget { //=> Окно редактора D кода
 			.addWidget(sliderTabl);
 		sliderTabl.setMinimum(6).setMaximum(20);
 
-		vblAll.addLayout(hb2).addWidget(sbSoob);
+		vblAll.addLayout(hb2).addWidget(labelHelp).addWidget(sbSoob);
 		setLayout(vblAll);
 
 		// Обработка клавиш в редакторе
@@ -379,14 +382,24 @@ class CEditWin: QWidget { //=> Окно редактора D кода
 	// ______________________________________________________________
 	void* runKeyPressEvent(void* ev) { //-> Обработка события нажатия кнопки
 		lineNumberArea.update();
+		QKeyEvent qe = new QKeyEvent('+', ev);
 		if( editSost == Sost.Normal) {
-			QKeyEvent qe = new QKeyEvent('+', ev);
 			switch(qe.key) {
 				case '"': insParaSkobki("\"");	break;
 				case '(': insParaSkobki(")");	break;
 				case '[': insParaSkobki("]");	break;
 				case '{': insParaSkobki("}");	break;
-				// case '/': insParaSkobki("/ ");	break;
+				case QtE.Key.Key_Return:
+						QTextBlock tb = new QTextBlock(txtCursor);
+						string strFromBlock = tb.text!string();
+						parentQtE5.finder1.addLine(strFromBlock);
+					break;
+				case QtE.Key.Key_L:
+					if(qe.modifiers == QtE.KeyboardModifier.ControlModifier) {
+						editSost = Sost.Cmd;
+						labelHelp.setText("Режим CMD");
+					}
+					break;
 				default: break;
 			}
 			if((qe.key == QtE.Key.Key_Return)) {
@@ -396,8 +409,45 @@ class CEditWin: QWidget { //=> Окно редактора D кода
 			}			
 			return ev;
 		} else {
-			return null;
+			if( editSost == Sost.Change) {
+				return null;
+			} else {
+				if( editSost == Sost.Cmd) { 
+					if(qe.modifiers == QtE.KeyboardModifier.ControlModifier) {
+						switch(qe.key) {
+							case QtE.Key.Key_L:
+								labelHelp.setText("Режим NORMAL");
+								break;
+							case QtE.Key.Key_Space:
+								teEdit.textCursor(txtCursor); // Выдернули курсор из QPlainText
+								txtCursor.beginEditBlock();
+									txtCursor.movePosition(QTextCursor.MoveOperation.StartOfBlock);
+									txtCursor.insertText("// ");
+									txtCursor.movePosition(QTextCursor.MoveOperation.StartOfBlock);
+									txtCursor.movePosition(QTextCursor.MoveOperation.NextBlock);
+								txtCursor.endEditBlock();
+								teEdit.setTextCursor(txtCursor);
+								break;
+							case QtE.Key.Key_D:
+								teEdit.textCursor(txtCursor); // Выдернули курсор из QPlainText
+								txtCursor.beginEditBlock();
+									txtCursor.select(QTextCursor.SelectionType.BlockUnderCursor).removeSelectedText();;
+									txtCursor.movePosition(QTextCursor.MoveOperation.StartOfBlock);
+									txtCursor.movePosition(QTextCursor.MoveOperation.NextBlock);
+								txtCursor.endEditBlock();
+								teEdit.setTextCursor(txtCursor);
+								break;
+							default: break;
+						}
+					} else {
+						labelHelp.setText("Режим NORMAL");
+						return ev;
+					}
+					return null;
+				}
+			}
 		}
+		return ev;
 	}
 	// ______________________________________________________________
 	void insParaSkobki(string s) {
@@ -409,6 +459,13 @@ class CEditWin: QWidget { //=> Окно редактора D кода
 		// Перерисуем номера строк, вызвам событие Paint через Update
 		// lineNumberArea.update();
 		QKeyEvent qe = new QKeyEvent('+', ev);
+		if(editSost == Sost.Cmd) {
+			if(qe.modifiers == QtE.KeyboardModifier.ControlModifier) {
+				if(qe.key == QtE.Key.Key_L)     return null;
+				if(qe.key == QtE.Key.Key_Space) return null;
+			}
+			editSost = Sost.Normal;
+		}
 		if(editSost == Sost.Normal) {
 			if(qe.key == 16777216) { // ESC
 				editSost = Sost.Change;
@@ -425,26 +482,6 @@ class CEditWin: QWidget { //=> Окно редактора D кода
 				return null;
 			}
 
-			// Ctrl+D - удаление строки
-			if( (qe.key == QtE.Key.Key_D) & (qe.modifiers == QtE.KeyboardModifier.ControlModifier) ) {
-				txtCursor.select(QTextCursor.SelectionType.BlockUnderCursor).removeSelectedText();
-				txtCursor.movePosition(QTextCursor.MoveOperation.NextBlock);
-				txtCursor.movePosition(QTextCursor.MoveOperation.NextWord);
-				teEdit.setTextCursor(txtCursor);
-				return null;
-			}
-
-			// Ctrl+K - удаление до конца строки
-			if( (qe.key == QtE.Key.Key_K) & (qe.modifiers == QtE.KeyboardModifier.ControlModifier) ) {
-				return null;
-			}
-			// Ctrl+F - Проверка поиска
-			// if( (qe.key == QtE.Key.Key_F) & (qe.modifiers == QtE.KeyboardModifier.ControlModifier) ) {
-				// wdFind.hide();
-				// bool b = teEdit.find("std.string");
-			//	return null;
-			// }
-
 			if(qe.key == 16777266) { // F3
 				QTextBlock tb = new QTextBlock(txtCursor); int poz = txtCursor.positionInBlock();
 				// Строка под курсором
@@ -458,6 +495,9 @@ class CEditWin: QWidget { //=> Окно редактора D кода
 			}
 
 			if(qe.key == 16777268) { // F5
+				parentQtE5.finder1.printUc();
+				return null;
+				/*
 				txtCursor.beginEditBlock();
 				txtCursor.movePosition(QTextCursor.MoveOperation.Start);
 				// Два раза вниз
@@ -471,6 +511,11 @@ class CEditWin: QWidget { //=> Окно редактора D кода
 				teEdit.setTextCursor(txtCursor);
 				txtCursor.endEditBlock();
 				return null;
+				*/
+			}
+			if(qe.key == 16777269) { // F6
+				parentQtE5.finder1.printMet();
+				return null;
 			}
 
 			QTextBlock tb = new QTextBlock(txtCursor); int poz = txtCursor.positionInBlock();
@@ -482,6 +527,8 @@ class CEditWin: QWidget { //=> Окно редактора D кода
 			// wordFindFinder = ffWord; setWindowTitle(wordFindFinder);
 			sbSoob.showMessage("[" ~ ffWord ~ "]");
 
+			labelHelp.setText("[" ~ ffWord ~ "]");
+
 			// Если таблица подсказки открыта, то искать слово
 			if(!teHelp.isHidden) setTablHelp(parentQtE5.finder1.getEq(ffWord));
 
@@ -491,35 +538,31 @@ class CEditWin: QWidget { //=> Окно редактора D кода
 			// Показать строку статуса
 			parentQtE5.showInfo(to!string(editSost) ~ "  " ~ to!string(qe.key) ~ "  " ~ format("%s", qe.modifiers()));
 		} else {
-			if(qe.key == 16777216) { // ESC
-				editSost = Sost.Normal;
-				teHelp.setCurrentCell(100, 0);
-				pozInTable = 0;
-		        parentQtE5.showInfo(to!string(editSost) ~ "  " ~ to!string(qe.key));
-				return null;
-			}
-			if(qe.key == 16777237) { // Стрелка вниз
-				if(pozInTable < sizeTabHelp-1)	{
-					string str = strip( mTi[pozInTable+1].text!string() );
-					if( str != "" ) teHelp.setCurrentCell(++pozInTable, 0);
+			if(editSost == Sost.Change) {
+				if(qe.key == 16777216) { // ESC
+					editSost = Sost.Normal;
+					teHelp.setCurrentCell(100, 0);
+					pozInTable = 0;
+					parentQtE5.showInfo(to!string(editSost) ~ "  " ~ to!string(qe.key));
+					return null;
 				}
-			//	write("V"); stdout.flush();
+				if(qe.key == 16777237) { // Стрелка вниз
+					if(pozInTable < sizeTabHelp-1)	{
+						string str = strip( mTi[pozInTable+1].text!string() );
+						if( str != "" ) teHelp.setCurrentCell(++pozInTable, 0);
+					}
+				}
+				if(qe.key == 16777235) { // Стрелка вверх
+					if(pozInTable > 0)	teHelp.setCurrentCell(--pozInTable, 0);
+				//	write("A"); stdout.flush();
+				}
+				// Space - вернуть выбранное слово из таблицы и уйти в редактор
+				if( (qe.key == QtE.Key.Key_Space) & (qe.modifiers == QtE.KeyboardModifier.NoModifier) ) {
+					insWordFromTableByNomer(pozInTable, txtCursor);  return null;
+				}
+				return null;
+			} else {
 			}
-			if(qe.key == 16777235) { // Стрелка вверх
-				if(pozInTable > 0)	teHelp.setCurrentCell(--pozInTable, 0);
-			//	write("A"); stdout.flush();
-			}
-/* 			if(qe.key == 16777220) { // CR
-				insWordFromTableByNomer(pozInTable, txtCursor);
-				sbSoob.showMessage("");
-			}
- */			// Space - вернуть выбранное слово из таблицы и уйти в редактор
-			if( (qe.key == QtE.Key.Key_Space) & (qe.modifiers == QtE.KeyboardModifier.NoModifier) ) {
-				insWordFromTableByNomer(pozInTable, txtCursor);  return null;
-			}
-
-
-			return null;
 		}
 		return ev;	// Вернуть событие в C++ Qt для дальнейшей обработки
 	}
@@ -1158,7 +1201,7 @@ class CFormaMain: QMainWindow { //=> Основной MAIN класс прило
 
 miniIDE for dmd + QtE5 + Qt-5
 
-ver 0.1", "About ...");
+ver 0.2 от 22.07.2016", "About ...");
 		}
 		if(n == 2) {	app.aboutQt();	}
 	}
