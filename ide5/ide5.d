@@ -84,8 +84,12 @@ class CEditWin: QWidget { //=> Окно редактора D кода
 		Cmd,			// Командный режим
 		Change			// Режим работы с таблицей подсказок
 	}
-	// Текущее слово поиска для finder1
-	string ffWord;
+	// Текущее слово поиска для finder1. 
+	// Алгоритм поиска: 
+	//     Если в слове нет точки, то ffWord=слово, ffMetod=""
+	//     Если в слове есть точка, то ffWord=слово_без_метода, ffMetod=метод
+	string ffWord, ffMetod;
+	
 	// Для поиска
 	struct FindSost { //-> Состояние поиска
 		string strFind;	// Строка поиска
@@ -522,21 +526,30 @@ class CEditWin: QWidget { //=> Окно редактора D кода
 			// Строка под курсором
 			string strFromBlock = tb.text!string();
 
+
 			// Вычленить слово и по нему заполнить таблицу
-			ffWord = getWordLeft(strFromBlock, poz);
+			ffWord = getWordLeft(strFromBlock, poz); ffMetod = "";
 			sbSoob.showMessage("[" ~ ffWord ~ "]");
 			
 			// А может в слове есть символ "." и это метод?
 			auto pozPoint = lastIndexOf(ffWord, '.');
 			if(pozPoint > -1) {		// Есть '.'
-				string ffMetod = ffWord[pozPoint +1 .. $];
+				ffMetod = ffWord[pozPoint +1 .. $]; ffWord = ffWord[0 .. pozPoint];
 				labelHelp.setText("[" ~ ffWord ~ "] - [" ~ ffMetod ~ "]");
+				// Если таблица подсказки открыта, то искать метод
+				if(!teHelp.isHidden) {
+					// setTablHelp(parentQtE5.finder1.getEqMet1(ffMetod));
+					setTablHelp(parentQtE5.finder1.getSubFromAll(ffMetod));
+				}
 			} else {				// Нет  '.'
 				// Если таблица подсказки открыта, то искать слово
 				if(!teHelp.isHidden) setTablHelp(parentQtE5.finder1.getEq(ffWord));
+
 				// Добавим в поисковик текущую строку, если введен пробел
 				if(qe.key == QtE.Key.Key_Space) parentQtE5.finder1.addLine(strFromBlock);
 			}
+			
+
 			// Показать строку статуса
 			parentQtE5.showInfo(to!string(editSost) ~ "  " ~ to!string(qe.key) ~ "  " ~ format("%s", qe.modifiers()));
 		} else {
@@ -577,9 +590,17 @@ class CEditWin: QWidget { //=> Окно редактора D кода
 		string shabl = mTi[poz].text!string(); pozInTable = 0;
 		// Замена слова для поиска, словом из таблицы
 		txtCursor.beginEditBlock();
-		for(int i; i != std.utf.count(ffWord); i++) {
-			txtCursor.movePosition(QTextCursor.MoveOperation.PreviousCharacter, QTextCursor.MoveMode.KeepAnchor);
-			txtCursor.removeSelectedText();
+
+		if(ffMetod == "") {
+			for(int i; i != std.utf.count(ffWord); i++) {
+				txtCursor.movePosition(QTextCursor.MoveOperation.PreviousCharacter, QTextCursor.MoveMode.KeepAnchor);
+				txtCursor.removeSelectedText();
+			}
+		} else {
+			for(int i; i != std.utf.count(ffMetod); i++) {
+				txtCursor.movePosition(QTextCursor.MoveOperation.PreviousCharacter, QTextCursor.MoveMode.KeepAnchor);
+				txtCursor.removeSelectedText();
+			}
 		}
 		txtCursor.insertText(shabl);
 		teEdit.setTextCursor(txtCursor); // вставили курсор опять в QPlainText
