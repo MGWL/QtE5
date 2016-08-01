@@ -524,17 +524,19 @@ class CEditWin: QWidget { //=> Окно редактора D кода
 
 			// Вычленить слово и по нему заполнить таблицу
 			ffWord = getWordLeft(strFromBlock, poz);
-			// wordFindFinder = ffWord; setWindowTitle(wordFindFinder);
 			sbSoob.showMessage("[" ~ ffWord ~ "]");
-
-			labelHelp.setText("[" ~ ffWord ~ "]");
-
-			// Если таблица подсказки открыта, то искать слово
-			if(!teHelp.isHidden) setTablHelp(parentQtE5.finder1.getEq(ffWord));
-
-			// Добавим в поисковик текущую строку, если введен пробел
-			if(qe.key == QtE.Key.Key_Space) parentQtE5.finder1.addLine(strFromBlock);
-
+			
+			// А может в слове есть символ "." и это метод?
+			auto pozPoint = lastIndexOf(ffWord, '.');
+			if(pozPoint > -1) {		// Есть '.'
+				string ffMetod = ffWord[pozPoint +1 .. $];
+				labelHelp.setText("[" ~ ffWord ~ "] - [" ~ ffMetod ~ "]");
+			} else {				// Нет  '.'
+				// Если таблица подсказки открыта, то искать слово
+				if(!teHelp.isHidden) setTablHelp(parentQtE5.finder1.getEq(ffWord));
+				// Добавим в поисковик текущую строку, если введен пробел
+				if(qe.key == QtE.Key.Key_Space) parentQtE5.finder1.addLine(strFromBlock);
+			}
 			// Показать строку статуса
 			parentQtE5.showInfo(to!string(editSost) ~ "  " ~ to!string(qe.key) ~ "  " ~ format("%s", qe.modifiers()));
 		} else {
