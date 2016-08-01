@@ -75,6 +75,18 @@ m1:		if(nod is null) {		// Цепочка пуста, вставка 1-го эл
 		return nod;
 	}
 	// ______________________________________________________________
+	string[] getEqMet1(string w) { //-> Выдать массив похожих слов из методов 
+		string[] rez; size_t dlw, dln;
+		if(w.length == 0) return rez;
+		um nod = trapMetod;
+		while(nod !is null) {
+			dlw = w.length; dln = nod.name.length;
+			if(dln >= dlw) { if(nod.name[0 .. dlw] == w) rez ~= nod.name; }
+			nod = nod.allLink;
+		}
+		return rez;
+	}
+	// ______________________________________________________________
 	void printMet() { //-> Распечатать список всех методов
 		um nod = trapMetod;
 		while(nod !is null) {
