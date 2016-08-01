@@ -670,7 +670,7 @@ class CFormaMain: QMainWindow { //=> Основной MAIN класс прило
 
 	CEditWin				activeWinEdit;	// Активный в данный момент редактор
 	int 			winEditKol;				// Количество окошек редактора
-	QMenu menu1, menu2;						// Меню
+	QMenu menu1, menu2, menu3;						// Меню
 	QAction[] menuActDyn;
 	QMenu[] menuDyn;						// Динамическое меню
 	QMenuBar mb1;							// Строка меню сверху
@@ -760,9 +760,9 @@ class CFormaMain: QMainWindow { //=> Основной MAIN класс прило
 		stBar = new QStatusBar(this); stBar.setStyleSheet(strGreen);
 
 		// Menu
- 		menu2 = new QMenu(this),  menu1 = new QMenu(this);
+ 		menu3 = new QMenu(this),  menu2 = new QMenu(this),  menu1 = new QMenu(this);
 		// MenuBar
-		mb1 = new QMenuBar(this); mb1.addMenu(menu1).addMenu(menu2);
+		mb1 = new QMenuBar(this);
 		// --------------- Взаимные настройки -----------------
 		menu2.setTitle("About")
 			.addAction(		acAbout		)
@@ -779,6 +779,12 @@ class CFormaMain: QMainWindow { //=> Основной MAIN класс прило
 			.addAction(     acOnOffHelp )
 			.addSeparator()
 			.addAction(		acExit		);
+
+		menu3.setTitle("Build")
+			.addAction(		acAbout		)
+			.addAction(		acAboutQt 	);
+
+		mb1.addMenu(menu1).addMenu(menu3).addMenu(menu2);
 
 /* 		for(int j; j !=2; j++) {
 			menuDyn ~= new QMenu(this);
@@ -1220,11 +1226,18 @@ class CFormaMain: QMainWindow { //=> Основной MAIN класс прило
 	void about(int n) {
 		if(n == 1) {
 
-			msgbox("MGW 2016
+			msgbox(
+"
+<H2>IDE5 - miniIDE for dmd</H2>
+<H3>MGW 2016 ver 0.3 от 01.08.2016</H3>
 
-miniIDE for dmd + QtE5 + Qt-5
+<p>miniIDE for dmd + QtE5 + Qt-5</p>
+<p>It application is only demo work with QtE5</p>
 
-ver 0.2 от 22.07.2016", "About ...");
+
+"
+
+, "About IDE5");
 		}
 		if(n == 2) {	app.aboutQt();	}
 	}
