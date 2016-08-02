@@ -648,6 +648,8 @@ extern (C) {
 	void on_DynAct(CFormaMain* uk, int n)  { (*uk).runDynAct(n);  }
 	void onRunApp(CFormaMain* uk)          { (*uk).runRunApp(); }
 	void onRunProj(CFormaMain* uk)         { (*uk).runRunProj(); }
+	void onCompile(CFormaMain* uk)         { (*uk).runCompile(); }
+	void onUnitTest(CFormaMain* uk)         { (*uk).runUnitTest(); }
 	void onSwEdit(CFormaMain* uk, int n)   { (*uk).runSwEdit(n); }
 	void onGotoNum(CFormaMain* uk)         { (*uk).runGotoNum(); }
 	void onFind(CFormaMain* uk)            { (*uk).runFind(); }
@@ -675,7 +677,8 @@ class CFormaMain: QMainWindow { //=> Основной MAIN класс прило
 	QMenu[] menuDyn;						// Динамическое меню
 	QMenuBar mb1;							// Строка меню сверху
 	QAction acOpen, acNewFile, acSave, acSaveAs;	// Обработчики
-	QAction acAbout, acAboutQt, acExit, acRunApp, acRunProj, acOnOffHelp, acGotoNum, acFind, acFindA;
+	QAction acAbout, acAboutQt, acExit, acOnOffHelp, acGotoNum, acFind, acFindA;
+	QAction acUnitTest, acCompile, acRunApp, acRunProj;
 	QStatusBar      stBar;					// Строка сообщений
 	QToolBar tb, tbSwWin;					// Строка кнопок
 	string[]	sShabl;						// Массив шаблонов. Первые 2 цифры - индекс
@@ -713,6 +716,14 @@ class CFormaMain: QMainWindow { //=> Основной MAIN класс прило
 		// acSaveAs = new QAction(this, &on_knOpen,   aThis);
 		// acSaveAs.setText("Save as").setHotKey(QtE.Key.Key_S | QtE.Key.Key_ControlModifier);
 		// connects(acSaveAs, "triggered()", acSave, "Slot()");
+
+		acCompile = new QAction(this, &onCompile, aThis);
+		acCompile.setText("Compile").setHotKey(QtE.Key.Key_B | QtE.Key.Key_ControlModifier);
+		connects(acCompile, "triggered()", acCompile, "Slot()");
+
+		acUnitTest = new QAction(this, &onUnitTest, aThis);
+		acUnitTest.setText("UnitTest");
+		connects(acUnitTest, "triggered()", acUnitTest, "Slot()");
 
 		// Актион
 		acRunApp = new QAction(this, &onRunApp, aThis);
@@ -781,8 +792,11 @@ class CFormaMain: QMainWindow { //=> Основной MAIN класс прило
 			.addAction(		acExit		);
 
 		menu3.setTitle("Build")
-			.addAction(		acAbout		)
-			.addAction(		acAboutQt 	);
+			.addAction(		acCompile	)
+			.addAction(		acUnitTest 	)
+			.addAction(		acRunApp 	)
+			.addAction(		acRunProj 	);
+
 
 		mb1.addMenu(menu1).addMenu(menu3).addMenu(menu2);
 
@@ -1031,6 +1045,7 @@ class CFormaMain: QMainWindow { //=> Основной MAIN класс прило
 		}
 		// Готовимся к компиляции
 		string nameLog = constNameLog;
+writeln(listModuls);
 		auto logFile = File(nameLog, "w");
 			auto pid = spawnProcess(listModuls,
 				std.stdio.stdin,
@@ -1060,9 +1075,7 @@ class CFormaMain: QMainWindow { //=> Основной MAIN класс прило
 		}
 	}
 	// ______________________________________________________________
-	void runRunApp() { //-> Компиляция и запуск
-		SaveFile();		// Сохраним перед запуском
-		// Определим активное окно редактора
+	void runCompile() { //-> Компиляция проверка ошибок
 		int aWinEd = actWinEdit();
 		if(aWinEd == -1) {
 			msgbox("Нет активного окна для выполнения кода!", "Внимание! стр: "
@@ -1070,46 +1083,73 @@ class CFormaMain: QMainWindow { //=> Основной MAIN класс прило
 			return;
 		}
 		string nameFile = winEdit[aWinEd].getNameEditFile();
-		string nameLog = constNameLog;
 		if(nameFile == "") {
 			msgbox("Не задано имя файла, не могу компилировать", "Внимание! стр: "
 				~ to!string(__LINE__), QMessageBox.Icon.Critical);
 			return;
 		}
-		if(aWinEd > -1) {
-			auto logFile = File(nameLog, "w");
-				string[] swCompileMain = [ nameDMDonOs(), nameFile ];
-				if(cbDebug.checkState == QtE.CheckState.Checked) {
-					swCompileMain ~= (swCompile ~ "-debug");
-				} else {
-					swCompileMain ~= swCompile;
-				}
-				auto pid = spawnProcess(swCompileMain,
-					std.stdio.stdin,
-					std.stdio.stdout,
-					logFile
-				);
-			if (wait(pid) != 0) {
-				string sLog = cast(string)read(nameLog);
-				msgbox(sLog, "Ошибки компиляции ...");
-			} else {
-				string nameRunFile;
-				version (Windows) {
-					nameRunFile = nameFile[0..$-2];
-				}
-				version (linux) {
-					nameRunFile = nameFile[0..$-2];
-				}
-				version (OSX) {
-					nameRunFile = nameFile[0..$-2];
-				}
-				writeln(toCON("---- Выполняю: " ~ nameRunFile ~ " ----"));
-				auto pid2 = spawnProcess(nameRunFile);
-			}
+		SaveFile();		// Сохраним перед запуском
+		// стандартные проверки позади
+		string nameLog = constNameLog;
+		auto logFile = File(nameLog, "w");
+			string[] swCompileMain = [ nameDMDonOs(), "-c", nameFile ];
+			if(cbDebug.checkState == QtE.CheckState.Checked) swCompileMain ~= "-debug";
+			auto pid = spawnProcess(swCompileMain,
+				std.stdio.stdin,
+				std.stdio.stdout,
+				logFile
+			);
+		if (wait(pid) != 0) {
+			string sLog = cast(string)read(nameLog);
+			msgbox(sLog, "Compile  ...", QMessageBox.Icon.Critical);
 		} else {
-			msgbox("Не выбрано окно исходного текста для сохранения", "Внимание! стр: "
-				~ to!string(__LINE__), QMessageBox.Icon.Critical);
+			msgbox("Compile is Ok", "Compile  ...");
 		}
+		winEdit[aWinEd].teEdit.setFocus();
+	}
+	// ______________________________________________________________
+	void runUnitTest() { //-> Компиляция и выполнение UnitTest
+		msgbox("UnitTest ...");
+	}
+	// ______________________________________________________________
+	void runRunApp() { //-> Компиляция и запуск
+		int aWinEd = actWinEdit();
+		if(aWinEd == -1) {
+			msgbox("Нет активного окна для выполнения кода!", "Внимание! стр: "
+				~ to!string(__LINE__), QMessageBox.Icon.Critical);
+			return;
+		}
+		string nameFile = winEdit[aWinEd].getNameEditFile();
+		if(nameFile == "") {
+			msgbox("Не задано имя файла, не могу компилировать", "Внимание! стр: "
+				~ to!string(__LINE__), QMessageBox.Icon.Critical);
+			return;
+		}
+		SaveFile();		// Сохраним перед запуском
+		// стандартные проверки позади
+		string nameLog = constNameLog;
+		// Найдено активное окно редактора
+		auto logFile = File(nameLog, "w");
+			string[] swCompileMain = [ nameDMDonOs(), nameFile ];
+			if(cbDebug.checkState == QtE.CheckState.Checked) {
+				swCompileMain ~= (swCompile ~ "-debug");
+			} else {
+				swCompileMain ~= swCompile;
+			}
+			auto pid = spawnProcess(swCompileMain,
+				std.stdio.stdin,
+				std.stdio.stdout,
+				logFile
+			);
+		if (wait(pid) != 0) {
+			string sLog = cast(string)read(nameLog);
+			msgbox(sLog, "Compile  ...", QMessageBox.Icon.Critical);
+		} else {
+			string nameRunFile = nameFile[0..$-2];
+			writeln(toCON("---- Выполняю: " ~ nameRunFile ~ " ----"));
+			auto pid2 = spawnProcess(nameRunFile);
+		}
+		winEdit[aWinEd].teEdit.setFocus();
 	}
 	// ______________________________________________________________
 	void runDynAct(int nom) { //-> Процедура обработки меню шаблона
