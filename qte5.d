@@ -46,11 +46,8 @@ private {
 	alias t_v__vp_vp_vp = extern (C) @nogc void function(void*, void*, void*);
 	alias t_v__qp_i_i = extern (C) @nogc void function(QtObjH, int, int);
 	alias t_v__qp_qp_i_i = extern (C) @nogc void function(QtObjH, QtObjH, int, int);
-<<<<<<< HEAD
 	alias t_v__qp_qp_i_i_i = extern (C) @nogc void function(QtObjH, QtObjH, int, int, int);
 	alias t_v__qp_qp_i_i_i_i_i = extern (C) @nogc void function(QtObjH, QtObjH, int, int, int, int, int);
-=======
->>>>>>> origin/master
 
 	alias t_b__qp = extern (C) @nogc bool function(QtObjH);
 	alias t_b__qp_qp = extern (C) @nogc bool function(QtObjH, QtObjH);
@@ -764,11 +761,7 @@ class QtE {
 		WindowStaysOnBottomHint = 0x04000000 // Informs the window system that the window should stay on bottom of all other windows. Note that on X11 this hint will work only in window managers that support _NET_WM_STATE_BELOW atom. If a window always on the bottom has a parent, the parent will also be left on the bottom. This window hint is currently not impl
 	// .... Qt5/QtCore/qnamespace.h
 	}
-<<<<<<< HEAD
 	enum KeyboardModifier { //->
-=======
-	enum KeyboardModifier { //-> 
->>>>>>> origin/master
 		NoModifier           = 0x00000000,
 		ShiftModifier        = 0x02000000,
 		ControlModifier      = 0x04000000,
@@ -780,22 +773,14 @@ class QtE {
 		KeyboardModifierMask = 0xfe000000
 	}
 	// Политика контексного меню
-<<<<<<< HEAD
 	enum ContextMenuPolicy { //->
-=======
-	enum ContextMenuPolicy { //-> 
->>>>>>> origin/master
 		NoContextMenu = 0, // нет контексного меню
 		DefaultContextMenu = 1, //
 		ActionsContextMenu = 2, //
 		CustomContextMenu = 3, //
 		PreventContextMenu = 4 //
 	}
-<<<<<<< HEAD
 	enum Key { //->
-=======
-	enum Key { //-> 
->>>>>>> origin/master
 		Key_ControlModifier = 0x04000000,
 		Key_Escape = 0x01000000, // misc keys
 		Key_Tab = 0x01000001,
@@ -1001,20 +986,12 @@ class QtE {
 		Key_PreviousCandidate = 0x0100113e,
 		Key_unknown = 0x01ffffff
 	}
-<<<<<<< HEAD
 	enum Orientation { //->
 		Horizontal = 0x1,
 		Vertical   = 0x2
 	}
 	enum AlignmentFlag { //->
 		AlignNone = 0,
-=======
-	enum Orientation { //-> 
-		Horizontal = 0x1,
-		Vertical   = 0x2
-	}
-	enum AlignmentFlag { //-> 
->>>>>>> origin/master
 		AlignLeft = 0x0001,
 		AlignLeading = AlignLeft,
 		AlignRight = 0x0002,
@@ -1032,11 +1009,7 @@ class QtE {
 		AlignAuto = AlignLeft,
 		AlignExpanding = AlignLeft & AlignTop
 	}
-<<<<<<< HEAD
 	enum GlobalColor { //->
-=======
-	enum GlobalColor { //-> 
->>>>>>> origin/master
 		color0,
 		color1,
 		black,
@@ -1058,11 +1031,7 @@ class QtE {
 		darkYellow,
 		transparent
 	}
-<<<<<<< HEAD
  	enum PenStyle { //->
-=======
- 	enum PenStyle { //-> 
->>>>>>> origin/master
 		NoPen			= 0,	// Запретить рисование
 		SolidLine		= 1,	// Сплошная непрерывная линия
 		DashLine		= 2,	// Штрихова, длинные штрихи
@@ -1071,11 +1040,7 @@ class QtE {
 		DashDotDotLine	= 5,	// штрих 2 точки штрих 2 точки
 		CustomDashLine	= 6		// A custom pattern defined using QPainterPathStroker::setDashPattern().
 	}
-<<<<<<< HEAD
 	enum CheckState { //->
-=======
-	enum CheckState { //-> 
->>>>>>> origin/master
 		Unchecked	= 0, 		// Не выбранный
 		PartiallyChecked = 1,	// The item is partially checked. Items in hierarchical models may be partially checked if some, but not all, of their children are checked.
 		Checked		= 2			// Выбран The item is checked.
@@ -1178,11 +1143,7 @@ QPalette - Палитры цветов
 +/
 class QPalette : QObject {
 
-<<<<<<< HEAD
 	enum ColorGroup { //->
-=======
-	enum ColorGroup { //-> 
->>>>>>> origin/master
 		Active,
 		Disabled,
 		Inactive,
@@ -1192,11 +1153,7 @@ class QPalette : QObject {
 		Normal = Active
 	}
 
-<<<<<<< HEAD
 	enum ColorRole { //->
-=======
-	enum ColorRole { //-> 
->>>>>>> origin/master
 		WindowText,
 		Button,
 		Light,
@@ -1244,19 +1201,11 @@ class QColor : QObject {
 	~this() {
 		if(!fNoDelete && (QtObj != null)) { (cast(t_v__qp) pFunQt[14])(QtObj); setQtObj(null); }
 	} /// Деструктор
-<<<<<<< HEAD
 	QColor setRgb(int r, int g, int b, int a = 255) { //->
 		(cast(t_v__qp_i_i_i_i) pFunQt[15])(QtObj, r, g, b, a);
 		return this;
 	} /// Sets the RGB value to r, g, b and the alpha value to a. All the values must be in the range 0-255.
 	QColor getRgb(int* r, int* g, int* b, int* a) { //->
-=======
-	QColor setRgb(int r, int g, int b, int a = 255) { //-> 
-		(cast(t_v__qp_i_i_i_i) pFunQt[15])(QtObj, r, g, b, a);
-		return this;
-	} /// Sets the RGB value to r, g, b and the alpha value to a. All the values must be in the range 0-255.
-	QColor getRgb(int* r, int* g, int* b, int* a) { //-> 
->>>>>>> origin/master
 		(cast(t_v__qp_ip_ip_ip_ip) pFunQt[320])(QtObj, r, g, b, a);
 		return this;
 	} /// Sets the RGB value to r, g, b and the alpha value to a. All the values must be in the range 0-255.
@@ -1274,11 +1223,7 @@ QBrush - Оформление
 +/
 class QBrush : QObject {
 
-<<<<<<< HEAD
 	enum BrushStyle { //->
-=======
-	enum BrushStyle { //-> 
->>>>>>> origin/master
 		NoBrush	=		0,			// No brush pattern.
 		SolidPattern =	1,			// Однообразный
 		Dense1Pattern =	2,			// Исключительно плотный
@@ -1306,19 +1251,11 @@ class QBrush : QObject {
 	~this() {
 		if(!fNoDelete && (QtObj != null)) { (cast(t_v__qp) pFunQt[178])(QtObj); setQtObj(null); }
 	} /// Деструктор
-<<<<<<< HEAD
 	QBrush setColor(QColor color) { //->
 		(cast(t_v__qp_qp) pFunQt[179])(QtObj, color.QtObj);
 		return this;
 	}
 	QBrush setStyle(BrushStyle style = BrushStyle.SolidPattern) { //->
-=======
-	QBrush setColor(QColor color) { //-> 
-		(cast(t_v__qp_qp) pFunQt[179])(QtObj, color.QtObj);
-		return this;
-	}
-	QBrush setStyle(BrushStyle style = BrushStyle.SolidPattern) { //-> 
->>>>>>> origin/master
 		(cast(t_v__qp_i) pFunQt[181])(QtObj, style);
 		return this;
 	}
@@ -1345,21 +1282,13 @@ class QPaintDevice: QObject  {
 	для реакции на события.
 +/
 class QWidget: QPaintDevice {
-<<<<<<< HEAD
 	enum PolicyFlag { //->
-=======
-	enum PolicyFlag { //-> 
->>>>>>> origin/master
 		GrowFlag = 1,
 		ExpandFlag = 2,
 		ShrinkFlag = 4,
 		IgnoreFlag = 8
 	}
-<<<<<<< HEAD
 	enum Policy { //->
-=======
-	enum Policy { //-> 
->>>>>>> origin/master
 		Fixed = 0,
 		Minimum = PolicyFlag.GrowFlag,
 		Maximum = PolicyFlag.ShrinkFlag,
@@ -1432,13 +1361,10 @@ class QWidget: QPaintDevice {
 		(cast(t_v__qp_bool) pFunQt[32])(QtObj, fl); return this;
 	} /// Доступен или нет
 	QWidget setLayout(QBoxLayout layout) { //->
-<<<<<<< HEAD
 		layout.setNoDelete(true);
 		(cast(t_v__qp_qp) pFunQt[40])(QtObj, layout.QtObj); return this;
 	} /// Вставить в виджет выравниватель
 	QWidget setLayout(QGridLayout layout) { //->
-=======
->>>>>>> origin/master
 		layout.setNoDelete(true);
 		(cast(t_v__qp_qp) pFunQt[40])(QtObj, layout.QtObj); return this;
 	} /// Вставить в виджет выравниватель
@@ -1502,7 +1428,6 @@ class QWidget: QPaintDevice {
 	QWidget setToolTipDuration(int msek) { //->
 		(cast(t_v__qp_i_i) pFunQt[79])(QtObj, 6, msek); return this;
 	} /// Время показа в МилиСекундах
-<<<<<<< HEAD
 	QWidget setFocus() {  //->
 		(cast(t_v__qp_i) pFunQt[87])(QtObj, 0); return this; } /// Установить фокус
 	QWidget close()    {  //->
@@ -1548,53 +1473,6 @@ class QWidget: QPaintDevice {
 		return (cast(t_i__qp_i) pFunQt[172])(QtObj, 2);
 	}
 	int height() { //->
-=======
-	QWidget setFocus() {  //-> 
-		(cast(t_v__qp_i) pFunQt[87])(QtObj, 0); return this; } /// Установить фокус
-	QWidget close()    {  //-> 
-		(cast(t_v__qp_i) pFunQt[87])(QtObj, 1); return this; } /// Закрыть окно
-	QWidget hide() {  //-> 
-		(cast(t_v__qp_i) pFunQt[87])(QtObj, 2); return this; 	}
-	QWidget show() {  //-> 
-		(cast(t_v__qp_i) pFunQt[87])(QtObj, 3); return this; 	}
-	QWidget showFullScreen()  {  //-> 
-		(cast(t_v__qp_i) pFunQt[87])(QtObj, 4); return this; 	}
-	QWidget showMaximized() {  //-> 
-		(cast(t_v__qp_i) pFunQt[87])(QtObj, 5); return this; 	}
-	QWidget showMinimized() {  //-> 
-		(cast(t_v__qp_i) pFunQt[87])(QtObj, 6); return this; 	}
-	QWidget showNormal() {  //-> 
-		(cast(t_v__qp_i) pFunQt[87])(QtObj, 7); return this; } ///
-	QWidget update() { 	 //-> 
-		(cast(t_v__qp_i) pFunQt[87])(QtObj, 8); return this;  } ///
-	QWidget raise() {  //-> 
-		(cast(t_v__qp_i) pFunQt[87])(QtObj, 9); return this; 	} /// Показать окно на вершине
-	QWidget lower() {  //-> 
-		(cast(t_v__qp_i) pFunQt[87])(QtObj, 10); return this; 	} /// Скрыть в стеке
-
-	QWidget move(int x, int y) { //-> 
-		(cast(t_v__qp_i_i_i) pFunQt[94])(QtObj, 0, x, y); return this;
-	} /// This property holds the size of the widget excluding any window frame
-	QWidget resize(int w, int h) { //-> 
-		(cast(t_v__qp_i_i_i) pFunQt[94])(QtObj, 1, w, h); return this;
-	} /// This property holds the size of the widget excluding any window frame
-	QWidget setFont(QFont font) { //-> 
-		(cast(t_v__qp_qp) pFunQt[131])(QtObj, font.QtObj); return this;
-	}
-	void* winid() { //-> 
-		return (cast(t_vp__qp) pFunQt[148])(QtObj);
-	}
-	int x() { //-> 
-		return (cast(t_i__qp_i) pFunQt[172])(QtObj, 0);
-	}
-	int y() { //-> 
-		return (cast(t_i__qp_i) pFunQt[172])(QtObj, 1);
-	}
-	int width() { //-> 
-		return (cast(t_i__qp_i) pFunQt[172])(QtObj, 2);
-	}
-	int height() { //-> 
->>>>>>> origin/master
 		return (cast(t_i__qp_i) pFunQt[172])(QtObj, 3);
 	}
 	bool hasFocus() { //-> Виджет имеет фокус
@@ -1659,25 +1537,16 @@ class QAbstractButton : QWidget {
 		(cast(t_v__qp_qp) pFunQt[28])(QtObj, str.QtObj);
 		return this;
 	} /// Установить текст на кнопке
-<<<<<<< HEAD
 	QAbstractButton setText(T)(T str) { //->
 		(cast(t_v__qp_qp) pFunQt[28])(QtObj, (new QString(to!string(str))).QtObj);
 		return this;
 	} /// Установить текст на кнопке
 	T text(T: QString)() { //->
-=======
-	QAbstractButton setText(T)(T str) { //-> 
-		(cast(t_v__qp_qp) pFunQt[28])(QtObj, (new QString(to!string(str))).QtObj);
-		return this;
-	} /// Установить текст на кнопке
-	T text(T: QString)() { //-> 
->>>>>>> origin/master
 		QString qs = new QString(); (cast(t_v__qp_qp)pFunQt[29])(QtObj, qs.QtObj);
 		return qs;
 	}
 	T text(T)() { return to!T(text!QString().String);
 	}
-<<<<<<< HEAD
 	QAbstractButton setAutoExclusive(bool pr) { //->
 		(cast(t_v__qp_b_i) pFunQt[209])(QtObj, pr, 0); return this;
 	} ///
@@ -1688,28 +1557,12 @@ class QAbstractButton : QWidget {
 		(cast(t_v__qp_b_i) pFunQt[209])(QtObj, pr, 2); return this;
 	} ///
 	QAbstractButton setDown(bool pr) { //->
-=======
-	QAbstractButton setAutoExclusive(bool pr) { //-> 
-		(cast(t_v__qp_b_i) pFunQt[209])(QtObj, pr, 0); return this;
-	} ///
-	QAbstractButton setAutoRepeat(bool pr) { //-> 
-		(cast(t_v__qp_b_i) pFunQt[209])(QtObj, pr, 1); return this;
-	} ///
-	QAbstractButton setCheckable(bool pr) { //-> 
-		(cast(t_v__qp_b_i) pFunQt[209])(QtObj, pr, 2); return this;
-	} ///
-	QAbstractButton setDown(bool pr) { //-> 
->>>>>>> origin/master
 		(cast(t_v__qp_b_i) pFunQt[209])(QtObj, pr, 3); return this;
 	} ///
 	QAbstractButton setChecked(bool pr) { //-> Включить кнопку
 		(cast(t_v__qp_b_i) pFunQt[209])(QtObj, pr, 4); return this;
 	} ///
-<<<<<<< HEAD
 	QAbstractButton setIcon(QIcon ik) { //->
-=======
-	QAbstractButton setIcon(QIcon ik) { //-> 
->>>>>>> origin/master
 		(cast(t_v__qp_qp) pFunQt[211])(QtObj, ik.QtObj); return this;
 	} ///
 	bool autoExclusive() { //-> T - Эксклюзивное использование
@@ -1770,7 +1623,6 @@ class QPushButton : QAbstractButton {
 			setQtObj((cast(t_qp__qp_qp) pFunQt[22])(null, (new QString(to!string(str))).QtObj));
 		}
 	}
-<<<<<<< HEAD
 	QPushButton setAutoDefault(bool pr) { //->
 		(cast(t_v__qp_b_i) pFunQt[210])(QtObj, pr, 0); return this;
 	} ///
@@ -1778,15 +1630,6 @@ class QPushButton : QAbstractButton {
 		(cast(t_v__qp_b_i) pFunQt[210])(QtObj, pr, 1); return this;
 	} ///
 	QPushButton setFlat(bool pr) { //->
-=======
-	QPushButton setAutoDefault(bool pr) { //-> 
-		(cast(t_v__qp_b_i) pFunQt[210])(QtObj, pr, 0); return this;
-	} ///
-	QPushButton setDefault(bool pr) { //-> 
-		(cast(t_v__qp_b_i) pFunQt[210])(QtObj, pr, 1); return this;
-	} ///
-	QPushButton setFlat(bool pr) { //-> 
->>>>>>> origin/master
 		(cast(t_v__qp_b_i) pFunQt[210])(QtObj, pr, 2); return this;
 	} ///
 
@@ -1863,11 +1706,7 @@ class QApplication : QObject {
 	T appFilePath(T)() {  //-> Путь до приложения
 		return to!T((appFilePath!QString()).String);
 	}
-<<<<<<< HEAD
 	void exit(int kod) { //->
-=======
-	void exit(int kod) { //-> 
->>>>>>> origin/master
 		(cast(t_v__qp_i) pFunQt[276])(QtObj, kod);
 	}
 
@@ -1924,11 +1763,7 @@ class QString: QObject {
 	@property string String() { //-> return string D from QString
 		return toUtf8();
 	} /// return string D from QString
-<<<<<<< HEAD
 	int sizeOfQString() { //->
-=======
-	int sizeOfQString() { //-> 
->>>>>>> origin/master
 		return (cast(t_i__v) pFunQt[281])();
 	}
 }
@@ -2010,11 +1845,7 @@ QBoxLayout - это класс выравнивателей. Они управл
 элементов на форме.
 +/
 class QBoxLayout : QObject {
-<<<<<<< HEAD
 	enum Direction { //->
-=======
-	enum Direction { //-> 
->>>>>>> origin/master
 		LeftToRight = 0,
 		RightToLeft = 1,
 		TopToBottom = 2,
@@ -2088,11 +1919,7 @@ class QHBoxLayout : QBoxLayout {
 }
 // ================ QFrame ================
 class QFrame : QWidget {
-<<<<<<< HEAD
 	enum Shape { //->
-=======
-	enum Shape { //-> 
->>>>>>> origin/master
 		NoFrame = 0, // no frame
 		Box = 0x0001, // rectangular box
 		Panel = 0x0002, // rectangular panel
@@ -2101,11 +1928,7 @@ class QFrame : QWidget {
 		VLine = 0x0005, // vertical line
 		StyledPanel = 0x0006 // rectangular panel depending on the GUI style
 	}
-<<<<<<< HEAD
 	enum Shadow { //->
-=======
-	enum Shadow { //-> 
->>>>>>> origin/master
 		Plain = 0x0010, // plain line
 		Raised = 0x0020, // raised shadow effect
 		Sunken = 0x0030 // sunken shadow effect
@@ -2355,11 +2178,7 @@ class QAbstractScrollArea : QFrame {
 // ================ QTextDocument ================
 alias int FindFlags;
 class QTextDocument : QObject {
-<<<<<<< HEAD
 	enum FindFlag { //->
-=======
-	enum FindFlag { //-> 
->>>>>>> origin/master
 		FindBackward		= 0x00001,	// Search backwards instead of forwards.
 		FindCaseSensitively	= 0x00002,	// By default find works case insensitive.
 		FindWholeWords		= 0x00004	// Makes find match only complete words.
