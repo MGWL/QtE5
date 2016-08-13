@@ -21,3 +21,8 @@ For example forth language:
 
 Install for Windows 32:
     Copy all files from RunTime-Qt-5\rt_Qt5_windows32.zip in root folder. 
+    
+##Screenshot    
+![screen](https://pp.vk.me/c631922/v631922885/34712/PdhAoT0u4hk.jpg)
+![screen](https://pp.vk.me/c604527/v604527885/18d7e/Jjom-jl3uVQ.jpg)
+![screen](https://pp.vk.me/c631825/v631825885/4252c/5xmIehp5WI0.jpg)
