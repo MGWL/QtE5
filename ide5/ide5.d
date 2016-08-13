@@ -84,8 +84,12 @@ class CEditWin: QWidget { //=> Окно редактора D кода
 		Cmd,			// Командный режим
 		Change			// Режим работы с таблицей подсказок
 	}
-	// Текущее слово поиска для finder1
-	string ffWord;
+	// Текущее слово поиска для finder1. 
+	// Алгоритм поиска: 
+	//     Если в слове нет точки, то ffWord=слово, ffMetod=""
+	//     Если в слове есть точка, то ffWord=слово_без_метода, ffMetod=метод
+	string ffWord, ffMetod;
+	
 	// Для поиска
 	struct FindSost { //-> Состояние поиска
 		string strFind;	// Строка поиска
@@ -522,18 +526,29 @@ class CEditWin: QWidget { //=> Окно редактора D кода
 			// Строка под курсором
 			string strFromBlock = tb.text!string();
 
+
 			// Вычленить слово и по нему заполнить таблицу
-			ffWord = getWordLeft(strFromBlock, poz);
-			// wordFindFinder = ffWord; setWindowTitle(wordFindFinder);
+			ffWord = getWordLeft(strFromBlock, poz); ffMetod = "";
 			sbSoob.showMessage("[" ~ ffWord ~ "]");
+			
+			// А может в слове есть символ "." и это метод?
+			auto pozPoint = lastIndexOf(ffWord, '.');
+			if(pozPoint > -1) {		// Есть '.'
+				ffMetod = ffWord[pozPoint +1 .. $]; ffWord = ffWord[0 .. pozPoint];
+				labelHelp.setText("[" ~ ffWord ~ "] - [" ~ ffMetod ~ "]");
+				// Если таблица подсказки открыта, то искать метод
+				if(!teHelp.isHidden) {
+					// setTablHelp(parentQtE5.finder1.getEqMet1(ffMetod));
+					setTablHelp(parentQtE5.finder1.getSubFromAll(ffMetod));
+				}
+			} else {				// Нет  '.'
+				// Если таблица подсказки открыта, то искать слово
+				if(!teHelp.isHidden) setTablHelp(parentQtE5.finder1.getEq(ffWord));
 
-			labelHelp.setText("[" ~ ffWord ~ "]");
-
-			// Если таблица подсказки открыта, то искать слово
-			if(!teHelp.isHidden) setTablHelp(parentQtE5.finder1.getEq(ffWord));
-
-			// Добавим в поисковик текущую строку, если введен пробел
-			if(qe.key == QtE.Key.Key_Space) parentQtE5.finder1.addLine(strFromBlock);
+				// Добавим в поисковик текущую строку, если введен пробел
+				if(qe.key == QtE.Key.Key_Space) parentQtE5.finder1.addLine(strFromBlock);
+			}
+			
 
 			// Показать строку статуса
 			parentQtE5.showInfo(to!string(editSost) ~ "  " ~ to!string(qe.key) ~ "  " ~ format("%s", qe.modifiers()));
@@ -575,9 +590,17 @@ class CEditWin: QWidget { //=> Окно редактора D кода
 		string shabl = mTi[poz].text!string(); pozInTable = 0;
 		// Замена слова для поиска, словом из таблицы
 		txtCursor.beginEditBlock();
-		for(int i; i != std.utf.count(ffWord); i++) {
-			txtCursor.movePosition(QTextCursor.MoveOperation.PreviousCharacter, QTextCursor.MoveMode.KeepAnchor);
-			txtCursor.removeSelectedText();
+
+		if(ffMetod == "") {
+			for(int i; i != std.utf.count(ffWord); i++) {
+				txtCursor.movePosition(QTextCursor.MoveOperation.PreviousCharacter, QTextCursor.MoveMode.KeepAnchor);
+				txtCursor.removeSelectedText();
+			}
+		} else {
+			for(int i; i != std.utf.count(ffMetod); i++) {
+				txtCursor.movePosition(QTextCursor.MoveOperation.PreviousCharacter, QTextCursor.MoveMode.KeepAnchor);
+				txtCursor.removeSelectedText();
+			}
 		}
 		txtCursor.insertText(shabl);
 		teEdit.setTextCursor(txtCursor); // вставили курсор опять в QPlainText
@@ -625,6 +648,8 @@ extern (C) {
 	void on_DynAct(CFormaMain* uk, int n)  { (*uk).runDynAct(n);  }
 	void onRunApp(CFormaMain* uk)          { (*uk).runRunApp(); }
 	void onRunProj(CFormaMain* uk)         { (*uk).runRunProj(); }
+	void onCompile(CFormaMain* uk)         { (*uk).runCompile(); }
+	void onUnitTest(CFormaMain* uk)         { (*uk).runUnitTest(); }
 	void onSwEdit(CFormaMain* uk, int n)   { (*uk).runSwEdit(n); }
 	void onGotoNum(CFormaMain* uk)         { (*uk).runGotoNum(); }
 	void onFind(CFormaMain* uk)            { (*uk).runFind(); }
@@ -647,12 +672,13 @@ class CFormaMain: QMainWindow { //=> Основной MAIN класс прило
 
 	CEditWin				activeWinEdit;	// Активный в данный момент редактор
 	int 			winEditKol;				// Количество окошек редактора
-	QMenu menu1, menu2;						// Меню
+	QMenu menu1, menu2, menu3;						// Меню
 	QAction[] menuActDyn;
 	QMenu[] menuDyn;						// Динамическое меню
 	QMenuBar mb1;							// Строка меню сверху
 	QAction acOpen, acNewFile, acSave, acSaveAs;	// Обработчики
-	QAction acAbout, acAboutQt, acExit, acRunApp, acRunProj, acOnOffHelp, acGotoNum, acFind, acFindA;
+	QAction acAbout, acAboutQt, acExit, acOnOffHelp, acGotoNum, acFind, acFindA;
+	QAction acUnitTest, acCompile, acRunApp, acRunProj;
 	QStatusBar      stBar;					// Строка сообщений
 	QToolBar tb, tbSwWin;					// Строка кнопок
 	string[]	sShabl;						// Массив шаблонов. Первые 2 цифры - индекс
@@ -690,6 +716,14 @@ class CFormaMain: QMainWindow { //=> Основной MAIN класс прило
 		// acSaveAs = new QAction(this, &on_knOpen,   aThis);
 		// acSaveAs.setText("Save as").setHotKey(QtE.Key.Key_S | QtE.Key.Key_ControlModifier);
 		// connects(acSaveAs, "triggered()", acSave, "Slot()");
+
+		acCompile = new QAction(this, &onCompile, aThis);
+		acCompile.setText("Compile").setHotKey(QtE.Key.Key_B | QtE.Key.Key_ControlModifier);
+		connects(acCompile, "triggered()", acCompile, "Slot()");
+
+		acUnitTest = new QAction(this, &onUnitTest, aThis);
+		acUnitTest.setText("UnitTest");
+		connects(acUnitTest, "triggered()", acUnitTest, "Slot()");
 
 		// Актион
 		acRunApp = new QAction(this, &onRunApp, aThis);
@@ -737,9 +771,9 @@ class CFormaMain: QMainWindow { //=> Основной MAIN класс прило
 		stBar = new QStatusBar(this); stBar.setStyleSheet(strGreen);
 
 		// Menu
- 		menu2 = new QMenu(this),  menu1 = new QMenu(this);
+ 		menu3 = new QMenu(this),  menu2 = new QMenu(this),  menu1 = new QMenu(this);
 		// MenuBar
-		mb1 = new QMenuBar(this); mb1.addMenu(menu1).addMenu(menu2);
+		mb1 = new QMenuBar(this);
 		// --------------- Взаимные настройки -----------------
 		menu2.setTitle("About")
 			.addAction(		acAbout		)
@@ -756,6 +790,15 @@ class CFormaMain: QMainWindow { //=> Основной MAIN класс прило
 			.addAction(     acOnOffHelp )
 			.addSeparator()
 			.addAction(		acExit		);
+
+		menu3.setTitle("Build")
+			.addAction(		acCompile	)
+			.addAction(		acUnitTest 	)
+			.addAction(		acRunApp 	)
+			.addAction(		acRunProj 	);
+
+
+		mb1.addMenu(menu1).addMenu(menu3).addMenu(menu2);
 
 /* 		for(int j; j !=2; j++) {
 			menuDyn ~= new QMenu(this);
@@ -1002,6 +1045,7 @@ class CFormaMain: QMainWindow { //=> Основной MAIN класс прило
 		}
 		// Готовимся к компиляции
 		string nameLog = constNameLog;
+writeln(listModuls);
 		auto logFile = File(nameLog, "w");
 			auto pid = spawnProcess(listModuls,
 				std.stdio.stdin,
@@ -1031,9 +1075,7 @@ class CFormaMain: QMainWindow { //=> Основной MAIN класс прило
 		}
 	}
 	// ______________________________________________________________
-	void runRunApp() { //-> Компиляция и запуск
-		SaveFile();		// Сохраним перед запуском
-		// Определим активное окно редактора
+	void runCompile() { //-> Компиляция проверка ошибок
 		int aWinEd = actWinEdit();
 		if(aWinEd == -1) {
 			msgbox("Нет активного окна для выполнения кода!", "Внимание! стр: "
@@ -1041,46 +1083,73 @@ class CFormaMain: QMainWindow { //=> Основной MAIN класс прило
 			return;
 		}
 		string nameFile = winEdit[aWinEd].getNameEditFile();
-		string nameLog = constNameLog;
 		if(nameFile == "") {
 			msgbox("Не задано имя файла, не могу компилировать", "Внимание! стр: "
 				~ to!string(__LINE__), QMessageBox.Icon.Critical);
 			return;
 		}
-		if(aWinEd > -1) {
-			auto logFile = File(nameLog, "w");
-				string[] swCompileMain = [ nameDMDonOs(), nameFile ];
-				if(cbDebug.checkState == QtE.CheckState.Checked) {
-					swCompileMain ~= (swCompile ~ "-debug");
-				} else {
-					swCompileMain ~= swCompile;
-				}
-				auto pid = spawnProcess(swCompileMain,
-					std.stdio.stdin,
-					std.stdio.stdout,
-					logFile
-				);
-			if (wait(pid) != 0) {
-				string sLog = cast(string)read(nameLog);
-				msgbox(sLog, "Ошибки компиляции ...");
-			} else {
-				string nameRunFile;
-				version (Windows) {
-					nameRunFile = nameFile[0..$-2];
-				}
-				version (linux) {
-					nameRunFile = nameFile[0..$-2];
-				}
-				version (OSX) {
-					nameRunFile = nameFile[0..$-2];
-				}
-				writeln(toCON("---- Выполняю: " ~ nameRunFile ~ " ----"));
-				auto pid2 = spawnProcess(nameRunFile);
-			}
+		SaveFile();		// Сохраним перед запуском
+		// стандартные проверки позади
+		string nameLog = constNameLog;
+		auto logFile = File(nameLog, "w");
+			string[] swCompileMain = [ nameDMDonOs(), "-c", nameFile ];
+			if(cbDebug.checkState == QtE.CheckState.Checked) swCompileMain ~= "-debug";
+			auto pid = spawnProcess(swCompileMain,
+				std.stdio.stdin,
+				std.stdio.stdout,
+				logFile
+			);
+		if (wait(pid) != 0) {
+			string sLog = cast(string)read(nameLog);
+			msgbox(sLog, "Compile  ...", QMessageBox.Icon.Critical);
 		} else {
-			msgbox("Не выбрано окно исходного текста для сохранения", "Внимание! стр: "
-				~ to!string(__LINE__), QMessageBox.Icon.Critical);
+			msgbox("Compile is Ok", "Compile  ...");
 		}
+		winEdit[aWinEd].teEdit.setFocus();
+	}
+	// ______________________________________________________________
+	void runUnitTest() { //-> Компиляция и выполнение UnitTest
+		msgbox("UnitTest ...");
+	}
+	// ______________________________________________________________
+	void runRunApp() { //-> Компиляция и запуск
+		int aWinEd = actWinEdit();
+		if(aWinEd == -1) {
+			msgbox("Нет активного окна для выполнения кода!", "Внимание! стр: "
+				~ to!string(__LINE__), QMessageBox.Icon.Critical);
+			return;
+		}
+		string nameFile = winEdit[aWinEd].getNameEditFile();
+		if(nameFile == "") {
+			msgbox("Не задано имя файла, не могу компилировать", "Внимание! стр: "
+				~ to!string(__LINE__), QMessageBox.Icon.Critical);
+			return;
+		}
+		SaveFile();		// Сохраним перед запуском
+		// стандартные проверки позади
+		string nameLog = constNameLog;
+		// Найдено активное окно редактора
+		auto logFile = File(nameLog, "w");
+			string[] swCompileMain = [ nameDMDonOs(), nameFile ];
+			if(cbDebug.checkState == QtE.CheckState.Checked) {
+				swCompileMain ~= (swCompile ~ "-debug");
+			} else {
+				swCompileMain ~= swCompile;
+			}
+			auto pid = spawnProcess(swCompileMain,
+				std.stdio.stdin,
+				std.stdio.stdout,
+				logFile
+			);
+		if (wait(pid) != 0) {
+			string sLog = cast(string)read(nameLog);
+			msgbox(sLog, "Compile  ...", QMessageBox.Icon.Critical);
+		} else {
+			string nameRunFile = nameFile[0..$-2];
+			writeln(toCON("---- Выполняю: " ~ nameRunFile ~ " ----"));
+			auto pid2 = spawnProcess(nameRunFile);
+		}
+		winEdit[aWinEd].teEdit.setFocus();
 	}
 	// ______________________________________________________________
 	void runDynAct(int nom) { //-> Процедура обработки меню шаблона
@@ -1197,11 +1266,18 @@ class CFormaMain: QMainWindow { //=> Основной MAIN класс прило
 	void about(int n) {
 		if(n == 1) {
 
-			msgbox("MGW 2016
+			msgbox(
+"
+<H2>IDE5 - miniIDE for dmd</H2>
+<H3>MGW 2016 ver 0.3 от 01.08.2016</H3>
 
-miniIDE for dmd + QtE5 + Qt-5
+<p>miniIDE for dmd + QtE5 + Qt-5</p>
+<p>It application is only demo work with QtE5</p>
 
-ver 0.2 от 22.07.2016", "About ...");
+
+"
+
+, "About IDE5");
 		}
 		if(n == 2) {	app.aboutQt();	}
 	}

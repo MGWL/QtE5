@@ -14,7 +14,7 @@
 extern "C" MSVC_API  QtRefH qteQApplication_create1(int* argc, char *argv[], int AnParam3) {
     // This string for CLang Mac OSX. No work witchout this string ....
     // void* zz =
-            QCoreApplication::libraryPaths().join(",").toUtf8().data();
+    //        QCoreApplication::libraryPaths().join(",").toUtf8().data();
 
     return (QtRefH)new QApplication(*argc, argv, AnParam3);
 }
@@ -582,6 +582,59 @@ extern "C" MSVC_API  bool qteQAbstractButton_getXX(QAbstractButton* wd, int pr) 
 extern "C" MSVC_API  void qteConnect(QtRefH obj1, char* signal, QtRefH slot, char* sslot, int n) {
     QObject::connect((const QObject*)obj1, (const char*)signal, (const QObject*)slot,
                      (const char*)sslot, (Qt::ConnectionType)n);
+}
+// ===================== QGridLayout ====================
+extern "C" MSVC_API  QGridLayout* qteQGridLayout_create1(QWidget* wd) {
+    return new QGridLayout(wd);
+}
+extern "C" MSVC_API  void qteQGridLayout_delete(QGridLayout* wd) {
+#ifdef debDelete
+    printf("del QGridLayout --> %p\n");
+#endif
+#ifdef debDestr
+    delete wd;
+#endif
+#ifdef debDelete
+    printf("----------------> Ok\n");
+#endif
+}
+extern "C" MSVC_API  int qteQGridLayout_getXX1(QGridLayout* wd, int pr) {
+    int rez = 0;
+    switch ( pr ) {
+    case 0:   rez = wd->columnCount();           break;
+    case 1:   rez = wd->horizontalSpacing();     break;
+    case 2:   rez = wd->rowCount();              break;
+    case 3:   rez = wd->spacing();               break;
+    case 4:   rez = wd->verticalSpacing();       break;
+    }
+    return rez;
+}
+extern "C" MSVC_API void qteQGridLayout_addWidget1(QGridLayout* wd, QWidget* w, int r, int c, Qt::Alignment ali) {
+    wd->addWidget(w, r, c, ali);
+}
+extern "C" MSVC_API void qteQGridLayout_addWidget2(QGridLayout* wd, QWidget* w, int r, int c, int rs, int cs, Qt::Alignment ali) {
+    wd->addWidget(w, r, c, rs, cs, ali);
+}
+extern "C" MSVC_API  int qteQGridLayout_setXX1(QGridLayout* wd, int par, int pr) {
+    int rez = 0;
+    switch ( pr ) {
+    case 0:   rez = wd->columnMinimumWidth(par);        break;
+    case 1:   rez = wd->columnStretch(par);             break;
+    case 2:   rez = wd->rowMinimumHeight(par);          break;
+    case 3:   rez = wd->rowStretch(par);               break;
+    }
+    return rez;
+}
+extern "C" MSVC_API  void qteQGridLayout_setXX2(QGridLayout* wd, int par1, int par2, int pr) {
+    switch ( pr ) {
+    case 0:   wd->setColumnMinimumWidth(par1, par2);        break;
+    case 1:   wd->setColumnStretch(par1, par2);             break;
+    case 2:   wd->setRowMinimumHeight(par1, par2);          break;
+    case 3:   wd->setRowStretch(par1, par2);                break;
+    }
+}
+extern "C" MSVC_API void qteQGridLayout_addLayout1(QGridLayout* wd, QLayout* w, int r, int c, Qt::Alignment ali) {
+    wd->addLayout(w, r, c, ali);
 }
 
 // ===================== QLyout ====================
