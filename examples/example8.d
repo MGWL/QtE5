@@ -21,8 +21,8 @@ class CTest : QWidget {
 	this(QWidget parent, QtE.WindowType fl) { //-> Базовый конструктор
 		super(parent, fl);
 		// Горизонтальный и вертикальный выравниватели
-		vblAll  = new  QVBoxLayout();		// Главный выравниватель
-		hb2  	= new  QHBoxLayout();		// Горизонтальный выравниватель
+		vblAll  = new  QVBoxLayout(this);		// Главный выравниватель
+		hb2  	= new  QHBoxLayout(this);		// Горизонтальный выравниватель
 		// Изготавливаем редактор
 		edTextEdit = new QTextEdit(this);
 		vblAll.addWidget(edTextEdit);

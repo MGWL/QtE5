@@ -13,7 +13,8 @@ int main(string[] args) {
 	// Create Label widget
 	QLabel lb = new QLabel(null);
 	// Add in it text (support  HTML)
-	lb.setText("<h1>Привет мир!</h1>").show();
+	lb.setWindowTitle("Example №1");
+	lb.setText("<h1 align='center'>Привет мир!</h1><h1 align='center'>Hello world!</h1>").show();
 	app.exec();
 	return 0;
 }

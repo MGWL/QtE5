@@ -84,12 +84,12 @@ class CEditWin: QWidget { //=> Окно редактора D кода
 		Cmd,			// Командный режим
 		Change			// Режим работы с таблицей подсказок
 	}
-	// Текущее слово поиска для finder1. 
-	// Алгоритм поиска: 
+	// Текущее слово поиска для finder1.
+	// Алгоритм поиска:
 	//     Если в слове нет точки, то ffWord=слово, ffMetod=""
 	//     Если в слове есть точка, то ffWord=слово_без_метода, ffMetod=метод
 	string ffWord, ffMetod;
-	
+
 	// Для поиска
 	struct FindSost { //-> Состояние поиска
 		string strFind;	// Строка поиска
@@ -159,7 +159,8 @@ class CEditWin: QWidget { //=> Окно редактора D кода
 		teHelp.setMaximumWidth(230).setStyleSheet(strTabl); teHelp.setColumnWidth(0, 200);
 
 		// Строка сообщений
-		sbSoob = new QStatusBar(this);
+		sbSoob = new QStatusBar(this); // sbSoob.setMaximumHeight(32);
+		// Строка сообщений
 		labelHelp = new QLabel(this); labelHelp.setStyleSheet("background: white");
 
 		// Готовлю сттруктуру и виджет для поиска
@@ -410,19 +411,25 @@ class CEditWin: QWidget { //=> Окно редактора D кода
 				QTextBlock tb = new QTextBlock(txtCursor);
 				string strFromBlock = tb.text!string();
 				parentQtE5.finder1.addLine(strFromBlock);
-			}			
+			}
 			return ev;
 		} else {
 			if( editSost == Sost.Change) {
 				return null;
 			} else {
-				if( editSost == Sost.Cmd) { 
+				if( editSost == Sost.Cmd) {
 					if(qe.modifiers == QtE.KeyboardModifier.ControlModifier) {
 						switch(qe.key) {
 							case QtE.Key.Key_L:
 								labelHelp.setText("Режим NORMAL");
 								break;
-							case QtE.Key.Key_Space:
+							default: break;
+						}
+					} else {
+						// Срабатывает на нажатие символа после Ctrl+L
+						switch(qe.key) {
+							// Вставить комментарий
+							case QtE.Key.Key_Slash:
 								teEdit.textCursor(txtCursor); // Выдернули курсор из QPlainText
 								txtCursor.beginEditBlock();
 									txtCursor.movePosition(QTextCursor.MoveOperation.StartOfBlock);
@@ -432,6 +439,7 @@ class CEditWin: QWidget { //=> Окно редактора D кода
 								txtCursor.endEditBlock();
 								teEdit.setTextCursor(txtCursor);
 								break;
+							// Удаоить строку
 							case QtE.Key.Key_D:
 								teEdit.textCursor(txtCursor); // Выдернули курсор из QPlainText
 								txtCursor.beginEditBlock();
@@ -443,9 +451,9 @@ class CEditWin: QWidget { //=> Окно редактора D кода
 								break;
 							default: break;
 						}
-					} else {
 						labelHelp.setText("Режим NORMAL");
-						return ev;
+						editSost = Sost.Normal;
+						// return ev;
 					}
 					return null;
 				}
@@ -464,11 +472,12 @@ class CEditWin: QWidget { //=> Окно редактора D кода
 		// lineNumberArea.update();
 		QKeyEvent qe = new QKeyEvent('+', ev);
 		if(editSost == Sost.Cmd) {
-			if(qe.modifiers == QtE.KeyboardModifier.ControlModifier) {
-				if(qe.key == QtE.Key.Key_L)     return null;
-				if(qe.key == QtE.Key.Key_Space) return null;
-			}
-			editSost = Sost.Normal;
+			return null;
+//			if(qe.modifiers == QtE.KeyboardModifier.ControlModifier) {
+//				if(qe.key == QtE.Key.Key_L)     return null;
+//				if(qe.key == QtE.Key.Key_Space) return null;
+//			}
+			// editSost = Sost.Normal;
 		}
 		if(editSost == Sost.Normal) {
 			if(qe.key == 16777216) { // ESC
@@ -530,7 +539,7 @@ class CEditWin: QWidget { //=> Окно редактора D кода
 			// Вычленить слово и по нему заполнить таблицу
 			ffWord = getWordLeft(strFromBlock, poz); ffMetod = "";
 			sbSoob.showMessage("[" ~ ffWord ~ "]");
-			
+
 			// А может в слове есть символ "." и это метод?
 			auto pozPoint = lastIndexOf(ffWord, '.');
 			if(pozPoint > -1) {		// Есть '.'
@@ -538,8 +547,8 @@ class CEditWin: QWidget { //=> Окно редактора D кода
 				labelHelp.setText("[" ~ ffWord ~ "] - [" ~ ffMetod ~ "]");
 				// Если таблица подсказки открыта, то искать метод
 				if(!teHelp.isHidden) {
-					// setTablHelp(parentQtE5.finder1.getEqMet1(ffMetod));
-					setTablHelp(parentQtE5.finder1.getSubFromAll(ffMetod));
+					setTablHelp(parentQtE5.finder1.getEqMet1(ffMetod));
+					// setTablHelp(parentQtE5.finder1.getSubFromAll(ffMetod));
 				}
 			} else {				// Нет  '.'
 				// Если таблица подсказки открыта, то искать слово
@@ -548,7 +557,7 @@ class CEditWin: QWidget { //=> Окно редактора D кода
 				// Добавим в поисковик текущую строку, если введен пробел
 				if(qe.key == QtE.Key.Key_Space) parentQtE5.finder1.addLine(strFromBlock);
 			}
-			
+
 
 			// Показать строку статуса
 			parentQtE5.showInfo(to!string(editSost) ~ "  " ~ to!string(qe.key) ~ "  " ~ format("%s", qe.modifiers()));
@@ -1270,7 +1279,9 @@ writeln(listModuls);
 "
 <H2>IDE5 - miniIDE for dmd</H2>
 <H3>MGW 2016 ver 0.3 от 01.08.2016</H3>
-
+<BR>
+<IMG src='ICONS/qte5.png'>
+<BR>
 <p>miniIDE for dmd + QtE5 + Qt-5</p>
 <p>It application is only demo work with QtE5</p>
 
