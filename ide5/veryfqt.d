@@ -19,9 +19,9 @@ int main(string[] args) {
 
 	version (linux) {
 		version (X86) {		// ... 32 bit code ...
-			namesDll = ["libQt5Core.so", "libQt5Gui.so", "libQt5Widgets.so", "libQtE5Widgets64.so"];
+			namesDll = ["libQt5Core.so", "libQt5Gui.so", "libQt5Widgets.so", "libQtE5Widgets32.so"];
 			namesRpm = ["qt5qtbase-devel", "qt5-qtbase-devel", 
-				"qt5-qtbase-devel", "libQtE5Widgets64.so from https://github.com/MGWL/QtE5/tree/master/linux64"];
+				"qt5-qtbase-devel", "libQtE5Widgets32.so from https://github.com/MGWL/QtE5/tree/master/linux32"];
 		}
 		version (X86_64) {	// ... 64 bit code
 			namesDll = ["libQt5Core.so", "libQt5Gui.so", "libQt5Widgets.so", "libQtE5Widgets64.so"];
