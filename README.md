@@ -5,7 +5,7 @@
 This is a small study library to work with GUI Qt-5.
 It is used for dynamic linking and easy in use on Windows 32/64 and Linux 32/64.
 
-This short video about qte5 https://www.youtube.com/watch?v=DuOl-4g117E
+*This short video about qte5 and ide5 [video](https://www.youtube.com/watch?v=DuOl-4g117E)*
 
 It is wrapper Qt 5 for programming language D. (http://www.dlang.org).
 
