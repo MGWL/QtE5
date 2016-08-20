@@ -26,7 +26,7 @@ class CFinder { //=> Поисковик. Помнит все слова в фа�
 	~this() {
 	}
 	// ______________________________________________________________
-	private 
+	private
 	struct fNode { //-> Узел списка гирлянды
 		string 		str;		// Строка (слово)
 		//-----------------
@@ -34,7 +34,7 @@ class CFinder { //=> Поисковик. Помнит все слова в фа�
 	}
 	alias fNode* un; // Ссылка на узел цепочки
 
-	private 
+	private
 	struct fClass { //-> Узел списка гирлянды для класса
 		string name;			// Имя самого класса
 		string rawStr;			// Исходная строка описания
@@ -45,7 +45,7 @@ class CFinder { //=> Поисковик. Помнит все слова в фа�
 	}
 	alias fClass* uc; // Ссылка на узел цепочки класса
 
-	private 
+	private
 	struct fMetod { //-> Узел списка гирлянды для метода
 		string name;			// Имя самого метода
 		string rawStr;			// Исходная строка описания метода
@@ -67,7 +67,7 @@ m1:		if(nod is null) {		// Цепочка пуста, вставка 1-го эл
 		} else {							// Цепочка не пуста, ищем ...
 			while(nod !is null) {
 				// writeln("compare: ", nameClass, " == ", nod.name);
-				if(nod.name == metod) { return nod; } 
+				if(nod.name == metod) { return nod; }
 				else { nod = nod.link; }
 			}
 		}
@@ -75,7 +75,7 @@ m1:		if(nod is null) {		// Цепочка пуста, вставка 1-го эл
 		return nod;
 	}
 	// ______________________________________________________________
-	string[] getEqMet1(string w) { //-> Выдать массив похожих слов из методов 
+	string[] getEqMet1(string w) { //-> Выдать массив похожих слов из методов
 		string[] rez; size_t dlw, dln;
 		if(w.length == 0) return rez;
 		um nod = trapMetod;
@@ -114,7 +114,7 @@ m1:		if(nod is null) {		// Цепочка пуста, вставка 1-го эл
 	uc findClassOnly(string nameClass) { //-> Найти класс
 		uc nod = trapClass;
 		while(nod !is null) {
-			if(nod.name == nameClass) { return nod; } 
+			if(nod.name == nameClass) { return nod; }
 			else { nod = nod.link; }
 		}
 		return nod;
@@ -123,14 +123,14 @@ m1:		if(nod is null) {		// Цепочка пуста, вставка 1-го эл
 	uc findClass(string nameClass) { //-> Найти или добавить класс
 		uc nod = trapClass;
 m1:		if(nod is null) {
-			nod = new fClass;  nod.name = nameClass; 
+			nod = new fClass;  nod.name = nameClass;
 			nod.link = trapClass; trapClass = nod;
 			// writeln("add: ", nameClass);
 			return nod;
 		} else {
 			while(nod !is null) {
 				// writeln("compare: ", nameClass, " == ", nod.name);
-				if(nod.name == nameClass) { return nod; } 
+				if(nod.name == nameClass) { return nod; }
 				else { nod = nod.link; }
 			}
 		}
@@ -146,7 +146,7 @@ m1:		if(nod is null) {
 		if(cp.c == "") return null;
 		uclass = findClass(cp.c);
 		uclass.name = cp.c; uclass.rawStr = rewStr; uclass.parent = uparent;
-		lastClass = uclass; 
+		lastClass = uclass;
 		return uclass;
 	}
 	// ______________________________________________________________
@@ -174,7 +174,7 @@ m1:		if(nod is null) {
 			masAllWords ~= nod;		// Запомним это слово в полном списке слов
 			nod.link = harrow[c0];	// Вставим новый узел в цепочку
 			harrow[getC0(w)] = nod;	// Подвесим обновленную цепочку
-/* 			
+/*
 			// Надо идти по цепочке и удалять все производные слова
 			int dlw = w.length, dln;
 			un ukaz  = nod, ukaz0 = ukaz;
@@ -191,10 +191,10 @@ m1:		if(nod is null) {
 				}
 				ukaz0 = ukaz; ukaz = ukaz.link;
 			}
-			
- */			
-			
-		} 
+
+ */
+
+		}
 	}
 	// ______________________________________________________________
 	bool isWordMono(string w) { //-> Есть целое слово в списке?
@@ -229,7 +229,7 @@ m1:		if(nod is null) {
 		return rez;
 	}
 	// ______________________________________________________________
-	string[] getSubFromAll(string w) { //-> Выдать массив похожих слов из общего хранилища 
+	string[] getSubFromAll(string w) { //-> Выдать массив похожих слов из общего хранилища
 		string[] rez;
 		string sh = toLower(w);
 		foreach(el; masAllWords) {
@@ -239,7 +239,7 @@ m1:		if(nod is null) {
 		return rez;
 	}
 	// ______________________________________________________________
-	string[] getEq(string w) { //-> Выдать массив похожих слов из хранилища 
+	string[] getEq(string w) { //-> Выдать массив похожих слов из хранилища
 		string[] rez; size_t dlw, dln;
 		if(w.length == 0) return rez;
 		ubyte ind = getC0(w); un ukaz = harrow[ind];
@@ -276,7 +276,7 @@ m1:		if(nod is null) {
 		static import asc1251;
 		string zish = translate(clearLine, transTable);
 		auto msRaw = split(zish, ' ');
-		string[] ms; 
+		string[] ms;
 		foreach(el; msRaw) {	if(el == "") continue; ms ~= el;	}
 		// Нужно удалить пустышки
 	try {
@@ -298,7 +298,7 @@ m1:		if(nod is null) {
 				}
 				continue;
 			}
-/*			
+/*
 			mar
 			if(i == ms.length - 1) continue;
 			uc fnod = findClassOnly(el);
@@ -307,7 +307,7 @@ m1:		if(nod is null) {
 			if(el == "new") {
 				if(i == 0) continue;
 				if(i == ms.length - 1) continue;
-				
+
 				writeln("var=[", ms[i-1], "]     class = [", ms[i+1],"] = ", ms);
 				continue;
 				// Нужна функция, которая выдаёт s2 = Переменная|Тип или пусто
@@ -319,8 +319,8 @@ m1:		if(nod is null) {
 		// writeln("catch: ", line);
 		// writeln("catch: ", ms);
 	}
-		
-		
+
+
 		// if( indexOf(line, "//->") > 0 ) { writeln(zish);
 		// }
 		// Есть:
@@ -334,19 +334,19 @@ m1:		if(nod is null) {
 		string[] arg;
 		foreach(i, string el; ms) {
 			if(el == "") continue;
-			arg ~= el; 
+			arg ~= el;
 		}
 		// arg --> очищенный массив строк
 		if(arg[0] == "class") {
 			if(arg.length == 1) return rez;
 			if(arg.length == 2) { rez.c = arg[1]; rez.p = ""; return rez; }
-			if(arg.length == 3) { rez.c = arg[1]; 
+			if(arg.length == 3) { rez.c = arg[1];
 				if(arg[2] == "{") {
 					rez.p = "";
 				} else {
 					rez.p = arg[2];
 				}
-				return rez; 
+				return rez;
 			}
 			if(arg[3] == "{") { 	// class Name: Parent {
 				rez.c = arg[1]; rez.p = arg[2];
@@ -365,7 +365,7 @@ m1:		if(nod is null) {
 		string[] arg;
 		foreach(i, string el; ms) {
 			if(el == "") continue;
-			arg ~= el; 
+			arg ~= el;
 		}
 		rez = arg[1];
 		return rez;
@@ -394,11 +394,11 @@ m1:		if(nod is null) {
 }
 
 unittest {
-	CFinder finder1 = new CFinder(); 
+	CFinder finder1 = new CFinder();
 	bool b1;
 
 	// Проверка работы поиска слов
-	finder1.addWord("Gena"); 
+	finder1.addWord("Gena");
 	b1 = finder1.isWordMono("Gena");	assert(b1 == true);
 	b1 = finder1.isWordMono("gena");	assert(b1 == false);
 	b1 = finder1.isWord("Gen");			assert(b1 == true);
