@@ -1,4 +1,3 @@
-// обро пожаловать, Геннадий_Мохов! Ваш пароль на сайте: 081c5e63 Теперь в своем профиле вы сможите подключить другие социальные сети. С Уважением, Администрация сайта ...
 //------------------------------
 // Анализ, подготовка и создание БД ФИОД
 // MGW 07.08.2016 16:12
@@ -90,6 +89,8 @@ class CFormaMain: QMainWindow { //=> Основной MAIN класс прило
 	bool		bIsLog;				// если Log на экране, то .T.
 	// Деревья
 	RedBlackTree!string	rbFio, rbNames, rbOtv;
+
+	QLabel w1;
 	// ______________________________________________________________
 	this() { //-> Базовый конструктор
 		// Главный виджет, в который всё вставим
@@ -162,7 +163,39 @@ class CFormaMain: QMainWindow { //=> Основной MAIN класс прило
 	} // this()
 	// ______________________________________________________________
 	void runTest() { //-> Выйти из программы
-		showLog();
+		writeln("active win = ", mainWid.activeSubWindow());
+		string sHtml = 
+`
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>Здесь название страницы, отображаемое в верхнем левом углу браузера</title>
+</head>
+<body id="kontent">
+<h1 align="center">Моя первая страница!</h1>
+<hr>
+<p align="center">Так можно создавать свою первую страницу.</p>
+<p align="center">Для начала приведен простой пример, по ссылке можно посмотреть пример,
+<br> который создан из таблиц.</p>
+<p>Здесь будем использовать обычный текст описания. Данный приём будет означать,
+что мы сюда вставим описание программы</p><br>
+<pre>
+		// Деревья
+		rbNames = new RedBlackTree!string();	wLog.appendStr("rbNames - create");
+		rbFio   = new RedBlackTree!string();	wLog.appendStr("rbFio - create");
+		rbOtv   = new RedBlackTree!string();	wLog.appendStr("rbOtv - create");
+</pre>
+<p align="center"><a href="http://kapon.com.ua/sign_table.php" title="пример страницы">
+пример страницы</a> построенной на таблицах.</p>
+<br>
+</body></html> - обьявление окончания данной страницы
+`;
+		w1 = new QLabel(this); w1.saveThis(&w1);
+		w1.setText(sHtml);
+		void* rez = mainWid.addSubWindow(w1);
+		writeln(rez, "  ", cast(void*)w1.QtObj);
+		w1.show();
+		// w1.resize(200, 100);
 	}
 	// ______________________________________________________________
 	void showLog() { //-> Открыть окно лога

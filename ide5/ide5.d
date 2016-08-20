@@ -75,6 +75,7 @@ extern (C) {
 }
 // __________________________________________________________________
 class CEditWin: QWidget { //=> Окно редактора D кода
+	void*	idMdi;
   private
 	const sizeTabHelp = 30;
 	enum Sost { //-> Состояние редактора
@@ -701,6 +702,7 @@ extern (C) {
 	void on_knNew(CFormaMain* uk)		{ (*uk).NewFile();  }
 	// Сохранение файла
 	void on_knSave(CFormaMain* uk)		{ (*uk).SaveFile();  }
+	void on_helpIde(CFormaMain* uk) 	{ (*uk).runHelpIde(); }
 	// Обработчик с параметром. Параметр позволяет не плодить обработчики
 	void on_about(CFormaMain* uk) 		{ (*uk).about(1); }
 	void on_aboutQt(CFormaMain* uk)		{ (*uk).about(2); }
@@ -740,7 +742,7 @@ class CFormaMain: QMainWindow { //=> Основной MAIN класс прило
 	QMenuBar mb1;							// Строка меню сверху
 	QAction acOpen, acNewFile, acSave, acSaveAs;	// Обработчики
 	QAction acAbout, acAboutQt, acExit, acOnOffHelp, acGotoNum, acFind, acFindA;
-	QAction acPoint, acPointA;
+	QAction acPoint, acPointA, acHelpIde;
 	QAction acUnitTest, acCompile, acRunApp, acRunProj;
 	QStatusBar      stBar;					// Строка сообщений
 	QToolBar tb, tbSwWin;					// Строка кнопок
@@ -749,11 +751,14 @@ class CFormaMain: QMainWindow { //=> Основной MAIN класс прило
 	QCheckBox cbDebug;
 	string[] swCompile = [ "qte5", "asc1251" ];
 
+	QLabel w1;
+
 	// ______________________________________________________________
 	this() { //-> Базовый конструктор
 		// Главный виджет, в который всё вставим
 		super();
 		mainWid = new QMdiArea(this);
+		resize(1000, 800);
 
 		// Обработчики
 		acExit	= new QAction(this, &on_Exit,   aThis);
@@ -806,13 +811,13 @@ class CFormaMain: QMainWindow { //=> Основной MAIN класс прило
 
 		acPoint = new QAction(this, &onPointV, aThis);
 		acPoint.setToolTip("Перейти на позицию вниз ...");
-		acPoint.setText("Точка V").setHotKey(
+		acPoint.setText("Закладка V").setHotKey(
 			QtE.Key.Key_T | QtE.KeyboardModifier.ControlModifier);
 		connects(acPoint, "triggered()", acPoint, "Slot()");
 		
 		acPointA = new QAction(this, &onPointA, aThis);
 		acPointA.setToolTip("Перейти на позицию вверх ...");
-		acPointA.setText("Точка A").setHotKey(
+		acPointA.setText("Закладка A").setHotKey(
 			QtE.Key.Key_T | QtE.KeyboardModifier.ControlModifier | QtE.KeyboardModifier.ShiftModifier);
 		connects(acPointA, "triggered()", acPointA, "Slot()");
 		
@@ -834,6 +839,10 @@ class CFormaMain: QMainWindow { //=> Основной MAIN класс прило
 		// acGotoNum.setIcon("ICONS/nsi.ico").setToolTip("Компилировать и выполнить проект ...");
 		connects(acOnOffHelp, "triggered()", acOnOffHelp, "Slot()");
 
+		acHelpIde = new QAction(this, &on_helpIde,  aThis);
+		acHelpIde.setText("Help IDE");
+		connects(acHelpIde, "triggered()", acHelpIde, "Slot()");
+
 		acAbout   = new QAction(this, &on_about,    aThis, 1); 	// 1 - парам в обработчик
 		acAboutQt = new QAction(this, &on_aboutQt,  aThis, 2); 	// 2 - парам в обработчик
 		// Обработчик для About и AboutQt
@@ -851,6 +860,7 @@ class CFormaMain: QMainWindow { //=> Основной MAIN класс прило
 		mb1 = new QMenuBar(this);
 		// --------------- Взаимные настройки -----------------
 		menu2.setTitle("About")
+			.addAction(		acHelpIde	)
 			.addAction(		acAbout		)
 			.addAction(		acAboutQt 	);
 
@@ -1258,6 +1268,48 @@ writeln(listModuls);
 		winEdit[aWinEd].teEdit.setFocus();
 	}
 	// ______________________________________________________________
+	void runHelpIde() { //-> Открыть окно с подсказками по кнопкам
+		string sHtml = 
+`
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>Здесь название страницы, отображаемое в верхнем левом углу браузера</title>
+</head>
+<body id="help IDE5">
+<h2 align="center">Краткий справочник по ide5</h2>
+<p><font color="red"><b>Вставка слова из таблицы подсказок:</b></font></p>
+<pre>
+	Esc           - Переход и возврат в таблицу подсказок
+	Space         - Вставка выделенного слова, если в таблице подсказок
+	Ctrl+Space    - Вставка самого верхнего слова, если в редакторе
+</pre>
+<p><font color="red"><b>Закладки:</b></font></p>
+<pre>
+Закладки отображаются символом ">>" в колонке номеров строк и индивидуальны
+для каждого окна редактора.
+	Ctrl+L, T     - Поставить закладку или снять закладку
+	Ctrl+T        - Вниз  на след закладку
+	Ctrl+Shift+T  - Вверх на пред закладку
+</pre>
+<p><font color="red"><b>Разное:</b></font></p>
+<pre>
+	Ctrl+L, /     - Вставить комментарий
+	Ctrl+L, D     - Удалить текущ стоку
+	F3            - Список всех похожих слов
+</pre>
+
+<br>
+</body>
+</html>
+`;
+		w1 = new QLabel(this); w1.saveThis(&w1);
+		w1.setText(sHtml);
+		void* rez = mainWid.addSubWindow(w1);
+		// writeln(rez, "  ", cast(void*)w1.QtObj);
+		w1.show();
+	}
+	// ______________________________________________________________
 	void runDynAct(int nom) { //-> Процедура обработки меню шаблона
 		// Определим активное окно редактора
 		int aWinEd = actWinEdit();
@@ -1294,10 +1346,14 @@ writeln(listModuls);
 		foreach(ed; winEdit) {
 			if(ed is null) continue;
 			try {
+				void* tekWin = mainWid.activeSubWindow();
+				if(tekWin == ed.idMdi)		{ rez = ed.tekNomer; break; }
+				/*
 				if(ed.teEdit.hasFocus())     { rez = ed.tekNomer; break; }
 				if(ed.teHelp.hasFocus())     { rez = ed.tekNomer; break; }
 				if(ed.leFind.hasFocus())     { rez = ed.tekNomer; break; }
 				if(ed.sliderTabl.hasFocus()) { rez = ed.tekNomer; break; }
+				*/
 			} catch {
 				return -1;
 			}
@@ -1341,18 +1397,14 @@ writeln(listModuls);
 		int preNomAct = -1;
 		if(winEditKol < maxKolEdit) {
 			if(activeWinEdit !is null) preNomAct = activeWinEdit.tekNomer;
-			// writeln(preNomAct, " is active ", activeWinEdit);
 			winEdit[winEditKol] = new CEditWin(this, QtE.WindowType.Window);
-			// winEdit[winEditKol].setNoDelete(true);
 			winEdit[winEditKol].setParentQtE5(this);
 			winEdit[winEditKol].saveThis(&winEdit[winEditKol]);
-			mainWid.addSubWindow(winEdit[winEditKol]);
+			winEdit[winEditKol].idMdi = mainWid.addSubWindow(winEdit[winEditKol]);
 			activeWinEdit = winEdit[winEditKol]; // Активный в данный момент
 			winEdit[winEditKol].tekNomer = winEditKol;
 			if(nameFile != "") {
 				winEdit[winEditKol].openWinEdit(nameFile);
-			} else {
-				// winEdit[winEditKol].loadParser(); // Заполним парсер
 			}
 			winEdit[winEditKol].showMaximized();
 			winEdit[winEditKol].teEdit.setFocus();

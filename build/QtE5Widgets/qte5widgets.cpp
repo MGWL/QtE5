@@ -1501,6 +1501,9 @@ extern "C" MSVC_API  void qteQMdiArea_delete(QMdiArea* wd) {
 extern "C" MSVC_API  QMdiSubWindow* qteQMdiArea_addSubWindow(QMdiArea* ma, QWidget* wd, Qt::WindowFlags windowFlags) {
     return ma->addSubWindow(wd, windowFlags);
 }
+extern "C" MSVC_API  QMdiSubWindow* qteQMdiArea_activeSubWindow(QMdiArea* ma) {
+    return ma->activeSubWindow();
+}
 
 // =========== QMdiSubWindow ==========
 extern "C" MSVC_API  QMdiSubWindow* qteQMdiSubWindow_create(QWidget* parent, Qt::WindowFlags f) {

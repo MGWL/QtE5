@@ -523,6 +523,7 @@ int LoadQt(dll ldll, bool showError) { ///  Загрузить DLL-ки Qt и Qt
 	funQt(152, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQMdiArea_delete",				showError);
 
 	funQt(155, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQMdiArea_addSubWindow",		showError);
+	funQt(338, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQMdiArea_activeSubWindow",		showError);
 	//  ------- QMdiSubWindow -------
 	funQt(153, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQMdiSubWindow_create",			showError);
 	funQt(154, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQMdiSubWindow_delete",			showError);
@@ -713,7 +714,7 @@ int LoadQt(dll ldll, bool showError) { ///  Загрузить DLL-ки Qt и Qt
 	funQt(336, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQGridLayout_setXX2",				showError);
 	funQt(337, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQGridLayout_addLayout1",			showError);
 
-	// Последний = 335
+	// Последний = 338
 	return 0;
 } ///  Загрузить DLL-ки Qt и QtE. Найти в них адреса функций и заполнить ими таблицу
 
@@ -3201,8 +3202,11 @@ class QMdiArea : QAbstractScrollArea {
 			setQtObj((cast(t_qp__qp) pFunQt[151])(null));
 		}
 	} /// Конструктор
-	void addSubWindow(QWidget wd, QtE.WindowType fl = QtE.WindowType.Widget) { //->
-		(cast(t_v__qp_qp_i)pFunQt[155])(QtObj, wd.QtObj, cast(int)fl);
+	void* addSubWindow(QWidget wd, QtE.WindowType fl = QtE.WindowType.Widget) { //->
+		return (cast(t_qp__qp_qp_i)pFunQt[155])(QtObj, wd.QtObj, cast(int)fl);
+	}
+	void* activeSubWindow() { //-> Указатель на активное в данный момент окно
+		return (cast(t_qp__qp)pFunQt[338])(QtObj);
 	}
 }
 // ================ QMdiSubWindow ================
