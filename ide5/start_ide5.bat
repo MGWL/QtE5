@@ -19,7 +19,7 @@ echo Error make ide5
 goto d_end
 
 :d1_error
-echo Error make veryfqt.exe from veryfqt.d
+echo Error make veryfqt.exe from veryfqt.d Check dmd compiler.
 goto d_end
 
 :d_end

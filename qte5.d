@@ -32,6 +32,7 @@ immutable int QSIGNAL = 2;
 // alias GetObjQt_t = void**; // Дай тип Qt. Происходит неявное преобразование. cast(GetObjQt_t)Z == *Z на любой тип.
 private {
 	alias t_QObject_connect = extern (C) @nogc void function(void*, char*, void*, char*, int);
+	alias t_QObject_disconnect = extern (C) @nogc void function(void*, char*, void*, char*);
 
 	alias t_v__i = extern (C) @nogc void function(int);
 	alias t_v__qp = extern (C) @nogc void function(QtObjH);
@@ -341,6 +342,7 @@ int LoadQt(dll ldll, bool showError) { ///  Загрузить DLL-ки Qt и Qt
 //	funQt(25, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "QSlot_setSlotN",             showError);
 //	funQt(26, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQSlot_delete",            showError);
 	funQt(27, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteConnect",                 showError);
+	funQt(343,bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteDisconnect",              showError);
 //	funQt(81, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "QSlot_setSlotN2",            showError);
 	// ------- QAbstractButton -------
 	funQt(28, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQAbstractButton_setText", showError);
@@ -451,6 +453,10 @@ int LoadQt(dll ldll, bool showError) { ///  Загрузить DLL-ки Qt и Qt
 	funQt(105, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets,"qteQAction_setHotKey",				showError);
 	funQt(109, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets,"qteQAction_setEnabled",			showError);
 	funQt(113, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets,"qteQAction_setIcon",				showError);
+	funQt(339, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets,"qteQAction_SendSignal_V",			showError);
+	funQt(340, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets,"qteQAction_SendSignal_VI",			showError);
+	funQt(341, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets,"qteQAction_SendSignal_VS",			showError);
+	
 	//  ------- QMenu -------
 	funQt(99, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets,  "qteQMenu_create",					showError);
 	funQt(100, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQMenu_delete",					showError);
@@ -675,6 +681,7 @@ int LoadQt(dll ldll, bool showError) { ///  Загрузить DLL-ки Qt и Qt
 	funQt(267, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQTimer_setTimerType",			showError);
 	funQt(268, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQTimer_setSingleShot",			showError);
 	funQt(269, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQTimer_timerType",				showError);
+	funQt(342, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQTimer_setStartInterval",  	showError);
 
 	// ------- QTextOption -------
 	funQt(291, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "QTextOption_create",				showError);
@@ -714,7 +721,7 @@ int LoadQt(dll ldll, bool showError) { ///  Загрузить DLL-ки Qt и Qt
 	funQt(336, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQGridLayout_setXX2",				showError);
 	funQt(337, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQGridLayout_addLayout1",			showError);
 
-	// Последний = 338
+	// Последний = 340
 	return 0;
 } ///  Загрузить DLL-ки Qt и QtE. Найти в них адреса функций и заполнить ими таблицу
 
@@ -1055,8 +1062,8 @@ Base class. Stores in itself the link to real object in Qt C ++
 
 // Две этих переменных служат для поиска ошибок связанных с ошибочным
 // уничтожением объектов C++
-int allCreate;
-int balCreate;
+static int allCreate;
+static int balCreate;
 // Переменная для анализа распределения памяти
 static int id;
 static QtObjH saveAppPtrQt;
@@ -1127,6 +1134,12 @@ class QObject {
 			(cast(QObject)obj1).QtObj, MSS(ssignal, QSIGNAL),
 			(cast(QObject)obj2).QtObj, MSS(sslot, QSLOT),
 		cast(int)QObject.ConnectionType.AutoConnection);
+		return this;
+	}
+	QObject disconnects(QObject obj1, string ssignal, QObject obj2, string sslot) { //->
+		(cast(t_QObject_disconnect) pFunQt[343])(
+			(cast(QObject)obj1).QtObj, MSS(ssignal, QSIGNAL),
+			(cast(QObject)obj2).QtObj, MSS(sslot, QSLOT));
 		return this;
 	}
 	/// Запомнить указатель на собственный экземпляр
@@ -1272,7 +1285,9 @@ class QBrush : QObject {
 
 // ================ QPaintDevice ================
 class QPaintDevice: QObject  {
-	this(){}
+	this(){
+		// writeln("qpd+", this);
+	}
 }
 
 // ================ gWidget ================
@@ -2556,11 +2571,11 @@ class QAction : QObject {
 		return this;
 	} /// Установить текст
 	QAction setHotKey(QtE.Key key) { //->
-		(cast(t_v__qp_i) pFunQt[105])(p_QObject, cast(int) key);
+		(cast(t_v__qp_i) pFunQt[105])(QtObj, cast(int) key);
 		return this;
 	} /// Определить горячую кнопку
 	QAction setHotKey(int key) { //->
-		(cast(t_v__qp_i) pFunQt[105])(p_QObject, key);
+		(cast(t_v__qp_i) pFunQt[105])(QtObj, key);
 		return this;
 	} /// Определить горячую кнопку
 // ----------------------------------------------------
@@ -2576,6 +2591,22 @@ class QAction : QObject {
 		QIcon ico = new QIcon(); ico.addFile(fileIco); setIcon(ico);
 		return this;
 	} /// Добавить иконку используя имя файла и неявное создание
+	QAction Signal_V() { //-> Послать сигнал с QAction "Signal_V()"
+		(cast(t_v__qp) pFunQt[339])(QtObj);
+		return this;
+	}
+	QAction Signal_VI(int n) { //-> Послать сигнал с QAction "Signal_V(int)"
+		(cast(t_v__qp_i) pFunQt[340])(QtObj, n);
+		return this;
+	}
+	QAction Signal_VS(T: QString)(T str) { //-> Послать сигнал с QAction "Signal_V(int)"
+		(cast(t_v__qp_qp) pFunQt[341])(QtObj, str.QtObj);
+		return this;
+	}
+	QAction Signal_VS(T)(T str) { //-> Послать сигнал с QAction "Signal_V(int)"
+		(cast(t_v__qp_qp) pFunQt[341])(QtObj, (new QString(to!string(str))).QtObj);
+		return this;
+	}
 }
 // ============ QMenu =======================================
 /++
@@ -4094,8 +4125,8 @@ class QTimer : QObject {
 		if(!fNoDelete && (QtObj != null)) { (cast(t_v__qp) pFunQt[263])(QtObj); setQtObj(null); }
 	}
 	// Установить интервал срабатывания в милисекундах
-	void setInterval(int msek) { //-> интервал в милисек
-		(cast(t_v__qp_i) pFunQt[264])(QtObj, msek);
+	QTimer setInterval(int msek) { //-> интервал в милисек
+		(cast(t_v__qp_i) pFunQt[264])(QtObj, msek); return this;
 	}
 	int interval() { //-> Вернуть интервал срабатывания
 		return (cast(t_i__qp_i) pFunQt[265])(QtObj, 0);
@@ -4112,14 +4143,26 @@ class QTimer : QObject {
 	bool isSingleShot() { //-> Разового срабатывания?
 		return (cast(t_b__qp_i) pFunQt[266])(QtObj, 1);
 	}
-	void setTimerType(QTimer.TimerType t) { //-> Задать тип таймера
-		return (cast(t_v__qp_i) pFunQt[267])(QtObj, t);
+	QTimer setTimerType(QTimer.TimerType t) { //-> Задать тип таймера
+		(cast(t_v__qp_i) pFunQt[267])(QtObj, t); return this;
 	}
-	void setSingleShot(bool t) { //-> Задать тип срабатывания. T - один раз
-		return (cast(t_v__qp_b) pFunQt[268])(QtObj, t);
+	QTimer setSingleShot(bool t) { //-> Задать тип срабатывания. T - один раз
+		(cast(t_v__qp_b) pFunQt[268])(QtObj, t); return this;
 	}
 	TimerType timerType() { //-> Получить тип таймера
 		return cast(TimerType)(cast(t_i__qp) pFunQt[269])(QtObj);
+	}
+	QTimer start(int msek = 0) { //-> Запуск таймера
+		if(msek > 0) {
+			(cast(t_v__qp_i) pFunQt[342])(QtObj, msek);
+		} else {
+			(cast(t_i__qp_i) pFunQt[265])(QtObj, 3);
+		}
+		return this;
+	}
+	QTimer stop() { //-> 
+		(cast(t_i__qp_i) pFunQt[265])(QtObj, 4);
+		return this;
 	}
 }
 // ================ QTextOption ================

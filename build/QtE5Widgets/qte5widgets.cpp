@@ -38,9 +38,18 @@ extern "C" MSVC_API  void qteQApplication_appDirPath(QtRefH app, QtRefH qs) {
 extern "C" MSVC_API  void qteQApplication_appFilePath(QtRefH app, QtRefH qs) {
     *(QString*)qs = ((QApplication*)app)->applicationFilePath();
 }
+//* ---------------------------------------------------
 extern "C" MSVC_API  int qteQApplication_exec(QtRefH app) {
     return ((QApplication*)app)->exec();
 }
+
+/*
+extern "C" MSVC_API  int qteQApplication_exec( QApplication* app) {
+    return app->exec();
+}
+*/
+// ---------------------------------------------------
+
 extern "C" MSVC_API  void qteQApplication_aboutQt(QtRefH app) {
     ((QApplication*)app)->aboutQt();
 }
@@ -579,10 +588,17 @@ extern "C" MSVC_API  bool qteQAbstractButton_getXX(QAbstractButton* wd, int pr) 
 
 // =========== QSlot ==========
 
+
 extern "C" MSVC_API  void qteConnect(QtRefH obj1, char* signal, QtRefH slot, char* sslot, int n) {
     QObject::connect((const QObject*)obj1, (const char*)signal, (const QObject*)slot,
                      (const char*)sslot, (Qt::ConnectionType)n);
 }
+extern "C" MSVC_API  void qteDisconnect(QtRefH obj1, char* signal, QtRefH slot, char* sslot) {
+    QObject::disconnect((const QObject*)obj1, (const char*)signal, (const QObject*)slot,
+                     (const char*)sslot);
+}
+
+
 // ===================== QGridLayout ====================
 extern "C" MSVC_API  QGridLayout* qteQGridLayout_create1(QWidget* wd) {
     return new QGridLayout(wd);
@@ -1069,6 +1085,29 @@ void eAction::Slot_v__A_N_QObject(QObject* pn) {
     if (aSlotN != NULL)  ((ExecZIM_v__vp_n_i)aSlotN)(*(void**)aDThis, N, (size_t)pn);
 }
 
+//--------- СверхНовые слоты ---------------
+extern "C" typedef void  (*ExecZIM_AN)(void*, int);
+void eAction::Slot_AN() {
+    if (aSlotN != NULL)  ((ExecZIM_AN)aSlotN)(*(void**)aDThis, N);
+}
+extern "C" typedef void  (*ExecZIM_ANI)(void*, int, int);
+void eAction::Slot_ANI(int z) {
+    if (aSlotN != NULL)  ((ExecZIM_ANI)aSlotN)(*(void**)aDThis, N, z);
+}
+extern "C" typedef void  (*ExecZIM_ANB)(void*, int, int);
+void eAction::Slot_ANB(bool z) {
+    if (aSlotN != NULL)  ((ExecZIM_ANB)aSlotN)(*(void**)aDThis, N, z);
+}
+
+//--------- СверхНовые сигналы ---------------
+void eAction::sendSignal_V() {    emit Signal_V(); }
+extern "C" MSVC_API  void qteQAction_SendSignal_V(eAction* qw) { qw->sendSignal_V(); }
+
+void eAction::sendSignal_VI(int n) {    emit Signal_VI(n); }
+extern "C" MSVC_API  void qteQAction_SendSignal_VI(eAction* qw, int n) { qw->sendSignal_VI(n); }
+
+void eAction::sendSignal_VS(QString* s) {    emit Signal_VS(*s); }
+extern "C" MSVC_API  void qteQAction_SendSignal_VS(eAction* qw, QString* s) { qw->sendSignal_VS(s); }
 
 // -------------------------------------------------------
 extern "C" MSVC_API  void* qteQAction_create(QObject * parent) {  return new eAction(parent); }
@@ -1115,11 +1154,12 @@ extern "C" MSVC_API  void qteQAction_setSlotN(eAction* slot, void* adr, int n) {
     slot->N = n;
 }
 
+/*
 extern "C" MSVC_API  void qte_Connect(QtRefH obj1, char* signal, QtRefH slot, char* sslot, int n) {
     QObject::connect((const QObject*)obj1, (const char*)signal, (const eAction*)slot,
                      (const char*)sslot, (Qt::ConnectionType)n);
 }
-
+*/
 // ================= QMenu ==================================
 extern "C" MSVC_API   void* qteQMenu_create(QWidget * parent) {
      return new QMenu(parent);
@@ -1365,6 +1405,7 @@ extern "C" MSVC_API  void qteQDate_currentDate(QDate* d) {
 //    QMessageBox msgBox; msgBox.setText(*shabl);    msgBox.exec();
     *d = d->currentDate();
 }
+
 
 // ============ QTime =======================================
 extern "C" MSVC_API   void* qteQTime_create() {
@@ -2340,6 +2381,9 @@ extern "C" MSVC_API  void qteQTimer_delete(QTimer* wd) {
 extern "C" MSVC_API  void qteQTimer_setInterval(QTimer* wd, int msek) {
     wd->setInterval(msek);
 }
+extern "C" MSVC_API  void qteQTimer_setStartInterval(QTimer* wd, int msek) {
+    wd->start(msek);
+}
 // 265
 extern "C" MSVC_API  int qteQTimer_getXX1(QTimer* wd, int pr) {
     int rez = 0;
@@ -2347,6 +2391,8 @@ extern "C" MSVC_API  int qteQTimer_getXX1(QTimer* wd, int pr) {
     case 0:   rez = wd->interval();          break;
     case 1:   rez = wd->remainingTime();     break;
     case 2:   rez = wd->timerId();           break;
+    case 3:         wd->start();             break;
+    case 4:         wd->stop();              break;
     }
     return rez;
 }
