@@ -7,7 +7,7 @@ It is used for dynamic linking and easy in use on Windows 32/64 and Linux 32/64.
 
 **This short video about qte5 and ide5 [https://www.youtube.com/watch?v=DuOl-4g117E](https://www.youtube.com/watch?v=DuOl-4g117E)**
 
-**Slots and signals in QtE5 [http://lhs-blog.info/programming/dlang/slotyi-i-signalyi-v-qte5/**
+**Slots and signals in QtE5 http://lhs-blog.info/programming/dlang/slotyi-i-signalyi-v-qte5/**
 
 QtE5 - uses the following libraries depending from OS<br>
     QtE5Widgets32.dll     --->  Windows 32<br>
