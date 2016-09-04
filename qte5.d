@@ -274,6 +274,8 @@ int LoadQt(dll ldll, bool showError) { ///  Загрузить DLL-ки Qt и Qt
 	}
 	// Find name function in DLL
 
+	// ------- QObject -------
+	funQt(344,bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQObject_parent",   		 showError);
 	// ------- QApplication -------
 	funQt(0,  bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQApplication_create1",    showError);
 	funQt(1,  bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQApplication_exec",       showError);
@@ -668,9 +670,12 @@ int LoadQt(dll ldll, bool showError) { ///  Загрузить DLL-ки Qt и Qt
 	// ------- QTextEdit -------
 	funQt(260, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQTextEdit_create1",			showError);
 	funQt(261, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQTextEdit_delete1",			showError);
-	funQt(270, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQTextEdit_setPlainText",		showError);
-	funQt(271, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQTextEdit_insertPlainText",	showError);
+
+	funQt(270, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQTextEdit_setFromString",		showError);
+	funQt(271, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQTextEdit_toString",			showError);
 	funQt(272, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQTextEdit_cutn",           	 showError);
+	funQt(345, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQTextEdit_setBool",           	 showError);
+	funQt(346, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQTextEdit_toBool",           	 showError);
 
 	// ------- QTimer -------
 	funQt(262, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQTimer_create",				showError);
@@ -721,7 +726,7 @@ int LoadQt(dll ldll, bool showError) { ///  Загрузить DLL-ки Qt и Qt
 	funQt(336, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQGridLayout_setXX2",				showError);
 	funQt(337, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQGridLayout_addLayout1",			showError);
 
-	// Последний = 340
+	// Последний = 344
 	return 0;
 } ///  Загрузить DLL-ки Qt и QtE. Найти в них адреса функций и заполнить ими таблицу
 
@@ -1149,6 +1154,9 @@ class QObject {
 	@property void* aThis() { //-> Выдать указатель на p_QObject
 		return &adrThis;
 	} /// Выдать указатель на p_QObject
+	void* parentQtObj() { //-> выдать указатель на собственного родителя в Qt
+		return (cast(t_qp__qp)pFunQt[344])(QtObj);
+	}
 }
 
 // ================ QPalette ================
@@ -4058,9 +4066,8 @@ class QTextEdit : QAbstractScrollArea {
 	~this() {
 		if(!fNoDelete && (QtObj != null)) { (cast(t_v__qp) pFunQt[261])(QtObj); setQtObj(null); }
 	}
-	// this() { super(); }
 	this(char ch, void* adr) {
-		if(ch == '+') setQtObj(cast(QtObjH)adr);
+		if(ch == '+') { setQtObj(cast(QtObjH)adr); setNoDelete(true); }
 	}
 	this(QWidget parent) {
 		if (parent) {
@@ -4070,18 +4077,45 @@ class QTextEdit : QAbstractScrollArea {
 			setQtObj((cast(t_qp__qp) pFunQt[260])(null));
 		}
 	} /// Конструктор
+
 	QTextEdit setPlainText(T: QString)(T str) {  //-> Удалить всё и вставить с начала
-		(cast(t_v__qp_qp) pFunQt[270])(QtObj, str.QtObj); return this;
+		(cast(t_v__qp_qp_i) pFunQt[270])(QtObj, str.QtObj, 0); return this;
 	} /// Удалить всё и вставить с начала
 	QTextEdit setPlainText(T)(T str) { //-> Удалить всё и вставить с начала
-		(cast(t_v__qp_qp) pFunQt[270])(QtObj, (new QString(to!string(str))).QtObj); return this;
+		(cast(t_v__qp_qp_i) pFunQt[270])(QtObj, (new QString(to!string(str))).QtObj, 0); return this;
 	} /// Удалить всё и вставить с начала
 	QTextEdit insertPlainText(T: QString)(T str) {  //-> Вставить текст в месте курсора
-		(cast(t_v__qp_qp) pFunQt[271])(QtObj, str.QtObj); return this;
+		(cast(t_v__qp_qp_i) pFunQt[270])(QtObj, str.QtObj, 1); return this;
 	} /// Вставить текст в месте курсора
 	QTextEdit insertPlainText(T)(T str) { //-> Вставить текст в месте курсора
-		(cast(t_v__qp_qp) pFunQt[271])(QtObj, (new QString(to!string(str))).QtObj); return this;
+		(cast(t_v__qp_qp_i) pFunQt[270])(QtObj, (new QString(to!string(str))).QtObj, 1); return this;
 	} /// Вставить текст в месте курсора
+
+	QTextEdit setHtml(T: QString)(T str) {  //-> Удалить всё и вставить с начала
+		(cast(t_v__qp_qp_i) pFunQt[270])(QtObj, str.QtObj, 2); return this;
+	} /// Удалить всё и вставить с начала
+	QTextEdit setHtml(T)(T str) { //-> Удалить всё и вставить с начала
+		(cast(t_v__qp_qp_i) pFunQt[270])(QtObj, (new QString(to!string(str))).QtObj, 2); return this;
+	} /// Удалить всё и вставить с начала
+	QTextEdit insertHtml(T: QString)(T str) {  //-> Вставить текст в месте курсора
+		(cast(t_v__qp_qp_i) pFunQt[270])(QtObj, str.QtObj, 3); return this;
+	} /// Вставить текст в месте курсора
+	QTextEdit insertHtml(T)(T str) { //-> Вставить текст в месте курсора
+		(cast(t_v__qp_qp_i) pFunQt[270])(QtObj, (new QString(to!string(str))).QtObj, 3); return this;
+	} /// Вставить текст в месте курсора
+	T toPlainText(T: QString)() { //->
+		QString qs = new QString(); (cast(t_v__qp_qp_i)pFunQt[271])(QtObj, qs.QtObj, 0); return qs;
+	} /// Выдать содержимое в QString
+	T toPlainText(T)() {  //->
+		return to!T(toPlainText!QString().String);
+	} /// Выдать всё содержимое в String
+	T toHtml(T: QString)() { //->
+		QString qs = new QString(); (cast(t_v__qp_qp_i)pFunQt[271])(QtObj, qs.QtObj, 1); return qs;
+	} /// Выдать содержимое в QString
+	T toHtml(T)() {  //->
+		return to!T(toHtml!QString().String);
+	} /// Выдать всё содержимое в String
+	
 	QTextEdit cut() { //-> Вырезать кусок
 		(cast(t_v__qp_i) pFunQt[272])(QtObj, 0); return this;
 	} /// cut()
@@ -4106,8 +4140,45 @@ class QTextEdit : QAbstractScrollArea {
 	QTextEdit redo() { //->
 		(cast(t_v__qp_i) pFunQt[272])(QtObj, 8); return this;
 	} /// redo()
-
-
+	bool acceptRichText() { //->
+		return (cast(t_b__qp_i) pFunQt[346])(QtObj, 0);
+	}
+	bool canPaste() { //->
+		return (cast(t_b__qp_i) pFunQt[346])(QtObj, 1);
+	}
+	bool fontItalic() { //->
+		return (cast(t_b__qp_i) pFunQt[346])(QtObj, 2);
+	}
+	bool fontUnderline() { //->
+		return (cast(t_b__qp_i) pFunQt[346])(QtObj, 3);
+	}
+	bool isReadOnly() { //->
+		return (cast(t_b__qp_i) pFunQt[346])(QtObj, 4);
+	}
+	bool isUndoRedoEnabled() { //->
+		return (cast(t_b__qp_i) pFunQt[346])(QtObj, 5);
+	}
+	bool overwriteMode() { //->
+		return (cast(t_b__qp_i) pFunQt[346])(QtObj, 6);
+	}
+	bool tabChangesFocus() { //->
+		return (cast(t_b__qp_i) pFunQt[346])(QtObj, 7);
+	}
+	QTextEdit setAcceptRichText(bool b) { //->
+		(cast(t_v__qp_b_i) pFunQt[345])(QtObj, b, 0); return this;
+	}
+	QTextEdit setOverwriteMode(bool b) { //->
+		(cast(t_v__qp_b_i) pFunQt[345])(QtObj, b, 1); return this;
+	}
+	QTextEdit setReadOnly(bool b) { //->
+		(cast(t_v__qp_b_i) pFunQt[345])(QtObj, b, 2); return this;
+	}
+	QTextEdit setTabChangesFocus(bool b) { //->
+		(cast(t_v__qp_b_i) pFunQt[345])(QtObj, b, 3); return this;
+	}
+	QTextEdit setUndoRedoEnabled(bool b) { //->
+		(cast(t_v__qp_b_i) pFunQt[345])(QtObj, b, 4); return this;
+	}
 }
 // ================ QTimer ================
 class QTimer : QObject {
