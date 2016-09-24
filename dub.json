@@ -1,0 +1,57 @@
+{
+	"name": "QtE5",
+	"authors": [
+		"MGW <mgw@yandex.ru> Mohov Gennady Vladimirovich"
+	],
+	"description": "The minimum wrapper of Qt-5 for D",
+	"copyright": "Copyright © 2015, MGW, https://github.com/MGWL/QtE5",
+	"license": "GPL-3.0",
+	"version": "1.0.0",
+	"buildType": "release",
+	"sourceFiles": [
+		"source/qte5.d", "source/asc1251.d"
+	],
+	"copyFiles-windows-x86": [
+		"$PACKAGE_DIR/windows32/QtE5Widgets32.dll" 
+	],
+	"copyFiles-windows-x86_64": [
+		"$PACKAGE_DIR/windows64/QtE5Widgets64.dll" 
+	],
+	"copyFiles-linux-x86": [
+		"$PACKAGE_DIR/linux32/libQtE5Widgets32.so"
+	],
+	"copyFiles-linux-x86_64": [
+		"$PACKAGE_DIR/linux64/libQtE5Widgets64.so"
+	],
+	"target": "sourceLibrary",
+	"configurations": [
+		{
+			"name": "exampleWindows32",
+			"targetName": "exampleWindows",
+			"workingDirectory": "example",
+			"platforms": ["windows"],
+			"mainSourceFile": "example/example.d",
+			"lflags-windows": [
+				"/subsystem:windows"
+			],
+			"postBuildCommands": [
+				"$PACKAGE_DIR/rtl_qt5_32/c.cmd $PACKAGE_DIR"
+			],
+			"targetPath": "exampleWindows32",
+			"targetType": "executable"
+		},
+		{
+			"name": "exampleLinux",
+			"targetName": "exampleLinux",
+			"workingDirectory": "exampleLinux",
+			"platforms": ["linux"],
+			"mainSourceFile": "example/example.d",
+			"postBuildCommands": [
+				"sh $PACKAGE_DIR/c.sh $PACKAGE_DIR"
+			],
+			"targetPath": "exampleLinux",
+			"targetType": "executable"
+		}
+	],
+	"target": "sourceLibrary"
+}
