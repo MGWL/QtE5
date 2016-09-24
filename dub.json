@@ -1,5 +1,5 @@
 {
-	"name": "QtE5",
+	"name": "qte5",
 	"authors": [
 		"MGW <mgw@yandex.ru> Mohov Gennady Vladimirovich"
 	],
@@ -47,7 +47,7 @@
 			"platforms": ["linux"],
 			"mainSourceFile": "example/example.d",
 			"postBuildCommands": [
-				"sh $PACKAGE_DIR/c.sh $PACKAGE_DIR"
+				"sh $PACKAGE_DIR/example/c.sh $PACKAGE_DIR"
 			],
 			"targetPath": "exampleLinux",
 			"targetType": "executable"
