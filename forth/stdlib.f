@@ -83,7 +83,11 @@ IF=L            DLSYM CALL_A RDROP RDROP DROP
                 DUP 3 = IF DROP   // 3 параметра на входе
                             >R >R >R L> CALL_A RDROP RDROP RDROP DROP
                         ELSE
+                DUP 4 = IF DROP   // 4 параметра на входе
+                            >R >R >R >R L> CALL_A RDROP RDROP RDROP RDROP DROP
+                        ELSE
                             DROP L> DROP
+                        THEN
                         THEN
                         THEN
                         THEN

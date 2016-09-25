@@ -2,9 +2,6 @@
 // и обязательно в CP1251 для Windows
 // 1 2 3 4 5 
 
-// Новый комментарий - подготовка к IDE
-: //-> TIB @ DLTIB + <IN ! ; IMMEDIATE
-
 S" stdlib.f" 1+ INCLUDED // Загрузить стандартную библиотеку
 
 // поместить на вершину стека данных значение сетчика команд процессора RDTC
@@ -56,6 +53,9 @@ IF=W LibraryLoad MsVcrt
 
 IF=L LibraryLoad libcSo
 
+// Вызовы из C++ QtE5
+// : w . ;
+// : t 5 >R ['] w >R A_CALL_AN CALL_A R> DROP R> DROP DROP ;
 
 // : WW 2 >R S" nbv" 1+ >R S" ABC" 1+ >R 0  >R messagebox CALL_A DROP . ;
 : MessageBox // ( hwnd Az_заголовок Az_Текст nКнопки -- Ответ )
@@ -127,8 +127,6 @@ VAR sum 0 sum !
     + 10000 0 DO DUP sum @ + sum ! LOOP DROP sum @
     ; LATEST @ 6 COMMONADR!  // Сохраним адрес в 6 общей ячейке для вызова с D
 
-//-> Проверка векторов
-
 // Проверка работы с памятью
 // ---------------------------
 HERE 3 CELLS ALLOT CONST uk // uk - есть указатель на структуру из 3 int
@@ -138,12 +136,12 @@ HERE 3 CELLS ALLOT CONST uk // uk - есть указатель на структуру из 3 int
 400 500   ukX !  ukY !
 
 // Выделим память под данный массив и запомним на него указатель
-: BufCreate    //-> ( -- ) Создаёт буфер под массив опираясь на структуру uk
+: BufCreate    // ( -- ) Создаёт буфер под массив опираясь на структуру uk
     ukX @ ukY @ * CELLS malloc ukBuf !
     ; BufCreate
 uk 7 COMMONADR!  // Передадим в D указатель на структуру
 
-: full    //-> ( color -- ) Заполнить сплошным цветом
+: full    // ( color -- ) Заполнить сплошным цветом
     ukX @ ukY @ * 0 DO DUP ukBuf @ I CELLS + ! LOOP DROP
     ;
 : point   // ( color y x -- )
@@ -156,11 +154,31 @@ uk 7 COMMONADR!  // Передадим в D указатель на структуру
 VAR sm 0 sm ! : sm+ sm @ 1+ DUP sm ! + ;
 : линия100 100 0 DO DUP I I sm+ point LOOP DROP ;
 
-// --------------------------------------------------
-VECT вектор
-: действие1 S" Hello from Forth" TYPE CR ;
-: действие2 S" This is Forth on asm D" TYPE CR ;
-' действие1 IS вектор // Записываем действие в вектор
-: приветствие вектор CR ;
+// -05453748
+// 100 CONST sizeb1         // Размер блока памяти
+// VAR b1                   // Указатель на Блок памяти
+// sizeb1 CELLS malloc b1 ! // Выделена память под массив
+
+// : Buf! CELLS b1 @ + ! ;   // ( Значение НомерЭлемента -- ) Записать зн в ячейку
+// : b1@ CELLS b1 @ + @ ;   // ( НомерЭлемента -- Значение ) Прочитать зн
+// Занулим массив
+// : b1init sizeb1 0 DO 0 I b1! LOOP ; b1init
+
+Lib" libtk8.6.so"   tk86
+Lib" libtcl8.6.so" tcl86
+
+Library@ tcl86 0 CDECL-Call" Tcl_CreateInterp"  Tcl_CreateInterp
+Library@ tcl86 0 CDECL-Call" Tcl_CreateInterp"  Tcl_CreateInterp
+Library@ tcl86 0 CDECL-Call" Tcl_Main"          Tcl_Main
+
+Library@  tk86 3 CDECL-Call" Tk_MainEx"          Tk_Main
+
+LibraryLoad tcl86
+LibraryLoad tk86
+
+Tcl_CreateInterp CONST interp
+
+
+// http://lipid.phys.cmu.edu/tview/src/tvMain.cpp
 
 // . . . . .
