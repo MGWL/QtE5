@@ -10,7 +10,7 @@ import std.stdio;
 
 
 int verQt5Eu = 0;
-int verQt5El = 06;
+int verQt5El = 07;
 string verQt5Ed = "05.08.16 09:52";
 
 alias PTRINT = int;
