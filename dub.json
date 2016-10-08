@@ -6,7 +6,7 @@
 	"description": "The minimum wrapper of Qt-5 for D",
 	"copyright": "Copyright © 2015, MGW, https://github.com/MGWL/QtE5",
 	"license": "GPL-3.0",
-	"version": "0.0.6",
+	"version": "0.0.7",
 	"buildType": "release",
 	"sourceFiles": [
 		"source/qte5.d", "source/asc1251.d"
