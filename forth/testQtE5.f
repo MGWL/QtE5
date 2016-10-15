@@ -3,7 +3,8 @@
 S" stdlib.f" 1+ INCLUDED // Загрузить стандартную библиотеку
 // Проверим Linux, загружая в память libQtE5Widgets32.so
 IF=L Lib" libQtE5Widgets32.so" qte5so
-IF=W Lib" QtE5Widgets32.dll"   qte5so
+IF=L Lib" libQt5Widgets.so"    qt5Widgets
+
 // Ищем функции для создания объекта QApplication
 Library@ qte5so 3 CDECL-Call" qteQApplication_create1" createApp
 Library@ qte5so 1 CDECL-Call" qteQApplication_exec"    execApp
@@ -25,15 +26,22 @@ Library@ qte5so 4 CDECL-Call" qteQAction_setSlotN2"    setSlotN2Action
 // Ищем функции для создания объекта QPushButton
 Library@ qte5so 2 CDECL-Call" qteQPushButton_create1"  createPButton
 Library@ qte5so 1 CDECL-Call" qteQPushButton_delete"   deletePButton
+// -------------------
+Library@ qt5Widgets 4 CDECL-Call" _ZN12QApplicationC2ERiPPci" qt5createApp
+Library@ qt5Widgets 2 CDECL-Call" _ZN12QApplicationD0Ev"      qt5deleteApp0
+Library@ qt5Widgets 2 CDECL-Call" _ZN12QApplicationD1Ev"      qt5deleteApp1
+Library@ qt5Widgets 2 CDECL-Call" _ZN12QApplicationD2Ev"      qt5deleteApp2
 
 
 // Грузим QtE5
 LibraryLoad qte5so
+LibraryLoad qt5Widgets
 
 // Моделируем  argc argv
 S" ABC" 1+ VAR argv argv ! VAR argc 1 argc !
 
 HERE 256 ALLOT CONST bufStr VAR ukStr // Создать буфер на 100 байт и перем под него
+HERE 256 ALLOT CONST bufApp
 
 : save2 // (n A --) Записать пару по A и A+1
     SWAP OVER B! 0 SWAP 1+ B! ;
@@ -45,10 +53,11 @@ HERE 256 ALLOT CONST bufStr VAR ukStr // Создать буфер на 100 байт и перем под н
     ;
 
 S" Hello from QtE5"  toUtf16 createQStr CONST qstr1
-S" background: red" toUtf16 createQStr CONST qstr2
+// S" background: red" toUtf16 createQStr CONST qstr2
 
 // Создаём объект QApplication используя QtE5
-argc argv 1 createApp CONST appQtE5
+// argc argv 1 createApp CONST appQtE5
+bufApp argc argv 1 qt5createApp CONST appQtE5
 
 0 0 createWin CONST w1 : show 1 setVisible ; : hide 0 setVisible ;
 
@@ -58,15 +67,22 @@ argc argv 1 createApp CONST appQtE5
 
 w1 show DROP
 w1 qstr1 setWindowTitleWin DROP
-w1 qstr2 setStyleSheetWin DROP
+// w1 qstr2 setStyleSheetWin DROP
 
 w1 qstr1 createPButton CONST b1 b1 show DROP
 
-appQtE5 aboutQtApp
+// appQtE5 aboutQtApp
 
 appQtE5 execApp  // Главный цикл Qt
 
 // Уничтожим объекты
 act1  deleteAction b1 deletePButton
-qstr1 deleteQStr qstr2 deleteQStr w1 deleteWin appQtE5 deleteApp
+qstr1 deleteQStr 
+
+// qstr2 deleteQStr 
+
+w1 deleteWin 
+
+bufApp appQtE5 qt5deleteApp1
+
 

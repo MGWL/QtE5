@@ -10,7 +10,7 @@ import std.stdio;
 
 
 int verQt5Eu = 0;
-int verQt5El = 07;
+int verQt5El = 06;
 string verQt5Ed = "05.08.16 09:52";
 
 alias PTRINT = int;
@@ -4437,6 +4437,841 @@ class QPoint : QObject {
 		(cast(t_v__qp_i_i)pFunQt[308])(QtObj, y, 1); return y;
 	}
 
-
-
 }
+
+// ---- автор Олег Бахарев 2016 -- https://vk.com/vk_dlang Роберт Брайтс-Грей ----
+//
+// 	Код включает набор классов для продвинутой работы с графикой: черепашья графика,
+//	математическая графика и L-системы.
+//
+// --------------------------------------------------------------------------------
+
+private 
+{
+	import std.algorithm;
+	import std.math;
+	import std.meta : allSatisfy;
+	import std.random;
+	import std.range;
+	import std.string;
+	import std.traits : isIntegral, isFloatingPoint, Unqual;
+
+	import qte5;
+
+	// все ли типы арифметические ?
+	template allArithmetic(T...)
+		if (T.length >= 1)
+	{
+		template isNumberType(T)
+		{
+			enum bool isNumberType = isIntegral!(Unqual!T) || isFloatingPoint!(Unqual!T);
+
+		}
+
+		enum bool allArithmetic = allSatisfy!(isNumberType, T);
+	}
+
+	// добавление автоматически типизированного свойства
+	template addTypedGetter(string propertyVariableName, string propertyName)
+	{
+		import std.string : format;
+
+		enum string addTypedGetter = format(
+			`
+			@property
+			{
+				T %2$s(T)() const
+				{
+					alias typeof(return) returnType;
+					return cast(returnType) %1$s;
+				}
+			}`,
+			propertyVariableName,
+			propertyName
+			);
+	}
+}
+
+/*
+	Класс математической графики QMathGraphics
+
+	Пример применения:
+		
+		// Задание цвета
+		QColor color = new QColor;
+        color.setRgb(0, 250, 120, 200);
+
+		// Создаем объект класса, помещая в него QPainter и объект нужного цвета
+		QMathGraphics maths = new QMathGraphics(painter, color);
+       
+        auto x = iota(-250, 350, 0.1); 
+        
+        // рисование дискретной последовательности
+        maths.drawDiscrete(x, x); 
+        
+        // рисование некоторой функции f
+        maths.drawFunctional!f(x);
+        
+        // параметрическое рисование: в качестве параметров функции g, h
+        maths.drawParametrical!(g, h)(iota(0, 360, 0.1));
+        
+        // рисование некоторой функции t в полярных координатах (угол в радианах)
+        maths.drawPolarInRadians!t(iota(0, 360, 0.1));
+
+        // рисование некоторой функции t в полярных координатах (угол в градусах)
+        maths.drawPolarInDegrees!t(iota(0, 360, 0.1));
+        
+        // рисование точки
+        maths.drawPoint(400, 409.123);
+        
+        // рисование линии методом DDA
+        maths.drawDDALine(400, 400, 506.2, 109.0);
+
+        // рисование окружности
+        maths.drawCircle(600, 600, 20);
+
+        // рисование конического сечения
+        maths.drawConicSection(10, 10, 20, 0.6);
+
+        // рисование прямоугольника
+        maths.drawRectangle(410, 410, 20, 50);
+
+        // рисование заполненной окружности
+        maths.drawFilledCircle(520, 520, 60);
+
+        // установка цвета
+        maths.setColor(color);
+
+        // рисование заполненного прямоугольника
+        maths.drawFilledRectangle(650, 650, 50, 50);
+*/
+class QMathGraphics
+{
+	private
+	{
+		QPainter painter;
+		QColor color;
+
+		// Отрисовка любых числовых последовательностей
+		// Аргументы: first - первый диапазон, second - второй диапазон
+		auto drawTwoRanges(First, Second)(First first, Second second)
+		if (allArithmetic!(ElementType!First, ElementType!Second))
+		{
+			assert(!first.empty);
+			assert(!second.empty);
+
+			QPen pen = new QPen;
+			pen.setColor(color);
+
+			painter.setPen(pen);
+
+			foreach (xy; zip(first, second))
+			{
+				painter.drawPoint(cast(int) xy[0], cast(int) xy[1]);
+			}
+		}
+	}
+
+	this(QPainter painter, QColor color)
+	{
+		this.painter = painter;
+		this.color = color;
+	}
+
+	// установка цвета
+	auto setColor(QColor color)
+	{
+		QPen pen = new QPen;
+		pen.setColor(color);
+
+		painter.setPen(pen);
+	}
+	
+	// рисование последовательностей
+	alias drawDiscrete = drawTwoRanges; 
+
+	// график некоторой функции на непрерывном диапазоне
+	auto drawFunctional(alias Functional, Range)(Range r)
+		if (isInputRange!(Unqual!Range) && allArithmetic!(ElementType!Range))
+	{
+		assert(!r.empty);
+
+		auto ys = map!(a => Functional(a))(r);
+
+		drawTwoRanges(r, ys);
+	}
+
+	// график параметрической функции
+	auto drawParametrical(alias FunctionalX, alias FunctionalY, Range)(Range r)
+		if (isInputRange!(Unqual!Range) && allArithmetic!(ElementType!Range))
+	{
+
+		auto xs = map!(a => FunctionalX(a))(r);
+		auto ys = map!(a => FunctionalY(a))(r);
+
+		drawTwoRanges(xs, ys);
+	}
+
+	// рисование функции в полярных координатах (углы в градусах)
+	auto drawPolarInDegrees(alias Functional, Range)(Range r)
+		if (isInputRange!(Unqual!Range) && allArithmetic!(ElementType!Range))
+	{
+		assert(!r.empty);
+
+		auto phi = map!(a => a * (PI / 180.0))(r).array;
+		auto xs = map!(a =>	Functional(a) * cos(a))(phi);
+		auto ys = map!(a => Functional(a) * sin(a))(phi);
+		
+		drawTwoRanges(xs, ys);
+	}
+
+	// рисование функции в полярных координатах (углы в радианах)
+	auto drawPolarInRadians(alias Functional, Range)(Range r)
+		if (isInputRange!(Unqual!Range) && allArithmetic!(ElementType!Range))
+	{
+		assert(!r.empty);
+
+		auto xs = map!(a => Functional(a) * cos(a))(r);
+		auto ys = map!(a => Functional(a) * sin(a))(r);
+
+		drawTwoRanges(xs, ys);
+	}
+
+	// рисование точки
+	auto drawPoint(T, S)(T x, S y)
+		if (allArithmetic!(T, S))
+	{
+		painter.drawPoint(cast(int) x, cast(int) y);
+	}
+
+	// рисование линии с помощью цифрового дифференциального анализатора
+	auto drawDDALine(T, U, V, W)(T x1, U y1, V x2, W y2)
+		if (allArithmetic!(T, U, V, W))
+	{
+		auto X1 = cast(float) x1;
+		auto Y1 = cast(float) y1;
+		auto X2 = cast(float) x2;
+		auto Y2 = cast(float) y2;
+
+		auto deltaX = abs(X1 - X2);
+		auto deltaY = abs(Y1 - Y2);
+		auto L = max(deltaX, deltaY);
+
+		if (L == 0)
+		{
+			painter.drawPoint(cast(int) x1, cast(int) y1);
+		}
+
+		auto dx = (X2 - X1) / L;
+		auto dy = (Y2 - Y1) / L;
+		float x = X1;
+		float y = Y1;
+
+		L++;
+		while(L--)
+		{
+			x += dx;
+			y += dy;
+			painter.drawPoint(cast(int) x, cast(int) y);
+		}
+	}
+
+	// рисование окружности
+	void drawCircle(T, U, V)(T x, U y, V r)
+		if (allArithmetic!(T, U, V))
+	{	
+		assert (r >= 0);
+
+		auto a = cast(float) x;
+		auto b = cast(float) y;
+		auto c = cast(float) r;
+
+		for (float i = 0.0; i < 360.0; i += 0.01)
+		{
+			auto X = cast(int) (a + c * cos(i * PI / 180.0));
+			auto Y = cast(int) (b + c * sin(i * PI / 180.0));
+			painter.drawPoint(X, Y);
+		}
+	}
+
+	// рисование конических сечений
+	void drawConicSection(T, U, V, W)(T x, U y, V l, W e)
+		if (allArithmetic!(T, U, V, W))
+	{
+		auto a = cast(float) x;
+		auto b = cast(float) y;
+		auto c = cast(float) l;
+		auto d = cast(float) e;
+
+		for (float i = 0.0; i < 360.0; i += 0.01)
+		{
+			auto r = c / (1.0 - d * cos(i * PI / 180.0));
+			auto X = cast(int) (a + c * cos(i * PI / 180.0));
+			auto Y = cast(int) (b + c * sin(i * PI / 180.0));
+			painter.drawPoint(X, Y);
+		}
+	}
+
+	// рисование прямоугольника
+	void drawRectangle(T, U, V, W)(T x, U y, V w, W h)
+		if (allArithmetic!(T, U, V, W))
+	{
+		assert(w >= 0);
+		assert(h >= 0);
+
+		auto X = cast(int) x;
+		auto Y = cast(int) y;
+		auto WW = cast(int) w;
+		auto HH = cast(int) h;
+
+		for (int a = 0; a < HH; a++)
+		{
+			painter.drawPoint(X, Y + a);
+		}
+		
+		for (uint b = 0; b < WW; b++)
+		{
+			painter.drawPoint(X + b, Y + HH);
+		}
+
+		for (uint c = 0; c < HH; c++)
+		{
+			painter.drawPoint(X + WW, Y + c);
+		}
+
+		for (uint d = 0; d < WW; d++)
+		{
+			painter.drawPoint(X + d, Y);
+		}
+	}
+
+	// окружность с заливкой
+	void drawFilledCircle(T, U, V)(T x, U y, V r)
+		if (allArithmetic!(T, U, V))
+	{
+		auto a = cast(float) x;
+		auto b = cast(float) y;
+		auto c = cast(float) r;
+		
+		for (float i = 0.0; i < 360.0; i += 0.01)
+		{
+			for (float j = 0; j < c; j++)
+			{
+				auto X = cast(int) (a + j * cos(i * PI / 180.0));
+				auto Y = cast(int) (b + j * sin(i * PI / 180.0));
+				painter.drawPoint(X, Y);
+			}
+		}
+	}
+
+	// прямоугольник с заливкой
+	void drawFilledRectangle(T, U, V, W)(T x, U y, V w, W h)
+		if (allArithmetic!(T, U, V, W))
+	{
+		assert(w >= 0);
+		assert(h >= 0);
+		
+		auto X = cast(int) x;
+		auto Y = cast(int) y;
+		auto WW = cast(int) w;
+		auto HH = cast(int) h;
+
+		for (int i = 0; i < WW; i++)
+		{
+			for (int j = 0; j < HH; j++)
+			{
+				painter.drawPoint(X + i, Y + j);
+			}
+		}
+	}
+}
+
+/*
+	Состояние исполнителя "Черепаха".
+
+	Пример использования:
+
+		// Размещаем исполнителя в точке (250; 250) и начальный угол равен 0
+		QTurtleState turtleState = new QTurtleState(250, 250, (0 * 3.1415926) / 180.0);
+
+*/
+class QTurtleState
+{
+	private
+	{
+		float x;
+		float y;
+		float angle;
+	}
+
+	// конструктор, принимающий любые числовые типы
+	this(T, U, V)(T x, U y, V angle)
+		if (allArithmetic!(T, U, V))
+	{
+		this.x = cast(float) x;
+		this.y = cast(float) y;
+		this.angle = cast(float) angle;
+	}
+
+	// получение координаты X (метод getX)
+	mixin(addTypedGetter!("x", "getX"));
+	
+	// получение координаты Y (метод getY)
+	mixin(addTypedGetter!("y", "getY"));
+
+	// получение начального угла (метод getAngle)
+	mixin(addTypedGetter!("angle", "getAngle"));
+
+	// установка координаты X
+	void setX(T)(T x)
+		if (allArithmetic!T)
+	{
+		this.x = cast(float) x;
+	}
+
+	// установка координаты Y
+	void setY(T)(T y)
+		if (allArithmetic!T)
+	{
+		this.y = cast(float) y;
+	}
+	
+	// установка начального угла
+	void setAngle(T)(T angle)
+		if (allArithmetic!T)
+	{
+		this.angle = cast(float) angle;
+	}
+
+	// строковое отображение
+	override string toString()
+	{
+		return format("QTurtleState(%f, %f, %f)", x, y, angle);
+	}
+}
+
+/*
+	Исполнитель "Черепаха".
+	
+	Данный класс позволяет управлять исполнителем и рисовать с его помощью различные
+	кривые.
+
+	Команды исполнителя:
+		F   шаг исполнителя с прорисовкой следа
+		f   шаг исполнителя без прорисовки следа
+		+   поворот вправо на заданное приращение
+		- 	поворот влево на заданное приращение
+		?   поворот на случайный угол
+		[   сохранить текущее состояние
+		]   восстановить текущее состояние
+
+	Пример использования:
+		
+		// установка цвета
+		QColor color = new QColor;
+        color.setRgb(0, 250, 120, 200);
+
+		// задание начального состояния исполнителя
+        QTurtleState turtleState = new QTurtleState(250, 250, (0 * 3.1415926) / 180.0);
+
+        // создание объекта исполнителя
+        // входные данные: QPainter, цвет, исходное состояние черепахи, длина шага исполнителя, приращение по углу
+        QTurtle turtle = new QTurtle(painter, color, turtleState, 200, (144 * 3.1415926) / 180.0);
+        
+		// выполнить команды, отданные исполнителю
+        turtle.execute("F+F+F+F+F+");
+
+*/
+class QTurtle
+{
+	private
+	{
+		QPainter painter;
+		QColor color;
+
+		QTurtleState[] stateStack;
+		QTurtleState state;
+
+		float stepIncrement;
+		float angleIncrement;
+	}
+
+	// входные данные: QPainter, цвет, исходное состояние черепахи, длина шага исполнителя, приращение по углу
+	this(T, U)(QPainter painter, QColor color, QTurtleState state, T stepIncrement, U angleIncrement)
+		if (allArithmetic!(T, U))
+	{
+		this.painter = painter;
+		this.color = color;
+		this.state = state;
+		this.stepIncrement = cast(float) stepIncrement;
+		this.angleIncrement = cast(float) angleIncrement;
+	}
+
+	// шаг вперед с отрисовкой следа
+	QTurtleState drawStep()
+	{
+		float newX, newY;
+
+		newX = state.getX!float + cos(state.getAngle!float) * stepIncrement;
+		newY = state.getY!float - sin(state.getAngle!float) * stepIncrement;
+
+		QPen pen = new QPen;
+		pen.setColor(color);
+
+		painter.setPen(pen);
+
+		painter.drawLine(
+			cast(int) state.getX!float, 
+			cast(int) state.getY!float,
+			cast(int) newX,
+			cast(int) newY
+			);
+
+		state.setX(newX);
+		state.setY(newY);
+
+		return state;
+	}
+
+	// шаг вперед без отрисовки следа
+	QTurtleState moveStep()
+	{
+		float newX, newY;
+		
+		newX = state.getX!float + cos(state.getAngle!float) * stepIncrement;
+		newY = state.getY!float - sin(state.getAngle!float) * stepIncrement;
+
+		state.setX(newX);
+		state.setY(newY);
+		
+		return state;
+	}
+
+	// поворот влево
+	QTurtleState rotateLeft()
+	{
+		float newAngle;
+
+		newAngle = state.getAngle!float + angleIncrement;
+
+		state.setAngle(newAngle);
+
+		return state;
+	}
+
+	// поворот вправо
+	QTurtleState rotateRight()
+	{
+		float newAngle;
+		
+		newAngle = state.getAngle!float - angleIncrement;
+		
+		state.setAngle(newAngle);
+		
+		return state;
+	}
+
+	// поворот на случайный угол
+	QTurtleState rotateRandom()
+	{
+		float newAngle;
+
+		auto rndGenerator = new Random(unpredictableSeed);
+		newAngle = uniform(-2 * PI, 2 * PI, rndGenerator);
+		
+		state.setAngle(newAngle);
+		
+		return state;
+	}
+
+	// сохранить состояние черепахи
+	QTurtleState saveState()
+	{
+		QTurtleState newState = new QTurtleState(
+			state.getX!float,
+			state.getY!float,
+			state.getAngle!float,
+		);
+
+		stateStack ~= newState;
+
+		return newState;
+	}
+	
+	// восстановить состояние черепахи
+	QTurtleState restoreState()
+	{
+		QTurtleState newState = new QTurtleState(
+			stateStack[$-1].getX!float,
+			stateStack[$-1].getY!float,
+			stateStack[$-1].getAngle!float,
+		);
+
+		stateStack = stateStack[0 .. $-1];
+		state = newState;
+
+		return newState;
+	}
+
+	// выполнить команду с помощью черепахи
+	QTurtleState execute(string s)
+	{
+		QTurtleState currentState;
+		
+		for (int i = 0; i < s.length; i++)
+		{
+			switch(s[i])
+			{
+				case 'F':
+					currentState = drawStep();
+					break;
+				case 'f':
+					currentState = moveStep();
+					break;
+				case '+':
+					currentState = rotateRight();
+					break;
+				case '-':
+					currentState = rotateLeft();
+					break;
+				case '?':
+					currentState = rotateRandom();
+					break;
+				case '[':
+					currentState = saveState();
+					break;
+				case ']':
+					currentState = restoreState();
+					break;
+				default:
+					break;
+			}
+		}
+		
+		return currentState;
+	}
+}
+
+/*
+	Набор правил для переписывания строки в L-системе.
+
+	Ключ соответствует строке, которая будет переписываться.
+	Значение соответствует тому, на что ключ будет заменен.
+
+	Пример использования:
+
+		 QRewritingRules rules = [
+            "X" : "F[+X][-X]FX",
+            "F" : "FF"
+        ];
+
+*/
+alias QRewritingRules = string[string];
+
+/*
+	Параметры L-системы
+
+	Пример использования:
+		
+		// Входные данные: X, Y, начальный угол, длина шага, приращение по углу, количество поколений
+		QLSystemParameters parameters = new QLSystemParameters(350, 700, (90 * 3.1415926) / 180.0, 5, (25.7 * 3.1415926) / 180.0, 6);
+
+*/
+class QLSystemParameters
+{
+	private
+	{
+		float x;
+		float y;
+		float angle;
+
+		float stepIncrement;
+		float angleIncrement;
+		ulong numberOfGeneration;
+	}
+
+	this(R, S, T, U, V, W)(R x, S y, T angle, U stepIncrement, V angleIncrement, W numberOfGeneration)
+		if (allArithmetic!(R, S, T, U, V, W))
+	{
+		this.x = cast(float) x;
+		this.y = cast(float) y;
+		this.angle = cast(float) angle;
+		
+		this.stepIncrement = cast(float) stepIncrement;
+		this.angleIncrement = cast(float) angleIncrement;
+		this.numberOfGeneration = cast(uint) abs(numberOfGeneration);
+	}
+
+	// получение координаты X (метод getX)
+	mixin(addTypedGetter!("x", "getX"));
+
+	// получение координаты Y (метод getY)
+	mixin(addTypedGetter!("y", "getY"));
+
+	// получение начального угла (метод getInitialAngle)
+	mixin(addTypedGetter!("angle", "getInitialAngle"));
+
+	// получение длины шага (метод getStep)
+	mixin(addTypedGetter!("stepIncrement", "getStep"));
+
+	// получение приращения по углу (метод getAngle)
+	mixin(addTypedGetter!("angleIncrement", "getAngle"));
+
+	// получение количества поколений (метод getGeneration)
+	mixin(addTypedGetter!("numberOfGeneration", "getGeneration"));
+
+	// установка координаты X
+	void setX(T)(T x)
+		if (allArithmetic!T)
+	{
+		this.x = cast(float) x;
+	}
+	
+	// установка координаты Y
+	void setY(T)(T y)
+		if (allArithmetic!T)
+	{
+		this.y = cast(float) y;
+	}
+
+	// установка начального угла
+	void setInitialAngle(T)(T angle)
+		if (allArithmetic!T)
+	{
+		this.angle = cast(float) angle;
+	}
+
+	// установка длины шага
+	void setStep(T)(T angle)
+		if (allArithmetic!T)
+	{
+		this.stepIncrement = cast(float) stepIncrement;
+	}
+
+	// установка приращения по углу
+	void setAngle(T)(T angle)
+		if (allArithmetic!T)
+	{
+		this.angleIncrement = cast(float) angleIncrement;
+	}
+
+	// установка количества поколений
+	void setGeneration(T)(T angle)
+		if (allArithmetic!T)
+	{
+		this.numberOfGeneration = cast(uint) numberOfGeneration;
+	}
+}
+
+/*
+	L-система
+
+	Позволяет генерировать биоморфные формы с помощью задания простых правил.
+
+		// задание цвета
+		QColor color = new QColor;
+        color.setRgb(0, 250, 120, 200);
+
+        // параметры L-системы
+        QLSystemParameters parameters = new QLSystemParameters(350, 700, (90 * 3.1415926) / 180.0, 5, (25.7 * 3.1415926) / 180.0, 6);
+        
+        // правила переписывания
+        QRewritingRules rules = [
+            "X" : "F[+X][-X]FX",
+            "F" : "FF"
+        ];
+
+		// создание объекта L-системы
+		// входные данные: QPainter, цвет, параметры L-системы, аксиома, правила переписывания
+        QLSystem lSystem = new QLSystem(painter, color, parameters, "X", rules);
+        lSystem.execute();
+*/
+class QLSystem
+{
+	private
+	{
+		QPainter painter;
+		QColor color;
+
+		QLSystemParameters parameters;
+		QRewritingRules rules;
+		string axiom;
+
+		// процедура переписывания строки
+		string rewrite(string sourceTerm, string termForRewrite, string newTerm)
+		{
+			auto acc = "";
+			auto search = 0;
+
+			for (uint i = 0; i < sourceTerm.length; i++)
+			{
+				auto index = indexOf(sourceTerm[search .. search + termForRewrite.length], termForRewrite);
+
+				if (index != -1)
+				{
+					search += termForRewrite.length;
+					acc ~= newTerm;
+				}
+				else
+				{
+					search++;
+					acc ~= sourceTerm[search-1];
+				}
+			}
+			
+			return acc;
+		}
+	}
+
+	this(QPainter painter, QColor color, QLSystemParameters parameters, 
+		string axiom, QRewritingRules rules)
+	{
+		this.painter = painter;
+		this.color = color;
+		this.parameters = parameters;
+		this.axiom = axiom;
+		this.rules = rules;
+	}
+
+	QLSystemParameters execute()
+	{
+		QPen pen = new QPen;
+		pen.setColor(color);
+
+		painter.setPen(pen);
+
+		// новое состояние черепахи
+		auto turtleState = new QTurtleState(
+			parameters.getX!float, 
+			parameters.getY!float, 
+			parameters.getInitialAngle!float
+			);
+		
+		// новая черепаха
+		auto turtle = new QTurtle(painter, color, turtleState, 
+			parameters.getStep!float, 
+			parameters.getAngle!float
+			);
+
+		// команды L-системы
+		auto lSystemCmd = axiom;
+
+		// запуск процедуры переписывания
+		for (ulong i = 1; i < parameters.getGeneration!ulong; i++)
+		{
+			foreach (rule; rules.keys)
+			{
+				lSystemCmd = rewrite(lSystemCmd.idup, rule, rules[rule]);
+			}
+		}
+
+		turtle.execute(lSystemCmd);
+
+		return parameters;
+	}
+}
+
+
+
+
+

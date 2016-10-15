@@ -1434,6 +1434,44 @@ private void f_THROW() {
 // }
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+// _______________________________________
+// Слова для работы с динамической памятью
+
+private void* h_gc_malloc(size_t sz) {
+	import core.memory: GC;
+	return cast(void*)GC.malloc(sz);
+}
+private void  f_GC_MALLOC() {
+	asm {	naked;
+		call h_gc_malloc;
+		ret;
+	}
+}
+private void h_gc_free(void* uk) {
+	import core.memory: GC;
+	// printf("%d\n", uk);
+	GC.free(uk);
+}
+private void  f_GC_FREE() {
+	asm {	naked;
+		call h_gc_free;
+		call h_DROP;
+		ret;
+	}
+}
+
+
+private void h_sd_writeln(string* uk) {
+	writeln(*uk);
+}
+private void  f_SD_WRITELN() {
+	asm {	naked;
+		call h_sd_writeln;
+		call h_DROP;
+		ret;
+	}
+}
+
 // Обработка вызова слота Slot_A_N_v
 // Выдать адрес обработчика для вызова функции с параметрами A и N
 private void* h_A_CALL_AN() { return &executeForth_A_N; }
@@ -1706,8 +1744,11 @@ void initForth() {
 	CreateVocItem(cast(char*)"\5BMOVE".ptr, 	cast(pp)&f_bmove,       &gpcb.context);
 
 	// ========== List words for call from C++ QtE5 =============
-	CreateVocItem(cast(char*)"\11A_CALL_AN".ptr, cast(pp)&f_A_CALL_AN,  &gpcb.context);
-	
+	CreateVocItem(cast(char*)"\11A_CALL_AN".ptr,cast(pp)&f_A_CALL_AN,   &gpcb.context);
+	CreateVocItem(cast(char*)"\11GC_MALLOC".ptr,cast(pp)&f_GC_MALLOC,   &gpcb.context);
+	CreateVocItem(cast(char*)"\7GC_FREE".ptr,cast(pp)&f_GC_FREE,     &gpcb.context);
+	CreateVocItem(cast(char*)"\12SD_WRITELN".ptr,cast(pp)&f_SD_WRITELN,     &gpcb.context);
+
 	// ========== kernel\vm\STC\BASE\  ...... ============= ссылки
 	CreateVocItem(cast(char*)"\5>MARK".ptr, 	cast(pp)&f_R_MARK,		&gpcb.context);
 	CreateVocItem(cast(char*)"\5<MARK".ptr, 	cast(pp)&f_L_MARK,		&gpcb.context);
