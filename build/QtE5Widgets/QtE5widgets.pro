@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += widgets
+QT       += widgets gui script
 
 TARGET = QtE5Widgets
 TEMPLATE = lib
@@ -20,3 +20,4 @@ unix {
     target.path = /usr/lib
     INSTALLS += target
 }
+

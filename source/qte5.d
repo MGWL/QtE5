@@ -726,7 +726,18 @@ int LoadQt(dll ldll, bool showError) { ///  Загрузить DLL-ки Qt и Qt
 	funQt(336, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQGridLayout_setXX2",				showError);
 	funQt(337, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQGridLayout_addLayout1",			showError);
 
-	// Последний = 344
+	// ------- QMouseEvent -------
+	funQt(347, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQMouseEvent1",						showError);
+	funQt(348, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQWidget_setMousePressEvent",		showError);
+	funQt(349, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQWidget_setMouseReleaseEvent",		showError);
+	funQt(350, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQMouse_button",						showError);
+
+	// ------- QScript -------
+	funQt(351, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "QScriptEngine_create1",				showError);
+	funQt(352, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "QScriptEngine_delete1",				showError);
+	funQt(353, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "QScriptEngine_evaluate",				showError);	
+	
+	// Последний = 347
 	return 0;
 } ///  Загрузить DLL-ки Qt и QtE. Найти в них адреса функций и заполнить ими таблицу
 
@@ -793,6 +804,15 @@ class QtE {
 		CustomContextMenu = 3, //
 		PreventContextMenu = 4 //
 	}
+	// Кнопки мыша
+	enum MouseButton {
+		NoButton		=	0x00000000,	//	The button state does not refer to any button (see QMouseEvent::button()).
+		AllButtons		=	0x07ffffff,	//	This value corresponds to a mask of all possible mouse buttons. Use to set the 'acceptedButtons' property of a MouseArea to accept ALL mouse buttons.
+		LeftButton		=	0x00000001,	//	The left button is pressed, or an event refers to the left button. (The left button may be the right button on left-handed mice.)
+		RightButton	=	0x00000002,	//	The right button.
+		MidButton		=	0x00000004		//	The middle button.
+	}
+
 	enum Key { //->
 		Key_ControlModifier = 0x04000000,
 		Key_Escape = 0x01000000, // misc keys
@@ -1428,6 +1448,15 @@ class QWidget: QPaintDevice {
 	QWidget  setCloseEvent(void* adr, void* adrThis = null) { //->
 		(cast(t_v__qp_qp_qp) pFunQt[51])(QtObj, cast(QtObjH)adr, cast(QtObjH)adrThis); return this;
 	} /// Установить обработчик на событие CloseEvent. Здесь <u>adr</u> - адрес на функцию D +/
+
+	QWidget  setMousePressEvent(void* adr, void* adrThis = null) { //->
+		(cast(t_v__qp_qp_qp) pFunQt[348])(QtObj, cast(QtObjH)adr, cast(QtObjH)adrThis); return this;
+	} /// Установить обработчик на событие MousePressEvent. Здесь <u>adr</u> - адрес на функцию D +/
+	QWidget  setMouseReleaseEvent(void* adr, void* adrThis = null) { //->
+		(cast(t_v__qp_qp_qp) pFunQt[349])(QtObj, cast(QtObjH)adr, cast(QtObjH)adrThis); return this;
+	} /// Установить обработчик на событие MouseReleaseEvent. Здесь <u>adr</u> - адрес на функцию D +/
+
+
 	QWidget setSizePolicy(int w, int h) { //->
 		(cast(t_v__qp_i_i) pFunQt[78])(QtObj, w, h); return this;
 	} /// Установить обработчик на событие CloseEvent. Здесь <u>adr</u> - адрес на функцию D +/
@@ -2180,6 +2209,38 @@ class QKeyEvent : QEvent {
 	@property QtE.KeyboardModifier modifiers() { //-> Признак модификатора кнопки (Ctrl, Alt ...)
 		return cast(QtE.KeyboardModifier)(cast(t_qp__qp)pFunQt[285])(QtObj);
 	}
+}
+// ============ QMouseEvent =======================================
+class QMouseEvent : QEvent {
+	this() {}
+ 	this(char ch, void* adr) {
+		if(ch == '+') setQtObj(cast(QtObjH)adr);
+	} /// При создании своего объекта сохраняет в себе объект событие QEvent пришедшее из Qt
+	~this() {
+	}
+	@property int x() { //->
+		return (cast(t_i__qp_i)pFunQt[347])(QtObj, 0);
+	}
+	@property int y() { //->
+		return (cast(t_i__qp_i)pFunQt[347])(QtObj, 1);
+	}
+	@property int globalX() { //->
+		return (cast(t_i__qp_i)pFunQt[347])(QtObj, 2);
+	}
+	@property int globalY() { //->
+		return (cast(t_i__qp_i)pFunQt[347])(QtObj, 3);
+	}
+	QtE.MouseButton button() { //->
+		return cast(QtE.MouseButton)(cast(t_i__qp)pFunQt[350])(QtObj);
+	}
+/*
+	@property uint count() { //->
+		return cast(uint)(cast(t_qp__qp)pFunQt[63])(QtObj);
+	} /// QKeyEvent::count();
+	@property QtE.KeyboardModifier modifiers() { //-> Признак модификатора кнопки (Ctrl, Alt ...)
+		return cast(QtE.KeyboardModifier)(cast(t_qp__qp)pFunQt[285])(QtObj);
+	}
+*/
 }
 // ================ QAbstractScrollArea ================
 class QAbstractScrollArea : QFrame {
@@ -4439,6 +4500,43 @@ class QPoint : QObject {
 
 }
 
+class QScriptEngine : QObject {
+	this(){}
+	~this() {
+		if(!fNoDelete && (QtObj != null)) { (cast(t_v__qp) pFunQt[352])(QtObj); setQtObj(null); }
+	}
+	this(char ch, void* adr) {
+		if(ch == '+') { setQtObj(cast(QtObjH)adr); setNoDelete(true); }
+	}
+	this(QWidget parent) {
+		if (parent) {
+			setNoDelete(true);
+			setQtObj((cast(t_qp__qp) pFunQt[351])(parent.QtObj));
+		} else {
+			setQtObj((cast(t_qp__qp) pFunQt[351])(null));
+		}
+	} /// Конструктор
+	
+	void evaluate(T: QString)(T program, T nameFile = null, int lineNumber = 1) {
+		if(nameFile is null) {
+			(cast(t_v__qp_qp_qp_i) pFunQt[353])(QtObj, program.QtObj, (new QString("")).QtObj, lineNumber);
+		} else {
+			(cast(t_v__qp_qp_qp_i) pFunQt[353])(QtObj, program.QtObj, nameFile.QtObj, lineNumber);
+		}
+	}
+	void evaluate(T)(T program, T nameFile = null, int lineNumber = 1) {
+		if(nameFile is null) {
+			(cast(t_v__qp_qp_qp_i) pFunQt[353])(QtObj, (new QString(to!string(program))).QtObj, (new QString("")).QtObj, lineNumber);
+		} else {
+			(cast(t_v__qp_qp_qp_i) pFunQt[353])(QtObj, (new QString(to!string(program))).QtObj, (new QString(to!string(nameFile))).QtObj, lineNumber);
+		}
+	}
+	
+	
+}
+
+
+
 // ---- автор Олег Бахарев 2016 -- https://vk.com/vk_dlang Роберт Брайтс-Грей ----
 //
 // 	Код включает набор классов для продвинутой работы с графикой: черепашья графика,
@@ -5270,7 +5368,6 @@ class QLSystem
 		return parameters;
 	}
 }
-
 
 
 

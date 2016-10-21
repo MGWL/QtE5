@@ -223,6 +223,8 @@ eQWidget::eQWidget(QWidget *parent, Qt::WindowFlags f): QWidget(parent, f) {
     aPaintEvent = NULL;
     aCloseEvent = NULL;
     aResizeEvent = NULL;
+    aMousePressEvent = NULL;
+    aMouseReleaseEvent = NULL;
 }
 eQWidget::~eQWidget() {
 }
@@ -258,6 +260,38 @@ void eQWidget::paintEvent(QPaintEvent *event) {
     }
     else  {
         ((ExecZIM_v__vp_vp_vp)aPaintEvent)(*(void**)aDThis, (QtRefH)event, (QtRefH)&qp);
+    }
+}
+
+// -------------------------------------------------
+
+extern "C" MSVC_API  void qteQWidget_setMousePressEvent(QtRefH wd, void* adr, void* dThis) {
+    ((eQWidget*)wd)->aMousePressEvent = adr;
+    ((eQWidget*)wd)->aDThis = dThis;
+}
+void eQWidget::mousePressEvent(QMouseEvent *event) {
+    if (aMousePressEvent == NULL) return;
+    if ((aMousePressEvent != NULL) && (aDThis == NULL)) {
+        ((ExecZIM_v__vp)aMousePressEvent)((QtRefH)event);
+    }
+    if ((aMousePressEvent != NULL) && (aDThis != NULL)) {
+        ((ExecZIM_v__vp_vp)aMousePressEvent)(*(void**)aDThis, (QtRefH)event);
+    }
+}
+
+// -------------------------------------------------
+
+extern "C" MSVC_API  void qteQWidget_setMouseReleaseEvent(QtRefH wd, void* adr, void* dThis) {
+    ((eQWidget*)wd)->aMouseReleaseEvent = adr;
+    ((eQWidget*)wd)->aDThis = dThis;
+}
+void eQWidget::mouseReleaseEvent(QMouseEvent *event) {
+    if (aMouseReleaseEvent == NULL) return;
+    if ((aMouseReleaseEvent != NULL) && (aDThis == NULL)) {
+        ((ExecZIM_v__vp)aMouseReleaseEvent)((QtRefH)event);
+    }
+    if ((aMouseReleaseEvent != NULL) && (aDThis != NULL)) {
+        ((ExecZIM_v__vp_vp)aMouseReleaseEvent)(*(void**)aDThis, (QtRefH)event);
     }
 }
 
@@ -835,7 +869,20 @@ extern "C" MSVC_API  void qteQEvent_ia(QEvent* ev, int pr) {
     case 1:   ev->accept();  break;
     }
 }
-
+// ===================== QMouseEvent ====================
+extern "C" MSVC_API  int qteQMouseEvent1(QMouseEvent* ev, int pr) {
+    int rez = 0;
+    switch ( pr ) {
+    case 0:   rez = ev->x();    break;
+    case 1:   rez = ev->y();    break;
+    case 2:   rez = ev->globalX();    break;
+    case 3:   rez = ev->globalY();    break;
+    }
+    return rez;
+}
+extern "C" MSVC_API  Qt::MouseButton qteQMouse_button(QMouseEvent* ev) {
+    return ev->button();
+}
 // ===================== QResizeEvent ====================
 extern "C" MSVC_API  QtRefH qteQResizeEvent_size(QResizeEvent* ev) {
     return (QtRefH)&ev->size();
@@ -2651,4 +2698,19 @@ extern "C" MSVC_API  int qteQPoint_getXX1(QPoint* wd, int pr) {
     case 1:   rez = wd->y();           break;
     }
     return rez;
+}
+// ===================== QScriptEngine ====================
+// 351
+extern "C" MSVC_API QScriptEngine* QScriptEngine_create1(QObject* parent) {
+    QScriptEngine* se = new QScriptEngine(parent);
+    return se;
+}
+// 352
+extern "C" MSVC_API void QScriptEngine_delete1(QScriptEngine* se) {
+    delete se;
+}
+// 353
+extern "C" MSVC_API  void QScriptEngine_evaluate(QScriptEngine* se, QString* program, QString* fileName, int lineNumer)
+{
+    se->evaluate(  (const QString &)*program, (const QString &)*fileName, lineNumer);
 }

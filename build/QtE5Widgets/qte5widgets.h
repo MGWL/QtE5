@@ -54,6 +54,8 @@
 #include <QSyntaxHighlighter>
 #include <QTextEdit>
 
+#include <QtScript>
+
 typedef int PTRINT;
 typedef unsigned int PTRUINT;
 
@@ -147,6 +149,8 @@ public:
     void* aPaintEvent;
     void* aCloseEvent;
     void* aResizeEvent;
+    void* aMousePressEvent;
+    void* aMouseReleaseEvent;
 
 public:
     explicit eQWidget(QWidget* parent, Qt::WindowFlags f);
@@ -157,6 +161,8 @@ protected:
     void paintEvent(QPaintEvent* event);
     void closeEvent(QCloseEvent* event);
     void resizeEvent(QResizeEvent* event);
+    void mousePressEvent(QMouseEvent* event);
+    void mouseReleaseEvent(QMouseEvent* event);
 };
 //___________________________________________________
 class eQFrame : public QFrame {
