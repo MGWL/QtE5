@@ -45,6 +45,7 @@ private {
 
 	alias t_vp__qp = extern (C) @nogc void* function(void*);
 	alias t_v__vp_vp_vp = extern (C) @nogc void function(void*, void*, void*);
+	alias t_v__vp_vp_vp_vp = extern (C) @nogc void function(void*, void*, void*, void*);
 	alias t_v__qp_i_i = extern (C) @nogc void function(QtObjH, int, int);
 	alias t_v__qp_qp_i_i = extern (C) @nogc void function(QtObjH, QtObjH, int, int);
 	alias t_v__qp_qp_i_i_i = extern (C) @nogc void function(QtObjH, QtObjH, int, int, int);
@@ -59,9 +60,12 @@ private {
 	alias t_v__qp_qp_i = extern (C) @nogc void function(QtObjH, QtObjH, int);
 	alias t_v__qp_qp_qp_i = extern (C) @nogc void function(QtObjH, QtObjH, QtObjH, int);
 	alias t_v__qp_qp_qp = extern (C) @nogc void function(QtObjH, QtObjH, QtObjH);
+	alias t_v__qp_qp_qp_qp_i = extern (C) @nogc void function(QtObjH, QtObjH, QtObjH, QtObjH, int);
+
 	alias t_v__qp_i_i_i_i_i = extern (C) @nogc void function(QtObjH, int, int, int, int, int);
 	alias t_v__qp_ip_ip_ip_ip = extern (C) @nogc void function(QtObjH, int*, int*, int*, int*);
 
+	alias t_v__vp_vp_i = extern (C) @nogc void function(void*, void*, int);
 	alias t_i__vp_vp_vp = extern (C) @nogc int function(void*, void*, void*);
 	alias t_i__vp_i = extern (C) @nogc int function(void*, int);
 	alias t_i__qp_i = extern (C) @nogc int function(QtObjH, int);
@@ -84,6 +88,7 @@ private {
 	alias t_qp__qp_qp_i = extern (C) @nogc QtObjH function(QtObjH, QtObjH, int);
 	alias t_vp__vp_i = extern (C) @nogc void* function(void*, int);
 	alias t_qp__qp_i = extern (C) @nogc QtObjH function(QtObjH, int);
+	alias t_qp__qp_b = extern (C) @nogc QtObjH function(QtObjH, bool);
 	alias t_ui__qp_i_i = extern (C) @nogc uint function(QtObjH, int, int);
 	alias t_ui__qp = extern (C) @nogc uint function(QtObjH);
 	alias t_qp__qp_i_i = extern (C) @nogc QtObjH function(QtObjH, int, int);
@@ -730,14 +735,33 @@ int LoadQt(dll ldll, bool showError) { ///  Загрузить DLL-ки Qt и Qt
 	funQt(347, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQMouseEvent1",						showError);
 	funQt(348, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQWidget_setMousePressEvent",		showError);
 	funQt(349, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQWidget_setMouseReleaseEvent",		showError);
-	funQt(350, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQMouse_button",						showError);
+	funQt(350, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQMouse_button",					showError);
 
-	// ------- QScript -------
+	// ------- QScriptEngine -------
 	funQt(351, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "QScriptEngine_create1",				showError);
 	funQt(352, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "QScriptEngine_delete1",				showError);
 	funQt(353, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "QScriptEngine_evaluate",				showError);	
+	funQt(358, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "QScriptEngine_newQObject",			showError);	
+	funQt(359, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "QScriptEngine_globalObject",			showError);	
+	funQt(361, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "QScriptEngine_callFunDlang",			showError);	
+	funQt(362, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "QScriptEngine_setFunDlang",			showError);	
+
+	// ------- QScriptValue -------
+	funQt(354, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "QScriptValue_create1",				showError);
+	funQt(355, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "QScriptValue_delete1",				showError);
+	funQt(356, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "QScriptValue_toInt32",				showError);
+	funQt(357, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "QScriptValue_toString",				showError);
+	funQt(360, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "QScriptValue_setProperty",			showError);
+
+	funQt(365, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "QScriptValue_createQstring",			showError);
+	funQt(366, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "QScriptValue_createInteger",			showError);
+	funQt(367, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "QScriptValue_createBool",				showError);
 	
-	// Последний = 347
+	// ------- QScriptContext -------
+	funQt(363, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "QScriptContext_argumentCount",		showError);	
+	funQt(364, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "QScriptContext_argument",				showError);	
+
+	// Последний = 363
 	return 0;
 } ///  Загрузить DLL-ки Qt и QtE. Найти в них адреса функций и заполнить ими таблицу
 
@@ -1795,6 +1819,9 @@ class QString: QObject {
 	} /// Конструктор где s - Utf-8. Пример: QString qs = new QString("Привет!");
 	this(QtObjH adr) { setQtObj(adr);
 	} /// Изготовить QString из пришедшего из вне указателя на C++ QString
+	this(char ch, void* adr) {
+		if(ch == '+') setQtObj(cast(QtObjH)adr); fNoDelete = true;
+	}
 	~this() {
 		if(!fNoDelete) {
 			// write("-[1]-Qs = ", QtObj); stdout.flush();
@@ -1918,10 +1945,12 @@ class QBoxLayout : QObject {
 		if(!fNoDelete && (QtObj != null)) { (cast(t_v__qp) pFunQt[37])(QtObj); setQtObj(null); }
 	}
 	QBoxLayout addWidget(QWidget wd, int stretch = 0, QtE.AlignmentFlag alignment = QtE.AlignmentFlag.AlignExpanding) { //-> Добавить виджет
+                wd.setNoDelete(true);
 		(cast(t_v__qp_qp_i_i) pFunQt[38])(QtObj, wd.QtObj, cast(int)stretch, cast(int)alignment);
 		return this;
 	} /// Добавить виджет в выравниватель
 	QBoxLayout addLayout(QBoxLayout layout) { //-> Добавить выравниватель в выравниватель
+                layout.setNoDelete(true);
 		(cast(t_v__qp_qp) pFunQt[39])(QtObj, layout.QtObj);
 		return this;
 	} /// Добавить выравниватель в выравниватель
@@ -4500,6 +4529,7 @@ class QPoint : QObject {
 
 }
 
+// ================ QScriptEngine ================
 class QScriptEngine : QObject {
 	this(){}
 	~this() {
@@ -4517,25 +4547,120 @@ class QScriptEngine : QObject {
 		}
 	} /// Конструктор
 	
-	void evaluate(T: QString)(T program, T nameFile = null, int lineNumber = 1) {
+	void evaluate(T: QString)(QScriptValue sv, T program, T nameFile = null, int lineNumber = 1) {
 		if(nameFile is null) {
-			(cast(t_v__qp_qp_qp_i) pFunQt[353])(QtObj, program.QtObj, (new QString("")).QtObj, lineNumber);
+			(cast(t_v__qp_qp_qp_qp_i) pFunQt[353])(sv.QtObj, QtObj, program.QtObj, (new QString("")).QtObj, lineNumber);
 		} else {
-			(cast(t_v__qp_qp_qp_i) pFunQt[353])(QtObj, program.QtObj, nameFile.QtObj, lineNumber);
+			(cast(t_v__qp_qp_qp_qp_i) pFunQt[353])(sv.QtObj, QtObj, program.QtObj, nameFile.QtObj, lineNumber);
 		}
 	}
-	void evaluate(T)(T program, T nameFile = null, int lineNumber = 1) {
+	void evaluate(T)(QScriptValue sv, T program, T nameFile = null, int lineNumber = 1) {
 		if(nameFile is null) {
-			(cast(t_v__qp_qp_qp_i) pFunQt[353])(QtObj, (new QString(to!string(program))).QtObj, (new QString("")).QtObj, lineNumber);
+			(cast(t_v__qp_qp_qp_qp_i) pFunQt[353])(sv.QtObj, QtObj, (new QString(to!string(program))).QtObj, (new QString("")).QtObj, lineNumber);
 		} else {
-			(cast(t_v__qp_qp_qp_i) pFunQt[353])(QtObj, (new QString(to!string(program))).QtObj, (new QString(to!string(nameFile))).QtObj, lineNumber);
+			(cast(t_v__qp_qp_qp_qp_i) pFunQt[353])(sv.QtObj, QtObj, (new QString(to!string(program))).QtObj, (new QString(to!string(nameFile))).QtObj, lineNumber);
 		}
 	}
-	
+	void newQObject(QScriptValue sv, QObject ob) {
+		(cast(t_v__qp_qp_qp) pFunQt[358])(sv.QtObj, QtObj, ob.QtObj);
+	}
+	void globalObject(QScriptValue sv) {
+		(cast(t_v__qp_qp) pFunQt[359])(sv.QtObj, QtObj);
+	}
+	// Создать в скрипте функцию callFunDlang(nom, ...); 
+	void createFunDlang() {
+		(cast(t_v__qp) pFunQt[361])(QtObj);
+	}
+	// Установить "делегат" в массив в ячейку nom
+	void setFunDlang(void* adrObj, void* adrMet, int nom) {
+		(cast(t_v__vp_vp_i) pFunQt[362])(adrObj, adrMet, nom);
+	}	
 	
 }
 
+// ================ QScriptValue ================
+class QScriptValue : QObject {
+	this(){}
+	~this() {
+		if(!fNoDelete && (QtObj != null)) { (cast(t_v__qp) pFunQt[355])(QtObj); setQtObj(null); }
+	}
+	this(char ch, void* adr) {
+		if(ch == '+') { setQtObj(cast(QtObjH)adr); setNoDelete(true); }
+	}
+	this(QWidget parent) {
+		if (parent) {
+			setNoDelete(true);
+			setQtObj((cast(t_qp__qp) pFunQt[354])(parent.QtObj));
+		} else {
+			setQtObj((cast(t_qp__qp) pFunQt[354])(null));
+		}
+	} /// Конструктор
+	this(QWidget parent, QString qs) {
+		if (parent) {
+			setNoDelete(true);
+			setQtObj((cast(t_qp__qp_qp) pFunQt[365])(parent.QtObj, qs.QtObj));
+		} else {
+			setQtObj((cast(t_qp__qp_qp) pFunQt[365])(null, qs.QtObj));
+		}
+	} /// Конструктор
+	this(QWidget parent, string str) {
+		QString qs = new QString(str);
+		if (parent) {
+			setNoDelete(true);
+			setQtObj((cast(t_qp__qp_qp) pFunQt[365])(parent.QtObj, qs.QtObj));
+		} else {
+			setQtObj((cast(t_qp__qp_qp) pFunQt[365])(null, qs.QtObj));
+		}
+	} /// Конструктор
+	
+	this(QWidget parent, int n) {
+		if (parent) {
+			setNoDelete(true);
+			setQtObj((cast(t_qp__qp_i) pFunQt[366])(parent.QtObj, n));
+		} else {
+			setQtObj((cast(t_qp__qp_i) pFunQt[366])(null, n));
+		}
+	} /// Конструктор
+	this(QWidget parent, bool b) {
+		if (parent) {
+			setNoDelete(true);
+			setQtObj((cast(t_qp__qp_b) pFunQt[367])(parent.QtObj, b));
+		} else {
+			setQtObj((cast(t_qp__qp_b) pFunQt[367])(null, b));
+		}
+	} /// Конструктор
 
+	int toInt32() {
+		return (cast(t_i__qp)pFunQt[356])(QtObj);
+	}
+	T toString(T: QString)() { //->
+		QString qs = new QString(); (cast(t_v__qp_qp)pFunQt[357])(QtObj, qs.QtObj); return qs;
+	} /// Выдать содержимое в QString
+	T toString(T: string)() {  //->
+		return to!string(toString!QString().String);
+	} /// Выдать всё содержимое в String
+	T toString(T)() {  //->
+		return to!T(toString!QString().String);
+	} /// Выдать всё содержимое в String
+	void setProperty(QScriptValue ob, string name) {
+		(cast(t_v__qp_qp_qp) pFunQt[360])(QtObj, ob.QtObj, (new QString(name)).QtObj);
+	}
+}
+
+// ================ QScriptContext ================
+class QScriptContext : QObject {
+	this(){}
+	this(char ch, void* adr) {
+		if(ch == '+') { setQtObj(cast(QtObjH)adr); setNoDelete(true); }
+	}
+	int argumentCount() {
+		return (cast(t_i__qp)pFunQt[363])(QtObj);
+	}
+	QScriptValue argument(int nom, QScriptValue sv) {
+		(cast(t_i__qp_qp_i)pFunQt[364])(QtObj, sv.QtObj, nom);
+		return sv;
+	}
+}
 
 // ---- автор Олег Бахарев 2016 -- https://vk.com/vk_dlang Роберт Брайтс-Грей ----
 //
