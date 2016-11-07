@@ -72,7 +72,7 @@ class CSetting : QWidget {
 	this(QWidget parent, QtE.WindowType fl) {
 		super(parent, fl); // resize(100, 100); 
 		setWindowTitle("--[ Settings ]--");
-		vblAll  = new  QVBoxLayout(null);		// Главный выравниватель
+		vblAll  = new  QVBoxLayout(this);		// Главный выравниватель
 		vblGr   = new  QVBoxLayout(null);		// для группы
 		vblGr2  = new  QVBoxLayout(null);		// для второй группы
 		vblLong = new  QHBoxLayout(null);		// для групп кнопок
@@ -211,7 +211,7 @@ class CModel : QWidget {
 		super(parent, fl); resize(100, 100); 
 		setWindowTitle("--[ Model ]--");
 		// Горизонтальный и вертикальный выравниватели
-		vblAll  = new  QVBoxLayout(null);		// Главный выравниватель
+		vblAll  = new  QVBoxLayout(this);		// Главный выравниватель
 		laHkn   = new  QHBoxLayout(null);
 		// Группировка
 		gr1 = new QGroupBox(this); gr1.setMaximumHeight(70); gr1.setText("Группа");
@@ -368,7 +368,7 @@ class CMdiDump : QWidget {
 		super(parent, fl);
 		resize(200, 180);
 		// Горизонтальный и вертикальный выравниватели
-		vblAll  = new  QVBoxLayout(null);		// Главный выравниватель
+		vblAll  = new  QVBoxLayout(this);		// Главный выравниватель
 		laHkn   = new  QHBoxLayout(null);
 		//Строка адреса
 		leAdr   = new QLineEdit(this);		// Строка адреса
@@ -437,14 +437,14 @@ class CMdiDump : QWidget {
 		int      iAdr;
 		try {
 			strAdr = strip(sAdr);
-		} catch {
+		} catch(Throwable) {
 			sAdr = "";
 		}
 		if(sAdr == "") return;
 		try {
 			iAdr = to!int(sAdr);
 			showDump2(iAdr);
-		} catch {}
+		} catch(Throwable) {}
 	}
 	// ____________________________________________________________________
 	// Обработка кнопки dump R
@@ -465,7 +465,7 @@ class CMdiDump : QWidget {
 		string sAdr = cbStack.text!string();
 		try {
 			strAdr = strip(sAdr);
-		} catch {
+		} catch(Throwable) {
 			sAdr = "";
 		}
 		if(sAdr == "") return;
@@ -473,7 +473,7 @@ class CMdiDump : QWidget {
 			ppAdr = cast(pp)(to!int(sAdr));
 			iAdr = to!int(cast(int)*ppAdr);
 			leAdr.setText(to!string(iAdr));
-		} catch {}
+		} catch(Throwable) {}
 	}
 	// ____________________________________________________________________
 	// Копирование аргумента с Combo в LineEdit
@@ -499,7 +499,7 @@ class CMdiDump : QWidget {
 					// writeln(format("%3s [%s]", cast(ubyte)(*uCh2), ch));
 				}
 			}
-		} catch {
+		} catch(Throwable) {
 			msgbox("Ошибка преобразования", "Внимание", QMessageBox.Icon.Critical);
 		}
 	}
@@ -719,7 +719,7 @@ class FormaMain: QMainWindow {
 		// Главный виджет, в который всё вставим
 		mainWid = new QMdiArea(this);
 		// Горизонтальный и вертикальный выравниватели
-		vblAll  = new  QVBoxLayout(null);			// Главный выравниватель
+		vblAll  = new  QVBoxLayout(this);			// Главный выравниватель
 		zz = new QProgressBar(null);
 		// Строка сообщений
 		stBar = new QStatusBar(this); stBar.setStyleSheet(strGreen);
@@ -870,7 +870,7 @@ class FormaMain: QMainWindow {
 				evalForth(to!string(fromUtf8to1251(cast(char[])cmd))) ; 
 				// -------------------------
 				sw.stop();
-			} catch {
+			} catch(Throwable) {
 				msgbox("Error ...");
 			}
 			winForth.addStrInLog(cmd);
@@ -1116,7 +1116,7 @@ int main(string[] args) {
 			"e|eval",    toCON("выполнить строку-команду в форт"), &sEval,
 			"i|include", toCON("имя файла для INCLUDE"), &sInclude);
 		if (helpInformation.helpWanted) defaultGetoptPrinter(helps(), helpInformation.options);
-	} catch { 
+	} catch(Throwable) { 
 		writeln(toCON("Ошибка разбора аргументов командной стоки ...")); return 1; 
 	}
 

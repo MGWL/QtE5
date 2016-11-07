@@ -315,7 +315,7 @@ m1:		if(nod is null) {
 			}
 */
 		}
-	} catch {
+	} catch(Throwable) {
 		// writeln("catch: ", line);
 		// writeln("catch: ", ms);
 	}
@@ -382,11 +382,11 @@ m1:		if(nod is null) {
 					ks++;
 					// if(ks++ == 0) if(line.length>2 && line[0]==239 && line[1]==187 && line[2]==191) line = line[3 .. $].dup;
 					addLine(cast(string)line);
-				} catch {
+				} catch(Throwable) {
 					writeln("Warning! Error parsing string: [", cast(string)strip(line), "]");
 				}
 			}
-		} catch {
+		} catch(Throwable) {
 			writeln("Error read file: ", nameFile);
 			readln();
 		}

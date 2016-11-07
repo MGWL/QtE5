@@ -772,7 +772,7 @@ static void msgbox(string text = null, string caption = null,
 	if (caption is null) soob.setWindowTitle("Внимание!"); else soob.setWindowTitle(caption);
 	if (text    is null) soob.setText(". . . . .");        else soob.setText(text);
 	soob.setIcon(icon).setStandardButtons(QMessageBox.StandardButton.Ok);
-	try { soob.exec();	}	catch {}
+	try { soob.exec();	}	catch(Throwable) {}
 }
 
 /++

@@ -388,7 +388,7 @@ bool tstINN(string s) {
 	import std.conv: to;
 	try {
 		s1 = format("%.10s", to!long(strip(s)));
-	} catch {
+	} catch(Throwable) {
 		return rez;			// Ошибка конвертации
 	}
 	if(s1 == "0000000000") return true;

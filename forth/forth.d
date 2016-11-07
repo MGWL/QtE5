@@ -2001,7 +2001,7 @@ private int number(ps str) {
 	try {
 		rez = to!int(to!string(str+1));
 	}
-	catch {
+	catch(Throwable) {
 		writeln("Error conv [", to!string(str+1) ,"] --> Integer");
 	}
 	// printf("\nInput str = [%s], Output rez = [%d]\n", str, rez);

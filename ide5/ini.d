@@ -302,7 +302,7 @@ class Ini {
 				writeln("        ", isecs[i].lines[j].data);
 				try {
 					writeln("               [", ikey._name, "] --> [", ikey._value, "]  (", ikey.data,")");
-				} catch {
+				} catch(Throwable) {
 				}
 			}
 		}
@@ -325,7 +325,7 @@ class Ini {
 			+/
 		}
 		// catch(Throwable o)
-		catch {
+		catch(Throwable) {
 			debug(INI)
 			writeln("INI no file to parse");
 			// File f = new File(_file, "w");

@@ -338,7 +338,7 @@ mm:
 		File fhFile;
 		try {
 			fhFile = File(nameFile, "r");
-		} catch {
+		} catch(Throwable) {
 			msgbox("Не могу открыть: " ~ nameFile, "Внимание! стр: "
 				~ to!string(__LINE__), QMessageBox.Icon.Critical);
 			return;
@@ -358,7 +358,7 @@ mm:
 				parentQtE5.finder1.addLine(str);
 			}
 			sbSoob.showMessage("Загружено: " ~ nameEditFile); nameEditFile = nameFile;
-		} catch {
+		} catch(Throwable) {
 			msgbox("Не могу читать: " ~ nameFile, "Внимание! стр: "
 				~ to!string(__LINE__), QMessageBox.Icon.Critical);
 			return;
@@ -373,14 +373,14 @@ mm:
 		File fhFile;
 		try {
 			fhFile = File(nameEditFile, "w");
-		} catch {
+		} catch(Throwable) {
 			msgbox("Не могу создать: " ~ nameEditFile, "Внимание! стр: "
 				~ to!string(__LINE__), QMessageBox.Icon.Critical);
 		}
 		try {
 			fhFile.write(teEdit.toPlainText!string());
 			sbSoob.showMessage("Сохранено: " ~ nameEditFile);
-		} catch {
+		} catch(Throwable) {
 			msgbox("Не могу записать: " ~ nameEditFile, "Внимание! стр: "
 				~ to!string(__LINE__), QMessageBox.Icon.Critical);
 		}
@@ -498,7 +498,9 @@ mm:
 										// Значит такой надо вставить
 										if(mPoint[0] == 0) { mPoint[0] = z; }
 									}
-									mPoint.sort;
+									import std.algorithm;
+                            mPoint[0..$].sort!();
+                                    // (cast(int[])mas).sort!();
 								}
 								break;
 							default: break;
@@ -949,7 +951,7 @@ class CFormaMain: QMainWindow { //=> Основной MAIN класс прило
 			// Читать файл шаблонов
 			try {
 				fhFileSh = File(nameFileShablons, "r");
-			} catch {
+			} catch(Throwable) {
 				msgbox("Не могу открыть: " ~ nameFileShablons, "Внимание! стр: "
 					~ to!string(__LINE__), QMessageBox.Icon.Critical);
 				return;
@@ -988,7 +990,7 @@ class CFormaMain: QMainWindow { //=> Основной MAIN класс прило
 					if(ind > 0) sShabl ~= format("%2s", ind) ~ str;
 				}
 			}
-		} catch {
+		} catch(Throwable) {
 			msgbox("Не могу читать: " ~ nameFileShablons, "Внимание! стр: "
 				~ to!string(__LINE__), QMessageBox.Icon.Critical);
 			return;
@@ -1107,7 +1109,7 @@ class CFormaMain: QMainWindow { //=> Основной MAIN класс прило
 			foreach(nameFilePrs; listFPrs()) {
 				if(exists(nameFilePrs)) finder1.addFile(nameFilePrs);
 			}
-		} catch {
+		} catch(Throwable) {
 			msgbox("Не могу загрузить файлы из INI в парсер: ", "Внимание! стр: "
 				~ to!string(__LINE__), QMessageBox.Icon.Critical);
 			return;
@@ -1132,7 +1134,7 @@ class CFormaMain: QMainWindow { //=> Основной MAIN класс прило
 				setActWinForNom(n, true); setActWinForNom(activeWinEdit.tekNomer, false);
 			}
 			activeWinEdit = winEdit[n];
-		} catch {
+		} catch(Throwable) {
 			winKnEdit[n].setEnabled(false); 	winKnEdit[n].setText("");
 		}
 	}
@@ -1183,7 +1185,7 @@ writeln(listModuls);
 			// msgbox(nameRunFile ~ " -- запускаю программу", "Внимание!");
 			try {
 				auto pid2 = spawnProcess([nameRunFile]);
-			} catch {
+			} catch(Throwable) {
 				msgbox(nameRunFile ~ " -- Ошибка выполнения ...", "Внимание! стр: "
 					~ to!string(__LINE__), QMessageBox.Icon.Critical);
 				return;
@@ -1354,7 +1356,7 @@ writeln(listModuls);
 				if(ed.leFind.hasFocus())     { rez = ed.tekNomer; break; }
 				if(ed.sliderTabl.hasFocus()) { rez = ed.tekNomer; break; }
 				*/
-			} catch {
+			} catch(Throwable) {
 				return -1;
 			}
 		}
@@ -1481,7 +1483,7 @@ int main(string[] args) {
 			"e|edit",	toCON("открыть файл на редактирование"), 	&sEedit,
 			"i|ini", 	toCON("имя INI файла"), 					&sIniFile);
 		if (helpInformation.helpWanted) defaultGetoptPrinter(helps(), helpInformation.options);
-	} catch {
+	} catch(Throwable) {
 		writeln(toCON("Ошибка разбора аргументов командной стоки ...")); return 1;
 	}
 	// Загрузка графической библиотеки
