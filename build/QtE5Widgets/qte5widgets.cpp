@@ -1206,9 +1206,16 @@ extern "C" typedef void  (*ExecZIM_ANI)(void*, int, int);
 void eAction::Slot_ANI(int z) {
     if (aSlotN != NULL)  ((ExecZIM_ANI)aSlotN)(*(void**)aDThis, N, z);
 }
+extern "C" typedef void  (*ExecZIM_ANII)(void*, int, int, int);
+void eAction::Slot_ANII(int z, int z2) {
+    if (aSlotN != NULL)  ((ExecZIM_ANII)aSlotN)(*(void**)aDThis, N, z, z2);
+}
 extern "C" typedef void  (*ExecZIM_ANB)(void*, int, int);
 void eAction::Slot_ANB(bool z) {
     if (aSlotN != NULL)  ((ExecZIM_ANB)aSlotN)(*(void**)aDThis, N, z);
+}
+void eAction::Slot_ANQ(QObject* pn) {
+    if (aSlotN != NULL)  ((ExecZIM_v__vp_n_i)aSlotN)(*(void**)aDThis, N, (size_t)pn);
 }
 
 //--------- СверхНовые сигналы ---------------

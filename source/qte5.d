@@ -1,6 +1,19 @@
 // Written in the D programming language.
 // MGW Мохов Геннадий Владимирович 2016
 
+/* 
+Slots:
+    void Slot_AN();             --> "Slot_AN()" 				// void call(Aдркласса, Nчисло);
+    void Slot_ANI(int);         --> "Slot_ANI(int)" 			// void call(Aдркласса, Nчисло, int);
+    void Slot_ANII(int, int);   --> "Slot_ANII(int, int)"		// void call(Aдркласса, Nчисло, int, int);
+    void Slot_ANB(bool);        --> "Slot_ANB(bool)"			// void call(Aдркласса, Nчисло, bool);
+    void Slot_ANQ(QObject*);    --> "Slot_ANQ(QObject*)"		// void call(Aдркласса, Nчисло, QObject*);
+Signals:
+    void Signal_V();          	--> "Signal_V()"				// Сигнал без параметра
+    void Signal_VI(int);      	--> "Signal_VI(int)"			// Сигнал с int
+    void Signal_VS(QString);  	--> "Signal_VS(QString)"		// Сигнал с QString
+*/
+
 module qte5;
 
 import std.conv; // Convert to string
@@ -8,10 +21,9 @@ import std.conv; // Convert to string
 // Отладка
 import std.stdio;
 
-
 int verQt5Eu = 0;
-int verQt5El = 06;
-string verQt5Ed = "05.08.16 09:52";
+int verQt5El = 07;
+string verQt5Ed = "18.11.16 09:52";
 
 alias PTRINT = int;
 alias PTRUINT = uint;
@@ -1761,6 +1773,20 @@ class QApplication : QObject {
 	void aboutQt() { //-> Об Qt
 		(cast(t_v__qp) pFunQt[2])(QtObj);
 	} /// QApplication::aboutQt()
+	void aboutQtE5() { //->
+				msgbox(
+"
+<H2>QtE5 - is a D wrapper for Qt-5</H2>
+<H3>" ~ format("MGW 2016 ver %s.%s -- %s", verQt5Eu, verQt5El, verQt5Ed) ~ "</H3>
+<a href='https://github.com/MGWL/QtE5'>https://github.com/MGWL/QtE5</a>
+<BR>
+<a href='http://mgw.narod.ru/about.htm'>http://mgw.narod.ru/about.htm</a>
+<BR>
+<BR>
+<IMG src='ICONS/qte5.png'>
+<BR>
+", "About QtE5");
+	}
 	void quit() { //-> Выход
 		(cast(t_v__qp) pFunQt[273])(QtObj);
 	}

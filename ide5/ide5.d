@@ -72,6 +72,7 @@ extern (C) {
 //	void  onCtrlS(CEditWin* uk, int n)              { (*uk).runCtrlS(); }
 	void  onPaintCEditWin(CEditWin* uk, void* ev, void* qpaint)  { (*uk).runPaint(ev, qpaint); };
 	void  onPaintCEditWinTeEdit(CEditWin* uk, void* ev, void* qpaint)  { (*uk).runPaintTeEdit(ev, qpaint); };
+	void  onDoubleClickTable(CEditWin* uk, int n, int x, int y)  { (*uk).runDoubleClickTable(x, y); };
 }
 // __________________________________________________________________
 class CEditWin: QWidget { //=> Окно редактора D кода
@@ -122,6 +123,7 @@ class CEditWin: QWidget { //=> Окно редактора D кода
 	QSlider sliderTabl;			// Слайдер для таблицы
 	QAction acSliderTabl;		// Событие для слайдера
 	QAction acNumStr;			// Событие для перехода на строку
+	QAction acDoubleClickHelp;	// Эксперементальный двойной клик на ячейке
 	// QAction acCtrlS;			// Событие для CtrlS
 	Highlighter highlighter;	// Подсветка синтаксиса
 	QStatusBar	sbSoob;			// Строка статуса
@@ -142,6 +144,7 @@ class CEditWin: QWidget { //=> Окно редактора D кода
 		sliderTabl.setSliderPosition(12);
 		connects(sliderTabl, "sliderMoved(int)", acSliderTabl, "Slot_v__A_N_i(int)");
 
+		
 		// Горизонтальный и вертикальный выравниватели
 		vblAll  = new  QVBoxLayout(null);		// Главный выравниватель
 		hb2  	= new  QHBoxLayout(null);		// Горизонтальный выравниватель
@@ -220,9 +223,18 @@ class CEditWin: QWidget { //=> Окно редактора D кода
 
 		teEdit.setPaintEvent(&onPaintCEditWinTeEdit, aThis());
 
+		// Ставлю ловлю сигнала на двойной клик по ячейке таблицы
+		acDoubleClickHelp = new QAction(this, &onDoubleClickTable, aThis);
+		connects(teHelp, "cellDoubleClicked(int, int)", acDoubleClickHelp, "Slot_ANII(int, int)");
+
 		setNoDelete(true);
 	}
 	~this() {
+	}
+	// ______________________________________________________________
+	// Проверка работы слота по перехвату двух параметров INT, INT
+	void runDoubleClickTable(int x, int y) { //->
+		msgbox(format("x = %s,  y = %s", x, y));
 	}
 	// ______________________________________________________________
 	void runPaintTeEdit(void* ev, void* qpaint) { //->
