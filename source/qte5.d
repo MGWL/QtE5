@@ -1,7 +1,7 @@
 // Written in the D programming language.
 // MGW Мохов Геннадий Владимирович 2016
 
-/* 
+/*
 Slots:
     void Slot_AN();             --> "Slot_AN()" 				// void call(Aдркласса, Nчисло);
     void Slot_ANI(int);         --> "Slot_ANI(int)" 			// void call(Aдркласса, Nчисло, int);
@@ -475,7 +475,7 @@ int LoadQt(dll ldll, bool showError) { ///  Загрузить DLL-ки Qt и Qt
 	funQt(339, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets,"qteQAction_SendSignal_V",			showError);
 	funQt(340, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets,"qteQAction_SendSignal_VI",			showError);
 	funQt(341, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets,"qteQAction_SendSignal_VS",			showError);
-	
+
 	//  ------- QMenu -------
 	funQt(99, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets,  "qteQMenu_create",					showError);
 	funQt(100, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQMenu_delete",					showError);
@@ -752,11 +752,11 @@ int LoadQt(dll ldll, bool showError) { ///  Загрузить DLL-ки Qt и Qt
 	// ------- QScriptEngine -------
 	funQt(351, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "QScriptEngine_create1",				showError);
 	funQt(352, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "QScriptEngine_delete1",				showError);
-	funQt(353, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "QScriptEngine_evaluate",				showError);	
-	funQt(358, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "QScriptEngine_newQObject",			showError);	
-	funQt(359, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "QScriptEngine_globalObject",			showError);	
-	funQt(361, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "QScriptEngine_callFunDlang",			showError);	
-	funQt(362, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "QScriptEngine_setFunDlang",			showError);	
+	funQt(353, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "QScriptEngine_evaluate",				showError);
+	funQt(358, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "QScriptEngine_newQObject",			showError);
+	funQt(359, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "QScriptEngine_globalObject",			showError);
+	funQt(361, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "QScriptEngine_callFunDlang",			showError);
+	funQt(362, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "QScriptEngine_setFunDlang",			showError);
 
 	// ------- QScriptValue -------
 	funQt(354, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "QScriptValue_create1",				showError);
@@ -768,10 +768,10 @@ int LoadQt(dll ldll, bool showError) { ///  Загрузить DLL-ки Qt и Qt
 	funQt(365, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "QScriptValue_createQstring",			showError);
 	funQt(366, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "QScriptValue_createInteger",			showError);
 	funQt(367, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "QScriptValue_createBool",				showError);
-	
+
 	// ------- QScriptContext -------
-	funQt(363, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "QScriptContext_argumentCount",		showError);	
-	funQt(364, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "QScriptContext_argument",				showError);	
+	funQt(363, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "QScriptContext_argumentCount",		showError);
+	funQt(364, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "QScriptContext_argument",				showError);
 
 	// Последний = 363
 	return 0;
@@ -2704,9 +2704,20 @@ class QAction : QObject {
 	} /// Определить горячую кнопку
 // ----------------------------------------------------
 	QAction setEnabled(bool f) { //->
-		(cast(t_v__qp_bool) pFunQt[109])(QtObj, f);
-		return this;
+		(cast(t_v__qp_b_i) pFunQt[109])(QtObj, f, 0);	return this;
 	} /// Включить/выключить пункт меню
+	QAction setVisible(bool f) { //->
+		(cast(t_v__qp_b_i) pFunQt[109])(QtObj, f, 1);	return this;
+	}
+	QAction setCheckable(bool f) { //->
+		(cast(t_v__qp_b_i) pFunQt[109])(QtObj, f, 2);	return this;
+	}
+	QAction setChecked(bool f) { //->
+		(cast(t_v__qp_b_i) pFunQt[109])(QtObj, f, 3);	return this;
+	}
+	QAction setIconVisibleInMenu(bool f) { //->
+		(cast(t_v__qp_b_i) pFunQt[109])(QtObj, f, 4);	return this;
+	}
  	QAction setIcon(QIcon ico) { //->
 		(cast(t_v__qp_qp) pFunQt[113])(QtObj, ico.QtObj);
 		return this;
@@ -4231,7 +4242,7 @@ class QTextEdit : QAbstractScrollArea {
 	T toHtml(T)() {  //->
 		return to!T(toHtml!QString().String);
 	} /// Выдать всё содержимое в String
-	
+
 	QTextEdit cut() { //-> Вырезать кусок
 		(cast(t_v__qp_i) pFunQt[272])(QtObj, 0); return this;
 	} /// cut()
@@ -4347,7 +4358,7 @@ class QTimer : QObject {
 		}
 		return this;
 	}
-	QTimer stop() { //-> 
+	QTimer stop() { //->
 		(cast(t_i__qp_i) pFunQt[265])(QtObj, 4);
 		return this;
 	}
@@ -4572,7 +4583,7 @@ class QScriptEngine : QObject {
 			setQtObj((cast(t_qp__qp) pFunQt[351])(null));
 		}
 	} /// Конструктор
-	
+
 	void evaluate(T: QString)(QScriptValue sv, T program, T nameFile = null, int lineNumber = 1) {
 		if(nameFile is null) {
 			(cast(t_v__qp_qp_qp_qp_i) pFunQt[353])(sv.QtObj, QtObj, program.QtObj, (new QString("")).QtObj, lineNumber);
@@ -4593,15 +4604,15 @@ class QScriptEngine : QObject {
 	void globalObject(QScriptValue sv) {
 		(cast(t_v__qp_qp) pFunQt[359])(sv.QtObj, QtObj);
 	}
-	// Создать в скрипте функцию callFunDlang(nom, ...); 
+	// Создать в скрипте функцию callFunDlang(nom, ...);
 	void createFunDlang() {
 		(cast(t_v__qp) pFunQt[361])(QtObj);
 	}
 	// Установить "делегат" в массив в ячейку nom
 	void setFunDlang(void* adrObj, void* adrMet, int nom) {
 		(cast(t_v__vp_vp_i) pFunQt[362])(adrObj, adrMet, nom);
-	}	
-	
+	}
+
 }
 
 // ================ QScriptValue ================
@@ -4638,7 +4649,7 @@ class QScriptValue : QObject {
 			setQtObj((cast(t_qp__qp_qp) pFunQt[365])(null, qs.QtObj));
 		}
 	} /// Конструктор
-	
+
 	this(QWidget parent, int n) {
 		if (parent) {
 			setNoDelete(true);
@@ -4695,7 +4706,7 @@ class QScriptContext : QObject {
 //
 // --------------------------------------------------------------------------------
 
-private 
+private
 {
 	import std.algorithm;
 	import std.math;
@@ -4745,34 +4756,34 @@ private
 	Класс математической графики QMathGraphics
 
 	Пример применения:
-		
+
 		// Задание цвета
 		QColor color = new QColor;
         color.setRgb(0, 250, 120, 200);
 
 		// Создаем объект класса, помещая в него QPainter и объект нужного цвета
 		QMathGraphics maths = new QMathGraphics(painter, color);
-       
-        auto x = iota(-250, 350, 0.1); 
-        
+
+        auto x = iota(-250, 350, 0.1);
+
         // рисование дискретной последовательности
-        maths.drawDiscrete(x, x); 
-        
+        maths.drawDiscrete(x, x);
+
         // рисование некоторой функции f
         maths.drawFunctional!f(x);
-        
+
         // параметрическое рисование: в качестве параметров функции g, h
         maths.drawParametrical!(g, h)(iota(0, 360, 0.1));
-        
+
         // рисование некоторой функции t в полярных координатах (угол в радианах)
         maths.drawPolarInRadians!t(iota(0, 360, 0.1));
 
         // рисование некоторой функции t в полярных координатах (угол в градусах)
         maths.drawPolarInDegrees!t(iota(0, 360, 0.1));
-        
+
         // рисование точки
         maths.drawPoint(400, 409.123);
-        
+
         // рисование линии методом DDA
         maths.drawDDALine(400, 400, 506.2, 109.0);
 
@@ -4835,9 +4846,9 @@ class QMathGraphics
 
 		painter.setPen(pen);
 	}
-	
+
 	// рисование последовательностей
-	alias drawDiscrete = drawTwoRanges; 
+	alias drawDiscrete = drawTwoRanges;
 
 	// график некоторой функции на непрерывном диапазоне
 	auto drawFunctional(alias Functional, Range)(Range r)
@@ -4870,7 +4881,7 @@ class QMathGraphics
 		auto phi = map!(a => a * (PI / 180.0))(r).array;
 		auto xs = map!(a =>	Functional(a) * cos(a))(phi);
 		auto ys = map!(a => Functional(a) * sin(a))(phi);
-		
+
 		drawTwoRanges(xs, ys);
 	}
 
@@ -4928,7 +4939,7 @@ class QMathGraphics
 	// рисование окружности
 	void drawCircle(T, U, V)(T x, U y, V r)
 		if (allArithmetic!(T, U, V))
-	{	
+	{
 		assert (r >= 0);
 
 		auto a = cast(float) x;
@@ -4977,7 +4988,7 @@ class QMathGraphics
 		{
 			painter.drawPoint(X, Y + a);
 		}
-		
+
 		for (uint b = 0; b < WW; b++)
 		{
 			painter.drawPoint(X + b, Y + HH);
@@ -5001,7 +5012,7 @@ class QMathGraphics
 		auto a = cast(float) x;
 		auto b = cast(float) y;
 		auto c = cast(float) r;
-		
+
 		for (float i = 0.0; i < 360.0; i += 0.01)
 		{
 			for (float j = 0; j < c; j++)
@@ -5019,7 +5030,7 @@ class QMathGraphics
 	{
 		assert(w >= 0);
 		assert(h >= 0);
-		
+
 		auto X = cast(int) x;
 		auto Y = cast(int) y;
 		auto WW = cast(int) w;
@@ -5064,7 +5075,7 @@ class QTurtleState
 
 	// получение координаты X (метод getX)
 	mixin(addTypedGetter!("x", "getX"));
-	
+
 	// получение координаты Y (метод getY)
 	mixin(addTypedGetter!("y", "getY"));
 
@@ -5084,7 +5095,7 @@ class QTurtleState
 	{
 		this.y = cast(float) y;
 	}
-	
+
 	// установка начального угла
 	void setAngle(T)(T angle)
 		if (allArithmetic!T)
@@ -5101,7 +5112,7 @@ class QTurtleState
 
 /*
 	Исполнитель "Черепаха".
-	
+
 	Данный класс позволяет управлять исполнителем и рисовать с его помощью различные
 	кривые.
 
@@ -5115,7 +5126,7 @@ class QTurtleState
 		]   восстановить текущее состояние
 
 	Пример использования:
-		
+
 		// установка цвета
 		QColor color = new QColor;
         color.setRgb(0, 250, 120, 200);
@@ -5126,7 +5137,7 @@ class QTurtleState
         // создание объекта исполнителя
         // входные данные: QPainter, цвет, исходное состояние черепахи, длина шага исполнителя, приращение по углу
         QTurtle turtle = new QTurtle(painter, color, turtleState, 200, (144 * 3.1415926) / 180.0);
-        
+
 		// выполнить команды, отданные исполнителю
         turtle.execute("F+F+F+F+F+");
 
@@ -5170,7 +5181,7 @@ class QTurtle
 		painter.setPen(pen);
 
 		painter.drawLine(
-			cast(int) state.getX!float, 
+			cast(int) state.getX!float,
 			cast(int) state.getY!float,
 			cast(int) newX,
 			cast(int) newY
@@ -5186,13 +5197,13 @@ class QTurtle
 	QTurtleState moveStep()
 	{
 		float newX, newY;
-		
+
 		newX = state.getX!float + cos(state.getAngle!float) * stepIncrement;
 		newY = state.getY!float - sin(state.getAngle!float) * stepIncrement;
 
 		state.setX(newX);
 		state.setY(newY);
-		
+
 		return state;
 	}
 
@@ -5212,11 +5223,11 @@ class QTurtle
 	QTurtleState rotateRight()
 	{
 		float newAngle;
-		
+
 		newAngle = state.getAngle!float - angleIncrement;
-		
+
 		state.setAngle(newAngle);
-		
+
 		return state;
 	}
 
@@ -5227,9 +5238,9 @@ class QTurtle
 
 		auto rndGenerator = new Random(unpredictableSeed);
 		newAngle = uniform(-2 * PI, 2 * PI, rndGenerator);
-		
+
 		state.setAngle(newAngle);
-		
+
 		return state;
 	}
 
@@ -5246,7 +5257,7 @@ class QTurtle
 
 		return newState;
 	}
-	
+
 	// восстановить состояние черепахи
 	QTurtleState restoreState()
 	{
@@ -5266,7 +5277,7 @@ class QTurtle
 	QTurtleState execute(string s)
 	{
 		QTurtleState currentState;
-		
+
 		for (int i = 0; i < s.length; i++)
 		{
 			switch(s[i])
@@ -5296,7 +5307,7 @@ class QTurtle
 					break;
 			}
 		}
-		
+
 		return currentState;
 	}
 }
@@ -5321,7 +5332,7 @@ alias QRewritingRules = string[string];
 	Параметры L-системы
 
 	Пример использования:
-		
+
 		// Входные данные: X, Y, начальный угол, длина шага, приращение по углу, количество поколений
 		QLSystemParameters parameters = new QLSystemParameters(350, 700, (90 * 3.1415926) / 180.0, 5, (25.7 * 3.1415926) / 180.0, 6);
 
@@ -5345,7 +5356,7 @@ class QLSystemParameters
 		this.x = cast(float) x;
 		this.y = cast(float) y;
 		this.angle = cast(float) angle;
-		
+
 		this.stepIncrement = cast(float) stepIncrement;
 		this.angleIncrement = cast(float) angleIncrement;
 		this.numberOfGeneration = cast(uint) abs(numberOfGeneration);
@@ -5375,7 +5386,7 @@ class QLSystemParameters
 	{
 		this.x = cast(float) x;
 	}
-	
+
 	// установка координаты Y
 	void setY(T)(T y)
 		if (allArithmetic!T)
@@ -5423,7 +5434,7 @@ class QLSystemParameters
 
         // параметры L-системы
         QLSystemParameters parameters = new QLSystemParameters(350, 700, (90 * 3.1415926) / 180.0, 5, (25.7 * 3.1415926) / 180.0, 6);
-        
+
         // правила переписывания
         QRewritingRules rules = [
             "X" : "F[+X][-X]FX",
@@ -5467,12 +5478,12 @@ class QLSystem
 					acc ~= sourceTerm[search-1];
 				}
 			}
-			
+
 			return acc;
 		}
 	}
 
-	this(QPainter painter, QColor color, QLSystemParameters parameters, 
+	this(QPainter painter, QColor color, QLSystemParameters parameters,
 		string axiom, QRewritingRules rules)
 	{
 		this.painter = painter;
@@ -5491,14 +5502,14 @@ class QLSystem
 
 		// новое состояние черепахи
 		auto turtleState = new QTurtleState(
-			parameters.getX!float, 
-			parameters.getY!float, 
+			parameters.getX!float,
+			parameters.getY!float,
 			parameters.getInitialAngle!float
 			);
-		
+
 		// новая черепаха
-		auto turtle = new QTurtle(painter, color, turtleState, 
-			parameters.getStep!float, 
+		auto turtle = new QTurtle(painter, color, turtleState,
+			parameters.getStep!float,
 			parameters.getAngle!float
 			);
 
@@ -5519,7 +5530,3 @@ class QLSystem
 		return parameters;
 	}
 }
-
-
-
-

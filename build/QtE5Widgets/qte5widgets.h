@@ -107,11 +107,12 @@ private slots:
     void Slot_v__A_N_v();
     void Slot_v__A_N_QObject(QObject*);
 
-    void Slot_AN();             // void call(Aдркласса, Nчисло);
-    void Slot_ANI(int);         // void call(Aдркласса, Nчисло, int);
-    void Slot_ANB(bool);        // void call(Aдркласса, Nчисло, bool);
-    void Slot_ANII(int, int);   // void call(Aдркласса, Nчисло, int, int);
-    void Slot_ANQ(QObject*);    // void call(Aдркласса, Nчисло, QObject*);
+    void Slot_AN();                     // void call(Aдркласса, Nчисло);
+    void Slot_ANI(int);                 // void call(Aдркласса, Nчисло, int);
+    void Slot_ANB(bool);                // void call(Aдркласса, Nчисло, bool);
+    void Slot_ANII(int, int);           // void call(Aдркласса, Nчисло, int, int);
+    void Slot_ANQ(QObject*);            // void call(Aдркласса, Nчисло, QObject*);
+    void Slot_ANQ(QMdiSubWindow*);      // void call(Aдркласса, Nчисло, QObject*);
 
 signals:
     void Signal_V();          // Сигнал без параметра

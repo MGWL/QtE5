@@ -73,6 +73,7 @@ extern (C) {
 	void  onPaintCEditWin(CEditWin* uk, void* ev, void* qpaint)  { (*uk).runPaint(ev, qpaint); };
 	void  onPaintCEditWinTeEdit(CEditWin* uk, void* ev, void* qpaint)  { (*uk).runPaintTeEdit(ev, qpaint); };
 	void  onDoubleClickTable(CEditWin* uk, int n, int x, int y)  { (*uk).runDoubleClickTable(x, y); };
+	void  on_deleteWindow(CEditWin* uk, int n, void* obj) { (*uk).runDeleteWindow(obj); }
 }
 // __________________________________________________________________
 class CEditWin: QWidget { //=> Окно редактора D кода
@@ -105,7 +106,7 @@ class CEditWin: QWidget { //=> Окно редактора D кода
 
 	static enum mPointMax = 10;
 	int[mPointMax] mPoint;	// Массив точек для запоминания позиции
-	
+
 	string	nameEditFile;		// Имя файла редактируемого в данный момент
 	Sost editSost = Sost.Normal;
 	int tekNomer;				// Текущий номер
@@ -124,6 +125,7 @@ class CEditWin: QWidget { //=> Окно редактора D кода
 	QAction acSliderTabl;		// Событие для слайдера
 	QAction acNumStr;			// Событие для перехода на строку
 	QAction acDoubleClickHelp;	// Эксперементальный двойной клик на ячейке
+	QAction acDeleteWindow;		// Уничтожение окна
 	// QAction acCtrlS;			// Событие для CtrlS
 	Highlighter highlighter;	// Подсветка синтаксиса
 	QStatusBar	sbSoob;			// Строка статуса
@@ -133,6 +135,8 @@ class CEditWin: QWidget { //=> Окно редактора D кода
 	QSpinBox	spNumStr;		// Спин для перехода на строку
 	QLabel		labelHelp;		// Строка подсветки имен функций
 	bool trigerNumStr;			// Странно, но 2 раза вызывается ... отсечем 2 раз
+	string 	strBeforeEnter;		// Строка перед нажатием на Enter
+	uint	pozBeforeEnter;		// Позиция визуальношго курсора перед нажатием Entr
 	// ______________________________________________________________
 	// Конструктор по умолчанию
 	this(QWidget parent, QtE.WindowType fl) { //-> Базовый конструктор
@@ -144,7 +148,7 @@ class CEditWin: QWidget { //=> Окно редактора D кода
 		sliderTabl.setSliderPosition(12);
 		connects(sliderTabl, "sliderMoved(int)", acSliderTabl, "Slot_v__A_N_i(int)");
 
-		
+
 		// Горизонтальный и вертикальный выравниватели
 		vblAll  = new  QVBoxLayout(null);		// Главный выравниватель
 		hb2  	= new  QHBoxLayout(null);		// Горизонтальный выравниватель
@@ -227,9 +231,33 @@ class CEditWin: QWidget { //=> Окно редактора D кода
 		acDoubleClickHelp = new QAction(this, &onDoubleClickTable, aThis);
 		connects(teHelp, "cellDoubleClicked(int, int)", acDoubleClickHelp, "Slot_ANII(int, int)");
 
+		// Событие удаления окна
+		acDeleteWindow = new QAction(this, &on_deleteWindow,   aThis);
+		connects(this, "destroyed(QObject*)", acDeleteWindow, "Slot_ANQ(QObject*)");
+
+
 		setNoDelete(true);
 	}
 	~this() {
+	}
+	// ______________________________________________________________
+	// Удаление окна редактора
+	void runDeleteWindow(void* obj) {
+		setQtObj(null);
+		// Эти элементы должны быть удалены обычным способом, но
+		// так как окно уничтожено извне, то мы должны отключить
+		// D уничтожение
+		for(int i; i != sizeTabHelp; i++) mTi[i].setNoDelete(true);
+		highlighter.setNoDelete(true);
+		// Разберемся с кнопкой
+		parentQtE5.winKnEdit[tekNomer].setText("");
+		parentQtE5.winKnEdit[tekNomer].hide();
+		parentQtE5.winKnEdit[tekNomer].setVisible(false);
+		parentQtE5.winAcEdit[tekNomer].setVisible(false);
+		parentQtE5.winKnEdit[tekNomer].setEnabled(false);
+		parentQtE5.winAcEdit[tekNomer].setEnabled(false);
+
+		parentQtE5.winEdit[tekNomer] = null;
 	}
 	// ______________________________________________________________
 	// Проверка работы слота по перехвату двух параметров INT, INT
@@ -244,7 +272,7 @@ class CEditWin: QWidget { //=> Окно редактора D кода
 	// ______________________________________________________________
 	// Вычислить номер строки для перехода по сохраненной точке
 	// 0 - нет перехода
-	// 
+	//
 	pure nothrow int lineGoTo(int tek, bool va) {
 		int rez, i, ml = mPoint.length;
 		if(ml == 0) return 0;
@@ -270,7 +298,7 @@ mm:
 
 		// Получим список строк с точкам запоминания
 		int[]	pointSave; foreach(el; mPoint) { if(el > 0) pointSave ~= el; }
-		
+
 		// Получим шрифт, которым рисует painter
 		QFont font = new QFont(); qp.font(font);
 		QFontMetrics fontMetrics = new QFontMetrics(font);
@@ -291,7 +319,7 @@ mm:
 		while(tb.isValid() && tb.isVisible()) {
 			blockNumber = tb.blockNumber();
 			int bottomTb = teEdit.bottomTextBlock(tb);
-			
+
 			bool fIsPoint; int ts = blockNumber + 1;
 			foreach(el; pointSave) {
 				if(el == ts) { fIsPoint = true; break; }
@@ -301,7 +329,7 @@ mm:
 			} else {
 				strNomerStr = format("%4d  ", ts);
 			}
-			
+
 			if(blockNumber == lineUnderCursor) {
 				font.setBold(true).setOverline(true).setUnderline(true);
 				qp.setFont(font);
@@ -445,6 +473,8 @@ mm:
 				case QtE.Key.Key_Return:
 						QTextBlock tb = new QTextBlock(txtCursor);
 						string strFromBlock = tb.text!string();
+						strBeforeEnter = strFromBlock;
+						pozBeforeEnter = txtCursor.positionInBlock();
 						parentQtE5.finder1.addLine(strFromBlock);
 					break;
 				case QtE.Key.Key_L:
@@ -454,11 +484,6 @@ mm:
 					}
 					break;
 				default: break;
-			}
-			if((qe.key == QtE.Key.Key_Return)) {
-				QTextBlock tb = new QTextBlock(txtCursor);
-				string strFromBlock = tb.text!string();
-				parentQtE5.finder1.addLine(strFromBlock);
 			}
 			return ev;
 		} else {
@@ -497,14 +522,14 @@ mm:
 								txtCursor.endEditBlock();
 								teEdit.setTextCursor(txtCursor);
 								break;
-							// Запомнить номер строки для перехода	
+							// Запомнить номер строки для перехода
 							case QtE.Key.Key_T:
 								{
 									auto z = 1 + getNomerLineUnderCursor();
 									// Проверить, есть ли такой ... если есть убрать
 									bool isTakoy;
 									for(int i; i != mPointMax; i++) {
-										if(mPoint[i] == z) { mPoint[i] = 0; isTakoy = true; } 
+										if(mPoint[i] == z) { mPoint[i] = 0; isTakoy = true; }
 									}
 									if(!isTakoy) {
 										// Значит такой надо вставить
@@ -532,6 +557,16 @@ mm:
 		txtCursor.insertText(s).movePosition(QTextCursor.MoveOperation.PreviousCharacter);
 		teEdit.setTextCursor(txtCursor);
 	}
+	void insNewString(string s) {
+		teEdit.textCursor(txtCursor); // Выдернули курсор из QPlainText
+		txtCursor.beginEditBlock();
+			txtCursor.movePosition(QTextCursor.MoveOperation.StartOfBlock);
+			txtCursor.insertText(s);
+			txtCursor.movePosition(QTextCursor.MoveOperation.EndOfBlock);
+			// txtCursor.movePosition(QTextCursor.MoveOperation.NextBlock);
+		txtCursor.endEditBlock();
+		teEdit.setTextCursor(txtCursor);
+	}
 	// ______________________________________________________________
 	void* runKeyReleaseEvent(void* ev) { //-> Обработка события отпускания кнопки
 		// Перерисуем номера строк, вызвам событие Paint через Update
@@ -554,6 +589,19 @@ mm:
 			}
 
 			teEdit.textCursor(txtCursor); // Выдернули курсор из QPlainText
+
+			if(qe.key == QtE.Key.Key_Return) {
+				if(pozBeforeEnter == 0) return null;
+				if(strBeforeEnter.length > 0) {
+					// Надо найти последовательность до первого видимого символа
+					int i;
+					for(i = 0; i != strBeforeEnter.length; i++) {
+						if(isPrintLetters1251(strBeforeEnter[i])) break;
+					}
+					if(i > 0) insNewString(strBeforeEnter[0 .. i]);
+				}
+				return null;
+			}
 
 			// Ctrl+Spase вставка верхнего слова с таблицы
 			if( (qe.key == QtE.Key.Key_Space) & (qe.modifiers == QtE.KeyboardModifier.ControlModifier) ) {
@@ -733,6 +781,7 @@ extern (C) {
 	void onPointV(CFormaMain* uk)          { (*uk).runPointV(); }
 	void onPointA(CFormaMain* uk)          { (*uk).runPointA(); }
 	void onOnOffHelp(CFormaMain* uk)       { (*uk).runOnOffHelp(); }
+	void on_sigSubWinActivated(CFormaMain* uk, int n, void* obj) { (*uk).runSubWinActivated(obj); }
 }
 // __________________________________________________________________
 class CFormaMain: QMainWindow { //=> Основной MAIN класс приложения
@@ -758,6 +807,7 @@ class CFormaMain: QMainWindow { //=> Основной MAIN класс прило
 	QAction acAbout, acAboutQt, acExit, acOnOffHelp, acGotoNum, acFind, acFindA;
 	QAction acPoint, acPointA, acHelpIde;
 	QAction acUnitTest, acCompile, acRunApp, acRunProj;
+	QAction acSubWinActivated;
 	QStatusBar      stBar;					// Строка сообщений
 	QToolBar tb, tbSwWin;					// Строка кнопок
 	string[]	sShabl;						// Массив шаблонов. Первые 2 цифры - индекс
@@ -775,6 +825,9 @@ class CFormaMain: QMainWindow { //=> Основной MAIN класс прило
 		resize(1000, 800);
 
 		// Обработчики
+		acSubWinActivated = new QAction(this, &on_sigSubWinActivated,   aThis);
+		connects(mainWid, "subWindowActivated(QMdiSubWindow*)", acSubWinActivated, "Slot_ANQ(QMdiSubWindow*)");
+
 		acExit	= new QAction(this, &on_Exit,   aThis);
 		acExit.setText("Exit").setHotKey(QtE.Key.Key_Q | QtE.Key.Key_ControlModifier);
 		acExit.setIcon("ICONS/doc_error.ico").setToolTip("Выйти из ide5");
@@ -828,13 +881,13 @@ class CFormaMain: QMainWindow { //=> Основной MAIN класс прило
 		acPoint.setText("Закладка V").setHotKey(
 			QtE.Key.Key_T | QtE.KeyboardModifier.ControlModifier);
 		connects(acPoint, "triggered()", acPoint, "Slot()");
-		
+
 		acPointA = new QAction(this, &onPointA, aThis);
 		acPointA.setToolTip("Перейти на позицию вверх ...");
 		acPointA.setText("Закладка A").setHotKey(
 			QtE.Key.Key_T | QtE.KeyboardModifier.ControlModifier | QtE.KeyboardModifier.ShiftModifier);
 		connects(acPointA, "triggered()", acPointA, "Slot()");
-		
+
 		acFind = new QAction(this, &onFind, aThis);
 		acFind.setText("Поиск V").setHotKey(
 			QtE.Key.Key_F | QtE.KeyboardModifier.ControlModifier);
@@ -1010,6 +1063,29 @@ class CFormaMain: QMainWindow { //=> Основной MAIN класс прило
 	}
 	// ______________________________________________________________
 	~this() {
+	}
+	// ______________________________________________________________
+	// Обработка сигнала ИзменениеАктивногоОкна
+	void runSubWinActivated(void* obj) { //-> Обработка сигнала ИзменениеАктивногоОкна
+		// Найдем окно в списке окошек
+		int nomerActiveWindowEdit = -1;
+		foreach(ed; winEdit) {
+			if(ed is null) continue;
+			try {
+				if(obj == ed.idMdi)		{ nomerActiveWindowEdit = ed.tekNomer; break; }
+			} catch(Throwable) {
+				nomerActiveWindowEdit = -1;
+			}
+		}
+		// Если окно редактора найдено в списке окошек
+		if(nomerActiveWindowEdit > -1) {
+			if(nomerActiveWindowEdit != activeWinEdit.tekNomer) {
+				// выключи предыдущую кнопку и включи активную
+				setActWinForNom(nomerActiveWindowEdit, true);
+				setActWinForNom(activeWinEdit.tekNomer, false);
+				activeWinEdit = winEdit[nomerActiveWindowEdit];
+			}
+		}
 	}
 	// ______________________________________________________________
 	// Включить/выключить таблицу подсказок
@@ -1283,7 +1359,7 @@ writeln(listModuls);
 	}
 	// ______________________________________________________________
 	void runHelpIde() { //-> Открыть окно с подсказками по кнопкам
-		string sHtml = 
+		string sHtml =
 `
 <html>
 <head>
@@ -1441,7 +1517,7 @@ writeln(listModuls);
 			msgbox(
 "
 <H2>IDE5 - miniIDE for dmd</H2>
-<H3>MGW 2016 ver 0.4 от 19.08.2016</H3>
+<H3>MGW 2016 ver 0.5 от 11.12.2016</H3>
 <BR>
 <IMG src='ICONS/qte5.png'>
 <BR>

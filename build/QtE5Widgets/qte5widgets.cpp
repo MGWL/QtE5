@@ -7,7 +7,10 @@
 
 
 #include "qte5widgets.h"
+
+// !!!!!!!!!!!!!!!!
 // #define debDelete 1
+
 #define debDestr 1
 
 #define sizeTabCallDlang 100
@@ -1217,6 +1220,9 @@ void eAction::Slot_ANB(bool z) {
 void eAction::Slot_ANQ(QObject* pn) {
     if (aSlotN != NULL)  ((ExecZIM_v__vp_n_i)aSlotN)(*(void**)aDThis, N, (size_t)pn);
 }
+void eAction::Slot_ANQ(QMdiSubWindow* pn) {
+    if (aSlotN != NULL)  ((ExecZIM_v__vp_n_i)aSlotN)(*(void**)aDThis, N, (size_t)pn);
+}
 
 //--------- СверхНовые сигналы ---------------
 void eAction::sendSignal_V() {    emit Signal_V(); }
@@ -1263,8 +1269,15 @@ extern "C" MSVC_API  void qteQAction_setHotKey(eAction *act, int kl) {
 extern "C" MSVC_API  void qteQAction_setIcon(eAction *act, QIcon *ik) {
     act->setIcon(*ik);
 }
-extern "C" MSVC_API  void qteQAction_setEnabled(eAction *act, bool p) {
-    act->setEnabled(p);
+extern "C" MSVC_API  void qteQAction_setEnabled(eAction *act, bool p, int pr) {
+    switch ( pr ) {
+    case 0:   act->setEnabled(p);       break;
+    case 1:   act->setVisible(p);       break;
+    case 2:   act->setCheckable(p);       break;
+    case 3:   act->setChecked(p);       break;
+    case 4:   act->setIconVisibleInMenu(p);       break;
+    }
+
 }
 
 
@@ -1737,7 +1750,7 @@ extern "C" MSVC_API  void qteQTableWidgetItem_delete(QTableWidgetItem* wd) {
     printf("del QTableWidgetItem --> \n");
 #endif
 #ifdef debDestr
-    delete wd;
+        delete wd;
 #endif
 #ifdef debDelete
     printf("Ok\n");
