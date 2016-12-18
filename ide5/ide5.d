@@ -812,7 +812,7 @@ class CFormaMain: QMainWindow { //=> Основной MAIN класс прило
 	QToolBar tb, tbSwWin;					// Строка кнопок
 	string[]	sShabl;						// Массив шаблонов. Первые 2 цифры - индекс
 	CFinder finder1;						// Поисковик
-	QCheckBox cbDebug;
+	QCheckBox cbDebug, cb3264;
 	string[] swCompile = [ "qte5", "asc1251" ];
 
 	QLabel w1;
@@ -972,10 +972,15 @@ class CFormaMain: QMainWindow { //=> Основной MAIN класс прило
 		// tb.setStyleSheet(strElow);
 		tbSwWin.setStyleSheet( strElow );
 
-		// CheckBox for debug compole options
+		// CheckBox for debug compile options
 		cbDebug = new QCheckBox(this);
 		cbDebug.setText("debug");
 		cbDebug.setToolTip("-debug --> in parametrs of compile");
+
+		// CheckBox for 32 / 64 режима компиляции
+		cb3264 = new QCheckBox(this);
+		cb3264.setText("m64");
+		cb3264.setToolTip("-m64 --> in parametrs of compile");
 
 		// Настраиваем ToolBar
 		tb.setToolButtonStyle(QToolBar.ToolButtonStyle.ToolButtonTextBesideIcon);
@@ -986,7 +991,8 @@ class CFormaMain: QMainWindow { //=> Основной MAIN класс прило
 			.addAction(acRunApp)
 			.addAction(acRunProj)
 			.addSeparator()
-			.addWidget(cbDebug);
+			.addWidget(cbDebug)
+			.addWidget(cb3264);
 
 		addToolBar(QToolBar.ToolBarArea.TopToolBarArea, tb);
 
@@ -1298,8 +1304,12 @@ writeln(listModuls);
 		// стандартные проверки позади
 		string nameLog = constNameLog;
 		auto logFile = File(nameLog, "w");
-			string[] swCompileMain = [ nameDMDonOs(), "-c", nameFile ];
+			string[] swCompileMain = [ nameDMDonOs(), "-c", "-release", nameFile ];
 			if(cbDebug.checkState == QtE.CheckState.Checked) swCompileMain ~= "-debug";
+			if(cb3264.checkState == QtE.CheckState.Checked)
+				swCompileMain ~= "-m64";
+			else
+				swCompileMain ~= "-m32";
 			auto pid = spawnProcess(swCompileMain,
 				std.stdio.stdin,
 				std.stdio.stdout,
@@ -1307,7 +1317,7 @@ writeln(listModuls);
 			);
 		if (wait(pid) != 0) {
 			string sLog = cast(string)read(nameLog);
-			msgbox(sLog, "Compile  ...", QMessageBox.Icon.Critical);
+			msgbox(sLog, "Compile obj ...", QMessageBox.Icon.Critical);
 		} else {
 			msgbox("Compile is Ok", "Compile  ...");
 		}
@@ -1336,12 +1346,18 @@ writeln(listModuls);
 		string nameLog = constNameLog;
 		// Найдено активное окно редактора
 		auto logFile = File(nameLog, "w");
-			string[] swCompileMain = [ nameDMDonOs(), nameFile ];
-			if(cbDebug.checkState == QtE.CheckState.Checked) {
+			string[] swCompileMain = [ nameDMDonOs(), nameFile, "-release" ];
+
+			if(cbDebug.checkState == QtE.CheckState.Checked)
 				swCompileMain ~= (swCompile ~ "-debug");
-			} else {
+			else
 				swCompileMain ~= swCompile;
-			}
+
+			if(cb3264.checkState == QtE.CheckState.Checked)
+				swCompileMain ~= "-m64";
+			else
+				swCompileMain ~= "-m32";
+
 			auto pid = spawnProcess(swCompileMain,
 				std.stdio.stdin,
 				std.stdio.stdout,
