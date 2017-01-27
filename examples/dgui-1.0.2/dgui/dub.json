@@ -1,0 +1,31 @@
+{
+	"authors": [
+		"Trogu Antonio Davide",
+		"MGW"
+	],
+	"description": "A graphic library for Windows.",
+	"importPaths": [
+		"."
+	],
+	"name": "dgui",
+	"version": "1.0.2",
+	"license": "BSL-1.0",
+	"sourcePaths": [
+		"dgui"
+	],
+	"configurations": [
+		{
+			"name": "library",
+			"targetType": "library",
+			"buildTypes": {
+				"release": {
+					"buildOptions": ["releaseMode"]
+				},
+				"debug": {
+					"buildOptions": ["debugMode", "debugInfo", "optimize"]
+				}
+			}
+		}
+	],
+	"copyright": "Copyright © 2011-2013, Trogu Antonio Davide"
+}

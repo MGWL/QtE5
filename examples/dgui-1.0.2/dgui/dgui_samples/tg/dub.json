@@ -1,0 +1,12 @@
+{
+	"name": "tg",
+	"authors": [
+		"gena"
+	],
+	"dependencies": {
+		"dgui": "==1.0.2"
+	},
+	"description": "Test DUI lib dgui",
+	"copyright": "Copyright © 2017, gena",
+	"license": "boost"
+}
