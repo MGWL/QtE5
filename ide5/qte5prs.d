@@ -1,7 +1,10 @@
 module qte5prs;
 
 import asc1251 : fromUtf8to1251;
-import std.string : translate, split, strip, indexOf, toLower;
+import std.string : translate, split, strip, indexOf, toLower, replace;
+import std.file : exists;
+import std.path: dirSeparator, pathSeparator;
+import std.process : environment;
 private import std.stdio : File, writeln, readln;
 
 // Должен быть объект, получающий на вход строку. Строка раскладываается
@@ -26,6 +29,9 @@ class CFinder { //=> Поисковик. Помнит все слова в фа�
 	~this() {
 	}
 	// ______________________________________________________________
+	private int[string] listForParserBefore; 	// Словарь файлов, которые должны быть распарсены
+	private int[string] listForParserAfter; 	// Словарь файлов, которые уже распарсены
+
 	private
 	struct fNode { //-> Узел списка гирлянды
 		string 		str;		// Строка (слово)
@@ -55,6 +61,130 @@ class CFinder { //=> Поисковик. Помнит все слова в фа�
 		um		allLink;		// Общий список методов
 	}
 	alias fMetod* um; // Ссылка на узел цепочки метода
+	// ______________________________________________________________
+	// Методы, для работы со списком файлов для парсинга
+	// ______________________________________________________________
+	void addParserBefore(string nameFile) { //-> Добавить имя файла в список, но не задваивать
+		int *p;
+		p = (nameFile in listForParserBefore);
+		if(p is null) {
+			listForParserBefore[nameFile] = 1;
+		}
+	}
+	// ______________________________________________________________
+	string[] listParserBefore() { //-> выдать обыкновенный массив
+		string[] rez; foreach(el; listForParserBefore.byKey) rez ~= el;
+		return rez;
+	}
+	// ______________________________________________________________
+	void addParserAfter(string nameFile) { //-> Добавить имя файла в список, но не задваивать
+		int *p;
+		p = (nameFile in listForParserAfter);
+		if(p is null) {
+			listForParserAfter[nameFile] = 1;
+		}
+	}
+	// ______________________________________________________________
+	string[] listParserAfter() { //-> выдать обыкновенный массив
+		string[] rez; foreach(el; listForParserAfter.byKey) rez ~= el;
+		return rez;
+	}
+	// ______________________________________________________________
+	bool isFileInParserAfter(string nameFile) { //-> Есть файл в списке распарсенных файлов?
+		int *p;
+		bool rez;
+		p = (nameFile in listForParserAfter);
+		if(p is null) {
+			rez = false;
+		} else {
+			rez = true;
+		}
+		return rez;
+	}
+
+	// ______________________________________________________________
+	void addImpPrs(string[] mMod, string[5] PathForSrcDmd) {  //-> Добавить список файлов импорта для парсинга
+		string pathDmd2 = getPathDmd2(PathForSrcDmd);
+		foreach(el; mMod) {
+			string[] rawMod = split(el, ":");
+			string pathFile = rawMod[0] ~ ".d";
+			if(exists(pathFile)) {
+				addParserBefore(pathFile);
+			} else {
+				// Проверим на std.
+				if(indexOf(pathFile, "std.") >= 0) {
+					pathFile = pathFile.replace("std.", "std" ~ dirSeparator);
+				} else {
+					pathFile = pathFile.replace("etc.", "etc" ~ dirSeparator);
+				}
+				// Проверим на наличие
+				string fullPath = pathDmd2 ~ pathFile;
+				try {
+					if(!exists(fullPath)) continue;
+				} catch(Throwable) {
+					continue;
+				}
+				// Надо проверить, есть ли такое в списке, если нет, то добавить
+				addParserBefore(fullPath);
+			}
+		}
+		// writeln("--1--> ", listParserBefore());
+	}
+	// ______________________________________________________________
+	string getPathDmd2(string[5] getPathDmd) { //-> // Выдать путь до библиотеки src из dmd2
+		writeln("---1---", getPathDmd);
+		string rez;
+		version (Windows) {
+			string myPath = environment["PATH"];
+			string[] masPath = split(myPath, pathSeparator);
+			string pathDmd2;
+			foreach(el; masPath) { if(indexOf(el, "dmd2") > 0) { pathDmd2 = el; break; } }
+			version (X86) {		// ... 32 bit code ...
+				if(getPathDmd[0] != "") {			// Есть явное указание в INI
+					rez = getPathDmd[0] ~ dirSeparator;
+				} else {
+					if(pathDmd2 == "") return "";
+					// Путь до Dmd2 найден и он не пустой
+					int begNom = cast(int)(indexOf(pathDmd2, "windows" ));
+					if(begNom > 0) {								// Windows
+						rez = pathDmd2[0 .. begNom] ~ "src" ~ dirSeparator ~ "phobos" ~ dirSeparator;
+					}
+				}
+			}
+			version (X86_64) {	// ... 64 bit code
+				if(getPathDmd[1] != "") {			// Есть явное указание в INI
+					rez = getPathDmd[1] ~ dirSeparator;
+				} else {
+					if(pathDmd2 == "") return "";
+					// Путь до Dmd2 найден и он не пустой
+					int begNom = cast(int)(indexOf(pathDmd2, "windows" ));
+					if(begNom > 0) {								// Windows
+						rez = pathDmd2[0 .. begNom] ~ "src" ~ dirSeparator ~ "phobos" ~ dirSeparator;
+					}
+				}
+			}
+		}
+		version (linux) {
+			version (X86) {		// ... 32 bit code ...
+				if(getPathDmd[2] != "") {			// Есть явное указание в INI
+					rez = getPathDmd[2] ~ dirSeparator;
+				}
+			}
+			version (X86_64) {	// ... 64 bit code
+				if(getPathDmd[3] != "") {			// Есть явное указание в INI
+					rez = getPathDmd[3] ~ dirSeparator;
+				}
+			}
+		}
+		version (OSX) {
+			if(getPathDmd[4] != "") {			// Есть явное указание в INI
+				rez = getPathDmd[4] ~ dirSeparator;
+			}
+		}
+		return rez;
+	}
+	// ______________________________________________________________
+	// Методы, для работы с деревьями
 	// ______________________________________________________________
 	um findMethod(uc klass, string metod) { //-> Найти или добавить метод
 		if(klass is null) return null;
@@ -160,6 +290,10 @@ m1:		if(nod is null) {
 	ubyte getC0(string s) { //-> Выдать индекс в гребенке
 		import std.utf: stride;
 		if(s.length == 0) return 0;
+		
+		// Это защита от 3 и более байтовых последовательностей
+		if(stride(s, 0) > 2) return 0;
+		
 		char[] w1251 = fromUtf8to1251(cast(char[])s[0..stride(s, 0)]);
 		return w1251[0];
 	}
@@ -199,7 +333,9 @@ m1:		if(nod is null) {
 	// ______________________________________________________________
 	bool isWordMono(string w) { //-> Есть целое слово в списке?
 		size_t dlw, dln;
-		bool rez; ubyte ind = getC0(w); un ukaz = harrow[ind];
+		bool rez; 
+		ubyte ind = getC0(w); 
+		un ukaz = harrow[ind];
 		dlw = w.length;
 		while(!(ukaz is null)) {
 			dln = ukaz.str.length;
@@ -372,7 +508,6 @@ m1:		if(nod is null) {
 	}
 	// ______________________________________________________________
 	void addFile(string nameFile) { //-> Добавить файл в хранилище
-		// writeln("parsing: ", nameFile);
 		File fileSrc = File(nameFile, "r");
 		int ks;
 		try {
@@ -380,7 +515,7 @@ m1:		if(nod is null) {
 				try {
 					// Проверка на BOM
 					ks++;
-					// if(ks++ == 0) if(line.length>2 && line[0]==239 && line[1]==187 && line[2]==191) line = line[3 .. $].dup;
+					if(ks == 0) if(line.length>2 && line[0]==239 && line[1]==187 && line[2]==191) line = line[3 .. $].dup;
 					addLine(cast(string)line);
 				} catch(Throwable) {
 					writeln("Warning! Error parsing string: [", cast(string)strip(line), "]");

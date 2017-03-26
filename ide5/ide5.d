@@ -1,7 +1,10 @@
-//------------------------------
+﻿//------------------------------
 // Прототип IDE для D + QtE5
 // MGW 29.04.2016 17:00:10
 //------------------------------
+// dmd ide5 qte5prs asc1251 ini qte5 -release -m32 -release
+
+
 //	writeln("--1--"); stdout.flush();
 
 import asc1251;				// Поддержка cp1251 в консоли
@@ -15,6 +18,7 @@ import core.runtime;		// Обработка входных параметров
 import std.conv;
 import qte5prs;				// Парсер исходного кода
 import std.process;
+import std.path: dirSeparator, pathSeparator;
 
 const strElow  = "background: #F8FFA1";
 const strGreen = "background: #F79F81";
@@ -28,10 +32,10 @@ const maxKolEdit = 10;   				// Количество окошек редакто
 
 string helps() {
 	return	toCON(
-"Использование консоли для forthD:
+"Использование ide5:
 --------------------------------
 Запуск:
-console5_forthd [-d, -e, -i] ...
+ide5 [-d, -i] ИмяINIфайлаПроекта.ini
 ");
 }
 
@@ -325,7 +329,7 @@ mm:
 				if(el == ts) { fIsPoint = true; break; }
 			}
 			if(fIsPoint) {
-				strNomerStr = format("%4d >>", ts);
+				strNomerStr = format("%4d =>", ts);
 			} else {
 				strNomerStr = format("%4d  ", ts);
 			}
@@ -371,6 +375,22 @@ mm:
 		// writeln("nBlok ---> ", nBlok);
 	}
 	// ______________________________________________________________
+	// Функция обнаружения импорта
+	void findImport(string str) {
+		long pozImport; string rawStr;
+		pozImport = indexOf(str, "import");
+		if(pozImport >= 0) {		// Искать фразу import
+			rawStr = str.replace("import", "");
+			rawStr = rawStr.replace(" ", "");
+			// Нужно выделить список файлов;
+			// На этой строке есть ';'
+			if(indexOf(rawStr, ";") > 0) {			// На этой строке есть ';'
+				rawStr = rawStr.replace(";", "");
+				parentQtE5.finder1.addImpPrs(split(rawStr, ","), parentQtE5.PathForSrcDmd);
+			}
+		}
+	}
+	// ______________________________________________________________
 	void openWinEdit(string nameFile) { //-> Открыть на редактирование окно с файлом
 		// Очистить всё, что было
 		teEdit.clear();
@@ -394,8 +414,10 @@ mm:
 				version (linux) {
 					if( (str.length > 0) && (str[$-1] == 13)  ) str = str[0 .. $-1];
 				}
+				// Вот тут надо вставить функцию обнаружения импорта
+				findImport(str);
 				teEdit.appendPlainText(str);
-				parentQtE5.finder1.addLine(str);
+				// parentQtE5.finder1.addLine(str);
 			}
 			sbSoob.showMessage("Загружено: " ~ nameEditFile); nameEditFile = nameFile;
 		} catch(Throwable) {
@@ -404,6 +426,21 @@ mm:
 			return;
 		}
 		setWindowTitle(nameEditFile);
+		// Дозаписать имя в массив парсера
+		parentQtE5.finder1.addParserBefore(nameEditFile);
+		// Посмотрим на массив для парсинга
+		string[] listPars = parentQtE5.finder1.listParserBefore();
+		foreach(el; listPars) {
+			// Если имя отсутст в списке уже распарсенных, то распарсить и добавить
+			if(!parentQtE5.finder1.isFileInParserAfter(el)) {
+				parentQtE5.showInfo("Parsing: [" ~ el ~ "]");
+				if(exists(el)) {
+					parentQtE5.finder1.addFile(el);
+				} else {
+				}
+				parentQtE5.finder1.addParserAfter(el);
+			}
+		}
 	}
  	// ______________________________________________________________
 	void runCtrlS() { //-> Сохранить файл на диске
@@ -428,7 +465,7 @@ mm:
 	// ______________________________________________________________
 	void runSliderTab(int nom) { //-> Обработка события слайдера таблицы
 		string zn = to!string(nom);
-		zn = "font-size: " ~ zn ~ "pt; font-family: 'Inconsolata';";
+		zn = "font-size: " ~ zn ~ "pt; font-family: 'Consolas';";
 		teHelp.setStyleSheet(zn);
 		teEdit.setStyleSheet(zn);
 		// lineNumberArea.setStyleSheet(zn);
@@ -790,6 +827,8 @@ class CFormaMain: QMainWindow { //=> Основной MAIN класс прило
 	string[10]	listFileModul;				// Список с файлами модулями 0 .. 9
 	string 		nameFileShablons;			// Имя файла шаблонов
 	string		nameMainFile;				// Имя main файла
+	string[5]	PathForSrcDmd;				// Массив путей до Win32, Win64, Linux32, Linux64, MacOSX64
+
 
 	QMdiArea		mainWid;				// Область дочерних mdi виджетов
 
@@ -1201,7 +1240,15 @@ class CFormaMain: QMainWindow { //=> Основной MAIN класс прило
 		// Заполним парсер
 		try {
 			foreach(nameFilePrs; listFPrs()) {
-				if(exists(nameFilePrs)) finder1.addFile(nameFilePrs);
+				// Если имя отсутст в списке уже распарсенных, то распарсить и добавить
+				if(nameFilePrs == "") continue;
+				if(!finder1.isFileInParserAfter(nameFilePrs)) {
+					if(exists(nameFilePrs)) {
+						showInfo("Parsing: [" ~ nameFilePrs ~ "]");
+						finder1.addFile(nameFilePrs);
+						finder1.addParserAfter(nameFilePrs);
+					}
+				}
 			}
 		} catch(Throwable) {
 			msgbox("Не могу загрузить файлы из INI в парсер: ", "Внимание! стр: "
@@ -1275,6 +1322,8 @@ writeln(listModuls);
 			version (linux) {
 				nameRunFile = "./" ~ nameMainFile[0..$-2];
 			}
+			writeln();
+			writeln("_________________________________________");
 			writeln(toCON("---- Выполняю: " ~ nameRunFile), " ------------------------");
 			// msgbox(nameRunFile ~ " -- запускаю программу", "Внимание!");
 			try {
@@ -1368,6 +1417,8 @@ writeln(listModuls);
 			msgbox(sLog, "Compile  ...", QMessageBox.Icon.Critical);
 		} else {
 			string nameRunFile = nameFile[0..$-2];
+			writeln();
+			writeln("_________________________________________");
 			writeln(toCON("---- Выполняю: " ~ nameRunFile ~ " ----"));
 			auto pid2 = spawnProcess(nameRunFile);
 		}
@@ -1414,6 +1465,13 @@ writeln(listModuls);
 		void* rez = mainWid.addSubWindow(w1);
 		// writeln(rez, "  ", cast(void*)w1.QtObj);
 		w1.show();
+
+		// Отладочная информация
+		writeln(listFilesForParser);
+		writeln(listFileModul);
+		writeln("------");
+		string[] ls = finder1.listParserAfter();
+		writeln(ls);
 	}
 	// ______________________________________________________________
 	void runDynAct(int nom) { //-> Процедура обработки меню шаблона
@@ -1441,6 +1499,12 @@ writeln(listModuls);
 		nameFileShablons = ini["Main"]["FileShablons"];
 		nameMainFile = ini["Project"]["FileMain"];
 		for(int i; i != 10; i++) listFileModul[i] = strip(ini["Project"]["FileMod" ~ to!string(i)]);
+		// Читаю пути до SRC для парсера
+		PathForSrcDmd[0] = strip(ini["PathForSrcDmd"]["PathForSrcWin32"]);
+		PathForSrcDmd[1] = strip(ini["PathForSrcDmd"]["PathForSrcWin64"]);
+		PathForSrcDmd[2] = strip(ini["PathForSrcDmd"]["PathForSrcLinux32"]);
+		PathForSrcDmd[3] = strip(ini["PathForSrcDmd"]["PathForSrcLinux64"]);
+		PathForSrcDmd[4] = strip(ini["PathForSrcDmd"]["PathForSrcOSX64"]);
 	}
 	// ______________________________________________________________
 	string[] listFPrs() { //-> Выдать список имен файлов для парсинга
@@ -1533,7 +1597,7 @@ writeln(listModuls);
 			msgbox(
 "
 <H2>IDE5 - miniIDE for dmd</H2>
-<H3>MGW 2016 ver 0.5 от 11.12.2016</H3>
+<H3>MGW 2016 ver 0.6 от 17.03.2017</H3>
 <BR>
 <IMG src='ICONS/qte5.png'>
 <BR>

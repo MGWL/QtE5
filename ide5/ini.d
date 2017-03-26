@@ -318,6 +318,8 @@ class Ini {
 
 		try {
 			data = cast(string)std.file.read(_file);
+			if(data.length>2 && data[0]==239 && data[1]==187 && data[2]==191) data = data[3 .. $].dup;
+			
 			/+
 			File f = new File(_file, FileMode.In);
 			data = f.readString(f.size());
