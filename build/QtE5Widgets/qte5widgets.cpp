@@ -1196,6 +1196,9 @@ void eAction::Slot_v__A_N_b(bool pr) { // Новый тип слота - уни�
 void eAction::Slot_v__A_N_i(int pn) { // Новый тип слота - универсальный
     if (aSlotN != NULL)  ((ExecZIM_v__vp_n_i)aSlotN)(*(void**)aDThis, N, pn);
 }
+void eAction::Slot_v__A_N_i_i(int pn1, int pn2) { // Новый тип слота - универсальный
+    if (aSlotN != NULL)  ((ExecZIM_v__vp_n_i_i)aSlotN)(*(void**)aDThis, N, pn1, pn2);
+}
 void eAction::Slot_v__A_N_QObject(QObject* pn) {
     if (aSlotN != NULL)  ((ExecZIM_v__vp_n_i)aSlotN)(*(void**)aDThis, N, (size_t)pn);
 }

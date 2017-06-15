@@ -302,6 +302,7 @@ int LoadQt(dll ldll, bool showError) { ///  Загрузить DLL-ки Qt и Qt
 	funQt(20, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQApplication_appDirPath", showError);
 	funQt(21, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQApplication_appFilePath",showError);
 	funQt(273, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQApplication_quit",	  showError);
+	funQt(368, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQApplication_processEvents",	  showError);
 
 	funQt(276, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQApplication_exit",	  showError);
 	funQt(277, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQApplication_setStyleSheet", showError);
@@ -570,6 +571,10 @@ int LoadQt(dll ldll, bool showError) { ///  Загрузить DLL-ки Qt и Qt
 	funQt(176, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQTableWidget_setHVheaderItem",	showError);
 	funQt(241, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQTableWidget_setCurrentCell",	showError);
 
+	funQt(369, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQTableWidget_getCurrent",		showError);
+	funQt(370, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQTableWidget_item",			showError);
+	funQt(371, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQTableWidget_takeItem",		showError);
+
 	//  ------- QTableWidgetItem -------
 	funQt(164, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQTableWidgetItem_create",		showError);
 	funQt(165, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQTableWidgetItem_delete",		showError);
@@ -773,7 +778,7 @@ int LoadQt(dll ldll, bool showError) { ///  Загрузить DLL-ки Qt и Qt
 	funQt(363, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "QScriptContext_argumentCount",		showError);
 	funQt(364, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "QScriptContext_argument",				showError);
 
-	// Последний = 363
+	// Последний = 370
 	return 0;
 } ///  Загрузить DLL-ки Qt и QtE. Найти в них адреса функций и заполнить ими таблицу
 
@@ -1808,6 +1813,9 @@ class QApplication : QObject {
 	}
 	T appFilePath(T)() {  //-> Путь до приложения
 		return to!T((appFilePath!QString()).String);
+	}
+	void processEvents() { //-> Передать цикл выполнения в ОС
+		(cast(t_v__qp)pFunQt[368])(QtObj);
 	}
 	void exit(int kod) { //->
 		(cast(t_v__qp_i) pFunQt[276])(QtObj, kod);
@@ -3526,6 +3534,23 @@ class QTableWidget : QTableView {
 	}
 	QTableWidget setCurrentCell(int row, int column) { //->
 		(cast(t_v__qp_i_i) pFunQt[241])(QtObj, row, column); return this;
+	}
+	int currentColumn() { //-> Выдать текущую колонку
+		return (cast(t_i__qp_i) pFunQt[369])(QtObj, 0);
+	}
+	int currentRow() { //-> Выдать текущую строку
+		return (cast(t_i__qp_i) pFunQt[369])(QtObj, 1);
+	}
+	int colorCount() { //-> Выдать доступное для рисования количество цветов
+		return (cast(t_i__qp_i) pFunQt[369])(QtObj, 2);
+	}
+	QTableWidgetItem item(int row, int col) { //-> Выдать указатеь на QTableItem для дальнейшей обработки
+		QTableWidgetItem twi = new QTableWidgetItem('+', (cast(t_qp__qp_i_i) pFunQt[370])(QtObj, row, col));
+		twi.setNoDelete(true);
+		return twi;
+	}
+	QTableWidgetItem takeItem(int row, int col) { //-> Выдать указатеь на QTableItem для дальнейшей обработки
+		return new QTableWidgetItem('+', (cast(t_qp__qp_i_i) pFunQt[371])(QtObj, row, col));
 	}
 
 
