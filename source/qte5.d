@@ -1842,14 +1842,11 @@ class QApplication : QObject {
 
 // ================ QString ================
 class QString: QObject {
-	import std.utf:  toUTF16, toUTF8;
-
 	this() {
 		setQtObj((cast(t_qp__v)pFunQt[8])());
 	} /// Конструктор пустого QString
 	this(T)(T s) {
-		wstring ps = toUTF16(to!string(s));
-		setQtObj((cast(t_qp__qp_i)pFunQt[9])(cast(QtObjH)ps.ptr, cast(int)ps.length));
+		wstring ps = to!wstring(s); setQtObj((cast(t_qp__qp_i)pFunQt[9])(cast(QtObjH)ps.ptr, cast(int)ps.length));
 	} /// Конструктор где s - Utf-8. Пример: QString qs = new QString("Привет!");
 	this(QtObjH adr) { setQtObj(adr);
 	} /// Изготовить QString из пришедшего из вне указателя на C++ QString
@@ -1870,9 +1867,10 @@ class QString: QObject {
 		return (cast(t_ub__qp) pFunQt[18])(QtObj);
 	} /// Указатель на UNICODE
 	string toUtf8() { //-> Конвертировать внутреннее представление в wstring
-		wchar[] wss; wchar* wc = cast(wchar*) data();
-		for (int i; i != size(); i++) wss ~= *(wc + i);
-		return toUTF8(wss);
+		import std.utf: encode;
+		wchar* wc = cast(wchar*) data();
+		char[] buf; for (int i; i != size(); i++) { encode(buf, *(wc + i)); }
+		return  to!string(buf);
 	} /// Конвертировать внутреннее представление в wstring
 	@property string String() { //-> return string D from QString
 		return toUtf8();
@@ -2513,10 +2511,10 @@ class QLineEdit : QWidget {
 		(cast(t_v__qp) pFunQt[85])(QtObj);
 		return this;
 	} /// Очистить строку
-	T text(T: QString)() { //->
+	@property T text(T: QString)() { //->
 		QString qs = new QString(); (cast(t_v__qp_qp)pFunQt[86])(QtObj, qs.QtObj); return qs;
 	} /// Выдать содержимое в QString
-	T text(T)() {  //->
+	@property T text(T)() {  //->
 		return to!T(text!QString().String);
 	} /// Выдать всё содержимое в String
 	override QLineEdit setKeyPressEvent(void* adr, void* adrThis = null) { //->
