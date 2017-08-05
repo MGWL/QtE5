@@ -18,30 +18,7 @@ QtE5 - uses the following libraries depending from OS<br>
     libQtE5Widgets32.so   --->  Linux   32<br>
     libQtE5Widgets64.so   --->  Linux   64<br>
 <p>The most actual version for Windows 32 (QtE5Widgets32.dll) as on it the basic working out and testing is conducted.</p>   
-##Screenshot    
-{
-	...
-	"dependencies": { "qte5": "~>0.0.7"	},
-	...
-}
+<br>
 
-// ----------------------------------------------------------------
-// For Linux before DUB set LD_LYBRARY_PATH for libQtE5WidgetsXX.so
-// Example: LD_LIBRARY_PATH=`pwd`; export LD_LIBRARY_PATH; dub run 
-// ----------------------------------------------------------------
-
-import core.runtime;
-import qte5;
-
-int main(string[] args) {
-	string s =	"<p><font size='34' color='red'>QtE5</font>
-	<font size='34' color='blue'><i> - a small wrapper of Qt-5 for D</i></font></p>";
-	if (1 == LoadQt(dll.QtE5Widgets, true)) return 1;
-	QApplication app = new QApplication(&Runtime.cArgs.argc, Runtime.cArgs.argv, 1);
-	QLabel lb = new QLabel(null);
-	lb.setText(s).show();
-	return 0;
-}
-    
 ##Screenshot    
 ![screen](https://pp.userapi.com/c638923/v638923410/5e562/5VCDQWdgr_M.jpg)
