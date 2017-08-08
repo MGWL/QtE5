@@ -67,6 +67,11 @@ extern "C" MSVC_API  void qteQApplication_appDirPath(QtRefH app, QtRefH qs) {
 extern "C" MSVC_API  void qteQApplication_appFilePath(QtRefH app, QtRefH qs) {
     *(QString*)qs = ((QApplication*)app)->applicationFilePath();
 }
+
+extern "C" MSVC_API  void qteQApplication_processEvents(QtRefH app) {
+    ((QApplication*)app)->processEvents();
+}
+
 //* ---------------------------------------------------
 extern "C" MSVC_API  int qteQApplication_exec(QtRefH app) {
     return ((QApplication*)app)->exec();
@@ -1196,9 +1201,6 @@ void eAction::Slot_v__A_N_b(bool pr) { // Новый тип слота - уни�
 void eAction::Slot_v__A_N_i(int pn) { // Новый тип слота - универсальный
     if (aSlotN != NULL)  ((ExecZIM_v__vp_n_i)aSlotN)(*(void**)aDThis, N, pn);
 }
-void eAction::Slot_v__A_N_i_i(int pn1, int pn2) { // Новый тип слота - универсальный
-    if (aSlotN != NULL)  ((ExecZIM_v__vp_n_i_i)aSlotN)(*(void**)aDThis, N, pn1, pn2);
-}
 void eAction::Slot_v__A_N_QObject(QObject* pn) {
     if (aSlotN != NULL)  ((ExecZIM_v__vp_n_i)aSlotN)(*(void**)aDThis, N, (size_t)pn);
 }
@@ -1819,9 +1821,6 @@ extern "C" MSVC_API  void qteQTableWidget_setitem(QTableWidget* wd,
                         QTableWidgetItem* tw, int r, int c) {
     wd->setItem(r, c, tw);
 }
-extern "C" MSVC_API  QTableWidgetItem* qteQTableWidget_item(QTableWidget* wd, int r, int c) {
-    return wd->item(r, c);
-}
 // 176
 extern "C" MSVC_API  void qteQTableWidget_setHVheaderItem(QTableWidget* wd,
                                                 QTableWidgetItem* item,
@@ -1839,6 +1838,24 @@ extern "C" MSVC_API  void qteQTableWidget_setHVheaderItem(QTableWidget* wd,
 //241
 extern "C" MSVC_API  void qteQTableWidget_setCurrentCell (QTableWidget* wd, int row, int column ) {
     wd->setCurrentCell(row, column);
+}
+// 369
+extern "C" MSVC_API  int qteQTableWidget_getCurrent (QTableWidget* wd, int pr) {
+    int rez = 0;
+    switch ( pr ) {
+    case 0:   rez = wd->currentColumn();         break;
+    case 1:   rez = wd->currentRow();            break;
+    case 2:   rez = wd->colorCount();            break;
+    }
+    return rez;
+}
+// 370
+extern "C" MSVC_API  QTableWidgetItem* qteQTableWidget_item (QTableWidget* wd, int row, int col) {
+    return wd->item(row, col);
+}
+// 371
+extern "C" MSVC_API  QTableWidgetItem* qteQTableWidget_takeItem (QTableWidget* wd, int row, int col) {
+    return wd->takeItem(row, col);
 }
 
 // =========== QComboBox ==========
@@ -2823,7 +2840,7 @@ extern "C" typedef void (*ExecZIM_v__vp_vp_vp)(void*, void*, void*);
 
 static QScriptValue getSetFoo(QScriptContext *context, QScriptEngine *engine)
 {
-    bool f = false;
+    //bool f = false;
     QScriptValue callee = context->callee();
     int nom = context->argument(0).toInteger();
 

@@ -67,8 +67,6 @@ extern "C" typedef void  (*ExecZIM_v__i)(int);
 extern "C" typedef void  (*ExecZIM_v__v)(void);
 
 extern "C" typedef void  (*ExecZIM_v__vp_n_i)(void*, int, int);
-extern "C" typedef void  (*ExecZIM_v__vp_n_i_i)(void*, int, int, int);
-
 extern "C" typedef void  (*ExecZIM_v__vp_n_b)(void*, int, bool);
 extern "C" typedef void  (*ExecZIM_v__vp_n)(void*, int);
 
@@ -105,7 +103,6 @@ private slots:
     void Slot_Bool(bool);
     void Slot_Int(int);
     void Slot_v__A_N_i(int);
-    void Slot_v__A_N_i_i(int, int);
     void Slot_v__A_N_b(bool);
     void Slot_v__A_N_v();
     void Slot_v__A_N_QObject(QObject*);
