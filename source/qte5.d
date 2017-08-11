@@ -1982,7 +1982,12 @@ class QBoxLayout : QObject {
 		return this;
 	} /// Добавить виджет в выравниватель
 	QBoxLayout addLayout(QBoxLayout layout) { //-> Добавить выравниватель в выравниватель
-                layout.setNoDelete(true);
+		layout.setNoDelete(true);
+		(cast(t_v__qp_qp) pFunQt[39])(QtObj, layout.QtObj);
+		return this;
+	} /// Добавить выравниватель в выравниватель
+	QBoxLayout addLayout(QGridLayout layout) { //-> Добавить выравниватель в выравниватель
+		layout.setNoDelete(true);
 		(cast(t_v__qp_qp) pFunQt[39])(QtObj, layout.QtObj);
 		return this;
 	} /// Добавить выравниватель в выравниватель
@@ -2843,11 +2848,7 @@ class QFont : QObject {
 		return this;
 	} /// Наименование шрифта Например: "True Times"
 	QFont setFamily(T)(T str) { //->
-		setFamily((new QString(to!string(str))).QtObj);
-		return this;
-	} /// Наименование шрифта Например: "True Times"
-	QFont setFamily(T)(T str) { //->
-		setFamily((new QString(to!string(str))).QtObj);
+		setFamily((new QString(to!string(str))));
 		return this;
 	} /// Наименование шрифта Например: "True Times"
 	QFont setBold(bool enable) { //->
