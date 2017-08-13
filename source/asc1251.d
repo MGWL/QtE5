@@ -1,4 +1,5 @@
 /*
+ 13.08.2017  6:32 - Проверка и ускорение cp1251 -- Utf-8 -- cp1251
  21.04.2016 18:13 - Проверка ИНН на корректность
  31.05.2014 7:36:58
  Add x64
@@ -17,41 +18,23 @@ import std.conv;
 import std.utf;
 
 
-bool isDigit1251(char c) pure nothrow {
-	return (mm1251[c] & tDigit) != 0;
-}
+bool isDigit1251(char c)	pure nothrow { return (mm1251[c] & tDigit) != 0; }
 
-bool isLower1251E(char c) pure nothrow {
-	return (mm1251[c] & tEl) != 0;
-}
+bool isLower1251E(char c)	pure nothrow { return (mm1251[c] & tEl) != 0;    }
 
-bool isUpper1251E(char c) pure nothrow {
-	return (mm1251[c] & tEu) != 0;
-}
+bool isUpper1251E(char c)	pure nothrow { return (mm1251[c] & tEu) != 0;    }
 
-bool isLower1251R(char c) pure nothrow {
-	return (mm1251[c] & tRl) != 0;
-}
+bool isLower1251R(char c)	pure nothrow { return (mm1251[c] & tRl) != 0;    }
 
-bool isUpper1251R(char c) pure nothrow {
-	return (mm1251[c] & tRu) != 0;
-}
+bool isUpper1251R(char c)	pure nothrow { return (mm1251[c] & tRu) != 0;    }
 
-bool isLetters1251E(char c) pure nothrow {
-	return (mm1251[c] & (tEu + tEl)) != 0;
-}
+bool isLetters1251E(char c)	pure nothrow { return (mm1251[c] & (tEu + tEl)) != 0; }
 
-bool isLetters1251R(char c) pure nothrow {
-	return (mm1251[c] & (tRu + tRl)) != 0;
-}
+bool isLetters1251R(char c)	pure nothrow { return (mm1251[c] & (tRu + tRl)) != 0; }
 
-bool isLetters1251(char c) pure nothrow {
-	return (mm1251[c] & (tRu + tRl + tEu + tEl)) != 0;
-}
+bool isLetters1251(char c)	pure nothrow { return (mm1251[c] & (tRu + tRl + tEu + tEl)) != 0; }
 
-bool isPrintLetters1251(char c) pure nothrow {
-	return (mm1251[c] & (tPrint)) != 0;
-}
+bool isPrintLetters1251(char c) pure nothrow {	return (mm1251[c] & (tPrint)) != 0; }
 
 unittest {
 	foreach (char c; "0123456789")
@@ -64,12 +47,10 @@ unittest {
 		assert(asc1251.isLower1251R(c));
 	foreach (char c; uppercase1251R)
 		assert(asc1251.isUpper1251R(c));
-
 	foreach (char c; uppercase ~ lowercase)
 		assert(asc1251.isLetters1251E(c));
 	foreach (char c; uppercase1251R ~ lowercase1251R)
 		assert(asc1251.isLetters1251R(c));
-
 }
 
 char[] LTrim1251(char[] str) {
@@ -233,7 +214,9 @@ void shifr(bool sh, char* str) {
  return rez;
  }
  */
-string shifr8(T)(bool sh, T inStr) {
+ 
+
+string shifr8n(T)(bool sh, T inStr) {
 	string rez;
 	ubyte b;
 	string str = cast(string) inStr;
@@ -419,7 +402,7 @@ unittest {
 }
 
 
-char[] from1251toUtf8(char[] str) {
+char[] from1251toUtf8(char[] str) pure nothrow {
 	char[] rez;
 	foreach (char c1; str) {
 		string str1 = mm1251_Utf8[c1];
@@ -429,577 +412,67 @@ char[] from1251toUtf8(char[] str) {
 	}
 	return rez;
 }
+string from1251toUtf8(T)(T str) pure nothrow {
+	char[] rez; foreach (char c1; cast(char[])str) { string str1 = mm1251_Utf8[c1]; foreach (char c2; str1) rez ~= c2; }
+	return cast(string)rez;
+}
 
-char[] fromUtf8to1251(char[] str) {
-	char[] rez;
-	int id;
-	auto dl = str.length;
-	if (dl == 0)
-		return rez;
-	// writeln("---------", str,  "----------" );
+char[] fromUtf8to1251(char[] str) pure {
+	char[] rez;	int id;	auto dl = str.length;
+	if (dl == 0)	return rez;
 	for (int i;;) {
 		id = stride(str, i);
-		/*
-		 if(id == 1) writeln(id, " -- ", str[i], "--@@@-- str[i]=", cast(int)(str[i]));
-		 if(id == 2) writeln(id, " -- ", str[i], "--@@@-- str[i]=", cast(int)(str[i]), "   str[i+1]=", cast(int)(str[i+1]));
-		 if(id == 3) writeln(id, " -- ", str[i], "--@@@-- str[i]=", cast(int)(str[i]), "   str[i+1]=", cast(int)(str[i+1]), "   str[i+2]=", cast(int)(str[i+2])     );
-		 */
 		if (id == 1)
 			rez ~= str[i];
 		if (id == 3) {
 			if (str[i] == '\xE2') {
 				if (str[i + 1] == '\x80') {
-					switch (str[i + 2]) {
-						case '\x9A':
-							rez ~= 130;
-							break;
-						case '\x9E':
-							rez ~= 132;
-							break;
-						case '\xA6':
-							rez ~= 133;
-							break;
-						case '\xA0':
-							rez ~= 134;
-							break;
-						case '\xA1':
-							rez ~= 135;
-							break;
-							//                    case '\xAC': rez ~= 136; break;
-						case '\xB0':
-							rez ~= 137;
-							break;
-						case '\xB9':
-							rez ~= 139;
-							break;
-						case '\x98':
-							rez ~= 145;
-							break;
-						case '\x99':
-							rez ~= 146;
-							break;
-						case '\x9C':
-							rez ~= 147;
-							break;
-						case '\x9D':
-							rez ~= 148;
-							break;
-						case '\xA2':
-							rez ~= 149;
-							break;
-						case '\x93':
-							rez ~= 150;
-							break;
-						case '\x94':
-							rez ~= 151;
-							break;
-						case '\xBA':
-							rez ~= 155;
-							break;
-						default:
-							// writeln("-- length 3 --> no str[2] == ???");
-							rez ~= '?';
-							break;
-					}
+					char prb =  tbl_x80[(str[i + 2]) - 147]; if(prb == 0) rez ~= '?'; else rez ~= prb;
 				} else {
 					if (str[i + 1] == '\x82') {
 						switch (str[i + 2]) {
-							//                      case '\xAC': rez ~= 128; break;
-							case '\xAC':
-								rez ~= 136;
-								break;
-							default:
-								//writeln("-- length 3 --> no str[2] == ???");
-								rez ~= '?';
-								break;
+							case '\xAC':		rez ~= 136;		break;
+							default:			rez ~= '?';		break;
 						}
 					} else {
 						if (str[i + 1] == '\x84') {
 							switch (str[i + 2]) {
-								case '\x96':
-									rez ~= 185;
-									break;
-								case '\xA2':
-									rez ~= 153;
-									break;
-								default:
-									//writeln("-- length 3 --> no str[2] == ???");
-									rez ~= '?';
-									break;
+								case '\x96':	rez ~= 185;		break;
+								case '\xA2':	rez ~= 153;		break;
+								default:		rez ~= '?';		break;
 							}
 						}
-						//writeln("-- length 3 --> no str[1] <> x80");
 					}
 				}
 			} else {
-				//writeln("-- length 3 --> no str[0] <> xE2");
 			}
-			//writeln("--103-- str[i]=", to!int(str[i]), "   str[i+1]=", to!int(str[i+1]), "   str[i+2]=", to!int(str[i+2])     );
 		}
 		if (id == 4) {
-			/* writeln("--104--"); */
 		}
 		if (id == 2) {
 			switch (str[i]) {
 				case '\xD0':
-					switch (str[i + 1]) {
-
-						case '\x86':
-							rez ~= 178;
-							break;
-						case '\x87':
-							rez ~= 175;
-							break;
-						case '\x84':
-							rez ~= 170;
-							break;
-						case '\x88':
-							rez ~= 163;
-							break;
-						case '\x8E':
-							rez ~= 161;
-							break;
-						case '\x8F':
-							rez ~= 143;
-							break;
-						case '\x8B':
-							rez ~= 142;
-							break;
-						case '\x8C':
-							rez ~= 141;
-							break;
-						case '\x8A':
-							rez ~= 140;
-							break;
-						case '\x89':
-							rez ~= 138;
-							break;
-						case '\x81':
-							rez ~= 168;
-							break;
-						case '\x82':
-							rez ~= 128;
-							break;
-						case '\x83':
-							rez ~= 129;
-							break;
-						case '\x85':
-							rez ~= 189;
-							break;
-						case '\x90':
-							rez ~= 192;
-							break;
-						case '\x91':
-							rez ~= 193;
-							break;
-						case '\x92':
-							rez ~= 194;
-							break;
-						case '\x93':
-							rez ~= 195;
-							break;
-						case '\x94':
-							rez ~= 196;
-							break;
-						case '\x95':
-							rez ~= 197;
-							break;
-						case '\x96':
-							rez ~= 198;
-							break;
-						case '\x97':
-							rez ~= 199;
-							break;
-						case '\x98':
-							rez ~= 200;
-							break;
-						case '\x99':
-							rez ~= 201;
-							break;
-						case '\x9A':
-							rez ~= 202;
-							break;
-						case '\x9B':
-							rez ~= 203;
-							break;
-						case '\x9C':
-							rez ~= 204;
-							break;
-						case '\x9D':
-							rez ~= 205;
-							break;
-						case '\x9E':
-							rez ~= 206;
-							break;
-						case '\x9F':
-							rez ~= 207;
-							break;
-						case '\xA0':
-							rez ~= 208;
-							break;
-						case '\xA1':
-							rez ~= 209;
-							break;
-						case '\xA2':
-							rez ~= 210;
-							break;
-						case '\xA3':
-							rez ~= 211;
-							break;
-						case '\xA4':
-							rez ~= 212;
-							break;
-						case '\xA5':
-							rez ~= 213;
-							break;
-						case '\xA6':
-							rez ~= 214;
-							break;
-						case '\xA7':
-							rez ~= 215;
-							break;
-						case '\xA8':
-							rez ~= 216;
-							break;
-						case '\xA9':
-							rez ~= 217;
-							break;
-						case '\xAA':
-							rez ~= 218;
-							break;
-						case '\xAB':
-							rez ~= 219;
-							break;
-						case '\xAC':
-							rez ~= 220;
-							break;
-						case '\xAD':
-							rez ~= 221;
-							break;
-						case '\xAE':
-							rez ~= 222;
-							break;
-						case '\xAF':
-							rez ~= 223;
-							break;
-						case '\xB0':
-							rez ~= 224;
-							break;
-						case '\xB1':
-							rez ~= 225;
-							break;
-						case '\xB2':
-							rez ~= 226;
-							break;
-						case '\xB3':
-							rez ~= 227;
-							break;
-						case '\xB4':
-							rez ~= 228;
-							break;
-						case '\xB5':
-							rez ~= 229;
-							break;
-						case '\xB6':
-							rez ~= 230;
-							break;
-						case '\xB7':
-							rez ~= 231;
-							break;
-						case '\xB8':
-							rez ~= 232;
-							break;
-						case '\xB9':
-							rez ~= 233;
-							break;
-						case '\xBA':
-							rez ~= 234;
-							break;
-						case '\xBB':
-							rez ~= 235;
-							break;
-						case '\xBC':
-							rez ~= 236;
-							break;
-						case '\xBD':
-							rez ~= 237;
-							break;
-						case '\xBE':
-							rez ~= 238;
-							break;
-						case '\xBF':
-							rez ~= 239;
-							break;
-						default:
-							// writeln("--10--");
-							rez ~= '?';
-							break;
-					}
-					break;
+					char prb =  tbl_xD0[(str[i + 1]) - 129]; if(prb == 0) rez ~= '?'; else rez ~= prb;	break;
 				case '\xD1':
-					switch (str[i + 1]) {
-						case '\x97':
-							rez ~= 191;
-							break;
-						case '\x95':
-							rez ~= 190;
-							break;
-						case '\x98':
-							rez ~= 188;
-							break;
-						case '\x94':
-							rez ~= 186;
-							break;
-						case '\x96':
-							rez ~= 179;
-							break;
-						case '\x9E':
-							rez ~= 162;
-							break;
-						case '\x9F':
-							rez ~= 159;
-							break;
-						case '\x9B':
-							rez ~= 158;
-							break;
-						case '\x9C':
-							rez ~= 157;
-							break;
-						case '\x9A':
-							rez ~= 156;
-							break;
-						case '\x99':
-							rez ~= 154;
-							break;
-						case '\x91':
-							rez ~= 184;
-							break;
-						case '\x93':
-							rez ~= 131;
-							break;
-						case '\x92':
-							rez ~= 144;
-							break;
-						case '\x80':
-							rez ~= 240;
-							break;
-						case '\x81':
-							rez ~= 241;
-							break;
-						case '\x82':
-							rez ~= 242;
-							break;
-						case '\x83':
-							rez ~= 243;
-							break;
-						case '\x84':
-							rez ~= 244;
-							break;
-						case '\x85':
-							rez ~= 245;
-							break;
-						case '\x86':
-							rez ~= 246;
-							break;
-						case '\x87':
-							rez ~= 247;
-							break;
-						case '\x88':
-							rez ~= 248;
-							break;
-						case '\x89':
-							rez ~= 249;
-							break;
-						case '\x8A':
-							rez ~= 250;
-							break;
-						case '\x8B':
-							rez ~= 251;
-							break;
-						case '\x8C':
-							rez ~= 252;
-							break;
-						case '\x8D':
-							rez ~= 253;
-							break;
-						case '\x8E':
-							rez ~= 254;
-							break;
-						case '\x8F':
-							rez ~= 255;
-							break;
-						case '\xA2':
-							rez ~= 210;
-							break;
-						case '\xA3':
-							rez ~= 211;
-							break;
-						case '\xA4':
-							rez ~= 212;
-							break;
-						case '\xA5':
-							rez ~= 213;
-							break;
-						case '\xA6':
-							rez ~= 214;
-							break;
-						case '\xA7':
-							rez ~= 215;
-							break;
-						case '\xA8':
-							rez ~= 216;
-							break;
-						case '\xA9':
-							rez ~= 217;
-							break;
-						case '\xAA':
-							rez ~= 218;
-							break;
-						case '\xAB':
-							rez ~= 219;
-							break;
-						case '\xAC':
-							rez ~= 220;
-							break;
-						case '\xAD':
-							rez ~= 221;
-							break;
-						case '\xAE':
-							rez ~= 222;
-							break;
-						case '\xAF':
-							rez ~= 223;
-							break;
-						case '\xB0':
-							rez ~= 224;
-							break;
-						case '\xB1':
-							rez ~= 225;
-							break;
-						case '\xB2':
-							rez ~= 226;
-							break;
-						case '\xB3':
-							rez ~= 227;
-							break;
-						case '\xB4':
-							rez ~= 228;
-							break;
-						case '\xB5':
-							rez ~= 229;
-							break;
-						case '\xB6':
-							rez ~= 230;
-							break;
-						case '\xB7':
-							rez ~= 231;
-							break;
-						case '\xB8':
-							rez ~= 232;
-							break;
-						case '\xB9':
-							rez ~= 233;
-							break;
-						case '\xBA':
-							rez ~= 234;
-							break;
-						case '\xBB':
-							rez ~= 235;
-							break;
-						case '\xBC':
-							rez ~= 236;
-							break;
-						case '\xBD':
-							rez ~= 237;
-							break;
-						default:
-							// writeln("--0--");
-							// writeln("--0-- str[i]=", to!int(str[i]), "   str[i+1]=", to!int(str[i+1]), "   str[i+2]=", to!int(str[i+2])     );
-							rez ~= '2';
-							break;
-					}
-					break;
+					char prb =  tbl_xD1[(str[i + 1]) - 128]; if(prb == 0) rez ~= '2'; else rez ~= prb;	break;
 				case '\xD2':
 					switch (str[i + 1]) {
-						case '\x91':
-							rez ~= 180;
-							break;
-						case '\x90':
-							rez ~= 165;
-							break;
-						default:
-							rez ~= '7';
-							break;
+						case '\x91':	rez ~= 180;		break;
+						case '\x90':	rez ~= 165;		break;
+						default:		rez ~= '7';		break;
 					}
 					break;
 				case '\xD3':
-					//writeln("--2--");
 					break;
 				case '\xC2':
-					switch (str[i + 1]) {
-						case '\x98':
-							rez ~= 152;
-							break;
-						case '\xA0':
-							rez ~= 160;
-							break;
-						case '\xA4':
-							rez ~= 164;
-							break;
-						case '\xA6':
-							rez ~= 166;
-							break;
-						case '\xA7':
-							rez ~= 167;
-							break;
-						case '\xA9':
-							rez ~= 169;
-							break;
-						case '\xAC':
-							rez ~= 172;
-							break;
-						case '\xAD':
-							rez ~= 173;
-							break;
-						case '\xAE':
-							rez ~= 174;
-							break;
-						case '\xB0':
-							rez ~= 176;
-							break;
-						case '\xB1':
-							rez ~= 177;
-							break;
-						case '\xB5':
-							rez ~= 181;
-							break;
-						case '\xB6':
-							rez ~= 182;
-							break;
-						case '\xB7':
-							rez ~= 183;
-							break;
-						case '\xBB':
-							rez ~= 187;
-							break;
-						case '\xAB':
-							rez ~= 171;
-							break;
-						default:
-							//writeln("--3--");
-							rez ~= '3';
-							break;
-					}
-					break;
+					char prb =  tbl_xC2[(str[i + 1]) - 152]; if(prb == 0) rez ~= '3'; else rez ~= prb;	break;
 				default:
-					//writeln("--4--");
-					rez ~= '4';
+					rez ~= '?';
 					break;
 			}
 		}
-		i = i + id;
-		if (i >= dl)
-			break;
+		i = i + id;		
+		if (i >= dl)	break;
 	}
 	return rez;
 }
@@ -1025,9 +498,6 @@ string toCON(T)(T s) {
 		// return to!string(zz);
 	}
 	version (linux) {
-		return cast(string)s;
-	}
-	version (OSX) {
 		return cast(string)s;
 	}
 }
@@ -1201,6 +671,24 @@ private immutable int[sByte]  mm1251= [/* 0 */
 private immutable uppercase1251R = "\xC0\xC1\xC2\xC3\xC4\xC5\xC6\xC7\xC8\xC9\xCA\xCB\xCC\xCD\xCE\xCF\xD0\xD1\xD2\xD3\xD4\xD5\xD6\xD7\xD8\xD9\xDA\xDB\xDC\xDD\xDE\xDF"; /// А..Я
 private immutable lowercase1251R = "\xE0\xE1\xE2\xE3\xE4\xE5\xE6\xE7\xE8\xE9\xEA\xEB\xEC\xED\xEE\xEF\xF0\xF1\xF2\xF3\xF4\xF5\xF6\xF7\xF8\xF9\xFA\xFB\xFC\xFD\xFE\xFF"; /// А..Я
 private immutable _1251_866 = "\x00\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0A\x0B\x0C\x0D\x0E\x0F\x10\x11\x12\x13\x14\x15\x18\x19\x1A\x1B......\x20!\x22#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~.+++++++++++++++++++++++++++++++++++++++1\xF0345+++++++++++1\xF1\xFC++++++\x80\x81\x82\x83\x84\x85\x86\x87\x88\x89\x8A\x8B\x8C\x8D\x8E\x8F\x90\x91\x92\x93\x94\x95\x96\x97\x98\x99\x9A\x9B\x9C\x9D\x9E\x9F\xA0\xA1\xA2\xA3\xA4\xA5\xA6\xA7\xA8\xA9\xAA\xAB\xAC\xAD\xAE\xAF\xE0\xE1\xE2\xE3\xE4\xE5\xE6\xE7\xE8\xE9\xEA\xEB\xEC\xED\xEE\xEF";
+private immutable char[62] tbl_xD1 = [
+240,241,242,243,244,245,246,247,248,249,250,251,252,253,254,255,  0,184,144,131,186,190,
+179,191,188,154,156,158,157,  0,162,159,  0,  0,210,211,212,213,214,215,216,217,218,219,
+220,221,222,223,224,225,226,227,228,229,230,231,232,233,234,235,236,237
+];
+private immutable char[63] tbl_xD0 = [
+168,128,129,170,189,178,175,163,138,140,142,141,  0,161,143,192,193,194,195,196,197,198,
+199,200,201,202,203,204,205,206,207,208,209,210,211,212,213,214,215,216,217,218,219,220,
+221,222,223,224,225,226,227,228,229,230,231,232,233,234,235,236,237,238,239
+];
+private immutable char[40] tbl_x80 = [
+150,151,  0,  0,  0,145,146,130,  0,147,148,132,  0,134,135,149,  0,  0,  0,133,  0,  0,
+  0,  0,  0,  0,  0,  0,  0,137,  0,  0,  0,  0,  0,  0,  0,  0,139,155
+];
+private immutable char[36] tbl_xC2 = [
+152,  0,  0,  0,  0,  0,  0,  0,160,  0,  0,  0,164,  0,166,167,  0,169,  0,171,172,173,
+174,  0,176,177,  0,  0,  0,181,182,183,  0,  0,  0,187
+];
 
 bool isAtr1251(char c, int atr) {
 	return (mm1251[c] & atr) != 0;
