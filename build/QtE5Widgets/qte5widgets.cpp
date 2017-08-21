@@ -787,10 +787,10 @@ extern "C" MSVC_API  void qteQBoxLayout_addWidget(QtRefH BoxLyout, QtRefH widget
 extern "C" MSVC_API  void qteQBoxLayout_addLayout(QtRefH BoxLyout, QtRefH layout) {
 	((QBoxLayout*)BoxLyout)->addLayout((QBoxLayout*)layout);
 }
-extern "C" MSVC_API  void qteQBoxLayout_setSpasing(QBoxLayout* BoxLyout, int sp) {
+extern "C" MSVC_API  void qteQBoxLayout_setSpacing(QBoxLayout* BoxLyout, int sp) {
     BoxLyout->setSpacing(sp);
 }
-extern "C" MSVC_API  int qteQBoxLayout_spasing(QBoxLayout* BoxLyout) {
+extern "C" MSVC_API  int qteQBoxLayout_spacing(QBoxLayout* BoxLyout) {
     return BoxLyout->spacing();
 }
 extern "C" MSVC_API  void qteQBoxLayout_setMargin(QBoxLayout* BoxLyout, int sp) {
@@ -944,13 +944,13 @@ extern "C" MSVC_API  void qteQSize_delete1(QSize* wd) {
 extern "C" MSVC_API  int qteQSize_width(QSize* ev) {
     return ev->width();
 }
-extern "C" MSVC_API  int qteQSize_heigth(QSize* ev) {
+extern "C" MSVC_API  int qteQSize_height(QSize* ev) {
     return ev->height();
 }
 extern "C" MSVC_API  void qteQSize_setWidth(QSize* ev, int wd) {
     return ev->setWidth(wd);
 }
-extern "C" MSVC_API  void qteQSize_setHeigth(QSize* ev, int ht) {
+extern "C" MSVC_API  void qteQSize_setHeight(QSize* ev, int ht) {
     return ev->setHeight(ht);
 }
 // ===================== QKeyEvent ====================

@@ -132,7 +132,7 @@ class CFinder { //=> Поисковик. Помнит все слова в фа�
 	}
 	// ______________________________________________________________
 	string getPathDmd2(string[5] getPathDmd) { //-> // Выдать путь до библиотеки src из dmd2
-		writeln("---1---", getPathDmd);
+		// writeln("---1---", getPathDmd);
 		string rez;
 		version (Windows) {
 			string myPath = environment["PATH"];

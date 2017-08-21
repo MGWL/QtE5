@@ -1,4 +1,4 @@
-﻿//------------------------------
+//------------------------------
 // Прототип IDE для D + QtE5
 // MGW 29.04.2016 17:00:10
 //------------------------------
@@ -219,9 +219,7 @@ class CEditWin: QWidget { //=> Окно редактора D кода
 		// Делаю массив для таблицы
  		for(int i; i != sizeTabHelp; i++) {
 			mTi[i] = new QTableWidgetItem(0);
-			// mTi[i].setNoDelete(true);
 			mTi[i].setText("");
-			// mTi[i].setBackground(qbr);
 			teHelp.setItem(i, 0, mTi[i]);
 		}
 		// teHelp.setEnabled(false);
@@ -433,7 +431,7 @@ mm:
 		foreach(el; listPars) {
 			// Если имя отсутст в списке уже распарсенных, то распарсить и добавить
 			if(!parentQtE5.finder1.isFileInParserAfter(el)) {
-				parentQtE5.showInfo("Parsing: [" ~ el ~ "]");
+				// parentQtE5.showInfo("Parsing: [" ~ el ~ "]");
 				if(exists(el)) {
 					parentQtE5.finder1.addFile(el);
 				} else {
@@ -441,6 +439,7 @@ mm:
 				parentQtE5.finder1.addParserAfter(el);
 			}
 		}
+		parentQtE5.showInfo("Parsing: " ~ join(listPars, ' '));
 	}
  	// ______________________________________________________________
 	void runCtrlS() { //-> Сохранить файл на диске
@@ -465,7 +464,7 @@ mm:
 	// ______________________________________________________________
 	void runSliderTab(int nom) { //-> Обработка события слайдера таблицы
 		string zn = to!string(nom);
-		zn = "font-size: " ~ zn ~ "pt; font-family: 'Consolas';";
+		zn = "font-size: " ~ zn ~ "pt; font-family: 'Inconsolata';";
 		teHelp.setStyleSheet(zn);
 		teEdit.setStyleSheet(zn);
 		// lineNumberArea.setStyleSheet(zn);
@@ -553,7 +552,7 @@ mm:
 							case QtE.Key.Key_D:
 								teEdit.textCursor(txtCursor); // Выдернули курсор из QPlainText
 								txtCursor.beginEditBlock();
-									txtCursor.select(QTextCursor.SelectionType.BlockUnderCursor).removeSelectedText();;
+									txtCursor.select(QTextCursor.SelectionType.BlockUnderCursor).removeSelectedText();
 									txtCursor.movePosition(QTextCursor.MoveOperation.StartOfBlock);
 									txtCursor.movePosition(QTextCursor.MoveOperation.NextBlock);
 								txtCursor.endEditBlock();
@@ -852,6 +851,8 @@ class CFormaMain: QMainWindow { //=> Основной MAIN класс прило
 	string[]	sShabl;						// Массив шаблонов. Первые 2 цифры - индекс
 	CFinder finder1;						// Поисковик
 	QCheckBox cbDebug, cb3264;
+	QLineEdit leArgApp;
+	QLabel llArgApp;
 	string[] swCompile = [ "qte5", "asc1251" ];
 
 	QLabel w1;
@@ -1021,6 +1022,8 @@ class CFormaMain: QMainWindow { //=> Основной MAIN класс прило
 		cb3264.setText("m64");
 		cb3264.setToolTip("-m64 --> in parametrs of compile");
 
+		leArgApp = new QLineEdit(this);
+		llArgApp = new QLabel(this); llArgApp.setText(" App args: ");
 		// Настраиваем ToolBar
 		tb.setToolButtonStyle(QToolBar.ToolButtonStyle.ToolButtonTextBesideIcon);
 		tb
@@ -1031,7 +1034,10 @@ class CFormaMain: QMainWindow { //=> Основной MAIN класс прило
 			.addAction(acRunProj)
 			.addSeparator()
 			.addWidget(cbDebug)
-			.addWidget(cb3264);
+			.addWidget(cb3264)
+			.addSeparator()
+			.addWidget(llArgApp)
+			.addWidget(leArgApp);
 
 		addToolBar(QToolBar.ToolBarArea.TopToolBarArea, tb);
 
@@ -1290,6 +1296,7 @@ class CFormaMain: QMainWindow { //=> Основной MAIN класс прило
 	// ______________________________________________________________
 	void runRunProj() { //-> Компиляция и запуск проекта
 		string[] listModuls; // Список модулей
+		string ss;
 		if(nameMainFile == "") {
 			msgbox("Не задано имя файла с main()", "Внимание! стр: "
 				~ to!string(__LINE__), QMessageBox.Icon.Critical);
@@ -1304,7 +1311,7 @@ class CFormaMain: QMainWindow { //=> Основной MAIN класс прило
 		}
 		// Готовимся к компиляции
 		string nameLog = constNameLog;
-writeln(listModuls);
+		ss = join(listModuls, ' ');
 		auto logFile = File(nameLog, "w");
 			auto pid = spawnProcess(listModuls,
 				std.stdio.stdin,
@@ -1323,9 +1330,10 @@ writeln(listModuls);
 				nameRunFile = "./" ~ nameMainFile[0..$-2];
 			}
 			writeln();
-			writeln("_________________________________________");
-			writeln(toCON("---- Выполняю: " ~ nameRunFile), " ------------------------");
-			// msgbox(nameRunFile ~ " -- запускаю программу", "Внимание!");
+			writeln("----------------------------------------");
+			writeln("Compile: " ~ ss);
+			writeln("Run: " ~ nameRunFile);
+			writeln("----------------------------------------");
 			try {
 				auto pid2 = spawnProcess([nameRunFile]);
 			} catch(Throwable) {
@@ -1378,7 +1386,7 @@ writeln(listModuls);
 	}
 	// ______________________________________________________________
 	void runRunApp() { //-> Компиляция и запуск
-		int aWinEd = actWinEdit();
+		int aWinEd = actWinEdit(); string ss;
 		if(aWinEd == -1) {
 			msgbox("Нет активного окна для выполнения кода!", "Внимание! стр: "
 				~ to!string(__LINE__), QMessageBox.Icon.Critical);
@@ -1407,6 +1415,8 @@ writeln(listModuls);
 			else
 				swCompileMain ~= "-m32";
 
+			ss = join(swCompileMain, ' ');
+			showInfo("Компиляция: " ~ ss);
 			auto pid = spawnProcess(swCompileMain,
 				std.stdio.stdin,
 				std.stdio.stdout,
@@ -1416,11 +1426,15 @@ writeln(listModuls);
 			string sLog = cast(string)read(nameLog);
 			msgbox(sLog, "Compile  ...", QMessageBox.Icon.Critical);
 		} else {
+			string appargs = leArgApp.text!string();
 			string nameRunFile = nameFile[0..$-2];
 			writeln();
-			writeln("_________________________________________");
-			writeln(toCON("---- Выполняю: " ~ nameRunFile ~ " ----"));
-			auto pid2 = spawnProcess(nameRunFile);
+			writeln("----------------------------------------");
+			writeln("Compile: " ~ ss);
+			writeln("Run: " ~ nameRunFile ~ " " ~ appargs);
+			writeln("----------------------------------------");
+			auto pid2 = spawnProcess([ nameRunFile, appargs ]
+			);
 		}
 		winEdit[aWinEd].teEdit.setFocus();
 	}
