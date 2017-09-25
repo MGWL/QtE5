@@ -22,8 +22,8 @@ import std.conv; // Convert to string
 import std.stdio;
 
 int verQt5Eu = 0;
-int verQt5El = 07;
-string verQt5Ed = "18.11.16 09:52";
+int verQt5El = 08;
+string verQt5Ed = "25.09.17 11:02";
 
 alias PTRINT = int;
 alias PTRUINT = uint;
@@ -184,7 +184,7 @@ private void* GetHlib(T)(T name) {
 }
 
 // Найти адреса функций в DLL. To find addresses of executed out functions in DLL
-private void* GetPrAddres(T)(bool isLoad, void* hLib, T nameFun) {
+private void* GetPrAddress(T)(bool isLoad, void* hLib, T nameFun) {
 	// // Искать или не искать функцию. Find or not find function in library
 	if (isLoad) return GetProcAddress(hLib, nameFun.ptr);
 	return cast(void*) 1;
@@ -214,7 +214,7 @@ enum dll {
 
 // Найти и сохранить адрес функции DLL
 void funQt(int n, bool b, void* h, string s, string name, bool she) {
-	pFunQt[n] = GetPrAddres(b, h, name); if (!pFunQt[n]) MessageErrorLoad(she, name, s);
+	pFunQt[n] = GetPrAddress(b, h, name); if (!pFunQt[n]) MessageErrorLoad(she, name, s);
 	// writeln(name, " ", pFunQt[n]);
 }
 
@@ -223,7 +223,7 @@ int LoadQt(dll ldll, bool showError) { ///  Загрузить DLL-ки Qt и Qt
 	string	sCore5, sGui5, sWidget5, sQtE5Widgets;
 	void*	hCore5, hGui5, hWidget5, hQtE5Widgets;
 
-	// Add path to directory with realy file Qt5 DLL
+	// Add path to directory with real file Qt5 DLL
 	version (Windows) {
 		version (X86) {		// ... 32 bit code ...
 			sCore5			= "Qt5Core.dll";
@@ -238,7 +238,7 @@ int LoadQt(dll ldll, bool showError) { ///  Загрузить DLL-ки Qt и Qt
 			sQtE5Widgets	= "QtE5Widgets64.dll";
 		}
 	}
-	// Use symlink for create link on realy file Qt5
+	// Use symlink for create link on real file Qt5
 	version (linux) {
 		version (X86) {		// ... 32 bit code ...
 			sCore5			= "libQt5Core.so";
@@ -253,7 +253,7 @@ int LoadQt(dll ldll, bool showError) { ///  Загрузить DLL-ки Qt и Qt
 			sQtE5Widgets	= "libQtE5Widgets64.so";
 		}
 	}
-	// Use symlink for create link on realy file Qt5
+	// Use symlink for create link on real file Qt5
 	// Only 64 bit version Mac OS X (10.9.5 Maveric)
 	version (OSX) {
 
@@ -327,7 +327,7 @@ int LoadQt(dll ldll, bool showError) { ///  Загрузить DLL-ки Qt и Qt
 	funQt(51, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQWidget_setCloseEvent",   showError);
 	funQt(52, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQWidget_setResizeEvent",  showError);
 	funQt(131,bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQWidget_setFont",         showError);
-	funQt(148,bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQWidget_winid",           showError);
+	funQt(148,bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQWidget_winId",           showError);
 	funQt(172,bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQWidget_getPr",           showError);
 	funQt(259,bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQWidget_getBoolXX",       showError);
 	funQt(279,bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQWidget_setGeometry",     showError);
@@ -388,7 +388,7 @@ int LoadQt(dll ldll, bool showError) { ///  Загрузить DLL-ки Qt и Qt
 	funQt(43, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQFrame_setFrameShape",    showError);
 	funQt(44, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQFrame_setFrameShadow",   showError);
 	funQt(45, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQFrame_setLineWidth",     showError);
-	funQt(290,bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteFrame_listChildren",      showError);
+	funQt(290,bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQFrame_listChildren",      showError);
 
 	// ------- QLabel --------
 	funQt(46, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQLabel_create1",          showError);
@@ -510,7 +510,7 @@ int LoadQt(dll ldll, bool showError) { ///  Загрузить DLL-ки Qt и Qt
 	funQt(120, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQMessageBox_create",			showError);
 	funQt(121, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQMessageBox_delete",			showError);
 	funQt(122, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQMessageBox_setXX1",			showError);
-	funQt(123, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQMessageBox_setStandartButtons",	showError);
+	funQt(123, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQMessageBox_setStandardButtons",	showError);
 	//  ------- QFont -------
 	funQt(127, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQFont_create",					showError);
 	funQt(128, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQFont_delete",					showError);
@@ -566,7 +566,7 @@ int LoadQt(dll ldll, bool showError) { ///  Загрузить DLL-ки Qt и Qt
 	funQt(161, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQTableWidget_create",			showError);
 	funQt(162, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQTableWidget_delete",			showError);
 	funQt(163, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQTableWidget_setRC",			showError);
-	funQt(167, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQTableWidget_setitem",			showError);
+	funQt(167, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQTableWidget_setItem",			showError);
 
 	funQt(176, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQTableWidget_setHVheaderItem",	showError);
 	funQt(241, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQTableWidget_setCurrentCell",	showError);
@@ -583,8 +583,13 @@ int LoadQt(dll ldll, bool showError) { ///  Загрузить DLL-ки Qt и Qt
 	funQt(168, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQTableWidgetItem_setYY",		showError);
 	funQt(169, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQTableWidget_item",			showError);
 	funQt(170, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQTableWidgetItem_text",		showError);
-	funQt(171, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQTableWidgetItem_setAligment",	showError);
+	funQt(171, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQTableWidgetItem_setAlignment",	showError);
 	funQt(180, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQTableWidgetItem_setBackground",	showError);
+	funQt(372, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQTableWidgetItem_setFlags",	showError);
+	funQt(373, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQTableWidgetItem_flags",		showError);
+	funQt(374, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQTableWidgetItem_setSelected",	showError);
+	funQt(375, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQTableWidgetItem_isSelected",	showError);
+	funQt(376, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQTableWidgetItem_setIcon",		showError);
 
 	//  ------- QBrush -------
 	funQt(177, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQBrush_create1",				showError);
@@ -778,7 +783,7 @@ int LoadQt(dll ldll, bool showError) { ///  Загрузить DLL-ки Qt и Qt
 	funQt(363, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "QScriptContext_argumentCount",		showError);
 	funQt(364, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "QScriptContext_argument",				showError);
 
-	// Последний = 370
+	// Последний = 375
 	return 0;
 } ///  Загрузить DLL-ки Qt и QtE. Найти в них адреса функций и заполнить ими таблицу
 
@@ -1119,6 +1124,19 @@ class QtE {
 		PartiallyChecked = 1,	// The item is partially checked. Items in hierarchical models may be partially checked if some, but not all, of their children are checked.
 		Checked		= 2			// Выбран The item is checked.
 	}
+	 enum ItemFlag {
+        NoItemFlags = 0,				
+        ItemIsSelectable = 1,			// Он может быть выделен.
+        ItemIsEditable = 2,				// Он может быть отредактирован.
+        ItemIsDragEnabled = 4,			// Он может перетаскиваться.
+        ItemIsDropEnabled = 8,			// Он может быть использован, как цель перетаскивания.
+        ItemIsUserCheckable = 16,		// Он может быть отмечен пользователем или наоборот.
+        ItemIsEnabled = 32,				// Пользователь может взаимодействовать с элементом.
+        ItemIsAutoTristate = 64,		// Отмечаемый элемент с тремя различными состояниями.
+        ItemNeverHasChildren = 128,
+        ItemIsUserTristate = 256
+    }
+	
 }
 // ================ QObject ================
 /++
@@ -1554,7 +1572,7 @@ class QWidget: QPaintDevice {
 	QWidget setFont(QFont font) { //->
 		(cast(t_v__qp_qp) pFunQt[131])(QtObj, font.QtObj); return this;
 	}
-	void* winid() { //->
+	void* winId() { //->
 		return (cast(t_vp__qp) pFunQt[148])(QtObj);
 	}
 	int x() { //->
@@ -3525,6 +3543,7 @@ class QTableWidget : QTableView {
 	} /// Удалено содержание, но заголовки и прочее остаётся
 
 	QTableWidget setItem(int r, int c, QTableWidgetItem twi) { //->
+		twi.setNoDelete(true);
 		(cast(t_v__qp_qp_i_i) pFunQt[167])(QtObj, twi.QtObj, r, c); return this;
 	}
 	QTableWidget setHorizontalHeaderItem(int c, QTableWidgetItem twi) { //->
@@ -3638,6 +3657,23 @@ class QTableWidgetItem : QObject {
 		(cast(t_v__qp_qp_i)pFunQt[180])(QtObj, brush.QtObj, 1);
 		return this;
 	}
+ 	QTableWidgetItem setFlags(QtE.ItemFlag flags) { //-> Установить флаги на ячейку. Выбирать, редактировать и т.д.
+		(cast(t_v__qp_i)pFunQt[372])(QtObj, flags);
+		return this;
+	}
+ 	QtE.ItemFlag flags() { //-> Прочитать флаги на ячейку.
+		return cast(QtE.ItemFlag)(cast(t_i__qp)pFunQt[373])(QtObj);
+	}
+ 	QTableWidgetItem setSelected(bool select) { //-> Установить признак "выбран"
+		(cast(t_v__qp_b)pFunQt[374])(QtObj, select);
+		return this;
+	}
+ 	bool isSelected() { //-> 
+		return (cast(t_b__qp)pFunQt[375])(QtObj);
+	}
+	QTableWidgetItem  setIcon(QIcon ik) { //->
+		(cast(t_v__qp_qp) pFunQt[376])(QtObj, ik.QtObj); return this;
+	} ///
 }
 // ================ QComboBox ================
 /++

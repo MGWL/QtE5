@@ -433,7 +433,7 @@ extern "C" MSVC_API  void qteQWidget_exWin2(QWidget* wd, int pr, int w, int h) {
 extern "C" MSVC_API  void qteQWidget_setFont(QWidget* wd, QFont* fn) {
     wd->setFont(*fn);
 }
-extern "C" MSVC_API  void* qteQWidget_winid(QWidget* wd) {
+extern "C" MSVC_API  void* qteQWidget_winId(QWidget* wd) {
     return (void*)wd->winId();
 }
 extern "C" MSVC_API  int qteQWidget_getPr(QWidget* wd, int pr) {
@@ -869,7 +869,7 @@ extern "C" MSVC_API  void qteQFrame_setLineWidth(QtRefH fr, int sh)
 {
     ((QFrame*)fr)->setLineWidth(sh);
 }
-extern "C" MSVC_API  void qteFrame_listChildren(eQFrame* wd) {
+extern "C" MSVC_API  void qteQFrame_listChildren(eQFrame* wd) {
     QObjectList list = wd->children();
 
     for(int i = 0; i != list.count(); i++) {
@@ -1486,7 +1486,7 @@ extern "C" MSVC_API  void qteQMessageBox_setXX1(QMessageBox* wd, void* q, int pr
     case 2:   wd->setInformativeText(*(QString*)q);     break;
     }
 }
-extern "C" MSVC_API  void qteQMessageBox_setStandartButtons(QMessageBox* wd,
+extern "C" MSVC_API  void qteQMessageBox_setStandardButtons(QMessageBox* wd,
         QMessageBox::StandardButton kn, int pr) {
     switch ( pr ) {
     case 0:   wd->setStandardButtons(kn);               break;
@@ -1782,7 +1782,7 @@ extern "C" MSVC_API  int qteQTableWidgetItem_setYY(QTableWidgetItem* wd, int pr)
 extern "C" MSVC_API  void qteQTableWidgetItem_text(QTableWidgetItem* wd, QString* qs) {
     *qs = wd->text();
 }
-extern "C" MSVC_API  void qteQTableWidgetItem_setAligment(QTableWidgetItem* wd, int alig) {
+extern "C" MSVC_API  void qteQTableWidgetItem_setAlignment(QTableWidgetItem* wd, int alig) {
     wd->setTextAlignment(alig);
 }
 extern "C" MSVC_API  void qteQTableWidgetItem_setBackground(QTableWidgetItem* wd, QBrush* qb, int pr) {
@@ -1791,7 +1791,21 @@ extern "C" MSVC_API  void qteQTableWidgetItem_setBackground(QTableWidgetItem* wd
         case 1:  wd->setForeground(*qb);                  break;
     }
 }
-
+extern "C" MSVC_API  void qteQTableWidgetItem_setFlags(QTableWidgetItem* wd, Qt::ItemFlags fl) {
+    wd->setFlags(fl);
+}
+extern "C" MSVC_API  Qt::ItemFlags qteQTableWidgetItem_flags(QTableWidgetItem* wd) {
+    return wd->flags();
+}
+extern "C" MSVC_API  void qteQTableWidgetItem_setSelected(QTableWidgetItem* wd, bool select) {
+    wd->setSelected(select);
+}
+extern "C" MSVC_API  bool qteQTableWidgetItem_isSelected(QTableWidgetItem* wd) {
+    return wd->isSelected();
+}
+extern "C" MSVC_API  void qteQTableWidgetItem_setIcon(QTableWidgetItem* wd, const QIcon& icon) {
+    wd->setIcon(icon);
+}
 // =========== QTableWidget ==========
 extern "C" MSVC_API  QTableWidget* qteQTableWidget_create(QWidget* parent) {
     return new QTableWidget(parent);
@@ -1817,7 +1831,7 @@ extern "C" MSVC_API  void qteQTableWidget_setRC(QTableWidget* wd, int n, int pr)
     case 5:   wd->clearContents();                   break;
     }
 }
-extern "C" MSVC_API  void qteQTableWidget_setitem(QTableWidget* wd,
+extern "C" MSVC_API  void qteQTableWidget_setItem(QTableWidget* wd,
                         QTableWidgetItem* tw, int r, int c) {
     wd->setItem(r, c, tw);
 }

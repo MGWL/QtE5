@@ -500,9 +500,6 @@ string toCON(T)(T s) {
 	version (linux) {
 		return cast(string)s;
 	}
-	version (OSX) {
-		return cast(string)s;
-	}
 }
 string char1251toUtf8(char ch) {
 	return mm1251_Utf8[ch];
