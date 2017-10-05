@@ -71,6 +71,7 @@ private {
 
 	alias t_v__qp_qp_i = extern (C) @nogc void function(QtObjH, QtObjH, int);
 	alias t_v__qp_qp_qp_i = extern (C) @nogc void function(QtObjH, QtObjH, QtObjH, int);
+	alias t_v__qp_qp_qp_i_i = extern (C) @nogc void function(QtObjH, QtObjH, QtObjH, int, int);
 	alias t_v__qp_qp_qp = extern (C) @nogc void function(QtObjH, QtObjH, QtObjH);
 	alias t_v__qp_qp_qp_qp_i = extern (C) @nogc void function(QtObjH, QtObjH, QtObjH, QtObjH, int);
 
@@ -492,6 +493,8 @@ int LoadQt(dll ldll, bool showError) { ///  Загрузить DLL-ки Qt и Qt
 	funQt(110, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQIcon_create",					showError);
 	funQt(111, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQIcon_delete",					showError);
 	funQt(112, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQIcon_addFile",				showError);
+	funQt(377, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQIcon_addFile2",				showError);
+	funQt(378, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQIcon_swap",					showError);
 	//  ------- QToolBar -------
 	funQt(114, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQToolBar_create",				showError);
 	funQt(115, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQToolBar_delete",				showError);
@@ -782,6 +785,10 @@ int LoadQt(dll ldll, bool showError) { ///  Загрузить DLL-ки Qt и Qt
 	// ------- QScriptContext -------
 	funQt(363, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "QScriptContext_argumentCount",		showError);
 	funQt(364, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "QScriptContext_argument",				showError);
+
+	// ------- QPaintDevice -------
+	funQt(379, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "QPaintDevice_hw",						showError);
+	funQt(380, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "QPaintDevice_pa",						showError);
 
 	// Последний = 375
 	return 0;
@@ -1372,8 +1379,45 @@ class QBrush : QObject {
 
 // ================ QPaintDevice ================
 class QPaintDevice: QObject  {
+	int typePD;  // 0=QWidget, 1=QImage
 	this(){
 		// writeln("qpd+", this);
+	}
+	int height() {
+		return (cast(t_i__qp_i_i) pFunQt[379])(QtObj, typePD, 0);
+	}
+	int width() {
+		return (cast(t_i__qp_i_i) pFunQt[379])(QtObj, typePD, 1);
+	}
+	int colorCount() { //-> Выдать доступное для рисования количество цветов
+		return (cast(t_i__qp_i_i) pFunQt[379])(QtObj, typePD, 2); // pFunQt[369])(QtObj, 2);
+	}
+	int depth() { //->
+		return (cast(t_i__qp_i_i) pFunQt[379])(QtObj, typePD, 3);
+	}
+	int devicePixelRatio() { //->
+		return (cast(t_i__qp_i_i) pFunQt[379])(QtObj, typePD, 4);
+	}
+	int heightMM() { //->
+		return (cast(t_i__qp_i_i) pFunQt[379])(QtObj, typePD, 5);
+	}
+	int widthMM() { //->
+		return (cast(t_i__qp_i_i) pFunQt[379])(QtObj, typePD, 6);
+	}
+	int logicalDpiX() { //->
+		return (cast(t_i__qp_i_i) pFunQt[379])(QtObj, typePD, 7);
+	}
+	int logicalDpiY() { //->
+		return (cast(t_i__qp_i_i) pFunQt[379])(QtObj, typePD, 8);
+	}
+	int physicalDpiX() { //->
+		return (cast(t_i__qp_i_i) pFunQt[379])(QtObj, typePD, 9);
+	}
+	int physicalDpiY() { //->
+		return (cast(t_i__qp_i_i) pFunQt[379])(QtObj, typePD, 10);
+	}
+	bool paintingActive() { //-> F .. paintBegin .. T .. paintEnd F
+		return (cast(t_b__qp_i) pFunQt[380])(QtObj, typePD);
 	}
 }
 
@@ -1421,6 +1465,7 @@ class QWidget: QPaintDevice {
 
 
 	this(QWidget parent = null, QtE.WindowType fl = QtE.WindowType.Widget) {
+		typePD = 0;
 		if (parent) {
 			setNoDelete(true);
 			setQtObj((cast(t_qp__qp_i)pFunQt[5])(parent.QtObj, cast(int)fl));
@@ -1580,12 +1625,6 @@ class QWidget: QPaintDevice {
 	}
 	int y() { //->
 		return (cast(t_i__qp_i) pFunQt[172])(QtObj, 1);
-	}
-	int width() { //->
-		return (cast(t_i__qp_i) pFunQt[172])(QtObj, 2);
-	}
-	int height() { //->
-		return (cast(t_i__qp_i) pFunQt[172])(QtObj, 3);
 	}
 	bool hasFocus() { //-> Виджет имеет фокус
 		return (cast(t_b__qp_i) pFunQt[259])(QtObj, 0);
@@ -1816,7 +1855,7 @@ class QApplication : QObject {
 	int sizeOfQtObj() { //-> Размер объекта QApplicatin. Size of QApplicatin
 		return (cast(t_i__vp) pFunQt[4])(QtObj);
 	} /// Размер объекта QApplicatin. Size of QApplicatin
-	T appDirPath(T)() { //-> Путь до приложения
+	T appDirPath(T: QString)() { //-> Путь до приложения
 		QString qs = new QString();
 		(cast(t_v__qp_qp)pFunQt[20])(QtObj, qs.QtObj);
 		return qs;
@@ -2756,6 +2795,10 @@ class QAction : QObject {
 		QIcon ico = new QIcon(); ico.addFile(fileIco); setIcon(ico);
 		return this;
 	} /// Добавить иконку используя имя файла и неявное создание
+ 	QAction setIcon(string fileIco, QIcon ico) { //->
+		ico.addFile(fileIco); setIcon(ico);
+		return this;
+	} /// Добавить иконку используя имя файла и неявное создание
 	QAction Signal_V() { //-> Послать сигнал с QAction "Signal_V()"
 		(cast(t_v__qp) pFunQt[339])(QtObj);
 		return this;
@@ -2917,12 +2960,32 @@ class QFont : QObject {
 }
 
 // ================ QIcon ================
+
+/* Пример установки различных иконок в зависимости от состояния (disable/enable)
+	QIcon icoAbout = new QIcon(); 
+	icoAbout.addFile("ICONS/doc_error.ico",  null, QIcon.Mode.Disabled, QIcon.State.On);
+	icoAbout.addFile("ICONS/about_icon.png", null, QIcon.Mode.Normal,   QIcon.State.On);
+	acAbout.setIcon(icoAbout);
+*/
 class QIcon : QObject {
+	enum Mode {
+		Normal			= 0,	// Выводит изобр, когда польз не взаимод с пиктограммой, но доступна функциональность, предоставляемая пиктограммой.
+		Disabled		= 1,	// Выводит изобр, когда функциональность, предоставляемая пиктограммой, не доступна.
+		Active			= 2,	// Выделена (щелкает по ней)
+		Selected		= 3		// Выводимое на экран растровое изображение когда пиктограмма выделена.
+	}
+	enum State {
+		On				= 0,	//
+		Off				= 1		//
+	}
 	~this() {
 		if(!fNoDelete && (QtObj != null)) { (cast(t_v__qp) pFunQt[111])(QtObj); setQtObj(null); }
 	}
 	this() {
 		setQtObj((cast(t_qp__v)pFunQt[110])());
+	}
+	this(char ch, void* adr) {
+		if(ch == '+') setQtObj(cast(QtObjH)adr);
 	}
 	QIcon addFile(T: QString)(T str, QSize qs = null) { //->
 		if(qs is null) {
@@ -2939,6 +3002,17 @@ class QIcon : QObject {
 			(cast(t_v__qp_qp_qp) pFunQt[112])(QtObj, (new QString(to!string(str))).QtObj, qs.QtObj);
 		}
 		return this;
+	}
+	QIcon addFile(T)(T str, QSize qs, QIcon.Mode mode, QIcon.State state) { //-> Добавить состояние на иконку
+		if(qs is null) {
+			(cast(t_v__qp_qp_qp_i_i) pFunQt[377])(QtObj, (new QString(to!string(str))).QtObj, null, mode, state);
+		} else {
+			(cast(t_v__qp_qp_qp_i_i) pFunQt[377])(QtObj, (new QString(to!string(str))).QtObj, qs.QtObj, mode, state);
+		}
+		return this;
+	}
+	void swap(QIcon iconSwap) { //-> Заменить иконку на другую
+		(cast(t_v__qp_qp) pFunQt[378])(QtObj, iconSwap.QtObj);
 	}
 }
 // ================ QToolBar ================
@@ -3561,7 +3635,7 @@ class QTableWidget : QTableView {
 	int currentRow() { //-> Выдать текущую строку
 		return (cast(t_i__qp_i) pFunQt[369])(QtObj, 1);
 	}
-	int colorCount() { //-> Выдать доступное для рисования количество цветов
+	override int colorCount() { //-> Выдать доступное для рисования количество цветов
 		return (cast(t_i__qp_i) pFunQt[369])(QtObj, 2);
 	}
 	QTableWidgetItem item(int row, int col) { //-> Выдать указатеь на QTableItem для дальнейшей обработки
@@ -4535,11 +4609,13 @@ class QImage: QPaintDevice {
 	}
 
 	this() {
+		typePD = 1;
 		setQtObj((cast(t_qp__v)pFunQt[303])());
 	}
 	// Warning: This will create a QImage with uninitialized data.
 	// Call fill() to fill the image with an appropriate pixel value before drawing onto it with QPainter.
 	this(int width, int height, QImage.Format format) {
+		typePD = 1;
 		setQtObj((cast(t_qp__i_i_i)pFunQt[315])(width, height, format));
 	}
 	~this() {
@@ -4561,12 +4637,6 @@ class QImage: QPaintDevice {
 	QImage setPixel(int x, int y, uint index_or_rgb) { //->
 		(cast(t_v__qp_i_i_ui) pFunQt[318])(QtObj, x, y, index_or_rgb); return this;
 	}
-	int width() { //-> Ширина
-		return (cast(t_i__qp_i) pFunQt[319])(QtObj, 0);
-	}
-	int height() { //-> Высота
-		return (cast(t_i__qp_i) pFunQt[319])(QtObj, 1);
-	}
 	int bitPlaneCount() { //-> Похоже, что глубина цвета
 		return (cast(t_i__qp_i) pFunQt[319])(QtObj, 2);
 	}
@@ -4575,15 +4645,6 @@ class QImage: QPaintDevice {
 	}
 	int bytesPerLine() { //-> Количество байт на строку изображения
 		return (cast(t_i__qp_i) pFunQt[319])(QtObj, 4);
-	}
-	int colorCount() {  //-> Возвращает размер таблицы цветов для изображения.
-						// Заметьте, что colorCount () возвращается 0 для изображений на 32 бит/пкс,
-						// потому что эти изображения не используют таблицы цветов,
-						// но вместо этого кодируют пиксельные значения квадруплетными ARGB.
-		return (cast(t_i__qp_i) pFunQt[319])(QtObj, 5);
-	}
-	int depth() { //->
-		return (cast(t_i__qp_i) pFunQt[319])(QtObj, 6);
 	}
 	int dotsPerMeterX() { //->
 		return (cast(t_i__qp_i) pFunQt[319])(QtObj, 7);

@@ -1412,6 +1412,16 @@ extern "C" MSVC_API  void qteQIcon_addFile(QIcon* wd, QString *qstr, QSize* qsiz
         wd->addFile(*qstr, *qsize);
     }
 }
+extern "C" MSVC_API  void qteQIcon_addFile2(QIcon* wd, QString *qstr, QSize* qsize, QIcon::Mode mode, QIcon::State state) {
+    if(qsize == NULL) {
+        wd->addFile(*qstr,QSize(),mode,state);
+    } else {
+        wd->addFile(*qstr, *qsize, mode,state);
+    }
+}
+extern "C" MSVC_API  void qteQIcon_swap( QIcon* wd, QIcon* iconSwap ) {
+    wd->swap(*iconSwap);
+}
 // ============ QToolBar ====================================
 extern "C" MSVC_API   void* qteQToolBar_create() {
     return new QToolBar();
@@ -2895,4 +2905,51 @@ extern "C" MSVC_API  int QScriptContext_argumentCount(QScriptContext* sc)
 extern "C" MSVC_API  void QScriptContext_argument(QScriptContext* sc, QScriptValue* sv, int nom)
 {
     *sv = sc->argument(nom);
+}
+// ===================== QPaintDevice ====================
+// 379
+extern "C" MSVC_API  int QPaintDevice_hw(QtRefH pd, int type, int pr)  {
+    int rez = 0;
+    if(type == 0) {
+        switch ( pr ) {
+        case 0:   rez = ((QWidget*)pd)->height();         break;
+        case 1:   rez = ((QWidget*)pd)->width();          break;
+        case 2:   rez = ((QWidget*)pd)->colorCount();     break;
+        case 3:   rez = ((QWidget*)pd)->depth();          break;
+        case 4:   rez = ((QWidget*)pd)->devicePixelRatio();      break;
+        case 5:   rez = ((QWidget*)pd)->heightMM();       break;
+        case 6:   rez = ((QWidget*)pd)->widthMM();        break;
+        case 7:   rez = ((QWidget*)pd)->logicalDpiX();    break;
+        case 8:   rez = ((QWidget*)pd)->logicalDpiY();    break;
+        case 9:   rez = ((QWidget*)pd)->physicalDpiX();   break;
+        case 10:  rez = ((QWidget*)pd)->physicalDpiY();   break;
+        }
+    }
+    if(type == 1) {
+        switch ( pr ) {
+        case 0:   rez = ((QImage*)pd)->height();          break;
+        case 1:   rez = ((QImage*)pd)->width();           break;
+        case 2:   rez = ((QImage*)pd)->colorCount();      break;
+        case 3:   rez = ((QImage*)pd)->depth();           break;
+        case 4:   rez = ((QImage*)pd)->devicePixelRatio();       break;
+        case 5:   rez = ((QImage*)pd)->heightMM();       break;
+        case 6:   rez = ((QImage*)pd)->widthMM();        break;
+        case 7:   rez = ((QImage*)pd)->logicalDpiX();    break;
+        case 8:   rez = ((QImage*)pd)->logicalDpiY();    break;
+        case 9:   rez = ((QImage*)pd)->physicalDpiX();   break;
+        case 10:  rez = ((QImage*)pd)->physicalDpiY();   break;
+        }
+    }
+    return rez;
+}
+// 380
+extern "C" MSVC_API  bool QPaintDevice_pa(QtRefH pd, int type)  {
+    bool rez = false;
+    if(type == 0) {
+        rez = ((QWidget*)pd)->paintingActive();
+    }
+    if(type == 1) {
+        rez = ((QImage*)pd)->paintingActive();
+    }
+    return rez;
 }
