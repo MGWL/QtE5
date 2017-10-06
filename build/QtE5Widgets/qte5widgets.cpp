@@ -30,6 +30,17 @@ CallRecord tabCallDlang[sizeTabCallDlang];
 extern "C" MSVC_API  QObject* qteQObject_parent(QObject* qobj) {
     return qobj->parent();
 }
+extern "C" MSVC_API void QObject_setObjectName(QObject* obj, QString* qs) {
+    obj->setObjectName(*qs);
+}
+extern "C" MSVC_API void* QObject_objectName(QObject* obj, QString* qs) {
+    *qs = obj->objectName();
+    return *((void**)&( *qs ));
+}
+extern "C" MSVC_API void QObject_dumpObjectInfo(QObject* obj, int ps) {
+    if(ps == 0) obj->dumpObjectInfo();
+    if(ps == 1) obj->dumpObjectTree();
+}
 
 // =========== QApplication ==========
 extern "C" MSVC_API  QtRefH qteQApplication_create1(int* argc, char *argv[], int AnParam3) {
@@ -134,9 +145,8 @@ extern "C" MSVC_API  void qteQLineEdit_delete1(eQLineEdit* wd) {
     printf("del eQLineEdit --> n\n");
 #endif
 #ifdef debDestr
-    delete wd;
+    if(wd->parent() == NULL) delete wd;
 #endif
-    delete wd;
 #ifdef debDelete
     printf("Ok\n");
 #endif
@@ -195,7 +205,7 @@ extern "C" MSVC_API  void qteQStatusBar_delete1(QStatusBar* wd) {
     printf("del QStatusBar --> \n");
 #endif
 #ifdef debDestr
-    delete wd;
+    if(wd->parent() == NULL) delete wd;
 #endif
 #ifdef debDelete
     printf("Ok\n");
@@ -225,7 +235,7 @@ extern "C" MSVC_API  void qteQMainWindow_delete1(eQMainWindow* wd) {
     printf("del eQMainWindow --> \n");
 #endif
 #ifdef debDestr
-    delete wd;
+    if(wd->parent() == NULL) delete wd;
 #endif
 #ifdef debDelete
     printf("Ok\n");
@@ -357,8 +367,7 @@ extern "C" MSVC_API  void qteQWidget_delete1(eQWidget* wd) {
     printf("del QWidget --> \n");
 #endif
 #ifdef debDestr
-    delete wd;
-    // delete wd;
+    if(wd->parent() == NULL) delete wd;
 #endif
 #ifdef debDelete
     printf("Ok\n");
@@ -610,7 +619,7 @@ extern "C" MSVC_API  void qteQPushButton_delete(QPushButton* wd) {
     printf("del QPushButton --> \n");
 #endif
 #ifdef debDestr
-    delete wd;
+    if(wd->parent() == NULL) delete wd;
 #endif
 #ifdef debDelete
     printf("Ok\n");
@@ -677,7 +686,7 @@ extern "C" MSVC_API  void qteQGridLayout_delete(QGridLayout* wd) {
     printf("del QGridLayout --> %p\n");
 #endif
 #ifdef debDestr
-    delete wd;
+    if(wd->parent() == NULL) delete wd;
 #endif
 #ifdef debDelete
     printf("----------------> Ok\n");
@@ -750,7 +759,7 @@ extern "C" MSVC_API  void qteQBoxLayout_delete(QBoxLayout* wd) {
     printf("del QBoxLayout --> %p\n");
 #endif
 #ifdef debDestr
-    delete wd;
+    if(wd->parent() == NULL) delete wd;
 #endif
 #ifdef debDelete
     printf("----------------> Ok\n");
@@ -762,7 +771,7 @@ extern "C" MSVC_API  void qteQVBoxLayout_delete(QVBoxLayout* wd) {
     printf("del QVBoxLayout --> %p\n");
 #endif
 #ifdef debDestr
-    delete wd;
+    if(wd->parent() == NULL) delete wd;
 #endif
 #ifdef debDelete
     printf("----------------> Ok\n");
@@ -774,7 +783,7 @@ extern "C" MSVC_API  void qteQHBoxLayout_delete(QHBoxLayout* wd) {
     printf("del QHBoxLayout --> %p\n");
 #endif
 #ifdef debDestr
-    delete wd;
+    if(wd->parent() == NULL) delete wd;
 #endif
 #ifdef debDelete
     printf("----------------> Ok\n");
@@ -828,7 +837,7 @@ extern "C" MSVC_API  void qteQFrame_delete1(eQFrame* wd) {
     printf("del eQFrame --> \n");
 #endif
 #ifdef debDestr
-    delete wd;
+    if(wd->parent() == NULL) delete wd;
 #endif
 #ifdef debDelete
     printf("Ok\n");
@@ -886,7 +895,7 @@ extern "C" MSVC_API  void qteQLabel_delete1(QLabel* wd) {
     printf("del QLabel --> \n");
 #endif
 #ifdef debDestr
-    delete wd;
+    if(wd->parent() == NULL) delete wd;
 #endif
 #ifdef debDelete
     printf("Ok\n");
@@ -974,7 +983,7 @@ extern "C" MSVC_API  void qteQAbstractScrollArea_delete1(QAbstractScrollArea* wd
     printf("del QAbstractScrollArea --> \n");
 #endif
 #ifdef debDestr
-    delete wd;
+    if(wd->parent() == NULL) delete wd;
 #endif
 #ifdef debDelete
     printf("Ok\n");
@@ -1064,7 +1073,7 @@ extern "C" MSVC_API  void qteQPlainTextEdit_delete1(eQPlainTextEdit* wd) {
     printf("del eQPlainTextEdit --> \n");
 #endif
 #ifdef debDestr
-    delete wd;
+    if(wd->parent() == NULL) delete wd;
 #endif
 #ifdef debDelete
     printf("Ok\n");
@@ -1246,7 +1255,7 @@ extern "C" MSVC_API  void  qteQAction_delete(eAction* wd)      {
     printf("del eAction --> %p\n", wd->parent());
 #endif
 #ifdef debDestr
-    delete wd;
+    if(wd->parent() == NULL) delete wd;
 #endif
 #ifdef debDelete
     printf("Ok\n");
@@ -1306,7 +1315,7 @@ extern "C" MSVC_API  void qteQMenu_delete(QMenu* wd) {
     printf("del QMenu --> \n");
 #endif
 #ifdef debDestr
-    delete wd;
+    if(wd->parent() == NULL) delete wd;
 #endif
 #ifdef debDelete
     printf("Ok\n");
@@ -1333,7 +1342,7 @@ extern "C" MSVC_API  void qteQMenuBar_delete(QMenuBar* wd) {
     printf("del QMenuBar --> \n");
 #endif
 #ifdef debDestr
-    delete wd;
+    if(wd->parent() == NULL) delete wd;
 #endif
 #ifdef debDelete
     printf("Ok\n");
@@ -1431,7 +1440,7 @@ extern "C" MSVC_API  void qteQToolBar_delete(QToolBar* wd) {
     printf("del QToolBar --> \n");
 #endif
 #ifdef debDestr
-    delete wd;
+    if(wd->parent() == NULL) delete wd;
 #endif
 #ifdef debDelete
     printf("Ok\n");
@@ -1465,7 +1474,7 @@ extern "C" MSVC_API  void qteQDialog_delete(QDialog* wd) {
     printf("del QDialog --> \n");
 #endif
 #ifdef debDestr
-    delete wd;
+    if(wd->parent() == NULL) delete wd;
 #endif
 #ifdef debDelete
     printf("Ok\n");
@@ -1483,7 +1492,7 @@ extern "C" MSVC_API  void qteQMessageBox_delete(QMessageBox* wd) {
     printf("del QMessageBox --> \n");
 #endif
 #ifdef debDestr
-    delete wd;
+    if(wd->parent() == NULL) delete wd;
 #endif
 #ifdef debDelete
     printf("Ok\n");
@@ -1514,7 +1523,7 @@ extern "C" MSVC_API  void qteQProgressBar_delete(QProgressBar* wd) {
     printf("del QProgressBar --> \n");
 #endif
 #ifdef debDestr
-    delete wd;
+    if(wd->parent() == NULL) delete wd;
 #endif
 #ifdef debDelete
     printf("Ok\n");
@@ -1590,7 +1599,7 @@ extern "C" MSVC_API  void qteQFileDialog_delete(QFileDialog* wd) {
     printf("del QFileDialog --> \n");
 #endif
 #ifdef debDestr
-    delete wd;
+    if(wd->parent() == NULL) delete wd;
 #endif
 #ifdef debDelete
     printf("Ok\n");
@@ -1665,7 +1674,7 @@ extern "C" MSVC_API  void qteQAbstractScrollArea_delete(QAbstractScrollArea* wd)
     printf("del QAbstractScrollArea --> \n");
 #endif
 #ifdef debDestr
-    delete wd;
+    if(wd->parent() == NULL) delete wd;
 #endif
 #ifdef debDelete
     printf("Ok\n");
@@ -1680,7 +1689,7 @@ extern "C" MSVC_API  void qteQMdiArea_delete(QMdiArea* wd) {
     printf("del QMdiArea --> \n");
 #endif
 #ifdef debDestr
-    delete wd;
+    if(wd->parent() == NULL) delete wd;
 #endif
 #ifdef debDelete
     printf("Ok\n");
@@ -1702,7 +1711,7 @@ extern "C" MSVC_API  void qteQMdiSubWindow_delete(QMdiSubWindow* wd) {
     printf("del QMdiSubWindow --> \n");
 #endif
 #ifdef debDestr
-    delete wd;
+    if(wd->parent() == NULL) delete wd;
 #endif
 #ifdef debDelete
     printf("Ok\n");
@@ -1721,7 +1730,7 @@ extern "C" MSVC_API  void qteQTableView_delete(QTableView* wd) {
     printf("del QTableView --> \n");
 #endif
 #ifdef debDestr
-    delete wd;
+    if(wd->parent() == NULL) delete wd;
 #endif
 #ifdef debDelete
     printf("Ok\n");
@@ -1765,7 +1774,7 @@ extern "C" MSVC_API  void qteQTableWidgetItem_delete(QTableWidgetItem* wd) {
     printf("del QTableWidgetItem --> \n");
 #endif
 #ifdef debDestr
-        delete wd;
+    delete wd;
 #endif
 #ifdef debDelete
     printf("Ok\n");
@@ -1825,7 +1834,7 @@ extern "C" MSVC_API  void qteQTableWidget_delete(QTableWidget* wd) {
     printf("del QTableWidget --> \n");
 #endif
 #ifdef debDestr
-    delete wd;
+    if(wd->parent() == NULL) delete wd;
 #endif
 #ifdef debDelete
     printf("Ok\n");
@@ -1891,7 +1900,7 @@ extern "C" MSVC_API  void qteQComboBox_delete(QComboBox* wd) {
     printf("del QComboBox --> \n");
 #endif
 #ifdef debDestr
-    delete wd;
+    if(wd->parent() == NULL) delete wd;
 #endif
 #ifdef debDelete
     printf("Ok\n");
@@ -2002,7 +2011,7 @@ extern "C" MSVC_API  void qteQLCDNumber_delete1(QLCDNumber* wd) {
     printf("del QLCDNumber --> \n");
 #endif
 #ifdef debDestr
-    delete wd;
+    if(wd->parent() == NULL) delete wd;
 #endif
 #ifdef debDelete
     printf("Ok\n");
@@ -2053,7 +2062,7 @@ extern "C" MSVC_API  void qteQSlider_delete1(QSlider* wd) {
     printf("del QSlider --> \n");
 #endif
 #ifdef debDestr
-    delete wd;
+    if(wd->parent() == NULL) delete wd;
 #endif
 #ifdef debDelete
     printf("Ok\n");
@@ -2068,7 +2077,7 @@ extern "C" MSVC_API  void qteQGroupBox_delete(QGroupBox* wd) {
     printf("del QGroupBox --> \n");
 #endif
 #ifdef debDestr
-    delete wd;
+    if(wd->parent() == NULL) delete wd;
 #endif
 #ifdef debDelete
     printf("Ok\n");
@@ -2089,7 +2098,7 @@ extern "C" MSVC_API  void qteQCheckBox_delete(QCheckBox* wd) {
     printf("del QCheckBox --> \n");
 #endif
 #ifdef debDestr
-    delete wd;
+    if(wd->parent() == NULL) delete wd;
 #endif
 #ifdef debDelete
     printf("Ok\n");
@@ -2116,7 +2125,7 @@ extern "C" MSVC_API  void qteQRadioButton_delete(QRadioButton* wd) {
     printf("del QRadioButton --> \n");
 #endif
 #ifdef debDestr
-    delete wd;
+    if(wd->parent() == NULL) delete wd;
 #endif
 #ifdef debDelete
     printf("Ok\n");
@@ -2305,7 +2314,7 @@ extern "C" MSVC_API  void qteQSpinBox_delete(QSpinBox* wd) {
     printf("del QSpinBox --> \n");
 #endif
 #ifdef debDestr
-    delete wd;
+    if(wd->parent() == NULL) delete wd;
 #endif
 #ifdef debDelete
     printf("Ok\n");
@@ -2438,7 +2447,7 @@ extern "C" MSVC_API  void qteHighlighter_delete(Highlighter* wd) {
     printf("del Highlighter --> \n");
 #endif
 #ifdef debDestr
-    delete wd;
+    if(wd->parent() == NULL) delete wd;
 #endif
 #ifdef debDelete
     printf("Ok\n");
@@ -2477,7 +2486,7 @@ extern "C" MSVC_API  void qteQTextEdit_delete1(eQTextEdit* wd) {
     printf("del eQTextEdit --> \n");
 #endif
 #ifdef debDestr
-    delete wd;
+    if(wd->parent() == NULL) delete wd;
 #endif
 #ifdef debDelete
     printf("Ok\n");
@@ -2594,7 +2603,7 @@ extern "C" MSVC_API  void qteQTimer_delete(QTimer* wd) {
     printf("del QTimer --> \n");
 #endif
 #ifdef debDestr
-    delete wd;
+    if(wd->parent() == NULL) delete wd;
 #endif
 #ifdef debDelete
     printf("Ok\n");
@@ -2798,8 +2807,8 @@ extern "C" MSVC_API QScriptEngine* QScriptEngine_create1(QObject* parent) {
     return se;
 }
 // 352
-extern "C" MSVC_API void QScriptEngine_delete1(QScriptEngine* se) {
-    delete se;
+extern "C" MSVC_API void QScriptEngine_delete1(QScriptEngine* wd) {
+    if(wd->parent() == NULL) delete wd;
 }
 // 353
 extern "C" MSVC_API  void QScriptEngine_evaluate(QScriptValue* sv, QScriptEngine* se, QString* program, QString* fileName, int lineNumer)
@@ -2832,8 +2841,8 @@ extern "C" MSVC_API QScriptValue* QScriptValue_create1(void* parent) {
     return new QScriptValue();
 }
 // 355
-extern "C" MSVC_API void QScriptValue_delete1(QScriptValue* sv) {
-    delete sv;
+extern "C" MSVC_API void QScriptValue_delete1(QScriptValue* wd) {
+    delete wd;
 }
 // 356
 extern "C" MSVC_API int QScriptValue_toInt32(QScriptValue* sv) {
@@ -2953,3 +2962,12 @@ extern "C" MSVC_API  bool QPaintDevice_pa(QtRefH pd, int type)  {
     }
     return rez;
 }
+
+
+// Пример возврата объекта из С++
+// --------------------------------
+// extern "C" MSVC_API  void* proverka(QString* qs)  {
+    // void** u = (void**)&(*qs);
+    // return (void*)(*u);
+//    return *((void**)&(*qs));
+// }

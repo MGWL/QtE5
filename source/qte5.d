@@ -22,8 +22,8 @@ import std.conv; // Convert to string
 import std.stdio;
 
 int verQt5Eu = 0;
-int verQt5El = 08;
-string verQt5Ed = "25.09.17 11:02";
+int verQt5El = 09;
+string verQt5Ed = "06.10.17 11:02";
 
 alias PTRINT = int;
 alias PTRUINT = uint;
@@ -790,6 +790,11 @@ int LoadQt(dll ldll, bool showError) { ///  Загрузить DLL-ки Qt и Qt
 	funQt(379, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "QPaintDevice_hw",						showError);
 	funQt(380, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "QPaintDevice_pa",						showError);
 
+	funQt(381, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "QObject_setObjectName",				showError);
+	funQt(382, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "QObject_objectName",					showError);
+	funQt(383, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "QObject_dumpObjectInfo",				showError);
+	
+	
 	// Последний = 375
 	return 0;
 } ///  Загрузить DLL-ки Qt и QtE. Найти в них адреса функций и заполнить ими таблицу
@@ -1243,6 +1248,20 @@ class QObject {
 	void* parentQtObj() { //-> выдать указатель на собственного родителя в Qt
 		return (cast(t_qp__qp)pFunQt[344])(QtObj);
 	}
+	void setObjectName(T)(T name) { //-> Задать имя объекту
+		wstring ps = to!wstring(name);
+		(cast(t_v__qp_qp) pFunQt[381])(QtObj, (cast(t_qp__qp_i)pFunQt[9])(cast(QtObjH)ps.ptr, cast(int)ps.length));
+	}
+	T objectName(T)() { //-> Получить имя объекта
+		QString qs = new QString();	(cast(t_qp__qp_qp)pFunQt[382])(QtObj, qs.QtObj);
+		return cast(T)qs.String();
+	}
+	void dumpObjectInfo() {
+		(cast(t_qp__qp_i)pFunQt[383])(QtObj, 0);
+	}
+	void dumpObjectTree() {
+		(cast(t_qp__qp_i)pFunQt[383])(QtObj, 1);
+	}
 }
 
 // ================ QPalette ================
@@ -1295,6 +1314,48 @@ class QPalette : QObject {
 	} /// Деструктор
 }
 
+// ================ QRgb ================
+struct QRgb {
+	int data;
+	int set(uint r, uint g, uint b, uint a = 255) {
+		int rez;
+		rez = r | (g << 8) | (b << 16) | (a << 24);
+		data = rez;
+		return rez;
+	}
+	@property int qRed() {               				// get red part of RGB
+		return ((data >> 16) & 0xff); 
+	}
+	@property int qGreen() {               				// get green part of RGB
+		return ((data >> 8) & 0xff);
+	}
+	@property int qBlue() {               				// get blue part of RGB
+		return (data & 0xff);
+	}
+	@property int qAlpha() {               				// get alpha part of RGB
+		return data >> 24;
+	}
+	@property int toGray() {               				// get alpha part of RGB
+		int rez = ((qRed*11) + (qGreen*16) + (qBlue*5)) / 32;
+		write(rez, "  ");
+		return ((qRed*11) + (qGreen*16) + (qBlue*5)) / 32;
+	}
+	@property int toGrayRealy() {               				// get alpha part of RGB
+		int rez = ((qRed*11) + (qGreen*16) + (qBlue*5)) / 32;
+		set(rez, rez, rez, rez);
+		return data;
+	}
+	int qGray(int r, int g, int b) {
+		return (r*11+g*16+b*5)/32;
+	}
+	int qGray(QRgb rgb) {
+		return qGray(rgb.qRed(), rgb.qGreen(), rgb.qBlue());
+	}
+	bool iqIsGray(QRgb rgb) {
+		return rgb.qRed() == rgb.qGreen() && rgb.qRed() == rgb.qBlue();
+	}
+}
+
 // ================ QColor ================
 /++
 QColor - Цвет
@@ -1311,6 +1372,10 @@ class QColor : QObject {
 	} /// Деструктор
 	QColor setRgb(int r, int g, int b, int a = 255) { //->
 		(cast(t_v__qp_i_i_i_i) pFunQt[15])(QtObj, r, g, b, a);
+		return this;
+	} /// Sets the RGB value to r, g, b and the alpha value to a. All the values must be in the range 0-255.
+	QColor setRgb(QRgb rgb) { //->
+		(cast(t_v__qp_i_i_i_i) pFunQt[15])(QtObj, rgb.qRed, rgb.qGreen, rgb.qBlue, rgb.qAlpha);
 		return this;
 	} /// Sets the RGB value to r, g, b and the alpha value to a. All the values must be in the range 0-255.
 	QColor getRgb(int* r, int* g, int* b, int* a) { //->
@@ -1935,6 +2000,10 @@ class QString: QObject {
 	int sizeOfQString() { //->
 		return (cast(t_i__v) pFunQt[281])();
 	}
+	// QString proverka(QString qs) {
+		// static void* adr;	adr = (cast(t_vp__qp) pFunQt[381])(qs.QtObj); QString nqs = new QString('+', &adr );
+		// return nqs;
+	// }
 }
 // ================ QGridLayout ================
 class QGridLayout : QObject {
@@ -5652,4 +5721,15 @@ class QLSystem
 
 		return parameters;
 	}
+}
+
+__EOF__
+
+// Пример возврата объекта из С++ и подхвата его в объект D
+QString proverka(QString qs) {
+	static void* adr;	adr = (cast(t_vp__qp) pFunQt[381])(qs.QtObj); return new QString('+', &adr );
+}
+// Пример возврата объекта из С++
+extern "C" MSVC_API  void* QImage_pixelColor(QImage* qi, int x, int y)  {
+    return *((void**)&( Объект_C++ ));
 }
