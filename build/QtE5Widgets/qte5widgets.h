@@ -53,6 +53,8 @@
 #include <QSpinBox>
 #include <QSyntaxHighlighter>
 #include <QTextEdit>
+#include <QBitmap>
+#include <QResource>
 
 #include <QtScript>
 

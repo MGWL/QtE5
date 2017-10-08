@@ -290,8 +290,7 @@ void eQWidget::paintEvent(QPaintEvent *event) {
     if (aPaintEvent == NULL) return;
 
     QPainter qp(this);
-    // QPainter* qp = &(QPainter(this));
-    // QPainter* qp = new QPainter(this);
+
     if (aDThis == NULL) {
         ((ExecZIM_v__vp_vp)aPaintEvent)((QtRefH)event, (QtRefH)&qp);
     }
@@ -573,6 +572,10 @@ extern "C" MSVC_API  void qteQBrush_setStyle(QBrush* qs, Qt::BrushStyle bs) {
 // =========== QPen ==========
 extern "C" MSVC_API  QtRefH qteQPen_create1(void) {
     return (QtRefH)new QPen();
+}
+// 396
+extern "C" MSVC_API  QtRefH qteQPen_create2(QColor* qc) {
+    return (QtRefH)new QPen(*qc);
 }
 extern "C" MSVC_API  void qteQPen_delete(QPen* wd) {
 #ifdef debDelete
@@ -903,6 +906,9 @@ extern "C" MSVC_API  void qteQLabel_delete1(QLabel* wd) {
 }
 extern "C" MSVC_API  void qteQLabel_setText(QtRefH wd, QtRefH qs) {
     ((QLabel*)wd)->setText(*(QString*)qs);
+}
+extern "C" MSVC_API  void qteQLabel_setPixmap(QLabel* wd, QPixmap* pm) {
+    wd->setPixmap(*pm);
 }
 // ===================== QEvent ====================
 extern "C" MSVC_API  int qteQEvent_type(QEvent* ev) {
@@ -1931,13 +1937,17 @@ extern "C" MSVC_API  void qteQComboBox_text(QComboBox* wd, QString* qs) {
 }
 // =========== QPainter ==========
 // 301
-extern "C" MSVC_API  QPainter* qteQPainter_create(QWidget* parent) {
-    QPainter* qp = new QPainter(parent);
-    // qp->setPen(QColor(0,0,0,250));
-    // qp->drawLine(10, 30, 90, 110);
-    // qp->end();
-    return qp;
+extern "C" MSVC_API  QPainter* qteQPainter_create(QPixmap* parent) {
+    return new QPainter(parent);
 }
+// 390
+extern "C" MSVC_API  bool qteQPainter_create3(QPainter* pm, QPaintDevice* uqpd) {
+    return pm->begin(&(*uqpd));
+}
+//extern "C" MSVC_API  bool qteQPainter_create4(QPainter* pm, QWidget* uqpd) {
+//    return pm->begin(&(*uqpd));
+//}
+
 // 302
 extern "C" MSVC_API  void qteQPainter_delete(QPainter* wd) {
 #ifdef debDelete
@@ -1997,6 +2007,9 @@ extern "C" MSVC_API  void qteQPainter_drawImage1(QPainter* qp, QPoint* point, QI
 }
 extern "C" MSVC_API  void qteQPainter_drawImage2(QPainter* qp, QRect* rect, QImage* im) {
    qp->drawImage(*rect, *im);
+}
+extern "C" MSVC_API  void qteQPainter_drawPixmap1(QPainter* qp, QPixmap* pm, int x, int y, int w, int h) {
+    qp->drawPixmap(x, y, w, h, *pm);
 }
 
 // =========== QLCDNumber ==========
@@ -2949,6 +2962,21 @@ extern "C" MSVC_API  int QPaintDevice_hw(QtRefH pd, int type, int pr)  {
         case 10:  rez = ((QImage*)pd)->physicalDpiY();   break;
         }
     }
+    if(type == 2) {
+        switch ( pr ) {
+        case 0:   rez = ((QPixmap*)pd)->height();          break;
+        case 1:   rez = ((QPixmap*)pd)->width();           break;
+        case 2:   rez = ((QPixmap*)pd)->colorCount();      break;
+        case 3:   rez = ((QPixmap*)pd)->depth();           break;
+        case 4:   rez = ((QPixmap*)pd)->devicePixelRatio();       break;
+        case 5:   rez = ((QPixmap*)pd)->heightMM();       break;
+        case 6:   rez = ((QPixmap*)pd)->widthMM();        break;
+        case 7:   rez = ((QPixmap*)pd)->logicalDpiX();    break;
+        case 8:   rez = ((QPixmap*)pd)->logicalDpiY();    break;
+        case 9:   rez = ((QPixmap*)pd)->physicalDpiX();   break;
+        case 10:  rez = ((QPixmap*)pd)->physicalDpiY();   break;
+        }
+    }
     return rez;
 }
 // 380
@@ -2962,7 +2990,85 @@ extern "C" MSVC_API  bool QPaintDevice_pa(QtRefH pd, int type)  {
     }
     return rez;
 }
+// ===================== QPixmap ====================
+// 384
+extern "C" MSVC_API QPixmap* QPixmap_create1() {
+    return new QPixmap();
+}
+// 385
+extern "C" MSVC_API void QPixmap_delete1(QPixmap* wd) {
+    delete wd;
+}
+// 386
+extern "C" MSVC_API QPixmap* QPixmap_create2(int width, int height) {
+    return new QPixmap(width, height);
+}
+// 387
+extern "C" MSVC_API QPixmap* QPixmap_create3(const QSize* size) {
+    return new QPixmap(*size);
+}
+// 388
+extern "C" MSVC_API void QPixmap_load1(QPixmap* wd, QString* fileName, const char* format, Qt::ImageConversionFlags flags) {
+    wd->load(*fileName, format, flags);
+}
+// 394
+extern "C" MSVC_API void QPixmap_fill(QPixmap* wd, QColor* color) {
+    if(color == NULL) {
+        wd->fill();
+    } else {
+        wd->fill(*color);
+    }
+}
+// 397
+extern "C" MSVC_API void QPixmap_setMask(QPixmap* wd, QBitmap* bm) {
+    wd->setMask(*bm);
+}
+// ===================== QBitmap ====================
+// 392
+extern "C" MSVC_API QBitmap* QBitmap_create1() {
+    return new QBitmap();
+}
+// 395
+extern "C" MSVC_API QPixmap* QBitmap_create2(const QSize* size) {
+    return new QBitmap(*size);
+}
+// 393
+extern "C" MSVC_API void QBitmap_delete1(QBitmap* wd) {
+    delete wd;
+}
 
+// =========== QResource ==========
+// 398
+extern "C" MSVC_API QResource* QResource_create1() {
+    return new QResource();
+}
+// 399
+extern "C" MSVC_API void QResource_delete1(QResource* wd) {
+    delete wd;
+}
+// 400
+extern "C" MSVC_API bool QResource_registerResource(QResource* wd, QString* rccFileName, QString* mapRoot, int pr) {
+    bool rez;
+    if(mapRoot == NULL) {
+        if(pr == 0)   rez = wd->registerResource(*rccFileName);
+        else          rez = wd->unregisterResource(*rccFileName);
+    } else {
+        if(pr == 0)   rez = wd->registerResource(*rccFileName, *mapRoot);
+        else          rez = wd->unregisterResource(*rccFileName, *mapRoot);
+    }
+    return rez;
+}
+extern "C" MSVC_API bool QResource_registerResource2(QResource* wd, uchar* rccData, QString* mapRoot, int pr) {
+    bool rez;
+    if(mapRoot == NULL) {
+        if(pr == 0)   rez = wd->registerResource(rccData);
+        else          rez = wd->unregisterResource(rccData);
+    } else {
+        if(pr == 0)   rez = wd->registerResource(rccData, *mapRoot);
+        else          rez = wd->unregisterResource(rccData, *mapRoot);
+    }
+    return rez;
+}
 
 // Пример возврата объекта из С++
 // --------------------------------

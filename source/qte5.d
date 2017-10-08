@@ -31,7 +31,7 @@ alias PTRUINT = uint;
 struct QtObj__ { PTRINT dummy; } alias QtObjH = QtObj__*;
 
 
-private void*[400] pFunQt; /// Масив указателей на функции из DLL
+private void*[500] pFunQt; /// Масив указателей на функции из DLL
 
 immutable int QMETHOD = 0; // member type codes
 immutable int QSLOT = 1;
@@ -61,10 +61,13 @@ private {
 	alias t_v__qp_i_i = extern (C) @nogc void function(QtObjH, int, int);
 	alias t_v__qp_qp_i_i = extern (C) @nogc void function(QtObjH, QtObjH, int, int);
 	alias t_v__qp_qp_i_i_i = extern (C) @nogc void function(QtObjH, QtObjH, int, int, int);
+	alias t_v__qp_qp_i_i_i_i = extern (C) @nogc void function(QtObjH, QtObjH, int, int, int, int);
 	alias t_v__qp_qp_i_i_i_i_i = extern (C) @nogc void function(QtObjH, QtObjH, int, int, int, int, int);
 
 	alias t_b__qp = extern (C) @nogc bool function(QtObjH);
 	alias t_b__qp_qp = extern (C) @nogc bool function(QtObjH, QtObjH);
+	alias t_b__qp_qp_qp = extern (C) @nogc bool function(QtObjH, QtObjH, QtObjH);
+	alias t_b__qp_qp_qp_i = extern (C) @nogc bool function(QtObjH, QtObjH, QtObjH, int);
 	alias t_b__qp_qp_i = extern (C) @nogc bool function(QtObjH, QtObjH, int);
 	alias t_b__qp_i = extern (C) @nogc bool function(QtObjH, int);
 	alias t_b__qp_i_i_i = extern (C) @nogc bool function(QtObjH, int, int, int);
@@ -794,8 +797,33 @@ int LoadQt(dll ldll, bool showError) { ///  Загрузить DLL-ки Qt и Qt
 	funQt(382, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "QObject_objectName",					showError);
 	funQt(383, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "QObject_dumpObjectInfo",				showError);
 	
+	// ------- QPixmap -------
+	funQt(384, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "QPixmap_create1",						showError);
+	funQt(385, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "QPixmap_delete1",						showError);
+	funQt(386, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "QPixmap_create2",						showError);
+	funQt(387, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "QPixmap_create3",						showError);
+	funQt(388, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "QPixmap_load1",						showError);
+	funQt(394, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "QPixmap_fill",						showError);
 	
-	// Последний = 375
+	funQt(389, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQLabel_setPixmap",					showError);
+
+	funQt(391, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQPainter_drawPixmap1",				showError);
+
+	// ------- QBitmap -------
+	funQt(392, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "QBitmap_create1",						showError);
+	funQt(395, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "QBitmap_create2",						showError);
+	funQt(390, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQPainter_create3",					showError);
+
+	funQt(396, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQPen_create2",						showError);
+	funQt(397, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "QPixmap_setMask",						showError);
+
+	// ------- QResource -------
+	funQt(398, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "QResource_create1",					showError);
+	funQt(399, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "QResource_delete1",					showError);
+	funQt(400, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "QResource_registerResource",			showError);
+	funQt(401, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "QResource_registerResource2",			showError);
+	
+	// Последний = 384
 	return 0;
 } ///  Загрузить DLL-ки Qt и QtE. Найти в них адреса функций и заполнить ими таблицу
 
@@ -1136,7 +1164,7 @@ class QtE {
 		PartiallyChecked = 1,	// The item is partially checked. Items in hierarchical models may be partially checked if some, but not all, of their children are checked.
 		Checked		= 2			// Выбран The item is checked.
 	}
-	 enum ItemFlag {
+	enum ItemFlag {
         NoItemFlags = 0,				
         ItemIsSelectable = 1,			// Он может быть выделен.
         ItemIsEditable = 2,				// Он может быть отредактирован.
@@ -1148,6 +1176,34 @@ class QtE {
         ItemNeverHasChildren = 128,
         ItemIsUserTristate = 256
     }
+    enum ImageConversionFlag {
+        ColorMode_Mask          = 0x00000003,
+        AutoColor               = 0x00000000,
+        ColorOnly               = 0x00000003,
+        MonoOnly                = 0x00000002,
+        // Reserved             = 0x00000001,
+
+        AlphaDither_Mask        = 0x0000000c,
+        ThresholdAlphaDither    = 0x00000000,
+        OrderedAlphaDither      = 0x00000004,
+        DiffuseAlphaDither      = 0x00000008,
+        NoAlpha                 = 0x0000000c, // Not supported
+
+        Dither_Mask             = 0x00000030,
+        DiffuseDither           = 0x00000000,
+        OrderedDither           = 0x00000010,
+        ThresholdDither         = 0x00000020,
+        // ReservedDither       = 0x00000030,
+
+        DitherMode_Mask         = 0x000000c0,
+        AutoDither              = 0x00000000,
+        PreferDither            = 0x00000040,
+        AvoidDither             = 0x00000080,
+
+        NoOpaqueDetection       = 0x00000100,
+        NoFormatConversion      = 0x00000200
+    }
+	
 	
 }
 // ================ QObject ================
@@ -2233,6 +2289,10 @@ class QLabel : QFrame {
 		(cast(t_v__qp_qp) pFunQt[48])(QtObj, (new QString(to!string(str))).QtObj);
 		return this;
 	} /// Установить текст на кнопке
+	QWidget setPixmap(QPixmap pm) { //-> Отобразить изображение на QLabel
+		(cast(t_v__qp_qp) pFunQt[389])(QtObj, pm.QtObj);
+		return this;
+	} /// Установить текст на кнопке
 }
 // ============ QSize =======================================
 class QSize : QObject {
@@ -2270,8 +2330,11 @@ class QPainter : QObject {
 			msgbox("Запрещено создание QPainter сродителем NULL", "Внимание!", QMessageBox.Icon.Critical);
 		}
 	} /// Конструктор
+	this(QPixmap pm) {
+		setQtObj((cast(t_qp__qp) pFunQt[301])(pm.QtObj));
+	}
  	this(char ch, void* adr) {
-		if(ch == '+') { setQtObj(cast(QtObjH)adr); setNoDelete(true); }
+		if(ch == '+') { setQtObj( cast(QtObjH)adr); setNoDelete(true); }
 	} /// При создании своего объекта сохраняет в себе объект событие QPainter пришедшее из Qt
 	~this() {
 		if(!fNoDelete && (QtObj != null)) { (cast(t_v__qp) pFunQt[302])(QtObj); setQtObj(null); }
@@ -2316,6 +2379,15 @@ class QPainter : QObject {
 	QPainter setText(int x, int y, string s) { //->
 		(cast(t_v__qp_qp_i_i) pFunQt[196])(QtObj, (new QString(s)).QtObj, x, y); return this;
 	}
+	QPainter drawText(int x, int y, QString qs) { //->
+		(cast(t_v__qp_qp_i_i) pFunQt[196])(QtObj, qs.QtObj, x, y); return this;
+	}
+	QPainter drawText(int x, int y, string s) { //->
+		(cast(t_v__qp_qp_i_i) pFunQt[196])(QtObj, (new QString(s)).QtObj, x, y); return this;
+	}
+	bool begin(QPaintDevice dev) { //->
+		return (cast(t_b__qp_qp) pFunQt[390])(QtObj, dev.QtObj);
+	}
 	bool end() { //->
 		return (cast(t_b__qp) pFunQt[197])(QtObj);
 	}
@@ -2328,6 +2400,10 @@ class QPainter : QObject {
 	QPainter drawImage(QRect rect, QImage image) { //-> Изображение в прямоугольник
 		(cast(t_v__qp_qp_qp) pFunQt[311])(QtObj, rect.QtObj, image.QtObj); return this;
 	}
+	QPainter drawPixmap(QPixmap pm, int x, int y, int w, int h) { //-> Изображение в прямоугольник
+		(cast(t_v__qp_qp_i_i_i_i) pFunQt[391])(QtObj, pm.QtObj, x, y, w, h); return this;
+	}
+	
 /* 	@property int type() {
 		return (cast(t_i__qp) pFunQt[53])(QtObj);
 	} /// QPainter::type(); Вернуть тип события
@@ -3884,6 +3960,9 @@ class QComboBox : QWidget {
 class QPen : QObject {
 	this() {
 		setQtObj((cast(t_qp__v) pFunQt[191])());
+	} /// Конструктор
+	this(QColor color) {
+		setQtObj((cast(t_qp__qp) pFunQt[396])(color.QtObj));
 	} /// Конструктор
 	~this() {
 		if(!fNoDelete && (QtObj != null)) { (cast(t_v__qp) pFunQt[192])(QtObj); setQtObj(null); }
@@ -5723,7 +5802,120 @@ class QLSystem
 	}
 }
 
+// ================ QPixmap ================
+class QPixmap: QPaintDevice {
+	~this() {
+		if(!fNoDelete && (QtObj != null)) {
+			(cast(t_v__qp) pFunQt[385])(QtObj); setQtObj(null);
+		}
+	}
+	this() {
+		typePD = 2;
+		setQtObj((cast(t_qp__v) pFunQt[384])());
+	}
+	this(int width, int height) {
+		typePD = 2;
+		setQtObj((cast(t_qp__i_i) pFunQt[386])(width, height));
+	}
+	this(QSize size) {
+		typePD = 2;
+		setQtObj((cast(t_qp__qp) pFunQt[387])(size.QtObj));
+	}
+	void fill(QColor color = null) {
+		typePD = 2;
+		if(color is null) {
+			(cast(t_v__qp_qp) pFunQt[394])(QtObj, null);
+		} else {
+			(cast(t_v__qp_qp) pFunQt[394])(QtObj, color.QtObj);
+		}
+	}
+	void setMask(QBitmap bm) {
+		(cast(t_v__qp_qp) pFunQt[397])(QtObj, bm.QtObj);
+	}
+	void load(string fileName, string format = "", QtE.ImageConversionFlag flags = QtE.ImageConversionFlag.AutoColor) {
+		typePD = 2;
+		if(format == "") {
+			(cast(t_v__qp_qp_qp_i) pFunQt[388])(
+				QtObj
+				,(new QString(to!string(fileName))).QtObj
+				,null
+				,cast(int)flags
+			);
+		} else {
+			(cast(t_v__qp_qp_qp_i) pFunQt[388])(
+				QtObj
+				,(new QString(to!string(fileName))).QtObj
+				,cast(QtObjH)format.ptr
+				,cast(int)flags
+			);
+		}
+	}
+}
+
+// ================ QBitmap ================
+class QBitmap: QPixmap {
+	this() {
+		typePD = 2;
+		setQtObj((cast(t_qp__v) pFunQt[392])());
+	}
+	this(QSize size) {
+		typePD = 2;
+		setQtObj((cast(t_qp__qp) pFunQt[395])(size.QtObj));
+	}
+	~this() {
+		if(!fNoDelete && (QtObj != null)) {
+			(cast(t_v__qp) pFunQt[393])(QtObj); setQtObj(null);
+		}
+	}
+}
+
+// ================ QResource ================
+class QResource: QObject {
+	this() {
+		setQtObj((cast(t_qp__v) pFunQt[398])());
+	}
+	~this() {
+		if(!fNoDelete && (QtObj != null)) {
+			(cast(t_v__qp) pFunQt[399])(QtObj); setQtObj(null);
+		}
+	}
+	bool registerResource(string rccFileName, string mapRoot = "") {
+		bool rez;
+		if(mapRoot == "") 
+			rez = (cast(t_b__qp_qp_qp_i)pFunQt[400])(QtObj, (new QString(to!string(rccFileName))).QtObj, (new QString(to!string(mapRoot))).QtObj, 0);
+		else 
+			rez = (cast(t_b__qp_qp_qp_i)pFunQt[400])(QtObj, (new QString(to!string(rccFileName))).QtObj, null, 0); 
+		return rez;
+	}
+	bool unregisterResource(string rccFileName, string mapRoot = "") {
+		bool rez;
+		if(mapRoot == "") 
+			rez = (cast(t_b__qp_qp_qp_i)pFunQt[400])(QtObj, (new QString(to!string(rccFileName))).QtObj, (new QString(to!string(mapRoot))).QtObj, 1);
+		else 
+			rez = (cast(t_b__qp_qp_qp_i)pFunQt[400])(QtObj, (new QString(to!string(rccFileName))).QtObj, null, 1); 
+		return rez;
+	}
+	bool registerResource(ubyte* rccData, string mapRoot = "") {
+		bool rez;
+		if(mapRoot == "") 
+			rez = (cast(t_b__qp_qp_qp_i)pFunQt[401])(QtObj, cast(QtObjH)rccData, (new QString(to!string(mapRoot))).QtObj, 0);
+		else 
+			rez = (cast(t_b__qp_qp_qp_i)pFunQt[401])(QtObj, cast(QtObjH)rccData, null, 0); 
+		return rez;
+	}
+	bool unregisterResource(ubyte* rccData, string mapRoot = "") {
+		bool rez;
+		if(mapRoot == "") 
+			rez = (cast(t_b__qp_qp_qp_i)pFunQt[401])(QtObj, cast(QtObjH)rccData, (new QString(to!string(mapRoot))).QtObj, 0);
+		else 
+			rez = (cast(t_b__qp_qp_qp_i)pFunQt[401])(QtObj, cast(QtObjH)rccData, null, 0); 
+		return rez;
+	}
+}
 __EOF__
+
+
+
 
 // Пример возврата объекта из С++ и подхвата его в объект D
 QString proverka(QString qs) {
