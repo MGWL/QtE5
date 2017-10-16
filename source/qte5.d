@@ -22,8 +22,8 @@ import std.conv; // Convert to string
 import std.stdio;
 
 int verQt5Eu = 0;
-int verQt5El = 09;
-string verQt5Ed = "06.10.17 11:02";
+int verQt5El = 10;
+string verQt5Ed = "16.10.17 11:02";
 
 alias PTRINT = int;
 alias PTRUINT = uint;
@@ -43,117 +43,138 @@ immutable int QSIGNAL = 2;
 // Give type Qt. There is an implicit transformation. cast (GetObjQt_t) Z == *Z on any type.
 // alias GetObjQt_t = void**; // Дай тип Qt. Происходит неявное преобразование. cast(GetObjQt_t)Z == *Z на любой тип.
 private {
+	// Generate alias for types call function Qt 
+	string generateAlias(string ind) {
+		string rez;	
+		string[string] v;
+		v["v"]="void";v[""]="";v["t"]="t";v["qp"]="QtObjH";v["i"]="int";
+		v["ui"]="uint";v["c"]="char";v["vp"]="void*";v["b"]="bool";v["cp"]="char*";
+		v["ip"]="int*";v["vpp"]="void**";v["bool"]="bool";v["us"]="ushort";v["l"]="long";
+		auto mas = split(ind, '_');
+		rez = "alias " ~ ind ~ " = extern (C) @nogc " ~ v[mas[1]] ~ " function(";
+		foreach(i, el; mas) if(i > 2) rez ~= v[el] ~ ", ";
+		rez = rez[0 .. $-2];	rez ~= ");"; 
+		return rez;
+	}
+	string generateFunQt(int n, string name) {
+		return "funQt(" ~ to!string(n) ~ `,bQtE5Widgets,hQtE5Widgets,sQtE5Widgets,r"` ~ name ~ `",showError);`;
+	}
+
 	alias t_QObject_connect = extern (C) @nogc void function(void*, char*, void*, char*, int);
 	alias t_QObject_disconnect = extern (C) @nogc void function(void*, char*, void*, char*);
 
-	alias t_v__i = extern (C) @nogc void function(int);
-	alias t_v__qp = extern (C) @nogc void function(QtObjH);
-	alias t_v__qp_qp = extern (C) @nogc void function(QtObjH, QtObjH);
-	alias t_v__qp_vp = extern (C) @nogc void function(QtObjH, void*);
-	alias t_v__qp_i = extern (C) @nogc void function(QtObjH, int);
-	alias t_v__qp_i_i_ui = extern (C) @nogc void function(QtObjH, int, int, uint);
-	alias t_v__vp_c = extern (C) @nogc void function(void*, char);
-	alias t_v__qp_ui = extern (C) @nogc void function(QtObjH, uint);
+	mixin(generateAlias("t_v__i"));
+	mixin(generateAlias("t_v__qp"));
+	mixin(generateAlias("t_v__qp_qp"));
+	mixin(generateAlias("t_v__qp_vp"));
+	mixin(generateAlias("t_v__qp_i"));
+	mixin(generateAlias("t_v__qp_i_i_ui"));
+	mixin(generateAlias("t_v__vp_c"));
+	mixin(generateAlias("t_v__qp_ui"));
+	
+	mixin(generateAlias("t_vp__qp"));
+	mixin(generateAlias("t_v__vp_vp_vp"));
+	mixin(generateAlias("t_v__vp_vp_vp_vp"));
+	mixin(generateAlias("t_v__qp_i_i"));
+	mixin(generateAlias("t_v__qp_qp_i_i"));
+	mixin(generateAlias("t_v__qp_qp_i_i_i"));
+	mixin(generateAlias("t_v__qp_qp_i_i_i_i"));
+	mixin(generateAlias("t_v__qp_qp_i_i_i_i_i"));
 
-	alias t_vp__qp = extern (C) @nogc void* function(void*);
-	alias t_v__vp_vp_vp = extern (C) @nogc void function(void*, void*, void*);
-	alias t_v__vp_vp_vp_vp = extern (C) @nogc void function(void*, void*, void*, void*);
-	alias t_v__qp_i_i = extern (C) @nogc void function(QtObjH, int, int);
-	alias t_v__qp_qp_i_i = extern (C) @nogc void function(QtObjH, QtObjH, int, int);
-	alias t_v__qp_qp_i_i_i = extern (C) @nogc void function(QtObjH, QtObjH, int, int, int);
-	alias t_v__qp_qp_i_i_i_i = extern (C) @nogc void function(QtObjH, QtObjH, int, int, int, int);
-	alias t_v__qp_qp_i_i_i_i_i = extern (C) @nogc void function(QtObjH, QtObjH, int, int, int, int, int);
+	mixin(generateAlias("t_b__qp"));
+	mixin(generateAlias("t_b__qp_qp"));
+	mixin(generateAlias("t_b__qp_qp_qp"));
+	mixin(generateAlias("t_b__qp_qp_qp_i"));
+	mixin(generateAlias("t_b__qp_qp_i"));
+	mixin(generateAlias("t_b__qp_i"));
+	mixin(generateAlias("t_b__qp_i_i_i"));
+	mixin(generateAlias("t_b__qp_i_i"));
+	mixin(generateAlias("t_b__qp_qp_i_i"));
 
-	alias t_b__qp = extern (C) @nogc bool function(QtObjH);
-	alias t_b__qp_qp = extern (C) @nogc bool function(QtObjH, QtObjH);
-	alias t_b__qp_qp_qp = extern (C) @nogc bool function(QtObjH, QtObjH, QtObjH);
-	alias t_b__qp_qp_qp_i = extern (C) @nogc bool function(QtObjH, QtObjH, QtObjH, int);
-	alias t_b__qp_qp_i = extern (C) @nogc bool function(QtObjH, QtObjH, int);
-	alias t_b__qp_i = extern (C) @nogc bool function(QtObjH, int);
-	alias t_b__qp_i_i_i = extern (C) @nogc bool function(QtObjH, int, int, int);
+	mixin(generateAlias("t_v__qp_qp_i"));
+	mixin(generateAlias("t_v__qp_qp_qp_i"));
+	mixin(generateAlias("t_v__qp_qp_qp_i_i"));
+	mixin(generateAlias("t_v__qp_qp_qp"));
+	mixin(generateAlias("t_v__qp_qp_qp_qp_i"));
+	mixin(generateAlias("t_i__qp_qp_qp"));
 
-	alias t_v__qp_qp_i = extern (C) @nogc void function(QtObjH, QtObjH, int);
-	alias t_v__qp_qp_qp_i = extern (C) @nogc void function(QtObjH, QtObjH, QtObjH, int);
-	alias t_v__qp_qp_qp_i_i = extern (C) @nogc void function(QtObjH, QtObjH, QtObjH, int, int);
-	alias t_v__qp_qp_qp = extern (C) @nogc void function(QtObjH, QtObjH, QtObjH);
-	alias t_v__qp_qp_qp_qp_i = extern (C) @nogc void function(QtObjH, QtObjH, QtObjH, QtObjH, int);
+	mixin(generateAlias("t_v__qp_i_i_i_i_i"));
+	mixin(generateAlias("t_v__qp_ip_ip_ip_ip"));
 
-	alias t_v__qp_i_i_i_i_i = extern (C) @nogc void function(QtObjH, int, int, int, int, int);
-	alias t_v__qp_ip_ip_ip_ip = extern (C) @nogc void function(QtObjH, int*, int*, int*, int*);
+	mixin(generateAlias("t_v__vp_vp_i"));
+	mixin(generateAlias("t_i__vp_vp_vp"));
+	mixin(generateAlias("t_i__vp_i"));
+	mixin(generateAlias("t_i__qp_i"));
+	mixin(generateAlias("t_i__qp_qp"));
+	mixin(generateAlias("t_i__qp_i_i"));
+	mixin(generateAlias("t_i__qp_qp_i"));
+	mixin(generateAlias("t_qp__qp_qp"));
+	mixin(generateAlias("t_vp__vp_c_i"));
+	mixin(generateAlias("t_vp__vp_cp_i"));
+	mixin(generateAlias("t_i__qp_qp_qp_i_i"));
 
-	alias t_v__vp_vp_i = extern (C) @nogc void function(void*, void*, int);
-	alias t_i__vp_vp_vp = extern (C) @nogc int function(void*, void*, void*);
-	alias t_i__vp_i = extern (C) @nogc int function(void*, int);
-	alias t_i__qp_i = extern (C) @nogc int function(QtObjH, int);
-	alias t_i__qp_i_i = extern (C) @nogc int function(QtObjH, int, int);
-	alias t_i__qp_qp_i = extern (C) @nogc int function(QtObjH, QtObjH, int);
-	alias t_qp__qp_qp = extern (C) @nogc QtObjH function(QtObjH, QtObjH);
-	alias t_vp__vp_c_i = extern (C) @nogc void* function(void*, char, int);
-	alias t_vp__vp_cp_i = extern (C) @nogc void* function(void*, char*, int);
+	mixin(generateAlias("t_vpp__vp"));
+	mixin(generateAlias("t_qp__qp"));
+	mixin(generateAlias("t_qp__ui"));
+	mixin(generateAlias("t_qp__vp"));
 
-	alias t_vpp__vp = extern (C) @nogc void** function(void*);
-	alias t_qp__qp = extern (C) @nogc QtObjH function(QtObjH);
-	alias t_qp__ui = extern (C) @nogc QtObjH function(uint);
-	alias t_qp__vp = extern (C) @nogc QtObjH function(void*);
-	alias t_c_vp__vp = extern (C) @nogc const void* function(void*);
+	mixin(generateAlias("t_vp__vp_i_i"));
+	mixin(generateAlias("t_vp__vp_i_vp"));
 
-	alias t_vp__vp_i_i = extern (C) @nogc void* function(void*, int, int);
-	alias t_vp__vp_i_vp = extern (C) @nogc void* function(void*, int, void*);
-
-	alias t_vp__vp_vp_i = extern (C) @nogc void* function(void*, void*, int);
-	alias t_qp__qp_qp_i = extern (C) @nogc QtObjH function(QtObjH, QtObjH, int);
-	alias t_vp__vp_i = extern (C) @nogc void* function(void*, int);
-	alias t_qp__qp_i = extern (C) @nogc QtObjH function(QtObjH, int);
-	alias t_qp__qp_b = extern (C) @nogc QtObjH function(QtObjH, bool);
-	alias t_ui__qp_i_i = extern (C) @nogc uint function(QtObjH, int, int);
-	alias t_ui__qp = extern (C) @nogc uint function(QtObjH);
-	alias t_qp__qp_i_i = extern (C) @nogc QtObjH function(QtObjH, int, int);
+	mixin(generateAlias("t_vp__vp_vp_i"));
+	mixin(generateAlias("t_qp__qp_qp_i"));
+	mixin(generateAlias("t_vp__vp_i"));
+	mixin(generateAlias("t_qp__qp_i"));
+	mixin(generateAlias("t_qp__qp_b"));
+	mixin(generateAlias("t_ui__qp_i_i"));
+	mixin(generateAlias("t_ui__qp"));
+	mixin(generateAlias("t_qp__qp_i_i"));
 	alias t_vp__v = extern (C) @nogc void* function();
 	alias t_qp__v = extern (C) @nogc QtObjH function();
-	alias t_i__vp = extern (C) @nogc int function(void*);
-	alias t_i__qp = extern (C) @nogc int function(QtObjH);
+	mixin(generateAlias("t_i__vp"));
+	mixin(generateAlias("t_i__qp"));
 
-	alias t_v__qp_b_i_i = extern (C) @nogc void function(QtObjH, bool, int, int);
-	alias t_v__qp_b_i = extern (C) @nogc void function(QtObjH, bool, int);
+	mixin(generateAlias("t_v__qp_b_i_i"));
+	mixin(generateAlias("t_v__qp_b_i"));
 
-	alias t_vp__i_i = extern (C) @nogc void* function(int, int);
-	alias t_qp__i_i = extern (C) @nogc QtObjH function(int, int);
-	alias t_qp__i_i_i = extern (C) @nogc QtObjH function(int, int, int);
-	alias t_qp__i = extern (C) @nogc QtObjH function(int);
+	mixin(generateAlias("t_vp__i_i"));
+	mixin(generateAlias("t_qp__i_i"));
+	mixin(generateAlias("t_qp__i_i_i"));
+	mixin(generateAlias("t_qp__i"));
 
-	alias t_vp__i_i_i_i = extern (C) @nogc void* function(int, int, int, int);
+	mixin(generateAlias("t_vp__i_i_i_i"));
 
-	alias t_v__vp_i_bool = extern (C) @nogc void function(void*, int, bool);
-	alias t_v__vp_i_i_i_i = extern (C) @nogc void function(void*, int, int, int, int);
-	alias t_v__qp_i_i_i_i = extern (C) @nogc void function(QtObjH, int, int, int, int);
-	alias t_v__qp_i_i_i = extern (C) @nogc void function(QtObjH, int, int, int);
-	alias t_v__vp_i_i_vp = extern (C) @nogc void function(void*, int, int, void*);
-	alias t_v__i_vp_vp = extern (C) @nogc void function(int, void*, void*);
-	alias t_vp__vp_vp_bool = extern (C) @nogc void* function(void*, void*, bool);
-	alias t_vp__i_vp_bool = extern (C) @nogc void* function(int, void*, bool);
+	// mixin(generateAlias("t_v__vp_i_bool"));
+	mixin(generateAlias("t_v__vp_i_i_i_i"));
+	mixin(generateAlias("t_v__qp_i_i_i_i"));
+	mixin(generateAlias("t_v__qp_i_i_i"));
+	mixin(generateAlias("t_v__vp_i_i_vp"));
+	mixin(generateAlias("t_v__i_vp_vp"));
+	// mixin(generateAlias("t_vp__vp_vp_bool"));
+	// mixin(generateAlias("t_vp__i_vp_bool"));
 	alias t_i__v = extern (C) @nogc int function();
-	alias t_i__vp_vbool_i = extern (C) @nogc int function(void*, bool*, int);
+	// mixin(generateAlias("t_i__vp_vbool_i"));
 
-	alias t_vp__vp_i_vp_i = extern (C) @nogc void* function(void*, int, void*, int);
-	alias t_vp__vp_i_i_vp = extern (C) @nogc void* function(void*, int, int, void*);
-	alias t_vp__vp_vp_i_i = extern (C) @nogc void* function(void*, void*, int, int);
-	alias t_i__vp_vp_i_i = extern (C) @nogc int function(void*, void*, int, int);
+	mixin(generateAlias("t_vp__vp_i_vp_i"));
+	mixin(generateAlias("t_vp__vp_i_i_vp"));
+	mixin(generateAlias("t_vp__vp_vp_i_i"));
+	mixin(generateAlias("t_i__vp_vp_i_i"));
 
-	alias t_vp__vp_vp_us_i = extern (C) @nogc void* function(void*, void*, ushort, int);
-	alias t_v__vp_vp_us_i = extern (C) @nogc void function(void*, void*, ushort, int);
-	alias t_bool__vp = extern (C) @nogc bool function(void*);
-	alias t_bool__vp_c = extern (C) @nogc bool function(void*, char);
-	alias t_bool__vp_vp = extern (C) @nogc bool function(void*, void*);
-	alias t_v__qp_bool = extern (C) @nogc void function(QtObjH, bool);
-	alias t_v__qp_b = extern (C) @nogc void function(QtObjH, bool);
-	alias t_v__vp_i_vp_us_i = extern (C) @nogc void function(void*, int, void*, ushort, int);
-	alias t_vp__vp_vp_vp = extern (C) @nogc void* function(void*, void*, void*);
+	mixin(generateAlias("t_vp__vp_vp_us_i"));
+	mixin(generateAlias("t_v__vp_vp_us_i"));
+	mixin(generateAlias("t_bool__vp"));
+	mixin(generateAlias("t_bool__vp_c"));
+	mixin(generateAlias("t_bool__vp_vp"));
+	mixin(generateAlias("t_v__qp_bool"));
+	mixin(generateAlias("t_v__qp_b"));
+	mixin(generateAlias("t_v__vp_i_vp_us_i"));
+	mixin(generateAlias("t_vp__vp_vp_vp"));
 
-	alias t_l__vp_vp_l = extern (C) @nogc long function(void*, void*, long);
-	alias t_l__vp = extern (C) @nogc long function(void*);
+	mixin(generateAlias("t_l__vp_vp_l"));
+	mixin(generateAlias("t_l__vp"));
 
-	alias t_vp__vp_vp_vp_vp_vp_vp_vp = extern (C) @nogc void* function(void*, void*, void*, void*, void*, void*, void*);
-	alias t_vp__vp_vp_vp_vp_vp_vp_vp_vp = extern (C) @nogc void* function(void*, void*, void*, void*, void*, void*, void*, void*);
+	mixin(generateAlias("t_vp__vp_vp_vp_vp_vp_vp_vp"));
+	mixin(generateAlias("t_vp__vp_vp_vp_vp_vp_vp_vp_vp"));
 
 	alias t_ub__qp = extern (C) @nogc ubyte* function(QtObjH);
 }
@@ -260,12 +281,10 @@ int LoadQt(dll ldll, bool showError) { ///  Загрузить DLL-ки Qt и Qt
 	// Use symlink for create link on real file Qt5
 	// Only 64 bit version Mac OS X (10.9.5 Maveric)
 	version (OSX) {
-
-	string[] libs = ["QtCore", "QtGui", "QtWidgets", "QtDBus" , "QtPrintSupport" /*  ,"libqcocoa.dylib" */ ];
-	foreach(l; libs) {
-		void* h = GetHlib(l);
-		// writeln(l, " = ", h);
-	}
+		string[] libs = ["QtCore", "QtGui", "QtWidgets", "QtDBus" , "QtPrintSupport" /*  ,"libqcocoa.dylib" */ ];
+		foreach(l; libs) {
+			void* h = GetHlib(l);
+		}
     	// sCore5			= "QtCore";
 		// sGui5			= "QtGui";
 		// sWidget5		= "QtWidgets";
@@ -278,552 +297,597 @@ int LoadQt(dll ldll, bool showError) { ///  Загрузить DLL-ки Qt и Qt
 	if(bQtE5Widgets) { bCore5 = true; bGui5 = true; bWidget5 = true; }
 
 	// Load library in memory
-
  	if (bCore5) {
 		// hCore5 = GetHlib(sCore5); if (!hCore5) { MessageErrorLoad(showError, sCore5); return 1; }
 	}
-
 	if (bGui5) {
 		// hGui5 = GetHlib(sGui5);	if (!hGui5) { MessageErrorLoad(showError, sGui5); return 1; }
 	}
 	if (bWidget5) {
 		// hWidget5 = GetHlib(sWidget5); if (!hWidget5) { MessageErrorLoad(showError, sWidget5); return 1; }
 	}
-
 	if (bQtE5Widgets) {
 		hQtE5Widgets = GetHlib(sQtE5Widgets); if (!hQtE5Widgets) { MessageErrorLoad(showError, sQtE5Widgets); return 1; }
 	}
 	// Find name function in DLL
-
+	
 	// ------- QObject -------
-	funQt(344,bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQObject_parent",   		 showError);
-	// ------- QApplication -------
-	funQt(0,  bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQApplication_create1",    showError);
-	funQt(1,  bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQApplication_exec",       showError);
-	funQt(2,  bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQApplication_aboutQt",    showError);
-	funQt(3,  bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQApplication_delete1",    showError);
-	funQt(4,  bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQApplication_sizeof",     showError);
-	funQt(20, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQApplication_appDirPath", showError);
-	funQt(21, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQApplication_appFilePath",showError);
-	funQt(273, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQApplication_quit",	  showError);
-	funQt(368, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQApplication_processEvents",	  showError);
+	mixin(generateFunQt(344, "qteQObject_parent"));
 
-	funQt(276, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQApplication_exit",	  showError);
-	funQt(277, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQApplication_setStyleSheet", showError);
+	// ------- QApplication -------
+	mixin(generateFunQt(	0,   	"qteQApplication_create1"			));
+	mixin(generateFunQt(	1,   	"qteQApplication_exec"				));
+	mixin(generateFunQt(	2,   	"qteQApplication_aboutQt"			));
+	mixin(generateFunQt(	3,   	"qteQApplication_delete1"			));
+	mixin(generateFunQt(	4,   	"qteQApplication_sizeof"			));
+	mixin(generateFunQt(	20,  	"qteQApplication_appDirPath"		));
+	mixin(generateFunQt(	21,  	"qteQApplication_appFilePath"		));
+	mixin(generateFunQt(	273,  	"qteQApplication_quit"				));
+	mixin(generateFunQt(	368,  	"qteQApplication_processEvents"		));
+	mixin(generateFunQt(	276,  	"qteQApplication_exit"				));
+	mixin(generateFunQt(	277,  	"qteQApplication_setStyleSheet"		));
 
 	// ------- QWidget -------
-	funQt(5,  bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQWidget_create1",         showError);
-	funQt(6,  bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQWidget_setVisible",      showError);
-	funQt(7,  bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQWidget_delete1",         showError);
-	funQt(11, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQWidget_setWindowTitle",  showError);
-	funQt(12, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQWidget_isVisible",       showError);
-	funQt(30, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQWidget_setStyleSheet",   showError);
-	funQt(31, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQWidget_setMMSize",       showError);
-	funQt(32, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQWidget_setEnabled",      showError);
-	funQt(33, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQWidget_setToolTip",      showError);
-	funQt(40, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQWidget_setLayout",       showError);
-	funQt(78, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQWidget_setSizePolicy",   showError);
-	funQt(79, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQWidget_setMax1",         showError);
-	funQt(87, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQWidget_exWin1",          showError);
-	funQt(94, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQWidget_exWin2",          showError);
-	funQt(49, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQWidget_setKeyPressEvent",showError);
-	funQt(50, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQWidget_setPaintEvent",   showError);
-	funQt(51, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQWidget_setCloseEvent",   showError);
-	funQt(52, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQWidget_setResizeEvent",  showError);
-	funQt(131,bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQWidget_setFont",         showError);
-	funQt(148,bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQWidget_winId",           showError);
-	funQt(172,bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQWidget_getPr",           showError);
-	funQt(259,bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQWidget_getBoolXX",       showError);
-	funQt(279,bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQWidget_setGeometry",     showError);
-	funQt(280,bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQWidget_contentsRect",    showError);
+	mixin(generateFunQt(	5,   	"qteQWidget_create1"				));
+	mixin(generateFunQt(	6,   	"qteQWidget_setVisible"				));
+	mixin(generateFunQt(	7,   	"qteQWidget_delete1"				));
+	mixin(generateFunQt(	11,  	"qteQWidget_setWindowTitle"			));
+	mixin(generateFunQt(	12,  	"qteQWidget_isVisible"				));
+	mixin(generateFunQt(	30,  	"qteQWidget_setStyleSheet"			));
+	mixin(generateFunQt(	31,  	"qteQWidget_setMMSize"				));
+	mixin(generateFunQt(	32,  	"qteQWidget_setEnabled"				));
+	mixin(generateFunQt(	33,  	"qteQWidget_setToolTip"				));
+	mixin(generateFunQt(	40,  	"qteQWidget_setLayout"				));
+	mixin(generateFunQt(	78,  	"qteQWidget_setSizePolicy"			));
+	mixin(generateFunQt(	79,  	"qteQWidget_setMax1"				));
+	mixin(generateFunQt(	87,  	"qteQWidget_exWin1"					));
+	mixin(generateFunQt(	94,  	"qteQWidget_exWin2"					));
+	mixin(generateFunQt(	49,  	"qteQWidget_setKeyPressEvent"		));
+	mixin(generateFunQt(	50,  	"qteQWidget_setPaintEvent"			));
+	mixin(generateFunQt(	51,  	"qteQWidget_setCloseEvent"			));
+	mixin(generateFunQt(	52,  	"qteQWidget_setResizeEvent"			));
+	mixin(generateFunQt(	131, 	"qteQWidget_setFont"				));
+	mixin(generateFunQt(	148, 	"qteQWidget_winId"					));
+	mixin(generateFunQt(	172, 	"qteQWidget_getPr"					));
+	mixin(generateFunQt(	259, 	"qteQWidget_getBoolXX"				));
+	mixin(generateFunQt(	279, 	"qteQWidget_setGeometry"			));
+	mixin(generateFunQt(	280, 	"qteQWidget_contentsRect"			));
 
 	// ------- QString -------
-	funQt(8,  bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQString_create1",         showError);
-	funQt(9,  bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQString_create2",         showError);
-	funQt(10, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQString_delete",          showError);
-	funQt(18, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQString_data",            showError);
-	funQt(19, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQString_size",            showError);
-	funQt(281,bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQString_sizeOf",          showError);
+	mixin(generateFunQt(	8,   	"qteQString_create1"				));
+	mixin(generateFunQt(	9,   	"qteQString_create2"				));
+	mixin(generateFunQt(	10,  	"qteQString_delete"					));
+	mixin(generateFunQt(	18,  	"qteQString_data"					));
+	mixin(generateFunQt(	19,  	"qteQString_size"					));
+	mixin(generateFunQt(	281, 	"qteQString_sizeOf"					));
+	
 	// ------- QColor -------
-	funQt(13, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQColor_create1",          showError);
-	funQt(14, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQColor_delete",           showError);
-	funQt(15, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQColor_setRgb",           showError);
-	funQt(320,bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQColor_getRgb",           showError);
-	funQt(322,bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQColor_rgb",              showError);
-	funQt(323,bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQColor_setRgb2",          showError);
-	funQt(324,bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQColor_create2",          showError);
+	mixin(generateFunQt(	13,  	"qteQColor_create1"					));
+	mixin(generateFunQt(	14,  	"qteQColor_delete"					));
+	mixin(generateFunQt(	15,  	"qteQColor_setRgb"					));
+	mixin(generateFunQt(	320, 	"qteQColor_getRgb"					));
+	mixin(generateFunQt(	322, 	"qteQColor_rgb"						));
+	mixin(generateFunQt(	323, 	"qteQColor_setRgb2"					));
+	mixin(generateFunQt(	324, 	"qteQColor_create2"					));
 
 	// ------- QPalette -------
-	funQt(16, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQPalette_create1",        showError);
-	funQt(17, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQPalette_delete",         showError);
+	mixin(generateFunQt(	16,  	"qteQPalette_create1"				));
+	mixin(generateFunQt(	17,  	"qteQPalette_delete"				));
+	
 	// ------- QPushButton -------
-	funQt(22, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQPushButton_create1",     showError);
-	funQt(23, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQPushButton_delete",      showError);
-	funQt(210,bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQPushButton_setXX",       showError);
+	mixin(generateFunQt(	22,  	"qteQPushButton_create1"			));
+	mixin(generateFunQt(	23,  	"qteQPushButton_delete"				));
+	mixin(generateFunQt(	210, 	"qteQPushButton_setXX"				));
 
 	// ------- QSlot -------
 //	funQt(24, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQSlot_create",            showError);
 //	funQt(25, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "QSlot_setSlotN",             showError);
 //	funQt(26, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQSlot_delete",            showError);
-	funQt(27, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteConnect",                 showError);
-	funQt(343,bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteDisconnect",              showError);
+	mixin(generateFunQt(	27,  	"qteConnect"						));
+	mixin(generateFunQt(	343, 	"qteDisconnect"						));
 //	funQt(81, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "QSlot_setSlotN2",            showError);
+
 	// ------- QAbstractButton -------
-	funQt(28, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQAbstractButton_setText", showError);
-	funQt(29, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQAbstractButton_text",    showError);
-	funQt(209,bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQAbstractButton_setXX",   showError);
-	funQt(211,bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQAbstractButton_setIcon", showError);
-	funQt(224,bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQAbstractButton_getXX",   showError);
+	mixin(generateFunQt(	28,  	"qteQAbstractButton_setText"		));
+	mixin(generateFunQt(	29,  	"qteQAbstractButton_text"			));
+	mixin(generateFunQt(	209, 	"qteQAbstractButton_setXX"			));
+	mixin(generateFunQt(	211, 	"qteQAbstractButton_setIcon"		));
+	mixin(generateFunQt(	224, 	"qteQAbstractButton_getXX"			));
 
 	// ------- QLayout -------
-	funQt(34, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQBoxLayout",              showError);
-	funQt(35, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQVBoxLayout",             showError);
-	funQt(36, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQHBoxLayout",             showError);
-	funQt(37, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQBoxLayout_delete",       showError);
-	funQt(38, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQBoxLayout_addWidget",    showError);
-	funQt(39, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQBoxLayout_addLayout",    showError);
-	funQt(74, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQBoxLayout_setSpacing",   showError);
-	funQt(75, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQBoxLayout_spacing",      showError);
-	funQt(76, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQBoxLayout_setMargin",    showError);
-	funQt(77, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQBoxLayout_margin",       showError);
+	mixin(generateFunQt(	34,  	"qteQBoxLayout"						));
+	mixin(generateFunQt(	35,  	"qteQVBoxLayout"					));
+	mixin(generateFunQt(	36,  	"qteQHBoxLayout"					));
+	mixin(generateFunQt(	37,  	"qteQBoxLayout_delete"				));
+	mixin(generateFunQt(	38,  	"qteQBoxLayout_addWidget"			));
+	mixin(generateFunQt(	39,  	"qteQBoxLayout_addLayout"			));
+	mixin(generateFunQt(	74,  	"qteQBoxLayout_setSpacing"			));
+	mixin(generateFunQt(	75,  	"qteQBoxLayout_spacing"				));
+	mixin(generateFunQt(	76,  	"qteQBoxLayout_setMargin"			));
+	mixin(generateFunQt(	77,  	"qteQBoxLayout_margin"				));
+
 	// ------- QFrame -------
-	funQt(41, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQFrame_create1",          showError);
-	funQt(42, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQFrame_delete1",          showError);
-	funQt(43, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQFrame_setFrameShape",    showError);
-	funQt(44, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQFrame_setFrameShadow",   showError);
-	funQt(45, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQFrame_setLineWidth",     showError);
-	funQt(290,bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQFrame_listChildren",      showError);
+	mixin(generateFunQt(	41,  	"qteQFrame_create1"					));
+	mixin(generateFunQt(	42,  	"qteQFrame_delete1"					));
+	mixin(generateFunQt(	43,  	"qteQFrame_setFrameShape"			));
+	mixin(generateFunQt(	44,  	"qteQFrame_setFrameShadow"			));
+	mixin(generateFunQt(	45,  	"qteQFrame_setLineWidth"			));
+	mixin(generateFunQt(	290, 	"qteQFrame_listChildren"			));
 
 	// ------- QLabel --------
-	funQt(46, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQLabel_create1",          showError);
-	funQt(47, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQLabel_delete1",          showError);
-	funQt(48, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQLabel_setText",          showError);
+	mixin(generateFunQt(	46,  	"qteQLabel_create1"					));
+	mixin(generateFunQt(	47,  	"qteQLabel_delete1"					));
+	mixin(generateFunQt(	48,  	"qteQLabel_setText"					));
+	
 	// ------- QEvent -------
-	funQt(53, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQEvent_type",             showError);
-	funQt(157,bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQEvent_ia",				  showError);
+	mixin(generateFunQt(	53,  	"qteQEvent_type"					));
+	mixin(generateFunQt(	157, 	"qteQEvent_ia"						));
+	
 	// ------- QResizeEvent -------
-	funQt(54, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQResizeEvent_size",       showError);
-	funQt(55, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQResizeEvent_oldSize",    showError);
+	mixin(generateFunQt(	54,  	"qteQResizeEvent_size"				));
+	mixin(generateFunQt(	55,  	"qteQResizeEvent_oldSize"			));
+	
 	// ------- QSize -------
-	funQt(56, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQSize_create1",           showError);
-	funQt(57, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQSize_delete1",           showError);
-	funQt(58, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQSize_width",             showError);
-	funQt(59, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQSize_height",            showError);
-	funQt(60, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQSize_setWidth",          showError);
-	funQt(61, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQSize_setHeight",         showError);
+	mixin(generateFunQt(	56,  	"qteQSize_create1"					));
+	mixin(generateFunQt(	57,  	"qteQSize_delete1"					));
+	mixin(generateFunQt(	58,  	"qteQSize_width"					));
+	mixin(generateFunQt(	59,  	"qteQSize_height"					));
+	mixin(generateFunQt(	60,  	"qteQSize_setWidth"					));
+	mixin(generateFunQt(	61,  	"qteQSize_setHeight"				));
+	
 	// ------- QKeyEvent -------
-	funQt(62, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQKeyEvent_key",           showError);
-	funQt(63, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQKeyEvent_count",         showError);
-	funQt(285,bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQKeyEvent_modifiers",     showError);
+	mixin(generateFunQt(	62,  	"qteQKeyEvent_key"					));
+	mixin(generateFunQt(	63, 	"qteQKeyEvent_count"				));
+	mixin(generateFunQt(	285,	"qteQKeyEvent_modifiers"			));
 
 	// ------- QAbstractScrollArea -------
-	funQt(64, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQAbstractScrollArea_create1", showError);
-	funQt(65, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQAbstractScrollArea_delete1", showError);
+	mixin(generateFunQt(	64, 	"qteQAbstractScrollArea_create1"	));
+	mixin(generateFunQt(	65, 	"qteQAbstractScrollArea_delete1"	));
+	
 	// ------- QPlainTextEdit -------
-	funQt(66, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQPlainTextEdit_create1",         showError);
-	funQt(67, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQPlainTextEdit_delete1",         showError);
-	funQt(68, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQPlainTextEdit_appendPlainText", showError);
-	funQt(69, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQPlainTextEdit_appendHtml",      showError);
-	funQt(70, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQPlainTextEdit_setPlainText",    showError);
-	funQt(71, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQPlainTextEdit_insertPlainText", showError);
-	funQt(72, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQPlainTextEdit_cutn",            showError);
-	funQt(73, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQPlainTextEdit_toPlainText",     showError);
-	funQt(80, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQPlainTextEdit_setKeyPressEvent",showError);
-	funQt(225,bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQPlainTextEdit_setKeyReleaseEvent",showError);
-	funQt(226,bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQPlainTextEdit_document",		showError);
-	funQt(230,bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQPlainTextEdit_textCursor",		showError);
-	funQt(235,bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQPlainTextEdit_cursorRect",		showError);
-	funQt(235,bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQPlainTextEdit_cursorRect",		showError);
-	funQt(236,bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQPlainTextEdit_setTabStopWidth",showError);
-	funQt(253,bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQPlainTextEdit_setTextCursor",	showError);
-	funQt(278,bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQPlainTextEdit_setViewportMargins",	showError);
-	funQt(282,bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQPlainTextEdit_firstVisibleBlock",	showError);
-	funQt(284,bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQPlainTextEdit_getXYWH",		showError);
-	funQt(294,bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQPlainTextEdit_setWordWrapMode",showError);
-	funQt(325,bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "eQPlainTextEdit_setPaintEvent",    showError);
-	funQt(326,bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQPlainTextEdit_getXX1",         showError);
-	funQt(328,bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQPlainTextEdit_setCursorPosition", showError);
-	funQt(329,bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQPlainTextEdit_find1",          showError);
-	funQt(330,bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQPlainTextEdit_find2",          showError);
+	mixin(generateFunQt(	66, 	"qteQPlainTextEdit_create1"			));
+	mixin(generateFunQt(	67, 	"qteQPlainTextEdit_delete1"			));
+	mixin(generateFunQt(	68, 	"qteQPlainTextEdit_appendPlainText"	));
+	mixin(generateFunQt(	69, 	"qteQPlainTextEdit_appendHtml"		));
+	mixin(generateFunQt(	70, 	"qteQPlainTextEdit_setPlainText"	));
+	mixin(generateFunQt(	71, 	"qteQPlainTextEdit_insertPlainText"	));
+	mixin(generateFunQt(	72, 	"qteQPlainTextEdit_cutn"			));
+	mixin(generateFunQt(	73, 	"qteQPlainTextEdit_toPlainText"		));
+	mixin(generateFunQt(	80, 	"qteQPlainTextEdit_setKeyPressEvent"));
+	mixin(generateFunQt(	225,	"qteQPlainTextEdit_setKeyReleaseEvent"));
+	mixin(generateFunQt(	226,	"qteQPlainTextEdit_document"		));
+	mixin(generateFunQt(	230,	"qteQPlainTextEdit_textCursor"		));
+	mixin(generateFunQt(	235,	"qteQPlainTextEdit_cursorRect"		));
+	mixin(generateFunQt(	235,	"qteQPlainTextEdit_cursorRect"		));
+	mixin(generateFunQt(	236,	"qteQPlainTextEdit_setTabStopWidth"	));
+	mixin(generateFunQt(	253,	"qteQPlainTextEdit_setTextCursor"	));
+	mixin(generateFunQt(	278,	"qteQPlainTextEdit_setViewportMargins"));
+	mixin(generateFunQt(	282,	"qteQPlainTextEdit_firstVisibleBlock"));
+	mixin(generateFunQt(	284,	"qteQPlainTextEdit_getXYWH"			));
+	mixin(generateFunQt(	294,	"qteQPlainTextEdit_setWordWrapMode"	));
+	mixin(generateFunQt(	325,	"eQPlainTextEdit_setPaintEvent"		));
+	mixin(generateFunQt(	326,	"qteQPlainTextEdit_getXX1"			));
+	mixin(generateFunQt(	328,	"qteQPlainTextEdit_setCursorPosition"));
+	mixin(generateFunQt(	329,	"qteQPlainTextEdit_find1"			));
+	mixin(generateFunQt(	330,	"qteQPlainTextEdit_find2"			));
 
 	//  ------- QLineEdit -------
-	funQt(82, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQLineEdit_create1",				showError);
-	funQt(83, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQLineEdit_delete1",				showError);
-	funQt(84, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQLineEdit_set",					showError);
-	funQt(85, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQLineEdit_clear",				showError);
-	funQt(86, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQLineEdit_text",				showError);
-	funQt(158,bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQLineEdit_setKeyPressEvent",	showError);
-
-	funQt(287,bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQLineEdit_setX1",				showError);
-	funQt(288,bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQLineEdit_getX1",				showError);
+	mixin(generateFunQt(	82, 	"qteQLineEdit_create1"				));
+	mixin(generateFunQt(	83, 	"qteQLineEdit_delete1"				));
+	mixin(generateFunQt(	84, 	"qteQLineEdit_set"					));
+	mixin(generateFunQt(	85, 	"qteQLineEdit_clear"				));
+	mixin(generateFunQt(	86, 	"qteQLineEdit_text"					));
+	mixin(generateFunQt(	158,	"qteQLineEdit_setKeyPressEvent"		));
+	mixin(generateFunQt(	287,	"qteQLineEdit_setX1"				));
+	mixin(generateFunQt(	288,	"qteQLineEdit_getX1"				));
 
 	//  ------- QMainWindow -------
-	funQt(88, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQMainWindow_create1",			showError);
-	funQt(89, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQMainWindow_delete1",			showError);
-	funQt(90, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQMainWindow_setXX",				showError);
-	funQt(126, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQMainWindow_addToolBar",		showError);
+	mixin(generateFunQt(	88, 	"qteQMainWindow_create1"			));
+	mixin(generateFunQt(	89, 	"qteQMainWindow_delete1"			));
+	mixin(generateFunQt(	90, 	"qteQMainWindow_setXX"				));
+	mixin(generateFunQt(	126, 	"qteQMainWindow_addToolBar"			));
+
 	//  ------- QStatusBar -------
-	funQt(91, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQStatusBar_create1",			showError);
-	funQt(92, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQStatusBar_delete1",			showError);
-	funQt(93, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQStatusBar_showMessage",		showError);
-	funQt(314,bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQStatusBar_addWidgetXX1",		showError);
+	mixin(generateFunQt(	91, 	"qteQStatusBar_create1"				));
+	mixin(generateFunQt(	92, 	"qteQStatusBar_delete1"				));
+	mixin(generateFunQt(	93, 	"qteQStatusBar_showMessage"			));
+	mixin(generateFunQt(	314,	"qteQStatusBar_addWidgetXX1"		));
 
 	//  ------- QAction -------
-	funQt(95, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQAction_create",				showError);
-	funQt(96, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQAction_delete",				showError);
-	funQt(289,bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQAction_getParent",				showError);
-	funQt(97, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQAction_setXX1",				showError);
-	funQt(98, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQAction_setSlotN2",				showError);
-	funQt(105, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets,"qteQAction_setHotKey",				showError);
-	funQt(109, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets,"qteQAction_setEnabled",			showError);
-	funQt(113, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets,"qteQAction_setIcon",				showError);
-	funQt(339, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets,"qteQAction_SendSignal_V",			showError);
-	funQt(340, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets,"qteQAction_SendSignal_VI",			showError);
-	funQt(341, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets,"qteQAction_SendSignal_VS",			showError);
+	mixin(generateFunQt(	95, 	"qteQAction_create"					));
+	mixin(generateFunQt(	96, 	"qteQAction_delete"					));
+	mixin(generateFunQt(	289,	"qteQAction_getParent"				));
+	mixin(generateFunQt(	97, 	"qteQAction_setXX1"					));
+	mixin(generateFunQt(	98, 	"qteQAction_setSlotN2"				));
+	
+	mixin(generateFunQt(	105,  	"qteQAction_setHotKey"				));
+	mixin(generateFunQt(	109,  	"qteQAction_setEnabled"				));
+	mixin(generateFunQt(	113,  	"qteQAction_setIcon"				));
+	mixin(generateFunQt(	339,  	"qteQAction_SendSignal_V"			));
+	mixin(generateFunQt(	340,  	"qteQAction_SendSignal_VI"			));
+	mixin(generateFunQt(	341,  	"qteQAction_SendSignal_VS"			));
 
 	//  ------- QMenu -------
-	funQt(99, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets,  "qteQMenu_create",					showError);
-	funQt(100, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQMenu_delete",					showError);
-	funQt(101, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQMenu_addAction",				showError);
-	funQt(106, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQMenu_setTitle",				showError);
-	funQt(107, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQMenu_addSeparator",			showError);
-	funQt(108, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQMenu_addMenu",				showError);
+	mixin(generateFunQt(	99,   	"qteQMenu_create"					));
+	mixin(generateFunQt(	100,  	"qteQMenu_delete"					));
+	mixin(generateFunQt(	101,  	"qteQMenu_addAction"				));
+	mixin(generateFunQt(	106,  	"qteQMenu_setTitle"					));
+	mixin(generateFunQt(	107,  	"qteQMenu_addSeparator"				));
+	mixin(generateFunQt(	108,  	"qteQMenu_addMenu"					));
+
 	//  ------- QMenuBar -------
-	funQt(102, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQMenuBar_create",				showError);
-	funQt(103, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQMenuBar_delete",				showError);
-	funQt(104, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQMenuBar_addMenu",				showError);
+	mixin(generateFunQt(	102,  	"qteQMenuBar_create"				));
+	mixin(generateFunQt(	103,  	"qteQMenuBar_delete"				));
+	mixin(generateFunQt(	104,  	"qteQMenuBar_addMenu"				));
+	
 	//  ------- QIcon -------
-	funQt(110, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQIcon_create",					showError);
-	funQt(111, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQIcon_delete",					showError);
-	funQt(112, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQIcon_addFile",				showError);
-	funQt(377, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQIcon_addFile2",				showError);
-	funQt(378, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQIcon_swap",					showError);
+	mixin(generateFunQt(	110,  	"qteQIcon_create"					));
+	mixin(generateFunQt(	111,  	"qteQIcon_delete"					));
+	mixin(generateFunQt(	112,  	"qteQIcon_addFile"					));
+	mixin(generateFunQt(	377,  	"qteQIcon_addFile2"					));
+	mixin(generateFunQt(	378,  	"qteQIcon_swap"						));
+	
 	//  ------- QToolBar -------
-	funQt(114, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQToolBar_create",				showError);
-	funQt(115, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQToolBar_delete",				showError);
-	funQt(116, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQToolBar_setXX1",				showError);
-
-	funQt(124, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQToolBar_setAllowedAreas",		showError);
-	funQt(125, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQToolBar_setToolButtonStyle",	showError);
-
-	funQt(132, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQToolBar_addSeparator",		showError);
+	mixin(generateFunQt(	114,  	"qteQToolBar_create"				));
+	mixin(generateFunQt(	115,  	"qteQToolBar_delete"				));
+	mixin(generateFunQt(	116,  	"qteQToolBar_setXX1"				));
+	mixin(generateFunQt(	124,  	"qteQToolBar_setAllowedAreas"		));
+	mixin(generateFunQt(	125,  	"qteQToolBar_setToolButtonStyle"	));
+	mixin(generateFunQt(	132,  	"qteQToolBar_addSeparator"			));
 
 	//  ------- QDialog -------
-	funQt(117, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQDialog_create",				showError);
-	funQt(118, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQDialog_delete",				showError);
-	funQt(119, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQDialog_exec",					showError);
+	mixin(generateFunQt(	117, 	"qteQDialog_create"					));
+	mixin(generateFunQt(	118, 	"qteQDialog_delete"					));
+	mixin(generateFunQt(	119, 	"qteQDialog_exec"					));
+	
 	//  ------- QDialog -------
-	funQt(120, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQMessageBox_create",			showError);
-	funQt(121, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQMessageBox_delete",			showError);
-	funQt(122, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQMessageBox_setXX1",			showError);
-	funQt(123, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQMessageBox_setStandardButtons",	showError);
+	mixin(generateFunQt(	120, 	"qteQMessageBox_create"				));
+	mixin(generateFunQt(	121, 	"qteQMessageBox_delete"				));
+	mixin(generateFunQt(	122, 	"qteQMessageBox_setXX1"				));
+	mixin(generateFunQt(	123, 	"qteQMessageBox_setStandardButtons"	));
+	
 	//  ------- QFont -------
-	funQt(127, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQFont_create",					showError);
-	funQt(128, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQFont_delete",					showError);
-	funQt(129, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQFont_setPointSize",			showError);
-	funQt(130, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQFont_setFamily",				showError);
-	funQt(312, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQFont_setBoolXX1",				showError);
-	funQt(313, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQFont_getBoolXX1",				showError);
+	mixin(generateFunQt(	127, 	"qteQFont_create"					));
+	mixin(generateFunQt(	128, 	"qteQFont_delete"					));
+	mixin(generateFunQt(	129, 	"qteQFont_setPointSize"				));
+	mixin(generateFunQt(	130, 	"qteQFont_setFamily"				));
+	mixin(generateFunQt(	312, 	"qteQFont_setBoolXX1"				));
+	mixin(generateFunQt(	313, 	"qteQFont_getBoolXX1"				));
+	
 	//  ------- QProgressBar -------
-	funQt(133, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQProgressBar_create",			showError);
-	funQt(134, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQProgressBar_delete",			showError);
-	funQt(135, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQProgressBar_setPr",  			showError);
+	mixin(generateFunQt(	133, 	"qteQProgressBar_create"			));
+	mixin(generateFunQt(	134, 	"qteQProgressBar_delete"			));
+	mixin(generateFunQt(	135, 	"qteQProgressBar_setPr"				));
+	
 	//  ------- QDate -------
-	funQt(136, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQDate_create",					showError);
-	funQt(137, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQDate_delete",					showError);
-	funQt(140, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQDate_toString",				showError);
+	mixin(generateFunQt(	136, 	"qteQDate_create"					));
+	mixin(generateFunQt(	137, 	"qteQDate_delete"					));
+	mixin(generateFunQt(	140, 	"qteQDate_toString"					));
 
 	//  ------- QTime -------
-	funQt(138, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQTime_create",					showError);
-	funQt(139, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQTime_delete",					showError);
-	funQt(141, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQTime_toString",				showError);
+	mixin(generateFunQt(	138, 	"qteQTime_create"					));
+	mixin(generateFunQt(	139, 	"qteQTime_delete"					));
+	mixin(generateFunQt(	141, 	"qteQTime_toString"					));
 
 	//  ------- QFileDialog -------
-	funQt(142, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQFileDialog_create",			showError);
-	funQt(143, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQFileDialog_delete",			showError);
-	funQt(144, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQFileDialog_setNameFilter",	showError);
-	funQt(145, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQFileDialog_setViewMode",		showError);
-	funQt(146, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQFileDialog_getOpenFileName",	showError);
-	funQt(147, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQFileDialog_getSaveFileName",	showError);
-	funQt(274, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQFileDialog_stGetOpenFileName",showError);
-	funQt(275, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQFileDialog_stGetSaveFileName",showError);
+	mixin(generateFunQt(	142, 	"qteQFileDialog_create"				));
+	mixin(generateFunQt(	143, 	"qteQFileDialog_delete"				));
+	mixin(generateFunQt(	144, 	"qteQFileDialog_setNameFilter"		));
+	mixin(generateFunQt(	145, 	"qteQFileDialog_setViewMode"		));
+	mixin(generateFunQt(	146, 	"qteQFileDialog_getOpenFileName"	));
+	mixin(generateFunQt(	147, 	"qteQFileDialog_getSaveFileName"	));
+	mixin(generateFunQt(	274, 	"qteQFileDialog_stGetOpenFileName"	));
+	mixin(generateFunQt(	275, 	"qteQFileDialog_stGetSaveFileName"	));
+	
 	//  ------- QAbstractScrollArea -------
-	funQt(149, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQAbstractScrollArea_create",	showError);
-	funQt(150, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQAbstractScrollArea_delete",	showError);
+	mixin(generateFunQt(	149, 	"qteQAbstractScrollArea_create"		));
+	mixin(generateFunQt(	150, 	"qteQAbstractScrollArea_delete"		));
+	
 	//  ------- QMdiArea -------
-	funQt(151, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQMdiArea_create",				showError);
-	funQt(152, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQMdiArea_delete",				showError);
+	mixin(generateFunQt(	151, 	"qteQMdiArea_create"				));
+	mixin(generateFunQt(	152, 	"qteQMdiArea_delete"				));
+	mixin(generateFunQt(	155, 	"qteQMdiArea_addSubWindow"			));
+	mixin(generateFunQt(	338, 	"qteQMdiArea_activeSubWindow"		));
 
-	funQt(155, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQMdiArea_addSubWindow",		showError);
-	funQt(338, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQMdiArea_activeSubWindow",		showError);
 	//  ------- QMdiSubWindow -------
-	funQt(153, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQMdiSubWindow_create",			showError);
-	funQt(154, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQMdiSubWindow_delete",			showError);
-	funQt(156, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQMdiSubWindow_addLayout",		showError);
-	//  ------- QTableView -------
-	funQt(159, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQTableView_create",			showError);
-	funQt(160, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQTableView_delete",			showError);
+	mixin(generateFunQt(	153, 	"qteQMdiSubWindow_create"			));
+	mixin(generateFunQt(	154, 	"qteQMdiSubWindow_delete"			));
+	mixin(generateFunQt(	156, 	"qteQMdiSubWindow_addLayout"		));
 
-	funQt(174, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQTableView_setN1",				showError);
-	funQt(175, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQTableView_getN1",				showError);
-	funQt(182, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQTableView_ResizeMode",		showError);
+	//  ------- QTableView -------
+	mixin(generateFunQt(	159, 	"qteQTableView_create"				));
+	mixin(generateFunQt(	160, 	"qteQTableView_delete"				));
+	mixin(generateFunQt(	174, 	"qteQTableView_setN1"				));
+	mixin(generateFunQt(	175, 	"qteQTableView_getN1"				));
+	mixin(generateFunQt(	182, 	"qteQTableView_ResizeMode"			));
 
 	//  ------- QTableWidget -------
-	funQt(161, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQTableWidget_create",			showError);
-	funQt(162, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQTableWidget_delete",			showError);
-	funQt(163, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQTableWidget_setRC",			showError);
-	funQt(167, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQTableWidget_setItem",			showError);
-
-	funQt(176, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQTableWidget_setHVheaderItem",	showError);
-	funQt(241, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQTableWidget_setCurrentCell",	showError);
-
-	funQt(369, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQTableWidget_getCurrent",		showError);
-	funQt(370, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQTableWidget_item",			showError);
-	funQt(371, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQTableWidget_takeItem",		showError);
+	mixin(generateFunQt(	161, 	"qteQTableWidget_create"			));
+	mixin(generateFunQt(	162, 	"qteQTableWidget_delete"			));
+	mixin(generateFunQt(	163, 	"qteQTableWidget_setRC"				));
+	mixin(generateFunQt(	167, 	"qteQTableWidget_setItem"			));
+	mixin(generateFunQt(	176, 	"qteQTableWidget_setHVheaderItem"	));
+	mixin(generateFunQt(	241, 	"qteQTableWidget_setCurrentCell"	));
+	mixin(generateFunQt(	369, 	"qteQTableWidget_getCurrent"		));
+	mixin(generateFunQt(	370, 	"qteQTableWidget_item"				));
+	mixin(generateFunQt(	371, 	"qteQTableWidget_takeItem"			));
 
 	//  ------- QTableWidgetItem -------
-	funQt(164, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQTableWidgetItem_create",		showError);
-	funQt(165, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQTableWidgetItem_delete",		showError);
-
-	funQt(166, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQTableWidgetItem_setXX",		showError);
-	funQt(168, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQTableWidgetItem_setYY",		showError);
-	funQt(169, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQTableWidget_item",			showError);
-	funQt(170, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQTableWidgetItem_text",		showError);
-	funQt(171, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQTableWidgetItem_setAlignment",	showError);
-	funQt(180, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQTableWidgetItem_setBackground",	showError);
-	funQt(372, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQTableWidgetItem_setFlags",	showError);
-	funQt(373, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQTableWidgetItem_flags",		showError);
-	funQt(374, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQTableWidgetItem_setSelected",	showError);
-	funQt(375, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQTableWidgetItem_isSelected",	showError);
-	funQt(376, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQTableWidgetItem_setIcon",		showError);
+	mixin(generateFunQt(	164, 	"qteQTableWidgetItem_create"		));
+	mixin(generateFunQt(	165, 	"qteQTableWidgetItem_delete"		));
+	mixin(generateFunQt(	166, 	"qteQTableWidgetItem_setXX"			));
+	mixin(generateFunQt(	168, 	"qteQTableWidgetItem_setYY"			));
+	mixin(generateFunQt(	169, 	"qteQTableWidget_item"				));
+	mixin(generateFunQt(	170, 	"qteQTableWidgetItem_text"			));
+	mixin(generateFunQt(	171, 	"qteQTableWidgetItem_setAlignment"	));
+	mixin(generateFunQt(	180, 	"qteQTableWidgetItem_setBackground"	));
+	mixin(generateFunQt(	372, 	"qteQTableWidgetItem_setFlags"		));
+	mixin(generateFunQt(	373, 	"qteQTableWidgetItem_flags"			));
+	mixin(generateFunQt(	374, 	"qteQTableWidgetItem_setSelected"	));
+	mixin(generateFunQt(	375, 	"qteQTableWidgetItem_isSelected"	));
+	mixin(generateFunQt(	376, 	"qteQTableWidgetItem_setIcon"		));
 
 	//  ------- QBrush -------
-	funQt(177, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQBrush_create1",				showError);
-	funQt(178, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQBrush_delete",				showError);
-	funQt(179, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQBrush_setColor",				showError);
-	funQt(181, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQBrush_setStyle",				showError);
+	mixin(generateFunQt(	177, 	"qteQBrush_create1"					));
+	mixin(generateFunQt(	178, 	"qteQBrush_delete"					));
+	mixin(generateFunQt(	179, 	"qteQBrush_setColor"				));
+	mixin(generateFunQt(	181, 	"qteQBrush_setStyle"				));
 
 	//  ------- QComboBox -------
-	funQt(183, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQComboBox_create",				showError);
-	funQt(184, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQComboBox_delete",				showError);
-	funQt(185, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQComboBox_setXX",				showError);
-	funQt(186, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQComboBox_getXX",				showError);
-	funQt(187, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQComboBox_text",				showError);
-	//  ------- QPainter -------
-	funQt(301, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQPainter_create",				showError);
-	funQt(302, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQPainter_delete",				showError);
+	mixin(generateFunQt(	183, 	"qteQComboBox_create"				));
+	mixin(generateFunQt(	184, 	"qteQComboBox_delete"				));
+	mixin(generateFunQt(	185, 	"qteQComboBox_setXX"				));
+	mixin(generateFunQt(	186, 	"qteQComboBox_getXX"				));
+	mixin(generateFunQt(	187, 	"qteQComboBox_text"					));
 
-	funQt(188, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQPainter_drawPoint",			showError);
-	funQt(189, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQPainter_drawLine",			showError);
-	funQt(190, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQPainter_setXX1",				showError);
-	funQt(196, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQPainter_setText",				showError);
-	funQt(197, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQPainter_end",					showError);
-	funQt(243, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQPainter_drawRect1",			showError);
-	funQt(244, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQPainter_drawRect2",			showError);
-	funQt(245, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQPainter_fillRect2",			showError);
-	funQt(246, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQPainter_fillRect3",			showError);
-	funQt(298, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQPainter_getFont",				showError);
-	funQt(310, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQPainter_drawImage1",			showError);
-	funQt(311, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQPainter_drawImage2",			showError);
+	//  ------- QPainter -------
+	mixin(generateFunQt(	301, 	"qteQPainter_create"				));
+	mixin(generateFunQt(	302, 	"qteQPainter_delete"				));
+	mixin(generateFunQt(	188, 	"qteQPainter_drawPoint"				));
+	mixin(generateFunQt(	189, 	"qteQPainter_drawLine"				));
+	mixin(generateFunQt(	190, 	"qteQPainter_setXX1"				));
+	mixin(generateFunQt(	196, 	"qteQPainter_setText"				));
+	mixin(generateFunQt(	197, 	"qteQPainter_end"					));
+	mixin(generateFunQt(	243, 	"qteQPainter_drawRect1"				));
+	mixin(generateFunQt(	244, 	"qteQPainter_drawRect2"				));
+	mixin(generateFunQt(	245, 	"qteQPainter_fillRect2"				));
+	mixin(generateFunQt(	246, 	"qteQPainter_fillRect3"				));
+	mixin(generateFunQt(	298, 	"qteQPainter_getFont"				));
+	mixin(generateFunQt(	310, 	"qteQPainter_drawImage1"			));
+	mixin(generateFunQt(	311, 	"qteQPainter_drawImage2"			));
+
 	//  ------- QPen -------
-	funQt(191, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQPen_create1",					showError);
-	funQt(192, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQPen_delete",					showError);
-	funQt(193, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQPen_setColor",				showError);
-	funQt(194, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQPen_setStyle",				showError);
-	funQt(195, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQPen_setWidth",				showError);
+	mixin(generateFunQt(	191, 	"qteQPen_create1"					));
+	mixin(generateFunQt(	192, 	"qteQPen_delete"					));
+	mixin(generateFunQt(	193, 	"qteQPen_setColor"					));
+	mixin(generateFunQt(	194, 	"qteQPen_setStyle"					));
+	mixin(generateFunQt(	195, 	"qteQPen_setWidth"					));
+
 	//  ------- QLCDNumber -------
-	funQt(198, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQLCDNumber_create1",			showError);
-	funQt(199, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQLCDNumber_delete1",			showError);
-	funQt(200, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQLCDNumber_create2",			showError);
-	funQt(201, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQLCDNumber_display",			showError);
-	funQt(202, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQLCDNumber_setSegmentStyle",	showError);
-	funQt(203, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQLCDNumber_setDigitCount",		showError);
-	funQt(204, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQLCDNumber_setMode",			showError);
+	mixin(generateFunQt(	198, 	"qteQLCDNumber_create1"				));
+	mixin(generateFunQt(	199, 	"qteQLCDNumber_delete1"				));
+	mixin(generateFunQt(	200, 	"qteQLCDNumber_create2"				));
+	mixin(generateFunQt(	201, 	"qteQLCDNumber_display"				));
+	mixin(generateFunQt(	202, 	"qteQLCDNumber_setSegmentStyle"		));
+	mixin(generateFunQt(	203, 	"qteQLCDNumber_setDigitCount"		));
+	mixin(generateFunQt(	204, 	"qteQLCDNumber_setMode"				));
+
 	//  ------- QAbstractSlider -------
-	funQt(205, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQAbstractSlider_setXX",		showError);
-	funQt(208, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQAbstractSlider_getXX",		showError);
+	mixin(generateFunQt(	205, 	"qteQAbstractSlider_setXX"			));
+	mixin(generateFunQt(	208, 	"qteQAbstractSlider_getXX"			));
+
 	//  ------- QSlider -------
-	funQt(206, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQSlider_create1",				showError);
-	funQt(207, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQSlider_delete1",				showError);
+	mixin(generateFunQt(	206, 	"qteQSlider_create1"				));
+	mixin(generateFunQt(	207, 	"qteQSlider_delete1"				));
+
 	//  ------- QGroupBox -------
-	funQt(212, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQGroupBox_create",				showError);
-	funQt(213, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQGroupBox_delete",				showError);
-	funQt(214, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQGroupBox_setTitle",			showError);
-	funQt(215, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQGroupBox_setAlignment",		showError);
+	mixin(generateFunQt(	212, 	"qteQGroupBox_create"				));
+	mixin(generateFunQt(	213, 	"qteQGroupBox_delete"				));
+	mixin(generateFunQt(	214, 	"qteQGroupBox_setTitle"				));
+	mixin(generateFunQt(	215, 	"qteQGroupBox_setAlignment"			));
+
 	//  ------- QCheckBox -------
-	funQt(216, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQCheckBox_create1",			showError);
-	funQt(217, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQCheckBox_delete",				showError);
-	funQt(218, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQCheckBox_checkState",			showError);
-	funQt(219, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQCheckBox_setCheckState",		showError);
-	funQt(220, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQCheckBox_setTristate",		showError);
-	funQt(221, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQCheckBox_isTristate",			showError);
+	mixin(generateFunQt(	216, 	"qteQCheckBox_create1"				));
+	mixin(generateFunQt(	217, 	"qteQCheckBox_delete"				));
+	mixin(generateFunQt(	218, 	"qteQCheckBox_checkState"			));
+	mixin(generateFunQt(	219, 	"qteQCheckBox_setCheckState"		));
+	mixin(generateFunQt(	220, 	"qteQCheckBox_setTristate"			));
+	mixin(generateFunQt(	221, 	"qteQCheckBox_isTristate"			));
+
 	//  ------- QRadioButton -------
-	funQt(222, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQRadioButton_create1",			showError);
-	funQt(223, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQRadioButton_delete",			showError);
+	mixin(generateFunQt(	222, 	"qteQRadioButton_create1"			));
+	mixin(generateFunQt(	223, 	"qteQRadioButton_delete"			));
+
 	//  ------- QTextCursor -------
-	funQt(227, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQTextCursor_create1",			showError);
-	funQt(228, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQTextCursor_delete",			showError);
-	funQt(229, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQTextCursor_create2",			showError);
-	funQt(231, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQTextCursor_getXX1",			showError);
-	funQt(254, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQTextCursor_movePosition",		showError);
-	funQt(255, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQTextCursor_runXX",			showError);
-	funQt(256, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQTextCursor_insertText1",		showError);
-	funQt(286, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQTextCursor_select",			showError);
-	funQt(327, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQTextCursor_setPosition",		showError);
+	mixin(generateFunQt(	227, 	"qteQTextCursor_create1"			));
+	mixin(generateFunQt(	228, 	"qteQTextCursor_delete"				));
+	mixin(generateFunQt(	229, 	"qteQTextCursor_create2"			));
+	mixin(generateFunQt(	231, 	"qteQTextCursor_getXX1"				));
+	mixin(generateFunQt(	254, 	"qteQTextCursor_movePosition"		));
+	mixin(generateFunQt(	255, 	"qteQTextCursor_runXX"				));
+	mixin(generateFunQt(	256, 	"qteQTextCursor_insertText1"		));
+	mixin(generateFunQt(	286, 	"qteQTextCursor_select"				));
+	mixin(generateFunQt(	327, 	"qteQTextCursor_setPosition"		));
 
 	//  ------- QRect -------
-	funQt(232, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQRect_create1",				showError);
-	funQt(233, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQRect_delete",					showError);
-	funQt(234, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQRect_setXX1",					showError);
-	funQt(242, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQRect_setXX2",					showError);
+	mixin(generateFunQt(	232, 	"qteQRect_create1"					));
+	mixin(generateFunQt(	233, 	"qteQRect_delete"					));
+	mixin(generateFunQt(	234, 	"qteQRect_setXX1"					));
+	mixin(generateFunQt(	242, 	"qteQRect_setXX2"					));
 
 	//  ------- QTextBlock -------
-	funQt(237, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQTextBlock_text",				showError);
-	funQt(238, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQTextBlock_create",			showError);
-	funQt(239, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQTextBlock_delete",			showError);
-	funQt(240, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQTextBlock_create2",			showError);
-	funQt(283, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQTextBlock_blockNumber",		showError);
-	funQt(299, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQTextBlock_next2",				showError);
-	funQt(300, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQTextBlock_isValid2",			showError);
+	mixin(generateFunQt(	237, 	"qteQTextBlock_text"				));
+	mixin(generateFunQt(	238, 	"qteQTextBlock_create"				));
+	mixin(generateFunQt(	239, 	"qteQTextBlock_delete"				));
+	mixin(generateFunQt(	240, 	"qteQTextBlock_create2"				));
+	mixin(generateFunQt(	283, 	"qteQTextBlock_blockNumber"			));
+	mixin(generateFunQt(	299, 	"qteQTextBlock_next2"				));
+	mixin(generateFunQt(	300, 	"qteQTextBlock_isValid2"			));
 
 	//  ------- QSpinBox -------
-	funQt(247, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQSpinBox_create",				showError);
-	funQt(248, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQSpinBox_delete",				showError);
-	funQt(249, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQSpinBox_setXX1",				showError);
-	funQt(250, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQSpinBox_getXX1",				showError);
-	funQt(251, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQSpinBox_setXX2",				showError);
+	mixin(generateFunQt(	247, 	"qteQSpinBox_create"				));
+	mixin(generateFunQt(	248, 	"qteQSpinBox_delete"				));
+	mixin(generateFunQt(	249, 	"qteQSpinBox_setXX1"				));
+	mixin(generateFunQt(	250, 	"qteQSpinBox_getXX1"				));
+	mixin(generateFunQt(	251, 	"qteQSpinBox_setXX2"				));
 
 	//  ------- QAbstractSpinBox -------
-	funQt(252, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQAbstractSpinBox_setReadOnly",	showError);
+	mixin(generateFunQt(	252, 	"qteQAbstractSpinBox_setReadOnly"	));
 
 	//  ------- Highlighter -- Временный, подлежит в дальнейшем удалению -----
-	funQt(257, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteHighlighter_create",			showError);
-	funQt(258, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteHighlighter_delete",			showError);
+	mixin(generateFunQt(	257, 	"qteHighlighter_create"				));
+	mixin(generateFunQt(	258, 	"qteHighlighter_delete"				));
 
 	// ------- QTextEdit -------
-	funQt(260, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQTextEdit_create1",			showError);
-	funQt(261, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQTextEdit_delete1",			showError);
-
-	funQt(270, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQTextEdit_setFromString",		showError);
-	funQt(271, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQTextEdit_toString",			showError);
-	funQt(272, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQTextEdit_cutn",           	 showError);
-	funQt(345, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQTextEdit_setBool",           	 showError);
-	funQt(346, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQTextEdit_toBool",           	 showError);
+	mixin(generateFunQt(	260, 	"qteQTextEdit_create1"				));
+	mixin(generateFunQt(	261, 	"qteQTextEdit_delete1"				));
+	mixin(generateFunQt(	270, 	"qteQTextEdit_setFromString"		));
+	mixin(generateFunQt(	271, 	"qteQTextEdit_toString"				));
+	mixin(generateFunQt(	272, 	"qteQTextEdit_cutn"					));
+	mixin(generateFunQt(	345, 	"qteQTextEdit_setBool"				));
+	mixin(generateFunQt(	346, 	"qteQTextEdit_toBool"				));
 
 	// ------- QTimer -------
-	funQt(262, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQTimer_create",				showError);
-	funQt(263, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQTimer_delete",				showError);
-	funQt(264, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQTimer_setInterval",			showError);
-	funQt(265, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQTimer_getXX1",				showError);
-	funQt(266, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQTimer_getXX2",				showError);
-	funQt(267, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQTimer_setTimerType",			showError);
-	funQt(268, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQTimer_setSingleShot",			showError);
-	funQt(269, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQTimer_timerType",				showError);
-	funQt(342, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQTimer_setStartInterval",  	showError);
+	mixin(generateFunQt(	262, 	"qteQTimer_create"					));
+	mixin(generateFunQt(	263, 	"qteQTimer_delete"					));
+	mixin(generateFunQt(	264, 	"qteQTimer_setInterval"				));
+	mixin(generateFunQt(	265, 	"qteQTimer_getXX1"					));
+	mixin(generateFunQt(	266, 	"qteQTimer_getXX2"					));
+	mixin(generateFunQt(	267, 	"qteQTimer_setTimerType"			));
+	mixin(generateFunQt(	268, 	"qteQTimer_setSingleShot"			));
+	mixin(generateFunQt(	269, 	"qteQTimer_timerType"				));
+	mixin(generateFunQt(	342, 	"qteQTimer_setStartInterval"		));
 
 	// ------- QTextOption -------
-	funQt(291, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "QTextOption_create",				showError);
-	funQt(292, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "QTextOption_delete",				showError);
-	funQt(293, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "QTextOption_setWrapMode",			showError);
+	mixin(generateFunQt(	291, 	"QTextOption_create"				));
+	mixin(generateFunQt(	292, 	"QTextOption_delete"				));
+	mixin(generateFunQt(	293, 	"QTextOption_setWrapMode"			));
 
 	// ------- QFontMetrics -------
-	funQt(295, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "QFontMetrics_create",				showError);
-	funQt(296, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "QFontMetrics_delete",				showError);
-	funQt(297, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "QFontMetrics_getXX1",				showError);
+	mixin(generateFunQt(	295, 	"QFontMetrics_create"				));
+	mixin(generateFunQt(	296, 	"QFontMetrics_delete"				));
+	mixin(generateFunQt(	297, 	"QFontMetrics_getXX1"				));
 
 	// ------- QImage -------
-	funQt(303, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQImage_create1",					showError);
-	funQt(304, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQImage_delete",					showError);
-	funQt(305, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQImage_load",						showError);
-	funQt(315, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQImage_create2",					showError);
+	mixin(generateFunQt(	303, 	"qteQImage_create1"					));
+	mixin(generateFunQt(	304, 	"qteQImage_delete"					));
+	mixin(generateFunQt(	305, 	"qteQImage_load"					));
+	mixin(generateFunQt(	315, 	"qteQImage_create2"					));
 
-	funQt(316, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQImage_fill1",						showError);
-	funQt(317, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQImage_fill2",						showError);
-	funQt(318, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQImage_setPixel1",					showError);
-	funQt(319, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQImage_getXX1",					showError);
-	funQt(321, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQImage_pixel",						showError);
+	mixin(generateFunQt(	316, 	"qteQImage_fill1"					));
+	mixin(generateFunQt(	317, 	"qteQImage_fill2"					));
+	mixin(generateFunQt(	318, 	"qteQImage_setPixel1"				));
+	mixin(generateFunQt(	319, 	"qteQImage_getXX1"					));
+	mixin(generateFunQt(	321, 	"qteQImage_pixel"					));
 
 	// ------- QPoint -------
-	funQt(306, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQPoint_create1",					showError);
-	funQt(307, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQPoint_delete",					showError);
-	funQt(308, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQPoint_setXX1",					showError);
-	funQt(309, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQPoint_getXX1",					showError);
+	mixin(generateFunQt(	306, 	"qteQPoint_create1"					));
+	mixin(generateFunQt(	307, 	"qteQPoint_delete"					));
+	mixin(generateFunQt(	308, 	"qteQPoint_setXX1"					));
+	mixin(generateFunQt(	309, 	"qteQPoint_getXX1"					));
 
 	// ------- QGridLayout -------
-	funQt(330, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQGridLayout_create1",				showError);
-	funQt(331, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQGridLayout_delete",				showError);
-	funQt(332, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQGridLayout_getXX1",				showError);
-	funQt(333, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQGridLayout_addWidget1",			showError);
-	funQt(334, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQGridLayout_addWidget2",			showError);
-	funQt(335, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQGridLayout_setXX1",				showError);
-	funQt(336, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQGridLayout_setXX2",				showError);
-	funQt(337, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQGridLayout_addLayout1",			showError);
+	mixin(generateFunQt(	330, 	"qteQGridLayout_create1"			));
+	mixin(generateFunQt(	331, 	"qteQGridLayout_delete"				));
+	mixin(generateFunQt(	332, 	"qteQGridLayout_getXX1"				));
+	mixin(generateFunQt(	333, 	"qteQGridLayout_addWidget1"			));
+	mixin(generateFunQt(	334, 	"qteQGridLayout_addWidget2"			));
+	mixin(generateFunQt(	335, 	"qteQGridLayout_setXX1"				));
+	mixin(generateFunQt(	336, 	"qteQGridLayout_setXX2"				));
+	mixin(generateFunQt(	337, 	"qteQGridLayout_addLayout1"			));
 
 	// ------- QMouseEvent -------
-	funQt(347, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQMouseEvent1",						showError);
-	funQt(348, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQWidget_setMousePressEvent",		showError);
-	funQt(349, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQWidget_setMouseReleaseEvent",		showError);
-	funQt(350, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQMouse_button",					showError);
+	mixin(generateFunQt(	347, 	"qteQMouseEvent1"					));
+	mixin(generateFunQt(	348, 	"qteQWidget_setMousePressEvent"		));
+	mixin(generateFunQt(	349, 	"qteQWidget_setMouseReleaseEvent"	));
+	mixin(generateFunQt(	350, 	"qteQMouse_button"					));
 
 	// ------- QScriptEngine -------
-	funQt(351, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "QScriptEngine_create1",				showError);
-	funQt(352, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "QScriptEngine_delete1",				showError);
-	funQt(353, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "QScriptEngine_evaluate",				showError);
-	funQt(358, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "QScriptEngine_newQObject",			showError);
-	funQt(359, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "QScriptEngine_globalObject",			showError);
-	funQt(361, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "QScriptEngine_callFunDlang",			showError);
-	funQt(362, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "QScriptEngine_setFunDlang",			showError);
+	mixin(generateFunQt(	351, 	"QScriptEngine_create1"				));
+	mixin(generateFunQt(	352, 	"QScriptEngine_delete1"				));
+	mixin(generateFunQt(	353, 	"QScriptEngine_evaluate"			));
+	mixin(generateFunQt(	358, 	"QScriptEngine_newQObject"			));
+	mixin(generateFunQt(	359, 	"QScriptEngine_globalObject"		));
+	mixin(generateFunQt(	361, 	"QScriptEngine_callFunDlang"		));
+	mixin(generateFunQt(	362, 	"QScriptEngine_setFunDlang"			));
 
 	// ------- QScriptValue -------
-	funQt(354, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "QScriptValue_create1",				showError);
-	funQt(355, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "QScriptValue_delete1",				showError);
-	funQt(356, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "QScriptValue_toInt32",				showError);
-	funQt(357, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "QScriptValue_toString",				showError);
-	funQt(360, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "QScriptValue_setProperty",			showError);
+	mixin(generateFunQt(	354, 	"QScriptValue_create1"				));
+	mixin(generateFunQt(	355, 	"QScriptValue_delete1"				));
+	mixin(generateFunQt(	356, 	"QScriptValue_toInt32"				));
+	mixin(generateFunQt(	357, 	"QScriptValue_toString"				));
+	mixin(generateFunQt(	360, 	"QScriptValue_setProperty"			));
 
-	funQt(365, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "QScriptValue_createQstring",			showError);
-	funQt(366, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "QScriptValue_createInteger",			showError);
-	funQt(367, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "QScriptValue_createBool",				showError);
+	mixin(generateFunQt(	365, 	"QScriptValue_createQstring"		));
+	mixin(generateFunQt(	366, 	"QScriptValue_createInteger"		));
+	mixin(generateFunQt(	367, 	"QScriptValue_createBool"			));
 
 	// ------- QScriptContext -------
-	funQt(363, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "QScriptContext_argumentCount",		showError);
-	funQt(364, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "QScriptContext_argument",				showError);
+	mixin(generateFunQt(	363, 	"QScriptContext_argumentCount"		));
+	mixin(generateFunQt(	364, 	"QScriptContext_argument"			));
 
 	// ------- QPaintDevice -------
-	funQt(379, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "QPaintDevice_hw",						showError);
-	funQt(380, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "QPaintDevice_pa",						showError);
+	mixin(generateFunQt(	379, 	"QPaintDevice_hw"					));
+	mixin(generateFunQt(	380, 	"QPaintDevice_pa"					));
 
-	funQt(381, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "QObject_setObjectName",				showError);
-	funQt(382, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "QObject_objectName",					showError);
-	funQt(383, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "QObject_dumpObjectInfo",				showError);
+	mixin(generateFunQt(	381, 	"QObject_setObjectName"				));
+	mixin(generateFunQt(	382, 	"QObject_objectName"				));
+	mixin(generateFunQt(	383, 	"QObject_dumpObjectInfo"			));
 	
 	// ------- QPixmap -------
-	funQt(384, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "QPixmap_create1",						showError);
-	funQt(385, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "QPixmap_delete1",						showError);
-	funQt(386, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "QPixmap_create2",						showError);
-	funQt(387, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "QPixmap_create3",						showError);
-	funQt(388, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "QPixmap_load1",						showError);
-	funQt(394, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "QPixmap_fill",						showError);
-	
-	funQt(389, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQLabel_setPixmap",					showError);
-
-	funQt(391, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQPainter_drawPixmap1",				showError);
+	mixin(generateFunQt(	384, 	"QPixmap_create1"					));
+	mixin(generateFunQt(	385, 	"QPixmap_delete1"					));
+	mixin(generateFunQt(	386, 	"QPixmap_create2"					));
+	mixin(generateFunQt(	387, 	"QPixmap_create3"					));
+	mixin(generateFunQt(	388, 	"QPixmap_load1"						));
+	mixin(generateFunQt(	394, 	"QPixmap_fill"						));
+	mixin(generateFunQt(	389, 	"qteQLabel_setPixmap"				));
+	mixin(generateFunQt(	391, 	"qteQPainter_drawPixmap1"			));
 
 	// ------- QBitmap -------
-	funQt(392, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "QBitmap_create1",						showError);
-	funQt(395, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "QBitmap_create2",						showError);
-	funQt(390, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQPainter_create3",					showError);
+	mixin(generateFunQt(	392, 	"QBitmap_create1"					));
+	mixin(generateFunQt(	395, 	"QBitmap_create2"					));
+	mixin(generateFunQt(	390, 	"qteQPainter_create3"				));
 
-	funQt(396, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQPen_create2",						showError);
-	funQt(397, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "QPixmap_setMask",						showError);
+	mixin(generateFunQt(	396, 	"qteQPen_create2"					));
+	mixin(generateFunQt(	397, 	"QPixmap_setMask"					));
 
 	// ------- QResource -------
-	funQt(398, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "QResource_create1",					showError);
-	funQt(399, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "QResource_delete1",					showError);
-	funQt(400, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "QResource_registerResource",			showError);
-	funQt(401, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "QResource_registerResource2",			showError);
+	mixin(generateFunQt(	398, 	"QResource_create1"					));
+	mixin(generateFunQt(	399, 	"QResource_delete1"					));
+	mixin(generateFunQt(	400, 	"QResource_registerResource"		));
+	mixin(generateFunQt(	401, 	"QResource_registerResource2"		));
 	
-	// Последний = 384
+	// ------- QStackedWidget -------
+	mixin(generateFunQt(	402, 	"QStackedWidget_create1"			));
+	mixin(generateFunQt(	403, 	"QStackedWidget_delete1"			));
+	mixin(generateFunQt(	404, 	"QStackedWidget_setXX1"				));
+	mixin(generateFunQt(	405, 	"QStackedWidget_setXX2"				));
+	mixin(generateFunQt(	406, 	"QStackedWidget_setXX3"				));
+
+	// ------- QTabBar -------
+	mixin(generateFunQt(	407, 	"QTabBar_create1"					));
+	mixin(generateFunQt(	408, 	"QTabBar_delete1"					));
+	mixin(generateFunQt(	409, 	"QTabBar_setXX1"					));
+	mixin(generateFunQt(	410, 	"QTabBar_addTab1"					));
+	mixin(generateFunQt(	411, 	"QTabBar_tabTextX1"					));
+	mixin(generateFunQt(	412, 	"QTabBar_tabBoolX1"					));
+	mixin(generateFunQt(	413, 	"QTabBar_addTab2"					));
+	mixin(generateFunQt(	414, 	"QTabBar_ElideMode"					));
+	mixin(generateFunQt(	415, 	"QTabBar_iconSize"					));
+	mixin(generateFunQt(	416, 	"QTabBar_addTab3"					));
+	mixin(generateFunQt(	417, 	"QTabBar_moveTab1"					));
+	mixin(generateFunQt(	418, 	"QTabBar_selectionBehaviorOnRemove"	));
+	mixin(generateFunQt(	419, 	"QTabBar_set3"						));
+	mixin(generateFunQt(	420, 	"QTabBar_setElideMode"				));
+	mixin(generateFunQt(	421, 	"QTabBar_setIconSize"				));
+	mixin(generateFunQt(	422, 	"QTabBar_setShape"					));
+	mixin(generateFunQt(	423, 	"QTabBar_setTabEnabled"				));
+	mixin(generateFunQt(	424, 	"QTabBar_setX5"						));
+	
+	mixin(generateFunQt(	425, 	"qteQColor_create3"					));
+	
+	// Последний = 418
 	return 0;
 } ///  Загрузить DLL-ки Qt и QtE. Найти в них адреса функций и заполнить ими таблицу
 
@@ -835,6 +899,21 @@ static void msgbox(string text = null, string caption = null,
 	if (text    is null) soob.setText(". . . . .");        else soob.setText(text);
 	soob.setIcon(icon).setStandardButtons(QMessageBox.StandardButton.Ok);
 	try { soob.exec();	}	catch(Throwable) {}
+}
+// Отладчик
+void deb(ubyte* uk) {
+	writeln(cast(ubyte)*(uk + 0), "=", cast(ubyte)*(uk + 1), "=",
+		cast(ubyte)*(uk + 2), "=", cast(ubyte)*(uk + 3), "=",
+		cast(ubyte)*(uk + 4), "=", cast(ubyte)*(uk + 5), "=",
+		cast(ubyte)*(uk + 6), "=", cast(ubyte)*(uk + 7), "=",
+		cast(ubyte)*(uk + 8), "=", cast(ubyte)*(uk + 9), "=",
+		cast(ubyte)*(uk + 10), "=", cast(ubyte)*(uk + 11), "=",
+		cast(ubyte)*(uk + 12), "=", cast(ubyte)*(uk + 13), "=",
+		cast(ubyte)*(uk + 14), "=", cast(ubyte)*(uk + 15), "=",
+		cast(ubyte)*(uk + 16), "=", cast(ubyte)*(uk + 17), "=",
+		cast(ubyte)*(uk + 18), "=", cast(ubyte)*(uk + 19), "=",
+		cast(ubyte)*(uk + 20), "=", cast(ubyte)*(uk + 21), "=",
+		cast(ubyte)*(uk + 22), "=", cast(ubyte)*(uk + 23));
 }
 
 /++
@@ -1203,7 +1282,12 @@ class QtE {
         NoOpaqueDetection       = 0x00000100,
         NoFormatConversion      = 0x00000200
     }
-	
+    enum TextElideMode {
+		ElideLeft	= 0,		//	The ellipsis should appear at the beginning of the text.
+		ElideRight	= 1,		//	The ellipsis should appear at the end of the text.
+		ElideMiddle	= 2,		//	The ellipsis should appear in the middle of the text.
+		ElideNone	= 3			//  Ellipsis should NOT appear in the text.
+	}
 	
 }
 // ================ QObject ================
@@ -1423,6 +1507,9 @@ class QColor : QObject {
 	this(uint color) {
 		setQtObj((cast(t_qp__ui) pFunQt[324])(color));
 	}
+	this(QtE.GlobalColor color) {
+		setQtObj((cast(t_qp__ui) pFunQt[425])(color));
+	}
 	~this() {
 		if(!fNoDelete && (QtObj != null)) { (cast(t_v__qp) pFunQt[14])(QtObj); setQtObj(null); }
 	} /// Деструктор
@@ -1543,6 +1630,44 @@ class QPaintDevice: QObject  {
 }
 
 // ================ gWidget ================
+
+struct sQWidget {
+	//____________________________
+private:
+	QtObjH adrCppObj;
+	//____________________________
+public:
+	@disable this();
+	@property QtObjH QtObj()	{ 	return adrCppObj;	}
+	void setQtObj(QtObjH adr)	{ 	adrCppObj = adr; 	}
+	//____________________________
+	~this() {
+		(cast(t_v__qp) pFunQt[7])(QtObj); setQtObj(null);
+		writeln("--Удалила QWidget");
+	}
+	this(int ptr) {
+	}
+	this(sQWidget* parent, QtE.WindowType fl = QtE.WindowType.Widget) {
+		if (parent) {
+			// setNoDelete(true);
+			setQtObj((cast(t_qp__qp_i)pFunQt[5])(parent.QtObj, cast(int)fl));
+		} else {
+			setQtObj((cast(t_qp__qp_i)pFunQt[5])(null, cast(int)fl));
+		}
+	}
+	void init(sQWidget* parent = null, QtE.WindowType fl = QtE.WindowType.Widget) {
+		if (parent) {
+			// setNoDelete(true);
+			setQtObj((cast(t_qp__qp_i)pFunQt[5])(parent.QtObj, cast(int)fl));
+		} else {
+			setQtObj((cast(t_qp__qp_i)pFunQt[5])(null, cast(int)fl));
+		}
+	}
+	void show() {  //->
+		(cast(t_v__qp_i) pFunQt[87])(QtObj, 3); 	
+	}
+}
+
 /++
 	QWidget (Окно), но немного модифицированный в QtE.DLL.
 	<br>Хранит в себе ссылку на реальный С++ класс gWidget из QtE.dll
@@ -1583,8 +1708,9 @@ class QWidget: QPaintDevice {
 			// printf("-[%d]-[%d]-QW ", id, balCreate); stdout.flush();
 		}
 	}
-
-
+	this(char ch, void* adr) {
+		if(ch == '+') setQtObj(cast(QtObjH)adr);
+	}
 	this(QWidget parent = null, QtE.WindowType fl = QtE.WindowType.Widget) {
 		typePD = 0;
 		if (parent) {
@@ -1940,6 +2066,40 @@ private struct stQApplication {
 	char* data;      // Вот собственно за чем нам это нужно, указатель на массив байтов
 	// char  array[1];
 }
+
+// Проверка идеи с структурами = С++ объектам
+struct sQApplication {
+	//____________________________
+private:
+	QtObjH adrCppObj;
+	//____________________________
+public:
+	@disable this();
+	@property QtObjH QtObj()		{ 	return adrCppObj;	}
+	void setQtObj(QtObjH adr)	{ 	adrCppObj = adr; 	}
+	//____________________________
+	~this() {
+		(cast(t_v__qp)pFunQt[3])(QtObj); setQtObj(null);
+		writeln("--Удалила adrCppObj");
+	}
+	this(int* m_argc, char** m_argv, int gui) {
+		setQtObj((cast(t_qp__qp_qp_i) pFunQt[0])(cast(QtObjH)m_argc, cast(QtObjH)m_argv, gui));
+		writeln("--Создала adrCppObj");
+	}
+	void init(int* m_argc, char** m_argv, int gui) {
+		setQtObj((cast(t_qp__qp_qp_i) pFunQt[0])(cast(QtObjH)m_argc, cast(QtObjH)m_argv, gui));
+		writeln("--Инициализировала adrCppObj");
+	}
+	int exec() { //-> Выполнить
+		return (cast(t_i__qp) pFunQt[1])(QtObj);
+	}
+	void aboutQt() { //-> Об Qt
+		(cast(t_v__qp) pFunQt[2])(QtObj);
+		writeln("--Выполнила adrCppObj.AboutQt");
+	}
+
+}
+
 class QApplication : QObject {
 	this(int* m_argc, char** m_argv, int gui) {
 		setQtObj((cast(t_qp__qp_qp_i) pFunQt[0])(cast(QtObjH)m_argc, cast(QtObjH)m_argv, gui));
@@ -5912,10 +6072,268 @@ class QResource: QObject {
 		return rez;
 	}
 }
+// ============ QStackedWidget =======================================
+class QStackedWidget : QFrame {
+	~this() {
+		if(!fNoDelete && (QtObj != null)) { (cast(t_v__qp) pFunQt[403])(QtObj); setQtObj(null); }
+	}
+	this(char ch, void* adr) {
+		if(ch == '+') setQtObj(cast(QtObjH)adr);
+	}
+	this(QWidget parent = null) {
+		super();
+		if (parent) {
+			setNoDelete(true);
+			setQtObj((cast(t_qp__qp) pFunQt[402])(parent.QtObj));
+		} else {
+			setQtObj((cast(t_qp__qp) pFunQt[402])(null));
+		}
+	} /// Конструктор
+	int addWidget(QWidget wd) {
+		return (cast(t_i__qp_qp_i) pFunQt[404])(QtObj, wd.QtObj, 0);
+	}
+	@property int count() { //-> Количество сохраненных виджетов
+		return (cast(t_i__qp_qp_i) pFunQt[404])(QtObj, null, 1);
+	}
+	@property int currentIndex() { //-> Индекс -1=нет, 0=1 сохраненный, 1=2 сохраненых
+		return (cast(t_i__qp_qp_i) pFunQt[404])(QtObj, null, 2);
+	}
+	int indexOf(QWidget wd) {
+		return (cast(t_i__qp_qp_i) pFunQt[404])(QtObj, wd.QtObj, 3);
+	}
+	QStackedWidget removeWidget(QWidget wd) {
+		(cast(t_i__qp_qp_i) pFunQt[404])(QtObj, wd.QtObj, 4); return this;
+	}
+	QWidget currentWidget() {
+		QWidget rez = new QWidget('+', (cast(t_qp__qp_i_i) pFunQt[405])(QtObj, 0, 0));
+		rez.setNoDelete(true);
+		return rez;
+	}
+	QWidget widget(int n) {
+		QWidget rez = new QWidget('+', (cast(t_qp__qp_i_i) pFunQt[405])(QtObj, n, 1));
+		rez.setNoDelete(true);
+		return rez;
+	}
+	int insertWidget(int index, QWidget wd) {
+		return (cast(t_i__qp_qp_i) pFunQt[406])(QtObj, wd.QtObj, index);
+	}
+	QStackedWidget setCurrentIndex(int index) {
+		(cast(t_qp__qp_i_i) pFunQt[405])(QtObj, index, 2); return this;
+	}
+	QStackedWidget setCurrentWidget(QWidget wd) {
+		(cast(t_i__qp_qp_i) pFunQt[404])(QtObj, wd.QtObj, 5); return this;
+	}
+}
+// ============ QTabBar =======================================
+class QTabBar : QWidget {
+
+	enum ButtonPosition {
+		LeftSide 	= 0,	
+		RightSide 	= 1		
+	}
+	enum SelectionBehavior {
+		SelectLeftTab 		= 0,	
+		SelectRightTab 		= 1,
+		SelectPreviousTab 	= 2
+	}
+	enum Shape {
+		RoundedNorth	= 	0,	// Квадратные
+		RoundedSouth	= 	1,	// Квадратные
+		RoundedWest		= 	2,	// Квадратные
+		RoundedEast		= 	3,	// Квадратные
+		TriangularNorth	= 	4,	// Круглые
+		TriangularSouth	= 	5,	// Круглые
+		TriangularWest	= 	6,	// Круглые
+		TriangularEast	= 	7	// Круглые
+	}
+
+	~this() {
+		if(!fNoDelete && (QtObj != null)) { (cast(t_v__qp) pFunQt[408])(QtObj); setQtObj(null); }
+	}
+	this(char ch, void* adr) {
+		if(ch == '+') setQtObj(cast(QtObjH)adr);
+	}
+	this(QWidget parent = null) {
+		super();
+		if (parent) {
+			setNoDelete(true);
+			setQtObj((cast(t_qp__qp) pFunQt[407])(parent.QtObj));
+		} else {
+			setQtObj((cast(t_qp__qp) pFunQt[407])(null));
+		}
+	} /// Конструктор
+	@property int count() { //-> Количество сохраненных виджетов
+		return (cast(t_i__qp_i) pFunQt[409])(QtObj, 1);
+	}
+	@property int currentIndex() { //-> Индекс -1=нет, 0=1 сохраненный, 1=2 сохраненых
+		return (cast(t_i__qp_i) pFunQt[409])(QtObj, 0);
+	}
+	int addTab(T: QString)(T str) { //->
+		return (cast(t_i__qp_qp) pFunQt[410])(QtObj, str.QtObj);
+	}
+	int addTab(T)(T str) { //->
+		return (cast(t_i__qp_qp) pFunQt[410])(QtObj, (new QString(to!string(str))).QtObj);
+	}
+	int addTab(T0: QIcon, T: QString)(T0 icon, T str) { //->
+		return (cast(t_i__qp_qp_qp) pFunQt[413])(QtObj, str.QtObj, icon.QtObj);
+	}
+	int addTab(T0: QIcon, T)(T0 icon, T str) { //->
+		return (cast(t_i__qp_qp_qp) pFunQt[413])(QtObj, (new QString(to!string(str))).QtObj, icon.QtObj);
+	}
+	int insertTab(T: QString)(int index, T str) { //->
+		return (cast(t_i__qp_qp_qp_i_i) pFunQt[416])(QtObj, str.QtObj, null, index, 0);
+	}
+	int insertTab(T)(int index, T str) { //->
+		return insertTab(index, (new QString(to!string(str))));
+	}
+	int insertTab(T0: QIcon, T: QString)(int index, T0 icon, T str) { //->
+		return (cast(t_i__qp_qp_qp_i_i) pFunQt[416])(QtObj, str.QtObj, icon.QtObj, index, 1);
+	}
+	int insertTab(T0: QIcon, T)(int index, T0 icon, T str) { //->
+		return insertTab(index, icon, (new QString(to!string(str))));
+	}
+	T tabText(T: QString)(int index) {
+		QString qs = new QString();	(cast(t_v__qp_qp_i_i) pFunQt[411])(QtObj, qs.QtObj, index, 0);
+		return qs;
+	}
+	T tabText(T)(int index) {
+		return to!T(tabText!QString(index).String);
+	}
+	T tabToolTip(T: QString)(int index) {
+		QString qs = new QString();	(cast(t_v__qp_qp_i_i) pFunQt[411])(QtObj, qs.QtObj, index, 1);
+		return qs;
+	}
+	T tabToolTip(T)(int index) {
+		return to!T(tabToolTip!QString(index).String);
+	}
+	T tabWhatsThis(T: QString)(int index) {
+		QString qs = new QString();	(cast(t_v__qp_qp_i_i) pFunQt[411])(QtObj, qs.QtObj, index, 2);
+		return qs;
+	}
+	T tabWhatsThis(T)(int index) {
+		return to!T(tabWhatsThis!QString(index).String);
+	}
+	T accessibleDescription(T: QString)() {
+		QString qs = new QString();	(cast(t_v__qp_qp_i_i) pFunQt[411])(QtObj, qs.QtObj, 0, 3);
+		return qs;
+	}
+	T accessibleDescription(T)() {
+		return to!T(accessibleDescription!QString(index).String);
+	}
+	T accessibleName(T: QString)() {
+		QString qs = new QString();	(cast(t_v__qp_qp_i_i) pFunQt[411])(QtObj, qs.QtObj, 0, 3);
+		return qs;
+	}
+	T accessibleName(T)() {
+		return to!T(accessibleName!QString(index).String);
+	}
+	@property bool autoHide() {
+		return (cast(t_b__qp_i_i) pFunQt[412])(QtObj, 0, 0);
+	}
+	@property bool changeCurrentOnDrag() {
+		return (cast(t_b__qp_i_i) pFunQt[412])(QtObj, 0, 1);
+	}
+	@property bool documentMode() {
+		return (cast(t_b__qp_i_i) pFunQt[412])(QtObj, 0, 2);
+	}
+	@property bool drawBase() {
+		return (cast(t_b__qp_i_i) pFunQt[412])(QtObj, 0, 3);
+	}
+	@property bool expanding() {
+		return (cast(t_b__qp_i_i) pFunQt[412])(QtObj, 0, 4);
+	}
+	@property bool isMovable() {
+		return (cast(t_b__qp_i_i) pFunQt[412])(QtObj, 0, 5);
+	}
+	@property bool isTabEnabled(int index) {
+		return (cast(t_b__qp_i_i) pFunQt[412])(QtObj, index, 6);
+	}
+	@property bool tabsClosable() {
+		return (cast(t_b__qp_i_i) pFunQt[412])(QtObj, 0, 7);
+	}
+	@property bool usesScrollButtons() {
+		return (cast(t_b__qp_i_i) pFunQt[412])(QtObj, 0, 8);
+	}
+	QtE.TextElideMode elideMode() { //-> С какой стороны скроются вкдадки, при недостатке места
+		return cast(QtE.TextElideMode)((cast(t_i__qp) pFunQt[414])(QtObj));
+	}
+	QSize iconSize() {
+		QSize isize = new QSize(0,0); (cast(t_v__qp_qp) pFunQt[415])(QtObj, isize.QtObj);	return isize;
+	}
+	QTabBar moveTab(int from, int to) {
+		(cast(t_v__qp_i_i_i) pFunQt[417])(QtObj, from, to, 0); return this;
+	}
+	QTabBar removeTab(int index) {
+		(cast(t_v__qp_i_i_i) pFunQt[417])(QtObj, index, 0, 1); return this;
+	}
+	SelectionBehavior selectionBehaviorOnRemove() {
+		return cast(SelectionBehavior)(cast(t_i__qp) pFunQt[418])(QtObj);
+	}
+	QTabBar setAutoHide(bool hide) {
+		(cast(t_v__qp_b_i) pFunQt[419])(QtObj, hide, 0); return this;
+	}
+	QTabBar setChangeCurrentOnDrag(bool change) {
+		(cast(t_v__qp_b_i) pFunQt[419])(QtObj, change, 1); return this;
+	}
+	QTabBar setDocumentMode(bool set) {
+		(cast(t_v__qp_b_i) pFunQt[419])(QtObj, set, 2); return this;
+	}
+	QTabBar setDrawBase(bool drawTheBase) {
+		(cast(t_v__qp_b_i) pFunQt[419])(QtObj, drawTheBase, 3); return this;
+	}
+	QTabBar setExpanding(bool enabled) {
+		(cast(t_v__qp_b_i) pFunQt[419])(QtObj, enabled, 4); return this;
+	}
+	QTabBar setMovable(bool movable) {
+		(cast(t_v__qp_b_i) pFunQt[419])(QtObj, movable, 5); return this;
+	}
+	QTabBar setTabsClosable(bool closable) {
+		(cast(t_v__qp_b_i) pFunQt[419])(QtObj, closable, 6); return this;
+	}
+	QTabBar setUsesScrollButtons(bool useButtons) {
+		(cast(t_v__qp_b_i) pFunQt[419])(QtObj, useButtons, 7); return this;
+	}
+	QTabBar setElideMode(QtE.TextElideMode mode) {
+		(cast(t_v__qp_i) pFunQt[420])(QtObj, mode); return this;
+	}
+	QTabBar setIconSize(QSize size) {
+		(cast(t_v__qp_qp) pFunQt[421])(QtObj, size.QtObj); return this;
+	}
+	QTabBar setShape(QTabBar.Shape shape) {
+		(cast(t_v__qp_i) pFunQt[422])(QtObj, shape); return this;
+	}
+	QTabBar setTabEnabled(int index, bool enabled) {
+		(cast(t_v__qp_b_i) pFunQt[423])(QtObj, enabled, index); return this;
+	}
+	QTabBar setTabIcon(int index, QIcon icon) {
+		(cast(t_v__qp_qp_i_i) pFunQt[424])(QtObj, icon.QtObj, index, 0); return this;
+	}
+	QTabBar setTabText(T: QString)(int index, T text) {
+		(cast(t_v__qp_qp_i_i) pFunQt[424])(QtObj, text.QtObj, index, 1); return this;
+	}
+	QTabBar setTabText(T: string)(int index, T text) {
+		return setTabText(index, (new QString(to!string(text))));
+	}
+	QTabBar setTabTextColor(int index, QColor color) {
+		(cast(t_v__qp_qp_i_i) pFunQt[424])(QtObj, color.QtObj, index, 2); return this;
+	}
+	QTabBar setTabToolTip(T: QString)(int index, T text) {
+		(cast(t_v__qp_qp_i_i) pFunQt[424])(QtObj, text.QtObj, index, 3); return this;
+	}
+	QTabBar setTabToolTip(T: string)(int index, T text) {
+		return setTabToolTip(index, (new QString(to!string(text))));
+	}
+	QTabBar setTabWhatsThis(T: QString)(int index, T text) {
+		(cast(t_v__qp_qp_i_i) pFunQt[424])(QtObj, text.QtObj, index, 4); return this;
+	}
+	QTabBar setTabWhatsThis(T: string)(int index, T text) {
+		return setTabWhatsThis(index, (new QString(to!string(text))));
+	}
+	
+
+}
+
 __EOF__
-
-
-
 
 // Пример возврата объекта из С++ и подхвата его в объект D
 QString proverka(QString qs) {
@@ -5925,3 +6343,31 @@ QString proverka(QString qs) {
 extern "C" MSVC_API  void* QImage_pixelColor(QImage* qi, int x, int y)  {
     return *((void**)&( Объект_C++ ));
 }
+// синтаксический сахар
+alias ubyte[] arr;
+// встраивание картинок
+auto f = cast (arr[]) [
+             cast(ubyte[]) import(`image0.jpg`),
+             cast(ubyte[]) import(`image1.jpg`),
+             cast(ubyte[]) import(`image2.jpg`),
+             cast(ubyte[]) import(`image3.jpg`),
+             cast(ubyte[]) import(`image4.jpg`),
+             cast(ubyte[]) import(`image5.jpg`),
+             cast(ubyte[]) import(`image6.jpg`),
+             cast(ubyte[]) import(`image7.jpg`),
+             cast(ubyte[]) import(`image8.jpg`),
+             cast(ubyte[]) import(`image9.jpg`),
+             cast(ubyte[]) import(`image10.jpg`),
+             cast(ubyte[]) import(`image11.jpg`),
+             cast(ubyte[]) import(`image12.jpg`),
+             cast(ubyte[]) import(`image13.jpg`),
+             cast(ubyte[]) import(`image14.jpg`),
+             cast(ubyte[]) import(`image15.jpg`),
+             cast(ubyte[]) import(`image16.jpg`),
+             cast(ubyte[]) import(`image17.jpg`)
+         ];
+ 
+// встраивание музыки
+ubyte[] mp3data = cast(ubyte[]) import(`this_love.mp3`);
+ 
+ 

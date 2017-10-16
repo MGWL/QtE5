@@ -55,6 +55,7 @@
 #include <QTextEdit>
 #include <QBitmap>
 #include <QResource>
+#include <QStackedWidget>
 
 #include <QtScript>
 

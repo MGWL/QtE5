@@ -519,6 +519,10 @@ extern "C" MSVC_API  QtRefH qteQColor_create1(void) {
 extern "C" MSVC_API  QColor* qteQColor_create2(QRgb r) {
     return new QColor(r);
 }
+// 425
+extern "C" MSVC_API  QColor* qteQColor_create3(Qt::GlobalColor r) {
+    return new QColor(r);
+}
 
 extern "C" MSVC_API  void qteQColor_delete(QColor* wd) {
 #ifdef debDelete
@@ -1819,7 +1823,7 @@ extern "C" MSVC_API  void qteQTableWidgetItem_setBackground(QTableWidgetItem* wd
 extern "C" MSVC_API  void qteQTableWidgetItem_setFlags(QTableWidgetItem* wd, Qt::ItemFlags fl) {
     wd->setFlags(fl);
 }
-extern "C" MSVC_API  Qt::ItemFlags qteQTableWidgetItem_flags(QTableWidgetItem* wd) {
+extern "C" MSVC_API  int /*Qt::ItemFlags*/ qteQTableWidgetItem_flags(QTableWidgetItem* wd) {
     return wd->flags();
 }
 extern "C" MSVC_API  void qteQTableWidgetItem_setSelected(QTableWidgetItem* wd, bool select) {
@@ -2901,7 +2905,7 @@ static QScriptValue getSetFoo(QScriptContext *context, QScriptEngine *engine)
     ((ExecZIM_v__vp_vp_vp)aMet)(aObj, context, &(callee));
     //callee.setProperty("value", QScriptValue(engine, *qsRez));
     return callee.property("value");
-
+    if(engine == NULL) {}
 }
 // 361
 extern "C" MSVC_API  void QScriptEngine_callFunDlang(QScriptEngine* engine)
@@ -3069,6 +3073,191 @@ extern "C" MSVC_API bool QResource_registerResource2(QResource* wd, uchar* rccDa
     }
     return rez;
 }
+
+
+// ===================== QStackedWidget ====================
+// 402
+extern "C" MSVC_API  QtRefH QStackedWidget_create1(QWidget* parent) {
+    return (QtRefH)new QStackedWidget(parent);
+}
+// 403
+extern "C" MSVC_API  void QStackedWidget_delete1(QStackedWidget* wd) {
+#ifdef debDelete
+    printf("del QStackedWidget --> \n");
+#endif
+#ifdef debDestr
+    if(wd->parent() == NULL) delete wd;
+#endif
+#ifdef debDelete
+    printf("Ok\n");
+#endif
+}
+// 404
+extern "C" MSVC_API  int QStackedWidget_setXX1(QStackedWidget* wd, QWidget* w, int pr) {
+    int rez = 0;
+    switch ( pr ) {
+    case 0:   rez = wd->addWidget(w);       break;
+    case 1:   rez = wd->count();            break;
+    case 2:   rez = wd->currentIndex();     break;
+    case 3:   rez = wd->indexOf(w);         break;
+    case 4:         wd->removeWidget(w);    break;
+    case 5:         wd->setCurrentWidget(w);break;
+    }
+    return rez;
+}
+// 405
+extern "C" MSVC_API  QWidget* QStackedWidget_setXX2(QStackedWidget* wd, int w, int pr) {
+    QWidget* rez = NULL;
+    switch ( pr ) {
+    case 0:   rez = wd->currentWidget();    break;
+    case 1:   rez = wd->widget(w);          break;
+    case 2:   wd->setCurrentIndex(w);       break;
+    }
+    return rez;
+}
+// 406
+extern "C" MSVC_API  int QStackedWidget_setXX3(QStackedWidget* wd, QWidget* w, int pr) {
+    return wd->insertWidget(pr, w);
+}
+
+// ===================== QTabBar ====================
+// 407
+extern "C" MSVC_API  QtRefH QTabBar_create1(QWidget* parent) {
+    return (QtRefH)new QTabBar(parent);
+}
+// 408
+extern "C" MSVC_API  void QTabBar_delete1(QTabBar* wd) {
+#ifdef debDelete
+    printf("del QTabBar --> \n");
+#endif
+#ifdef debDestr
+    if(wd->parent() == NULL) delete wd;
+#endif
+#ifdef debDelete
+    printf("Ok\n");
+#endif
+}
+// 409
+extern "C" MSVC_API  int QTabBar_setXX1(QTabBar* wd, int pr) {
+    int rez = 0;
+    switch ( pr ) {
+    case 0:   rez = wd->currentIndex();     break;
+    case 1:   rez = wd->count();            break;
+    }
+    return rez;
+}
+// 410
+extern "C" MSVC_API  int QTabBar_addTab1(QTabBar* wd, QString* qs) {
+    return wd->addTab(*qs);
+}
+// 411
+extern "C" MSVC_API  void QTabBar_tabTextX1(QTabBar* wd, QString* qs, int index, int pr) {
+    switch ( pr ) {
+    case 0:   *qs = wd->tabText(index);              break;
+    case 1:   *qs = wd->tabToolTip(index);           break;
+    case 2:   *qs = wd->tabWhatsThis(index);         break;
+    case 3:   *qs = wd->accessibleDescription();     break;
+    case 4:   *qs = wd->accessibleName();            break;
+    }
+}
+// 412
+extern "C" MSVC_API  bool QTabBar_tabBoolX1(QTabBar* wd, int index, int pr) {
+    bool rez = false;
+    switch ( pr ) {
+    case 0:   rez = wd->autoHide();              break;
+    case 1:   rez = wd->changeCurrentOnDrag();              break;
+    case 2:   rez = wd->documentMode();              break;
+    case 3:   rez = wd->drawBase();              break;
+    case 4:   rez = wd->expanding();              break;
+    case 5:   rez = wd->isMovable();              break;
+    case 6:   rez = wd->isTabEnabled(index);              break;
+    case 7:   rez = wd->tabsClosable();              break;
+    case 8:   rez = wd->usesScrollButtons();              break;
+    }
+    return rez;
+}
+// 413
+extern "C" MSVC_API  int QTabBar_addTab2(QTabBar* wd, QString* qs, QIcon* icon) {
+    return wd->addTab(*icon, *qs);
+}
+// 414
+extern "C" MSVC_API  Qt::TextElideMode QTabBar_ElideMode(QTabBar* wd) {
+    return wd->elideMode();
+}
+// 415
+extern "C" MSVC_API  void QTabBar_iconSize(QTabBar* wd, QSize* size) {
+    *size = wd->iconSize();
+}
+
+// 416
+extern "C" MSVC_API  int QTabBar_addTab3(QTabBar* wd, QString* qs, QIcon* icon, int ind, int pr) {
+    int rez = 0;
+    switch ( pr ) {
+    case 0:   rez = wd->insertTab(ind, *qs);     break;
+    case 1:   rez = wd->insertTab(ind, *icon, *qs);     break;
+    }
+    return rez;
+}
+// 417
+extern "C" MSVC_API  void QTabBar_moveTab1(QTabBar* wd, int a, int b, int pr) {
+    switch ( pr ) {
+    case 0:   wd->moveTab(a, b);     break;
+    case 1:   wd->removeTab(a);      break;
+    }
+}
+// 418
+extern "C" MSVC_API QTabBar::SelectionBehavior QTabBar_selectionBehaviorOnRemove(QTabBar* wd) {
+    return wd->selectionBehaviorOnRemove();
+}
+// 419
+extern "C" MSVC_API void QTabBar_set3(QTabBar* wd, bool b, int pr) {
+    switch ( pr ) {
+    case 0:   wd->setAutoHide(b);               break;
+    case 1:   wd->setChangeCurrentOnDrag(b);    break;
+    case 2:   wd->setDocumentMode(b);           break;
+    case 3:   wd->setDrawBase(b);               break;
+    case 4:   wd->setExpanding(b);              break;
+    case 5:   wd->setMovable(b);                break;
+    case 6:   wd->setTabsClosable(b);           break;
+    case 7:   wd->setUsesScrollButtons(b);      break;
+    }
+}
+// 420
+extern "C" MSVC_API void QTabBar_setElideMode(QTabBar* wd, Qt::TextElideMode mod) {
+    wd->setElideMode(mod);
+}
+// 421
+extern "C" MSVC_API void QTabBar_setIconSize(QTabBar* wd, QSize* size) {
+    wd->setIconSize(*size);
+}
+// 422
+extern "C" MSVC_API void QTabBar_setShape(QTabBar* wd, QTabBar::Shape shape) {
+    wd->setShape(shape);
+}
+// 423
+extern "C" MSVC_API void QTabBar_setTabEnabled(QTabBar* wd, bool b, int index) {
+    wd->setTabEnabled(index, b);
+}
+// 424
+extern "C" MSVC_API void QTabBar_setX5(QTabBar* wd, void* ob, int index, int pr) {
+    switch ( pr ) {
+    case 0:   wd->setTabIcon(index,*((QIcon*)ob));        break;
+    case 1:   wd->setTabText(index,*((QString*)ob));        break;
+    case 2:   wd->setTabTextColor(index,*((QColor*)ob));        break;
+    case 3:   wd->setTabToolTip(index,*((QString*)ob));        break;
+    case 4:   wd->setTabWhatsThis(index,*((QString*)ob));        break;
+    }
+}
+// 426
+//extern "C" MSVC_API  int QTabBar_addTab4(QTabBar* wd, QString* qs, QIcon* icon, int ind, int pr) {
+//    int rez = 0;
+//    switch ( pr ) {
+//    case 0:   rez = wd->insertTab(ind, *qs);     break;
+//    case 1:   rez = wd->insertTab(ind, *icon, *qs);     break;
+//    }
+//    return rez;
+//}
+
 
 // Пример возврата объекта из С++
 // --------------------------------
