@@ -17,13 +17,14 @@ Signals:
 module qte5;
 
 import std.conv; // Convert to string
+import std.utf: encode;
 
 // Отладка
 import std.stdio;
 
 int verQt5Eu = 0;
-int verQt5El = 10;
-string verQt5Ed = "16.10.17 11:02";
+int verQt5El = 09;
+string verQt5Ed = "06.10.17 11:02";
 
 alias PTRINT = int;
 alias PTRUINT = uint;
@@ -177,6 +178,7 @@ private {
 	mixin(generateAlias("t_vp__vp_vp_vp_vp_vp_vp_vp_vp"));
 
 	alias t_ub__qp = extern (C) @nogc ubyte* function(QtObjH);
+	alias t_uwc__qp = extern (C) @nogc wchar* function(QtObjH);
 }
 
 version (Windows) {
@@ -887,6 +889,12 @@ int LoadQt(dll ldll, bool showError) { ///  Загрузить DLL-ки Qt и Qt
 	
 	mixin(generateFunQt(	425, 	"qteQColor_create3"					));
 	
+	// ------- QCoreApplication -------
+	mixin(generateFunQt(	426, 	"QCoreApplication_create1"			));
+	mixin(generateFunQt(	427, 	"QCoreApplication_delete1"			));
+	// ------- QGuiApplication -------
+	mixin(generateFunQt(	428, 	"qteQApplication_setX1"				));
+
 	// Последний = 418
 	return 0;
 } ///  Загрузить DLL-ки Qt и QtE. Найти в них адреса функций и заполнить ими таблицу
@@ -900,6 +908,7 @@ static void msgbox(string text = null, string caption = null,
 	soob.setIcon(icon).setStandardButtons(QMessageBox.StandardButton.Ok);
 	try { soob.exec();	}	catch(Throwable) {}
 }
+
 // Отладчик
 void deb(ubyte* uk) {
 	writeln(cast(ubyte)*(uk + 0), "=", cast(ubyte)*(uk + 1), "=",
@@ -915,7 +924,6 @@ void deb(ubyte* uk) {
 		cast(ubyte)*(uk + 20), "=", cast(ubyte)*(uk + 21), "=",
 		cast(ubyte)*(uk + 22), "=", cast(ubyte)*(uk + 23));
 }
-
 /++
 Класс констант. В нем кое что из Qt::
 +/
@@ -1323,19 +1331,21 @@ class QObject {
 
 	this() {
 		// Для подсчета ссылок создания и удаления
-		allCreate++; balCreate++; id = allCreate;
-		// if(balCreate < 10)
-		//	{ printf("+[%d]-[%d]-[%p]->[%p] ", id, balCreate, this, QtObj); writeln(this);  stdout.flush(); }
+		balCreate++;
+		// allCreate++; id = allCreate;
+		//if(balCreate < 10)
+		//	 { printf("+[%d]-[%d]-[%p]->[%p] ", id, balCreate, this, fNoDelete, QtObj); writeln(this);  stdout.flush(); }
 
 	} /// спец Конструктор, что бы не делать реальный объект из Qt при наследовании
 	~this() {
 		// Для подсчета ссылок создания и удаления
 		balCreate--;
 		// if(balCreate < 10)
-		//	{ printf("-[%d]-[%d]-[%p] %d ->[%p] \n", id, balCreate, this, fNoDelete, QtObj); stdout.flush(); }
+		// 	{ printf("-[%d]-[%d]-[%p] %d ->[%p] ", id, balCreate, this, fNoDelete, QtObj); writeln(this);   stdout.flush(); }
+		
 		if(balCreate == 0) {
-			(cast(t_v__qp) pFunQt[3])(saveAppPtrQt); setQtObj(null);
-			// writeln("delete app ... ", QtObj);  stdout.flush();
+		 	//writeln("    delete app ... ", QtObj, "  ", this);  stdout.flush();
+		 	(cast(t_v__qp) pFunQt[3])(saveAppPtrQt); // setQtObj(null);
 		}
 	}
 	// Ни чего в голову не лезет ... Нужно сделать объект, записав в него пришедший
@@ -1345,9 +1355,7 @@ class QObject {
 	//	if(ch == '+') setQtObj(cast(QtObjH)adr);
 	//}
 	void setNoDelete(bool f) { //->
-		// printf("--1--%d\n", fNoDelete); stdout.flush();
 		fNoDelete = f;
-		// printf("--2--%d\n", fNoDelete); stdout.flush();
 	}
 	@property bool NoDelete() { //->
 		return fNoDelete; }
@@ -1732,19 +1740,24 @@ class QWidget: QPaintDevice {
 		(cast(t_v__qp_qp) pFunQt[11])(QtObj, qstr.QtObj); return this;
 	} /// Установить заголовок окна
 	QWidget setWindowTitle(T)(T str) { //->
-		return setWindowTitle(new QString(to!string(str)));
+		// Было: return setWindowTitle(new QString(to!string(str)));
+		// Однако, при таком вызове остается висеть в памяти D объект и C++ QString,
+		// по этому, здесь, я явно удаляю этот объект из памяти и также удаляется C++ QString
+		// -- QString qs = new QString(to!string(str)); setWindowTitle(qs);  delete qs;  return this;
+		(cast(t_v__qp_qp) pFunQt[11])(QtObj, sQString(to!string(str)).QtObj); return this;
+		// sQString sqs = sQString(to!string(str)); (cast(t_v__qp_qp) pFunQt[11])(QtObj, sqs.QtObj); return this;
 	} /// Установить текст Заголовка
 	QWidget setStyleSheet(QString str) { //->
 		(cast(t_v__qp_qp)pFunQt[30])(QtObj, str.QtObj); return this;
 	} /// При помощи строки задать описание эл. Цвет и т.д.
 	QWidget setStyleSheet(T)(T str) { //->
-		(cast(t_v__qp_qp)pFunQt[30])(QtObj, (new QString(to!string(str))).QtObj); return this;
+		(cast(t_v__qp_qp)pFunQt[30])(QtObj, sQString(to!string(str)).QtObj); return this;
 	} /// При помощи строки задать описание эл. Цвет и т.д.
 	QWidget setToolTip(QString str) { //->
 		(cast(t_v__qp_qp)pFunQt[33])(QtObj, str.QtObj); return this;
 	} /// При помощи строки задать описание эл. Цвет и т.д.
 	QWidget setToolTip(T)(T str) { //->
-		(cast(t_v__qp_qp)pFunQt[33])(QtObj, (new QString(to!string(str))).QtObj); return this;
+		(cast(t_v__qp_qp)pFunQt[33])(QtObj, sQString(to!string(str)).QtObj); return this;
 	} /// При помощи строки задать описание эл. Цвет и т.д.
 	QWidget setMinimumSize(int w, int h) { //->
 		(cast(t_v__qp_b_i_i) pFunQt[31])(QtObj, true, w, h); return this;
@@ -1936,7 +1949,7 @@ class QAbstractButton : QWidget {
 		return this;
 	} /// Установить текст на кнопке
 	QAbstractButton setText(T)(T str) { //->
-		(cast(t_v__qp_qp) pFunQt[28])(QtObj, (new QString(to!string(str))).QtObj);
+		(cast(t_v__qp_qp) pFunQt[28])(QtObj, sQString(to!string(str)).QtObj);
 		return this;
 	} /// Установить текст на кнопке
 	T text(T: QString)() { //->
@@ -2016,9 +2029,9 @@ class QPushButton : QAbstractButton {
 		// не создавая промежуточного экземпляра в Qt
 		if (parent) {
 			setNoDelete(true);
-			setQtObj((cast(t_qp__qp_qp) pFunQt[22])(parent.QtObj, (new QString(to!string(str))).QtObj));
+			setQtObj((cast(t_qp__qp_qp) pFunQt[22])(parent.QtObj, sQString(to!string(str)).QtObj ));
 		} else {
-			setQtObj((cast(t_qp__qp_qp) pFunQt[22])(null, (new QString(to!string(str))).QtObj));
+			setQtObj((cast(t_qp__qp_qp) pFunQt[22])(null, sQString(to!string(str)).QtObj ));
 		}
 	}
 	QPushButton setAutoDefault(bool pr) { //->
@@ -2099,20 +2112,85 @@ public:
 	}
 
 }
-
-class QApplication : QObject {
+// ================ QCoreApplication ================
+class QCoreApplication : QObject {
+	this() {}
 	this(int* m_argc, char** m_argv, int gui) {
-		setQtObj((cast(t_qp__qp_qp_i) pFunQt[0])(cast(QtObjH)m_argc, cast(QtObjH)m_argv, gui));
+		setQtObj((cast(t_qp__qp_qp_i) pFunQt[426])(cast(QtObjH)m_argc, cast(QtObjH)m_argv, gui));
 		saveAppPtrQt = QtObj;
-	} /// QApplication::QApplication(argc, argv, param);
+	}
 	~this() {
 		if(!fNoDelete) {
-			// (cast(t_v__qp) pFunQt[3])(QtObj); setQtObj(null);
+			(cast(t_v__qp) pFunQt[427])(QtObj); setQtObj(null);
 		}
-	} ///  QApplication::~QApplication();
+	}
+	T appDirPath(T: QString)() { //-> Путь до приложения
+		QString qs = new QString();
+		(cast(t_v__qp_qp)pFunQt[20])(QtObj, qs.QtObj);
+		return qs;
+	}
+	T appDirPath(T)() { //-> Путь до приложения
+		return to!T((appDirPath!QString()).String);
+	}
+	T appFilePath(T: QString)() {  //-> Путь до приложения
+		QString qs = new QString();
+		(cast(t_v__qp_qp)pFunQt[21])(QtObj, qs.QtObj);
+		return qs;
+	}
+	T appFilePath(T)() {  //-> Путь до приложения
+		return to!T((appFilePath!QString()).String);
+	}
 	int exec() { //-> Выполнить
 		return (cast(t_i__qp) pFunQt[1])(QtObj);
 	} /// QApplication::exec()
+	void processEvents() { //-> Передать цикл выполнения в ОС
+		(cast(t_v__qp)pFunQt[368])(QtObj);
+	}
+	void exit(int kod) { //->
+		(cast(t_v__qp_i) pFunQt[276])(QtObj, kod);
+	}
+}
+// ================ QGuiApplication ================
+class QGuiApplication : QCoreApplication {
+	this() {}
+	~this() {}
+	void restoreOverrideCursor() {
+		(cast(t_v__qp_qp_i) pFunQt[428])(QtObj, null, 0);
+	}
+	void setApplicationDisplayName(T)(T str) {
+		sQString sqs = sQString(to!string(str)); (cast(t_v__qp_qp_i) pFunQt[428])(QtObj, sqs.QtObj, 1);
+	}
+	void setDesktopFileName(T)(T str) {
+		sQString sqs = sQString(to!string(str)); (cast(t_v__qp_qp_i) pFunQt[428])(QtObj, sqs.QtObj, 2);
+	}
+	void setDesktopSettingsAware(bool on) {
+		(cast(t_v__qp_qp_i) pFunQt[428])(QtObj, cast(QtObjH)on, 3);
+	}
+	void setFallbackSessionManagementEnabled(bool on) {
+		(cast(t_v__qp_qp_i) pFunQt[428])(QtObj, cast(QtObjH)on, 4);
+	}
+	void setFont(QFont font) {
+		(cast(t_v__qp_qp_i) pFunQt[428])(QtObj, font.QtObj, 5);
+	}
+	void setWindowIcon(QIcon icon) {
+		(cast(t_v__qp_qp_i) pFunQt[428])(QtObj, icon.QtObj, 6);
+	}
+	void setStyleSheet(T)(T str) {
+	 	sQString sqs = sQString(to!string(str)); (cast(t_v__qp_qp_i) pFunQt[428])(QtObj, sqs.QtObj, 7);
+	}
+		
+}
+class QApplication : QGuiApplication {
+	this(int* m_argc, char** m_argv, int gui) {
+		setQtObj((cast(t_qp__qp_qp_i) pFunQt[0])(cast(QtObjH)m_argc, cast(QtObjH)m_argv, gui));
+		saveAppPtrQt = QtObj;
+		setNoDelete(true);
+	} /// QApplication::QApplication(argc, argv, param);
+	~this() {
+		if(!fNoDelete) {
+			(cast(t_v__qp) pFunQt[3])(QtObj); setQtObj(null);
+		}
+	} ///  QApplication::~QApplication();
 	void aboutQt() { //-> Об Qt
 		(cast(t_v__qp) pFunQt[2])(QtObj);
 	} /// QApplication::aboutQt()
@@ -2136,46 +2214,61 @@ class QApplication : QObject {
 	int sizeOfQtObj() { //-> Размер объекта QApplicatin. Size of QApplicatin
 		return (cast(t_i__vp) pFunQt[4])(QtObj);
 	} /// Размер объекта QApplicatin. Size of QApplicatin
-	T appDirPath(T: QString)() { //-> Путь до приложения
-		QString qs = new QString();
-		(cast(t_v__qp_qp)pFunQt[20])(QtObj, qs.QtObj);
-		return qs;
-	}
-	T appDirPath(T)() { //-> Путь до приложения
-		return to!T((appDirPath!QString()).String);
-	}
-	T appFilePath(T: QString)() {  //-> Путь до приложения
-		QString qs = new QString();
-		(cast(t_v__qp_qp)pFunQt[21])(QtObj, qs.QtObj);
-		return qs;
-	}
-	T appFilePath(T)() {  //-> Путь до приложения
-		return to!T((appFilePath!QString()).String);
-	}
-	void processEvents() { //-> Передать цикл выполнения в ОС
-		(cast(t_v__qp)pFunQt[368])(QtObj);
-	}
-	void exit(int kod) { //->
-		(cast(t_v__qp_i) pFunQt[276])(QtObj, kod);
-	}
-
 /*
-	// Распозноавние типа будет вестись во время выполнения программы
-	// --------------------------------------------------------------
-	void setStyleSheet2(T)(T str) {
-		assert(T.stringof == "string" || T.stringof == "QString");
-		t_v__qp_qp f = cast(t_v__qp_qp) pFunQt[277];
-		if(T.stringof == "string") f(QtObj, (new QString(to!string(str))).QtObj);
-		else   			           f(QtObj, str.QtObj);
-	}
-*/
-
 	void setStyleSheet(T: QString)(T str) { //-> Установить оформление
 		(cast(t_v__qp_qp) pFunQt[277])(QtObj, str.QtObj);
 	}
 	void setStyleSheet(T)(T str) { //-> Установить оформление
 		(cast(t_v__qp_qp) pFunQt[277])(QtObj, (new QString(to!string(str))).QtObj);
 	}
+*/
+}
+
+
+
+// =============== sQString ================
+private {
+	QtObjH f_9(wstring ps) {
+		return (cast(t_qp__qp_i)pFunQt[9])(cast(QtObjH)ps.ptr, cast(int)ps.length);
+	}
+	string f_18_19(QtObjH qp) {
+		wchar* wc = (cast(t_uwc__qp) pFunQt[18])(qp);
+		int  size = (cast(t_i__qp) pFunQt[19]) (qp);
+		char[] buf; for (int i; i != size; i++) { encode(buf, *(wc + i)); }
+		return  to!string(buf);
+	}
+}
+struct sQString {
+	//____________________________
+private:
+	QtObjH adrCppObj;
+	//____________________________
+public:
+	@disable this();
+	@property QtObjH QtObj()	{ 	return adrCppObj;	}
+	void setQtObj(QtObjH adr)	{ 	adrCppObj = adr; 	}
+	//____________________________
+	~this() {
+		(cast(t_v__qp) pFunQt[10])(QtObj); setQtObj(null);
+	}
+	this(T)(T s) {
+		setQtObj(f_9(to!wstring(s)));
+	} /// Конструктор где s - Utf-8. Пример: QString qs = new QString("Привет!");
+	this(char ch, void* adr) {
+		if(ch == '+') setQtObj(cast(QtObjH)adr); // fNoDelete = true;
+	}
+	int size() { //-> Размер в UNICODE символах
+		return (cast(t_i__qp) pFunQt[19])(QtObj);
+	} /// Размер в UNICODE символах
+	ubyte* data() { //-> Указатель на UNICODE
+		return (cast(t_ub__qp) pFunQt[18])(QtObj);
+	} /// Указатель на UNICODE
+	string toUtf8() { //-> Конвертировать внутреннее представление в wstring
+		return f_18_19(QtObj);
+	} /// Конвертировать внутреннее представление в wstring
+	@property string String() { //-> return string D from QString
+		return toUtf8();
+	} /// return string D from QString
 }
 
 // ================ QString ================
@@ -2184,7 +2277,7 @@ class QString: QObject {
 		setQtObj((cast(t_qp__v)pFunQt[8])());
 	} /// Конструктор пустого QString
 	this(T)(T s) {
-		wstring ps = to!wstring(s); setQtObj((cast(t_qp__qp_i)pFunQt[9])(cast(QtObjH)ps.ptr, cast(int)ps.length));
+		setQtObj(f_9(to!wstring(s)));
 	} /// Конструктор где s - Utf-8. Пример: QString qs = new QString("Привет!");
 	this(QtObjH adr) { setQtObj(adr);
 	} /// Изготовить QString из пришедшего из вне указателя на C++ QString
@@ -2193,9 +2286,7 @@ class QString: QObject {
 	}
 	~this() {
 		if(!fNoDelete) {
-			// write("-[1]-Qs = ", QtObj); stdout.flush();
 			(cast(t_v__qp) pFunQt[10])(QtObj); setQtObj(null);
-			// writeln("  -[2]-Qs = ", QtObj); stdout.flush();
 		}
 	}
 	int size() { //-> Размер в UNICODE символах
@@ -2205,10 +2296,7 @@ class QString: QObject {
 		return (cast(t_ub__qp) pFunQt[18])(QtObj);
 	} /// Указатель на UNICODE
 	string toUtf8() { //-> Конвертировать внутреннее представление в wstring
-		import std.utf: encode;
-		wchar* wc = cast(wchar*) data();
-		char[] buf; for (int i; i != size(); i++) { encode(buf, *(wc + i)); }
-		return  to!string(buf);
+		return f_18_19(QtObj);
 	} /// Конвертировать внутреннее представление в wstring
 	@property string String() { //-> return string D from QString
 		return toUtf8();
@@ -2216,11 +2304,10 @@ class QString: QObject {
 	int sizeOfQString() { //->
 		return (cast(t_i__v) pFunQt[281])();
 	}
-	// QString proverka(QString qs) {
-		// static void* adr;	adr = (cast(t_vp__qp) pFunQt[381])(qs.QtObj); QString nqs = new QString('+', &adr );
-		// return nqs;
-	// }
 }
+
+	struct z2 {	int a, b;	}
+
 // ================ QGridLayout ================
 class QGridLayout : QObject {
 	this(QWidget parent) {
@@ -2446,7 +2533,7 @@ class QLabel : QFrame {
 		return this;
 	} /// Установить текст на кнопке
 	QWidget setText(T)(T str) { //->
-		(cast(t_v__qp_qp) pFunQt[48])(QtObj, (new QString(to!string(str))).QtObj);
+		(cast(t_v__qp_qp) pFunQt[48])(QtObj, sQString(to!string(str)).QtObj);
 		return this;
 	} /// Установить текст на кнопке
 	QWidget setPixmap(QPixmap pm) { //-> Отобразить изображение на QLabel
@@ -2537,13 +2624,13 @@ class QPainter : QObject {
 		(cast(t_v__qp_qp_i_i) pFunQt[196])(QtObj, qs.QtObj, x, y); return this;
 	}
 	QPainter setText(int x, int y, string s) { //->
-		(cast(t_v__qp_qp_i_i) pFunQt[196])(QtObj, (new QString(s)).QtObj, x, y); return this;
+		(cast(t_v__qp_qp_i_i) pFunQt[196])(QtObj, sQString(s).QtObj, x, y); return this;
 	}
 	QPainter drawText(int x, int y, QString qs) { //->
 		(cast(t_v__qp_qp_i_i) pFunQt[196])(QtObj, qs.QtObj, x, y); return this;
 	}
 	QPainter drawText(int x, int y, string s) { //->
-		(cast(t_v__qp_qp_i_i) pFunQt[196])(QtObj, (new QString(s)).QtObj, x, y); return this;
+		(cast(t_v__qp_qp_i_i) pFunQt[196])(QtObj, sQString(s).QtObj, x, y); return this;
 	}
 	bool begin(QPaintDevice dev) { //->
 		return (cast(t_b__qp_qp) pFunQt[390])(QtObj, dev.QtObj);
@@ -2735,25 +2822,25 @@ class QPlainTextEdit : QAbstractScrollArea {
 		(cast(t_v__qp_qp) pFunQt[68])(QtObj, str.QtObj); return this;
 	} /// Добавать текст в конец
 	QPlainTextEdit appendPlainText(T)(T str) { //-> Добавить текст в конец
-		(cast(t_v__qp_qp) pFunQt[68])(QtObj, (new QString(to!string(str))).QtObj); return this;
+		(cast(t_v__qp_qp) pFunQt[68])(QtObj, sQString(str).QtObj); return this;
 	} /// Добавать текст в конец
 	QPlainTextEdit appendHtml(T: QString)(T str) { //-> Добавать html в конец
 		(cast(t_v__qp_qp) pFunQt[69])(QtObj, str.QtObj); return this;
 	} /// Добавать html в конец
 	QPlainTextEdit appendHtml(T)(T str) { //-> Добавать html в конец
-		(cast(t_v__qp_qp) pFunQt[69])(QtObj, (new QString(to!string(str))).QtObj); return this;
+		(cast(t_v__qp_qp) pFunQt[69])(QtObj, sQString(str).QtObj); return this;
 	} /// Добавать html в конец
 	QPlainTextEdit setPlainText(T: QString)(T str) {  //-> Удалить всё и вставить с начала
 		(cast(t_v__qp_qp) pFunQt[70])(QtObj, str.QtObj); return this;
 	} /// Удалить всё и вставить с начала
 	QPlainTextEdit setPlainText(T)(T str) { //-> Удалить всё и вставить с начала
-		(cast(t_v__qp_qp) pFunQt[70])(QtObj, (new QString(to!string(str))).QtObj); return this;
+		(cast(t_v__qp_qp) pFunQt[70])(QtObj, sQString(str).QtObj); return this;
 	} /// Удалить всё и вставить с начала
 	QPlainTextEdit insertPlainText(T: QString)(T str) { //-> Вставить сразу за курсором
 		(cast(t_v__qp_qp) pFunQt[71])(QtObj, str.QtObj); return this;
 	} /// Вставить сразу за курсором
 	QPlainTextEdit insertPlainText(T)(T str) { //-> Вставить сразу за курсором
-		(cast(t_v__qp_qp) pFunQt[71])(QtObj, (new QString(to!string(str))).QtObj); return this;
+		(cast(t_v__qp_qp) pFunQt[71])(QtObj, sQString(str).QtObj); return this;
 	} /// Вставить сразу за курсором
 	QPlainTextEdit cut() { //-> Вырезать кусок
 		(cast(t_v__qp_i) pFunQt[72])(QtObj, 0); return this;
@@ -2834,7 +2921,7 @@ class QPlainTextEdit : QAbstractScrollArea {
 		return (cast(t_b__qp_qp_i) pFunQt[329])(QtObj, str.QtObj, flags);
 	}
 	bool find(T)(T str, FindFlags flags) { //-> Найти в тексте
-		return (cast(t_b__qp_qp_i) pFunQt[329])(QtObj, (new QString(to!string(str))).QtObj, flags);
+		return (cast(t_b__qp_qp_i) pFunQt[329])(QtObj, sQString(str).QtObj, flags);
 	}
 }
 // ================ QLineEdit ================
@@ -2870,7 +2957,7 @@ class QLineEdit : QWidget {
 		return this;
 	} /// Установить текст на кнопке
 	QLineEdit setText(T)(T str) { //->
-		(cast(t_v__qp_qp) pFunQt[84])(QtObj, (new QString(to!string(str))).QtObj);
+		(cast(t_v__qp_qp) pFunQt[84])(QtObj, sQString(str).QtObj);
 		return this;
 	} /// Установить текст на кнопке
 	QLineEdit clear() { //->
@@ -3057,7 +3144,7 @@ class QAction : QObject {
 		return this;
 	} /// Установить текст
 	QAction setText(T)(T str) { //->
-		(cast(t_v__qp_qp_i) pFunQt[97])(QtObj, (new QString(to!string(str))).QtObj, 0);
+		(cast(t_v__qp_qp_i) pFunQt[97])(QtObj, sQString(str).QtObj, 0);
 		return this;
 	} /// Установить текст
 	QAction setToolTip(T: QString)(T str) { //->
@@ -3065,7 +3152,7 @@ class QAction : QObject {
 		return this;
 	} /// Установить текст
 	QAction setToolTip(T)(T str) { //->
-		(cast(t_v__qp_qp_i) pFunQt[97])(QtObj, (new QString(to!string(str))).QtObj, 1);
+		(cast(t_v__qp_qp_i) pFunQt[97])(QtObj, sQString(str).QtObj, 1);
 		return this;
 	} /// Установить текст
 	QAction setHotKey(QtE.Key key) { //->
@@ -3117,7 +3204,7 @@ class QAction : QObject {
 		return this;
 	}
 	QAction Signal_VS(T)(T str) { //-> Послать сигнал с QAction "Signal_V(int)"
-		(cast(t_v__qp_qp) pFunQt[341])(QtObj, (new QString(to!string(str))).QtObj);
+		(cast(t_v__qp_qp) pFunQt[341])(QtObj, sQString(str).QtObj);
 		return this;
 	}
 }
@@ -3148,7 +3235,7 @@ class QMenu : QWidget {
 		return this;
 	} /// Установить текст
 	QMenu setTitle(T)(T str) { //->
-		(cast(t_v__qp_qp_i) pFunQt[106])(QtObj, (new QString(to!string(str))).QtObj, 1);
+		(cast(t_v__qp_qp_i) pFunQt[106])(QtObj, sQString(str).QtObj, 1);
 		return this;
 	} /// Установить текст
 	QMenu addSeparator() { //->
@@ -3302,17 +3389,17 @@ class QIcon : QObject {
 	}
 	QIcon addFile(T)(T str, QSize qs = null) { //->
 		if(qs is null) {
-			(cast(t_v__qp_qp_qp) pFunQt[112])(QtObj, (new QString(to!string(str))).QtObj, null);
+			(cast(t_v__qp_qp_qp) pFunQt[112])(QtObj, sQString(str).QtObj, null);
 		} else {
-			(cast(t_v__qp_qp_qp) pFunQt[112])(QtObj, (new QString(to!string(str))).QtObj, qs.QtObj);
+			(cast(t_v__qp_qp_qp) pFunQt[112])(QtObj, sQString(str).QtObj, qs.QtObj);
 		}
 		return this;
 	}
 	QIcon addFile(T)(T str, QSize qs, QIcon.Mode mode, QIcon.State state) { //-> Добавить состояние на иконку
 		if(qs is null) {
-			(cast(t_v__qp_qp_qp_i_i) pFunQt[377])(QtObj, (new QString(to!string(str))).QtObj, null, mode, state);
+			(cast(t_v__qp_qp_qp_i_i) pFunQt[377])(QtObj, sQString(str).QtObj, null, mode, state);
 		} else {
-			(cast(t_v__qp_qp_qp_i_i) pFunQt[377])(QtObj, (new QString(to!string(str))).QtObj, qs.QtObj, mode, state);
+			(cast(t_v__qp_qp_qp_i_i) pFunQt[377])(QtObj, sQString(str).QtObj, qs.QtObj, mode, state);
 		}
 		return this;
 	}
@@ -3979,7 +4066,7 @@ class QTableWidgetItem : QObject {
 		return this;
 	} /// Установить текст в ячейке
 	QTableWidgetItem setText(T)(T str) { //->
-		(cast(t_v__qp_qp_i) pFunQt[166])(QtObj, (new QString(to!string(str))).QtObj, 0);
+		(cast(t_v__qp_qp_i) pFunQt[166])(QtObj, sQString(str).QtObj, 0);
 		return this;
 	} /// Установить текст в ячейке
 	QTableWidgetItem setToolTip(T: QString)(T str) { //->
@@ -3987,7 +4074,7 @@ class QTableWidgetItem : QObject {
 		return this;
 	}
 	QTableWidgetItem setToolTip(T)(T str) { //->
-		(cast(t_v__qp_qp_i) pFunQt[166])(QtObj, (new QString(to!string(str))).QtObj, 1);
+		(cast(t_v__qp_qp_i) pFunQt[166])(QtObj, sQString(str).QtObj, 1);
 		return this;
 	}
 	QTableWidgetItem setStatusTip(T: QString)(T str) { //->
@@ -3995,7 +4082,7 @@ class QTableWidgetItem : QObject {
 		return this;
 	}
 	QTableWidgetItem setStatusTip(T)(T str) { //->
-		(cast(t_v__qp_qp_i) pFunQt[166])(QtObj, (new QString(to!string(str))).QtObj, 2);
+		(cast(t_v__qp_qp_i) pFunQt[166])(QtObj, sQString(str).QtObj, 2);
 		return this;
 	}
 	QTableWidgetItem setWhatsThis(T: QString)(T str) { //->
@@ -4003,7 +4090,7 @@ class QTableWidgetItem : QObject {
 		return this;
 	}
 	QTableWidgetItem setWhatsThis(T)(T str) { //->
-		(cast(t_v__qp_qp_i) pFunQt[166])(QtObj, (new QString(to!string(str))).QtObj, 3);
+		(cast(t_v__qp_qp_i) pFunQt[166])(QtObj, sQString(str).QtObj, 3);
 		return this;
 	}
 	int column() { //->
@@ -4075,13 +4162,13 @@ class QComboBox : QWidget {
 		(cast(t_v__qp_qp_i_i) pFunQt[185])(QtObj, str.QtObj, i, 0); return this;
 	} /// Добавить строку str с значением i
 	QComboBox addItem(string s, int i) { //->
-		(cast(t_v__qp_qp_i_i) pFunQt[185])(QtObj, (new QString(s)).QtObj, i, 0); return this;
+		(cast(t_v__qp_qp_i_i) pFunQt[185])(QtObj, sQString(s).QtObj, i, 0); return this;
 	}
 	QComboBox setItemText(QString str, int n) { //->
 		(cast(t_v__qp_qp_i_i) pFunQt[185])(QtObj, str.QtObj, n, 1); return this;
 	} /// Заменить строку, значение i не меняется
 	QComboBox setItemText(string s, int n) { //->
-		(cast(t_v__qp_qp_i_i) pFunQt[185])(QtObj, (new QString(s)).QtObj, n, 1); return this;
+		(cast(t_v__qp_qp_i_i) pFunQt[185])(QtObj, sQString(s).QtObj, n, 1); return this;
 	}
 	QComboBox setMaxCount(int n) { //->
 		(cast(t_v__qp_qp_i_i) pFunQt[185])(QtObj, null, n, 2); return this;
@@ -4260,7 +4347,7 @@ class QGroupBox : QWidget {
 		return this;
 	} /// Установить текст
 	QGroupBox setText(T)(T str) { //->
-		(cast(t_v__qp_qp) pFunQt[214])(QtObj, (new QString(to!string(str))).QtObj);
+		(cast(t_v__qp_qp) pFunQt[214])(QtObj, sQString(str).QtObj);
 		return this;
 	} /// Установить текст
 	QGroupBox setAlignment(QtE.AlignmentFlag fl) { //->
@@ -4291,9 +4378,9 @@ class QCheckBox : QAbstractButton { //=> Кнопки CheckBox независи�
 		// не создавая промежуточного экземпляра в Qt
 		if (parent) {
 			setNoDelete(true);
-			setQtObj((cast(t_qp__qp_qp) pFunQt[216])(parent.QtObj, (new QString(to!string(str))).QtObj));
+			setQtObj((cast(t_qp__qp_qp) pFunQt[216])(parent.QtObj, sQString(str).QtObj));
 		} else {
-			setQtObj((cast(t_qp__qp_qp) pFunQt[216])(null, (new QString(to!string(str))).QtObj));
+			setQtObj((cast(t_qp__qp_qp) pFunQt[216])(null, sQString(str).QtObj));
 		}
 	}
 	QtE.CheckState checkState() {  //-> Состояние переключателя/кнопки
@@ -4331,9 +4418,9 @@ class QRadioButton : QAbstractButton { //=> Кнопки РадиоБатоны 
 		// не создавая промежуточного экземпляра в Qt
 		if (parent) {
 			setNoDelete(true);
-			setQtObj((cast(t_qp__qp_qp) pFunQt[222])(parent.QtObj, (new QString(to!string(str))).QtObj));
+			setQtObj((cast(t_qp__qp_qp) pFunQt[222])(parent.QtObj, sQString(str).QtObj));
 		} else {
-			setQtObj((cast(t_qp__qp_qp) pFunQt[222])(null, (new QString(to!string(str))).QtObj));
+			setQtObj((cast(t_qp__qp_qp) pFunQt[222])(null, sQString(str).QtObj));
 		}
 	}
 }
@@ -4452,7 +4539,7 @@ class QTextCursor : QObject {
 		return this;
 	} /// Установить текст
 	QTextCursor insertText(T)(T str) { //->
-		(cast(t_v__qp_qp) pFunQt[256])(QtObj, (new QString(to!string(str))).QtObj);
+		(cast(t_v__qp_qp) pFunQt[256])(QtObj, sQString(str).QtObj);
 		return this;
 	} /// Установить текст
 	QTextCursor select(SelectionType type) { //-> Установить выделение
@@ -4596,7 +4683,7 @@ class QSpinBox : QAbstractSpinBox {
 		return this;
 	} /// Установить текст
 	QSpinBox setPrefix(T)(T str) {
-		(cast(t_v__qp_qp_i) pFunQt[251])(QtObj, (new QString(to!string(str))).QtObj, 0);
+		(cast(t_v__qp_qp_i) pFunQt[251])(QtObj, sQString(str).QtObj, 0);
 		return this;
 	} /// Установить текст
 	QSpinBox setSuffix(T: QString)(T str) {
@@ -4604,7 +4691,7 @@ class QSpinBox : QAbstractSpinBox {
 		return this;
 	} /// Установить текст
 	QSpinBox setSuffix(T)(T str) {
-		(cast(t_v__qp_qp_i) pFunQt[251])(QtObj, (new QString(to!string(str))).QtObj, 1);
+		(cast(t_v__qp_qp_i) pFunQt[251])(QtObj, sQString(str).QtObj, 1);
 		return this;
 	} /// Установить текст
 
@@ -4653,26 +4740,26 @@ class QTextEdit : QAbstractScrollArea {
 		(cast(t_v__qp_qp_i) pFunQt[270])(QtObj, str.QtObj, 0); return this;
 	} /// Удалить всё и вставить с начала
 	QTextEdit setPlainText(T)(T str) { //-> Удалить всё и вставить с начала
-		(cast(t_v__qp_qp_i) pFunQt[270])(QtObj, (new QString(to!string(str))).QtObj, 0); return this;
+		(cast(t_v__qp_qp_i) pFunQt[270])(QtObj, sQString(str).QtObj, 0); return this;
 	} /// Удалить всё и вставить с начала
 	QTextEdit insertPlainText(T: QString)(T str) {  //-> Вставить текст в месте курсора
 		(cast(t_v__qp_qp_i) pFunQt[270])(QtObj, str.QtObj, 1); return this;
 	} /// Вставить текст в месте курсора
 	QTextEdit insertPlainText(T)(T str) { //-> Вставить текст в месте курсора
-		(cast(t_v__qp_qp_i) pFunQt[270])(QtObj, (new QString(to!string(str))).QtObj, 1); return this;
+		(cast(t_v__qp_qp_i) pFunQt[270])(QtObj, sQString(str).QtObj, 1); return this;
 	} /// Вставить текст в месте курсора
 
 	QTextEdit setHtml(T: QString)(T str) {  //-> Удалить всё и вставить с начала
 		(cast(t_v__qp_qp_i) pFunQt[270])(QtObj, str.QtObj, 2); return this;
 	} /// Удалить всё и вставить с начала
 	QTextEdit setHtml(T)(T str) { //-> Удалить всё и вставить с начала
-		(cast(t_v__qp_qp_i) pFunQt[270])(QtObj, (new QString(to!string(str))).QtObj, 2); return this;
+		(cast(t_v__qp_qp_i) pFunQt[270])(QtObj, sQString(str).QtObj, 2); return this;
 	} /// Удалить всё и вставить с начала
 	QTextEdit insertHtml(T: QString)(T str) {  //-> Вставить текст в месте курсора
 		(cast(t_v__qp_qp_i) pFunQt[270])(QtObj, str.QtObj, 3); return this;
 	} /// Вставить текст в месте курсора
 	QTextEdit insertHtml(T)(T str) { //-> Вставить текст в месте курсора
-		(cast(t_v__qp_qp_i) pFunQt[270])(QtObj, (new QString(to!string(str))).QtObj, 3); return this;
+		(cast(t_v__qp_qp_i) pFunQt[270])(QtObj, sQString(str).QtObj, 3); return this;
 	} /// Вставить текст в месте курсора
 	T toPlainText(T: QString)() { //->
 		QString qs = new QString(); (cast(t_v__qp_qp_i)pFunQt[271])(QtObj, qs.QtObj, 0); return qs;
@@ -4933,7 +5020,7 @@ class QImage: QPaintDevice {
 		return (cast(t_b__qp_qp) pFunQt[305])(QtObj, str.QtObj);
 	}
 	bool load(T)(T str) { //-> Загрузить картинку
-		return (cast(t_b__qp_qp) pFunQt[305])(QtObj, (new QString(to!string(str))).QtObj);
+		return (cast(t_b__qp_qp) pFunQt[305])(QtObj, sQString(str).QtObj);
 	}
 
 	QImage fill(QColor cl) { //-> заполнить цветом
@@ -5024,9 +5111,9 @@ class QScriptEngine : QObject {
 	}
 	void evaluate(T)(QScriptValue sv, T program, T nameFile = null, int lineNumber = 1) {
 		if(nameFile is null) {
-			(cast(t_v__qp_qp_qp_qp_i) pFunQt[353])(sv.QtObj, QtObj, (new QString(to!string(program))).QtObj, (new QString("")).QtObj, lineNumber);
+			(cast(t_v__qp_qp_qp_qp_i) pFunQt[353])(sv.QtObj, QtObj, sQString(program).QtObj, (new QString("")).QtObj, lineNumber);
 		} else {
-			(cast(t_v__qp_qp_qp_qp_i) pFunQt[353])(sv.QtObj, QtObj, (new QString(to!string(program))).QtObj, (new QString(to!string(nameFile))).QtObj, lineNumber);
+			(cast(t_v__qp_qp_qp_qp_i) pFunQt[353])(sv.QtObj, QtObj, sQString(program).QtObj, sQString(nameFile).QtObj, lineNumber);
 		}
 	}
 	void newQObject(QScriptValue sv, QObject ob) {
@@ -5111,7 +5198,7 @@ class QScriptValue : QObject {
 		return to!T(toString!QString().String);
 	} /// Выдать всё содержимое в String
 	void setProperty(QScriptValue ob, string name) {
-		(cast(t_v__qp_qp_qp) pFunQt[360])(QtObj, ob.QtObj, (new QString(name)).QtObj);
+		(cast(t_v__qp_qp_qp) pFunQt[360])(QtObj, ob.QtObj, sQString(name).QtObj);
 	}
 }
 
@@ -5997,14 +6084,14 @@ class QPixmap: QPaintDevice {
 		if(format == "") {
 			(cast(t_v__qp_qp_qp_i) pFunQt[388])(
 				QtObj
-				,(new QString(to!string(fileName))).QtObj
+				,sQString(fileName).QtObj
 				,null
 				,cast(int)flags
 			);
 		} else {
 			(cast(t_v__qp_qp_qp_i) pFunQt[388])(
 				QtObj
-				,(new QString(to!string(fileName))).QtObj
+				,sQString(fileName).QtObj
 				,cast(QtObjH)format.ptr
 				,cast(int)flags
 			);
@@ -6042,23 +6129,23 @@ class QResource: QObject {
 	bool registerResource(string rccFileName, string mapRoot = "") {
 		bool rez;
 		if(mapRoot == "") 
-			rez = (cast(t_b__qp_qp_qp_i)pFunQt[400])(QtObj, (new QString(to!string(rccFileName))).QtObj, (new QString(to!string(mapRoot))).QtObj, 0);
+			rez = (cast(t_b__qp_qp_qp_i)pFunQt[400])(QtObj, sQString(rccFileName).QtObj, sQString(mapRoot).QtObj, 0);
 		else 
-			rez = (cast(t_b__qp_qp_qp_i)pFunQt[400])(QtObj, (new QString(to!string(rccFileName))).QtObj, null, 0); 
+			rez = (cast(t_b__qp_qp_qp_i)pFunQt[400])(QtObj, sQString(rccFileName).QtObj, null, 0); 
 		return rez;
 	}
 	bool unregisterResource(string rccFileName, string mapRoot = "") {
 		bool rez;
 		if(mapRoot == "") 
-			rez = (cast(t_b__qp_qp_qp_i)pFunQt[400])(QtObj, (new QString(to!string(rccFileName))).QtObj, (new QString(to!string(mapRoot))).QtObj, 1);
+			rez = (cast(t_b__qp_qp_qp_i)pFunQt[400])(QtObj, sQString(rccFileName).QtObj, sQString(mapRoot).QtObj, 1);
 		else 
-			rez = (cast(t_b__qp_qp_qp_i)pFunQt[400])(QtObj, (new QString(to!string(rccFileName))).QtObj, null, 1); 
+			rez = (cast(t_b__qp_qp_qp_i)pFunQt[400])(QtObj, sQString(rccFileName).QtObj, null, 1); 
 		return rez;
 	}
 	bool registerResource(ubyte* rccData, string mapRoot = "") {
 		bool rez;
 		if(mapRoot == "") 
-			rez = (cast(t_b__qp_qp_qp_i)pFunQt[401])(QtObj, cast(QtObjH)rccData, (new QString(to!string(mapRoot))).QtObj, 0);
+			rez = (cast(t_b__qp_qp_qp_i)pFunQt[401])(QtObj, cast(QtObjH)rccData, sQString(mapRoot).QtObj, 0);
 		else 
 			rez = (cast(t_b__qp_qp_qp_i)pFunQt[401])(QtObj, cast(QtObjH)rccData, null, 0); 
 		return rez;
@@ -6066,7 +6153,7 @@ class QResource: QObject {
 	bool unregisterResource(ubyte* rccData, string mapRoot = "") {
 		bool rez;
 		if(mapRoot == "") 
-			rez = (cast(t_b__qp_qp_qp_i)pFunQt[401])(QtObj, cast(QtObjH)rccData, (new QString(to!string(mapRoot))).QtObj, 0);
+			rez = (cast(t_b__qp_qp_qp_i)pFunQt[401])(QtObj, cast(QtObjH)rccData, sQString(mapRoot).QtObj, 0);
 		else 
 			rez = (cast(t_b__qp_qp_qp_i)pFunQt[401])(QtObj, cast(QtObjH)rccData, null, 0); 
 		return rez;
@@ -6137,14 +6224,14 @@ class QTabBar : QWidget {
 		SelectPreviousTab 	= 2
 	}
 	enum Shape {
-		RoundedNorth	= 	0,	// Квадратные
-		RoundedSouth	= 	1,	// Квадратные
-		RoundedWest		= 	2,	// Квадратные
-		RoundedEast		= 	3,	// Квадратные
-		TriangularNorth	= 	4,	// Круглые
-		TriangularSouth	= 	5,	// Круглые
-		TriangularWest	= 	6,	// Круглые
-		TriangularEast	= 	7	// Круглые
+		RoundedNorth	= 	0,	// The normal rounded look above the pages
+		RoundedSouth	= 	1,	// The normal rounded look below the pages
+		RoundedWest		= 	2,	// The normal rounded look on the left side of the pages
+		RoundedEast		= 	3,	// The normal rounded look on the right side the pages
+		TriangularNorth	= 	4,	// Triangular tabs above the pages.
+		TriangularSouth	= 	5,	// Triangular tabs similar to those used in the Excel spreadsheet, for example
+		TriangularWest	= 	6,	// Triangular tabs on the left of the pages.
+		TriangularEast	= 	7	// Triangular tabs on the right of the pages.
 	}
 
 	~this() {
@@ -6172,7 +6259,7 @@ class QTabBar : QWidget {
 		return (cast(t_i__qp_qp) pFunQt[410])(QtObj, str.QtObj);
 	}
 	int addTab(T)(T str) { //->
-		return (cast(t_i__qp_qp) pFunQt[410])(QtObj, (new QString(to!string(str))).QtObj);
+		return (cast(t_i__qp_qp) pFunQt[410])(QtObj, sQString(mapRoot).QtObj);
 	}
 	int addTab(T0: QIcon, T: QString)(T0 icon, T str) { //->
 		return (cast(t_i__qp_qp_qp) pFunQt[413])(QtObj, str.QtObj, icon.QtObj);
@@ -6335,6 +6422,9 @@ class QTabBar : QWidget {
 
 __EOF__
 
+
+
+
 // Пример возврата объекта из С++ и подхвата его в объект D
 QString proverka(QString qs) {
 	static void* adr;	adr = (cast(t_vp__qp) pFunQt[381])(qs.QtObj); return new QString('+', &adr );
@@ -6343,6 +6433,7 @@ QString proverka(QString qs) {
 extern "C" MSVC_API  void* QImage_pixelColor(QImage* qi, int x, int y)  {
     return *((void**)&( Объект_C++ ));
 }
+
 // синтаксический сахар
 alias ubyte[] arr;
 // встраивание картинок
@@ -6369,5 +6460,7 @@ auto f = cast (arr[]) [
  
 // встраивание музыки
 ubyte[] mp3data = cast(ubyte[]) import(`this_love.mp3`);
+ 
+ 
  
  

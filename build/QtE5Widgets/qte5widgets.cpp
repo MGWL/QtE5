@@ -107,7 +107,22 @@ extern "C" MSVC_API  void qteQApplication_exit(QtRefH app, int kod) {
 }
 // 277
 extern "C" MSVC_API  void qteQApplication_setStyleSheet(QtRefH app, QString* str) {
+    printf(">setStyleSheet");
     ((QApplication*)app)->setStyleSheet(*str);
+}
+// 428
+extern "C" MSVC_API  void qteQApplication_setX1(QApplication* app, void* adr, int pr) {
+    switch ( pr ) {
+    case 0:   app->restoreOverrideCursor();                         break;
+    case 1:   app->setApplicationDisplayName(*((QString*)adr));     break;
+    // case 2:   app->setDesktopFileName(*((QString*)adr));                     break;
+    case 3:   app->setDesktopSettingsAware((bool)adr);              break;
+    // case 4:   app->setFallbackSessionManagementEnabled((bool)adr);           break;
+    case 5:   app->setFont(*((QFont*)adr));                         break;
+    case 6:   app->setWindowIcon(*((QIcon*)adr));                   break;
+    case 7:   app->setStyleSheet(*((QString*)adr));                 break;
+
+    }
 }
 
 // =========== QLineEdit ==========
@@ -482,7 +497,7 @@ extern "C" MSVC_API  QtRefH qteQString_create1(void) {
 }
 // QString из wchar
 extern "C" MSVC_API  QtRefH qteQString_create2(QChar* s, int size) {
-    return (QtRefH)new QString(s, size);
+    return (QtRefH) new QString(s, size);
 }
 extern "C" MSVC_API  void qteQString_delete(QString* wd) {
 #ifdef debDelete
@@ -3257,7 +3272,24 @@ extern "C" MSVC_API void QTabBar_setX5(QTabBar* wd, void* ob, int index, int pr)
 //    }
 //    return rez;
 //}
-
+// ===================== QCoreApplication ====================
+// 426
+extern "C" MSVC_API  QtRefH QCoreApplication_create1(int* argc, char *argv[], int AnParam3) {
+    return (QtRefH)new QCoreApplication(*argc, argv, AnParam3);
+}
+// 427
+extern "C" MSVC_API  void QCoreApplication_delete1(QApplication* app) {
+#ifdef debDelete
+    printf("del QCoreApplication --> \n");
+#endif
+#ifdef debDestr
+    // delete (QCoreApplication*)app;
+    if(app->parent() == NULL) delete (QApplication*)app;
+#endif
+#ifdef debDelete
+    printf("------------> Ok\n");
+#endif
+}
 
 // Пример возврата объекта из С++
 // --------------------------------

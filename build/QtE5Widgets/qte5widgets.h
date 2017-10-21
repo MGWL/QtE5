@@ -56,6 +56,7 @@
 #include <QBitmap>
 #include <QResource>
 #include <QStackedWidget>
+// #include <QtCore/qpointer.h>
 
 #include <QtScript>
 
