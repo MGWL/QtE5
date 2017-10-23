@@ -3218,6 +3218,7 @@ extern "C" MSVC_API  void QTabBar_moveTab1(QTabBar* wd, int a, int b, int pr) {
     switch ( pr ) {
     case 0:   wd->moveTab(a, b);     break;
     case 1:   wd->removeTab(a);      break;
+    case 2:   wd->setCurrentIndex(a); break;
     }
 }
 // 418
@@ -3262,6 +3263,15 @@ extern "C" MSVC_API void QTabBar_setX5(QTabBar* wd, void* ob, int index, int pr)
     case 3:   wd->setTabToolTip(index,*((QString*)ob));        break;
     case 4:   wd->setTabWhatsThis(index,*((QString*)ob));        break;
     }
+}
+// 429
+extern "C" MSVC_API void QTabBar_setPoint(QTabBar* wd, void* uk, int ind) {
+    QVariant v; v.setValue(uk);
+    wd->setTabData(ind, v);
+}
+// 430
+extern "C" MSVC_API void* QTabBar_tabPoint(QTabBar* wd, int ind) {
+    return (wd->tabData(ind)).value<void*>();
 }
 // 426
 //extern "C" MSVC_API  int QTabBar_addTab4(QTabBar* wd, QString* qs, QIcon* icon, int ind, int pr) {
