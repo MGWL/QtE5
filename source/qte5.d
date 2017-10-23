@@ -895,6 +895,9 @@ int LoadQt(dll ldll, bool showError) { ///  Загрузить DLL-ки Qt и Qt
 	// ------- QGuiApplication -------
 	mixin(generateFunQt(	428, 	"qteQApplication_setX1"				));
 
+	mixin(generateFunQt(	429, 	"QTabBar_setPoint"					));
+	mixin(generateFunQt(	430, 	"QTabBar_tabPoint"					));
+
 	// Последний = 418
 	return 0;
 } ///  Загрузить DLL-ки Qt и QtE. Найти в них адреса функций и заполнить ими таблицу
@@ -6259,7 +6262,7 @@ class QTabBar : QWidget {
 		return (cast(t_i__qp_qp) pFunQt[410])(QtObj, str.QtObj);
 	}
 	int addTab(T)(T str) { //->
-		return (cast(t_i__qp_qp) pFunQt[410])(QtObj, sQString(mapRoot).QtObj);
+		return (cast(t_i__qp_qp) pFunQt[410])(QtObj, sQString(str).QtObj);
 	}
 	int addTab(T0: QIcon, T: QString)(T0 icon, T str) { //->
 		return (cast(t_i__qp_qp_qp) pFunQt[413])(QtObj, str.QtObj, icon.QtObj);
@@ -6353,6 +6356,9 @@ class QTabBar : QWidget {
 	QTabBar removeTab(int index) {
 		(cast(t_v__qp_i_i_i) pFunQt[417])(QtObj, index, 0, 1); return this;
 	}
+	QTabBar setCurrentIndex(int index) {
+		(cast(t_v__qp_i_i_i) pFunQt[417])(QtObj, index, 0, 2); return this;
+	}
 	SelectionBehavior selectionBehaviorOnRemove() {
 		return cast(SelectionBehavior)(cast(t_i__qp) pFunQt[418])(QtObj);
 	}
@@ -6416,6 +6422,12 @@ class QTabBar : QWidget {
 	QTabBar setTabWhatsThis(T: string)(int index, T text) {
 		return setTabWhatsThis(index, (new QString(to!string(text))));
 	}
+	QTabBar setTabData(int index, void* uk) {
+		(cast(t_v__qp_qp_i) pFunQt[429])(QtObj, cast(QtObjH)uk, index);	return this;
+	}
+	void* tabData(int index) {
+		return cast(void*)((cast(t_qp__qp_i) pFunQt[430])(QtObj, index));
+	}
 	
 
 }
@@ -6433,7 +6445,6 @@ QString proverka(QString qs) {
 extern "C" MSVC_API  void* QImage_pixelColor(QImage* qi, int x, int y)  {
     return *((void**)&( Объект_C++ ));
 }
-
 // синтаксический сахар
 alias ubyte[] arr;
 // встраивание картинок
@@ -6460,7 +6471,3 @@ auto f = cast (arr[]) [
  
 // встраивание музыки
 ubyte[] mp3data = cast(ubyte[]) import(`this_love.mp3`);
- 
- 
- 
- 
