@@ -150,7 +150,19 @@ protected:
 class eQWidget : public QWidget {
     // Q_OBJECT
 
+// Пока с событиямия не разобрался. Иногда событие происходит, когда его быть не должно.
+// Возможно, это "цепочка событий". aBEG и aEND - это якоря, изменение которых, говорит
+// что событие не моё и мне его надо пропустить.
+
 public:
+    size_t aBEG_KeyPressEvent;
+    size_t aBEG_PaintEvent;
+    size_t aBEG_CloseEvent;
+    size_t aBEG_ResizeEvent;
+    size_t aBEG_MousePressEvent;
+    size_t aBEG_MouseReleaseEvent;
+    size_t aBEG_MouseWheelEvent;
+    //
     void* aDThis;       // Хранит адрес экземпляра объекта D
     void* aKeyPressEvent;
     void* aPaintEvent;
@@ -158,6 +170,15 @@ public:
     void* aResizeEvent;
     void* aMousePressEvent;
     void* aMouseReleaseEvent;
+    void* aMouseWheelEvent;
+    //
+    size_t aEND_MouseWheelEvent;
+    size_t aEND_MouseReleaseEvent;
+    size_t aEND_MousePressEvent;
+    size_t aEND_ResizeEvent;
+    size_t aEND_CloseEvent;
+    size_t aEND_PaintEvent;
+    size_t aEND_KeyPressEvent;
 
 public:
     explicit eQWidget(QWidget* parent, Qt::WindowFlags f);
@@ -170,6 +191,7 @@ protected:
     void resizeEvent(QResizeEvent* event);
     void mousePressEvent(QMouseEvent* event);
     void mouseReleaseEvent(QMouseEvent* event);
+    void wheelEvent(QWheelEvent* event);
 };
 //___________________________________________________
 class eQFrame : public QFrame {
@@ -232,6 +254,7 @@ private:
     QTextCharFormat keywordFormat;
     QTextCharFormat classFormat;
     QTextCharFormat singleLineCommentFormat;
+    QTextCharFormat singleLineCommentFormat2;
     QTextCharFormat multiLineCommentFormat;
     QTextCharFormat quotationFormat;
     QTextCharFormat functionFormat;

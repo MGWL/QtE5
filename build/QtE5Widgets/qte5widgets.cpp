@@ -245,12 +245,13 @@ eQMainWindow::~eQMainWindow() {
 extern "C" MSVC_API  eQMainWindow* qteQMainWindow_create1(QWidget* parent, Qt::WindowFlags f) {
     return new eQMainWindow(parent, f);
 }
+
 extern "C" MSVC_API  void qteQMainWindow_delete1(eQMainWindow* wd) {
 #ifdef debDelete
     printf("del eQMainWindow --> \n");
 #endif
 #ifdef debDestr
-    if(wd->parent() == NULL) delete wd;
+    delete wd;
 #endif
 #ifdef debDelete
     printf("Ok\n");
@@ -282,11 +283,14 @@ eQWidget::~eQWidget() {
 }
 // -------------------------------------------------
 extern "C" MSVC_API  void qteQWidget_setKeyPressEvent(QtRefH wd, void* adr, void* dThis) {
+    ((eQWidget*)wd)->aBEG_KeyPressEvent = 1001;
     ((eQWidget*)wd)->aKeyPressEvent = adr;
     ((eQWidget*)wd)->aDThis = dThis;
+    ((eQWidget*)wd)->aEND_KeyPressEvent = 2001;
 }
 void eQWidget::keyPressEvent(QKeyEvent *event) {
-    // printf("eQWidget::keyPressEvent --event -> %p  aKeyPressEvent -> %p\n", event, aKeyPressEvent);
+    if( aBEG_KeyPressEvent != 1001 ) return;
+    if( aEND_KeyPressEvent != 2002 ) return;
     if (aKeyPressEvent == NULL) return;
     if ((aKeyPressEvent != NULL) && (aDThis == NULL)) {
         ((ExecZIM_v__vp)aKeyPressEvent)((QtRefH)event);
@@ -298,12 +302,15 @@ void eQWidget::keyPressEvent(QKeyEvent *event) {
 // -------------------------------------------------
 
 extern "C" MSVC_API  void qteQWidget_setPaintEvent(QtRefH wd, void* adr, void* dThis) {
+    ((eQWidget*)wd)->aBEG_PaintEvent = 1002;
     ((eQWidget*)wd)->aPaintEvent = adr;
     ((eQWidget*)wd)->aDThis = dThis;
+    ((eQWidget*)wd)->aEND_PaintEvent = 2002;
 }
 void eQWidget::paintEvent(QPaintEvent *event) {
+    if( aBEG_PaintEvent != 1002 ) return;
+    if( aEND_PaintEvent != 2002 ) return;
     if (aPaintEvent == NULL) return;
-
     QPainter qp(this);
 
     if (aDThis == NULL) {
@@ -312,15 +319,41 @@ void eQWidget::paintEvent(QPaintEvent *event) {
     else  {
         ((ExecZIM_v__vp_vp_vp)aPaintEvent)(*(void**)aDThis, (QtRefH)event, (QtRefH)&qp);
     }
+
+}
+
+// -------------------------------------------------
+extern "C" MSVC_API  void qteQWidget_setaMouseWheelEvent(QtRefH wd, void* adr, void* dThis) {
+    ((eQWidget*)wd)->aBEG_MouseWheelEvent = 1003;
+    ((eQWidget*)wd)->aMouseWheelEvent = adr;
+    ((eQWidget*)wd)->aDThis = dThis;
+    ((eQWidget*)wd)->aEND_MouseWheelEvent = 2003;
+}
+
+void eQWidget::wheelEvent(QWheelEvent* event) {
+    // printf("eQWidget::paintEvent  event = %p   aBEG = %d   aEND = %d  aMouseWheelEvent = %p   aDThis = %p \n", event, aBEG_MouseWheelEvent, aEND_MouseWheelEvent, aMouseWheelEvent, aDThis);
+    if( aBEG_MouseWheelEvent != 1003 ) return;
+    if( aEND_MouseWheelEvent != 2003 ) return;
+    if (aMouseWheelEvent == NULL) return;
+    if ((aMouseWheelEvent != NULL) && (aDThis == NULL)) {
+        ((ExecZIM_v__vp)aMouseWheelEvent)((QtRefH)event);
+    }
+    if ((aMouseWheelEvent != NULL) && (aDThis != NULL)) {
+        ((ExecZIM_v__vp_vp)aMouseWheelEvent)(*(void**)aDThis, (QtRefH)event);
+    }
 }
 
 // -------------------------------------------------
 
 extern "C" MSVC_API  void qteQWidget_setMousePressEvent(QtRefH wd, void* adr, void* dThis) {
+    ((eQWidget*)wd)->aBEG_MousePressEvent = 1004;
     ((eQWidget*)wd)->aMousePressEvent = adr;
     ((eQWidget*)wd)->aDThis = dThis;
+    ((eQWidget*)wd)->aEND_MousePressEvent = 2004;
 }
 void eQWidget::mousePressEvent(QMouseEvent *event) {
+    if( aBEG_MousePressEvent != 1004 ) return;
+    if( aEND_MousePressEvent != 2004 ) return;
     if (aMousePressEvent == NULL) return;
     if ((aMousePressEvent != NULL) && (aDThis == NULL)) {
         ((ExecZIM_v__vp)aMousePressEvent)((QtRefH)event);
@@ -333,10 +366,14 @@ void eQWidget::mousePressEvent(QMouseEvent *event) {
 // -------------------------------------------------
 
 extern "C" MSVC_API  void qteQWidget_setMouseReleaseEvent(QtRefH wd, void* adr, void* dThis) {
+    ((eQWidget*)wd)->aBEG_MouseReleaseEvent = 1005;
     ((eQWidget*)wd)->aMouseReleaseEvent = adr;
     ((eQWidget*)wd)->aDThis = dThis;
+    ((eQWidget*)wd)->aEND_MouseReleaseEvent = 2005;
 }
 void eQWidget::mouseReleaseEvent(QMouseEvent *event) {
+    if( aBEG_MouseReleaseEvent != 1005 ) return;
+    if( aEND_MouseReleaseEvent != 2005 ) return;
     if (aMouseReleaseEvent == NULL) return;
     if ((aMouseReleaseEvent != NULL) && (aDThis == NULL)) {
         ((ExecZIM_v__vp)aMouseReleaseEvent)((QtRefH)event);
@@ -348,10 +385,14 @@ void eQWidget::mouseReleaseEvent(QMouseEvent *event) {
 
 // -------------------------------------------------
 extern "C" MSVC_API  void qteQWidget_setCloseEvent(QtRefH wd, void* adr, void* dThis) {
+    ((eQWidget*)wd)->aBEG_CloseEvent = 1006;
     ((eQWidget*)wd)->aCloseEvent = adr;
     ((eQWidget*)wd)->aDThis = dThis;
+    ((eQWidget*)wd)->aEND_CloseEvent = 2006;
 }
 void eQWidget::closeEvent(QCloseEvent *event) {
+    if( aBEG_CloseEvent != 1006 ) return;
+    if( aEND_CloseEvent != 2006 ) return;
     if (aCloseEvent == NULL) return;
     if ((aCloseEvent != NULL) && (aDThis == NULL)) {
         ((ExecZIM_v__vp)aCloseEvent)((QtRefH)event);
@@ -362,10 +403,14 @@ void eQWidget::closeEvent(QCloseEvent *event) {
 }
 // -------------------------------------------------
 extern "C" MSVC_API  void qteQWidget_setResizeEvent(eQWidget* wd, void* adr, void* dThis) {
+    ((eQWidget*)wd)->aBEG_ResizeEvent = 1007;
     wd->aResizeEvent = adr;
     wd->aDThis = dThis;
+    ((eQWidget*)wd)->aEND_ResizeEvent = 2007;
 }
 void eQWidget::resizeEvent(QResizeEvent *event) {
+    if( aBEG_ResizeEvent != 1007 ) return;
+    if( aEND_ResizeEvent != 2007 ) return;
     if (aResizeEvent == NULL) return;
     if(aDThis == NULL) {
          ((ExecZIM_v__vp)aResizeEvent)(event);
@@ -939,6 +984,7 @@ extern "C" MSVC_API  void qteQEvent_ia(QEvent* ev, int pr) {
     case 1:   ev->accept();  break;
     }
 }
+//347
 // ===================== QMouseEvent ====================
 extern "C" MSVC_API  int qteQMouseEvent1(QMouseEvent* ev, int pr) {
     int rez = 0;
@@ -950,6 +996,28 @@ extern "C" MSVC_API  int qteQMouseEvent1(QMouseEvent* ev, int pr) {
     }
     return rez;
 }
+//436
+// ===================== QMouseEvent2 ====================
+extern "C" MSVC_API  int qteQMouseEvent2(QWheelEvent* ev, int pr) {
+    int rez = 0;
+    switch ( pr ) {
+    case 0:   rez = ev->x();    break;
+    case 1:   rez = ev->y();    break;
+    case 2:   rez = ev->globalX();    break;
+    case 3:   rez = ev->globalY();    break;
+    }
+    return rez;
+}
+//437
+extern "C" MSVC_API  void qteQMouseangleDelta(QWheelEvent* ev, QPoint* point, int pr) {
+    switch ( pr ) {
+    case 0:   *point = ev->angleDelta();    break;
+    case 1:   *point = ev->globalPos();     break;
+    case 2:   *point = ev->pixelDelta();    break;
+    case 3:   *point = ev->pos();           break;
+    }
+}
+
 extern "C" MSVC_API  Qt::MouseButton qteQMouse_button(QMouseEvent* ev) {
     return ev->button();
 }
@@ -1706,6 +1774,7 @@ extern "C" MSVC_API  void qteQAbstractScrollArea_delete(QAbstractScrollArea* wd)
 #endif
 }
 // =========== QMdiArea ==========
+// 151
 extern "C" MSVC_API  QMdiArea* qteQMdiArea_create(QWidget* parent) {
     return new QMdiArea(parent);
 }
@@ -1725,6 +1794,32 @@ extern "C" MSVC_API  QMdiSubWindow* qteQMdiArea_addSubWindow(QMdiArea* ma, QWidg
 }
 extern "C" MSVC_API  QMdiSubWindow* qteQMdiArea_activeSubWindow(QMdiArea* ma) {
     return ma->activeSubWindow();
+}
+//431
+extern "C" MSVC_API  bool qteQMdiArea_getN1(QMdiArea* ma, int pr) {
+    int rez; rez = false;
+    switch ( pr ) {
+        case 0:   rez = ma->documentMode();                  break;
+        case 1:   rez = ma->tabsClosable();                  break;
+        case 2:   rez = ma->tabsMovable();                   break;
+    }
+    return rez;
+}
+//432
+extern "C" MSVC_API  void qteQMdiArea_setN1(QMdiArea* ma, bool b, int pr) {
+    switch ( pr ) {
+        case 0:   ma->setDocumentMode(b);               break;
+        case 1:   ma->setTabsClosable(b);               break;
+        case 2:   ma->setTabsMovable(b);                break;
+    }
+}
+//433
+extern "C" MSVC_API  void qteQMdiArea_removeSubWin(QMdiArea* ma, QMdiSubWindow* wd) {
+    ma->removeSubWindow(wd);
+}
+//434
+extern "C" MSVC_API  void qteQMdiArea_setViewMode(QMdiArea* ma, QMdiArea::ViewMode r) {
+    ma->setViewMode(r);
 }
 
 // =========== QMdiSubWindow ==========
@@ -2403,6 +2498,13 @@ Highlighter::Highlighter(QTextDocument *parent) : QSyntaxHighlighter(parent) {
                      << "\\bslots\\b" << "\\bstatic\\b" << "\\bstruct\\b"
                      << "\\btemplate\\b" << "\\balias\\b" << "\\btypename\\b"
                      << "\\bunion\\b" << "\\buchar\\b" << "\\bvirtual\\b"
+
+                     << "\\bbool\\b" << "\\buint\\b" << "\\bnew\\b"
+                     << "\\bthis\\b" << "\\b~this\\b" << "\\bdelete\\b"
+                     << "\\belse\\b" << "\\bbreak\\b" << "\\bcontinue\\b"
+                     << "\\bmodule\\b" << "\\bimport\\b" << "\\bimmutable\\b"
+                     << "\\breturn\\b" <<  "\\bif\\b" << "\\bnull\\b"
+
                      << "\\bstring\\b" << "\\bvoid\\b" << "\\bvolatile\\b";
      foreach (const QString &pattern, keywordPatterns) {
          rule.pattern = QRegExp(pattern);
@@ -2434,6 +2536,10 @@ Highlighter::Highlighter(QTextDocument *parent) : QSyntaxHighlighter(parent) {
      rule.format = singleLineCommentFormat;
      highlightingRules.append(rule);
 
+     singleLineCommentFormat2.setForeground(Qt::darkRed);
+     rule.pattern = QRegExp("//==[^\n]*");
+     rule.format = singleLineCommentFormat2;
+     highlightingRules.append(rule);
 
 
      commentStartExpression = QRegExp("/\\*");
