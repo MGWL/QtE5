@@ -961,7 +961,9 @@ class FormaMain: QMainWindow {
 		if(qe.key == 16777271) { winForth.getStrN(8); }
 		if(qe.key == 16777272) { winForth.getStrN(9); }
 		if(qe.key == 16777273) { winForth.getStrN(10); }
-
+		if(qe.key == QtE.Key.Key_Return) {
+			EvalString();
+		}
 		return ev;	// Вернуть событие в C++ Qt для дальнейшей обработки
 	}
 	// ______________________________________________________________
