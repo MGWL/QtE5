@@ -101,10 +101,13 @@ class CFinder { //=> Поисковик. Помнит все слова в фа�
 		}
 		return rez;
 	}
-
 	// ______________________________________________________________
 	void addImpPrs(string[] mMod, string[5] PathForSrcDmd) {  //-> Добавить список файлов импорта для парсинга
+		writeln("--1--", PathForSrcDmd);
+		return;
 		string pathDmd2 = getPathDmd2(PathForSrcDmd);
+		writeln(pathDmd2);
+		return;
 		foreach(el; mMod) {
 			string[] rawMod = split(el, ":");
 			string pathFile = rawMod[0] ~ ".d";
@@ -223,6 +226,18 @@ m1:		if(nod is null) {		// Цепочка пуста, вставка 1-го эл
 			writeln("[", nod.name, "] --> ", nod.rawStr);
 			nod = nod.allLink;
 		}
+	}
+	// ______________________________________________________________
+	string getRawMet(string met) { //-> Вернуть сырое описание первого метода
+		um nod = trapMetod;
+		while(nod !is null) {
+			if(met == nod.name) {
+				return nod.rawStr;
+			} else {
+				nod = nod.allLink;
+			}
+		}
+		return "";
 	}
 	// ______________________________________________________________
 	void printUc() { //-> Распечатать список всех классов

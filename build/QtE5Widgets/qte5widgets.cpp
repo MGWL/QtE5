@@ -166,8 +166,13 @@ extern "C" MSVC_API  void qteQLineEdit_delete1(eQLineEdit* wd) {
     printf("Ok\n");
 #endif
 }
-extern "C" MSVC_API  void qteQLineEdit_set(eQLineEdit* qw, QString *qstr) {
-    qw->setText(*qstr);
+//84
+extern "C" MSVC_API  void qteQLineEdit_set(eQLineEdit* qw, QString *qstr, int pr) {
+    switch ( pr ) {
+    case 0:   qw->setText(*qstr); break;
+    case 1:   qw->insert(*qstr);  break;
+    case 2:   qw->setInputMask(*qstr); break;
+    }
 }
 /*
 extern "C" MSVC_API  void qteQLineEdit_setfocus(eQLineEdit* qw) {
@@ -210,6 +215,41 @@ extern "C" MSVC_API  bool qteQLineEdit_getX1(eQLineEdit* wd, int pr) {
     }
     return rez;
 }
+extern "C" MSVC_API  void qteQLineEdit_setAlignment(eQLineEdit* wd, Qt::Alignment flag) {
+    wd->setAlignment(flag);
+}
+//439
+extern "C" MSVC_API  int qteQLineEdit_getInt(eQLineEdit* wd, int pr) {
+    int rez = 0;
+    switch ( pr ) {
+    case 0:   rez = wd->cursorPosition();           break;
+    case 1:   rez = wd->maxLength();                break;
+    case 2:   rez = wd->selectionStart();           break;
+    }
+    return rez;
+}
+//440
+extern "C" MSVC_API  void qteQLineEdit_setX2(eQLineEdit* wd, int pr) {
+    switch ( pr ) {
+    case 0:   wd->del();                break;
+    case 1:   wd->deselect();           break;
+    case 2:   wd->backspace();          break;
+    }
+}
+//441
+extern "C" MSVC_API  void qteQLineEdit_setX3(eQLineEdit* wd, int a, int b, int pr) {
+    bool bb = false;
+    if(a == 0) bb = false; else bb = true;
+    switch ( pr ) {
+    case 0:   wd->setSelection(a,b);                break;
+    case 1:   wd->setMaxLength(b);                  break;
+    case 2:   wd->setCursorPosition(b);             break;
+    case 3:   wd->cursorBackward(bb, b);            break;
+    case 4:   wd->cursorForward(bb, b);             break;
+    case 5:   wd->setSelection(0, wd->text().length()); break;
+    case 6:   wd->setEchoMode((QLineEdit::EchoMode)a);  break;
+    }
+}
 
 // =========== QStatusBar ==========
 extern "C" MSVC_API  QStatusBar* qteQStatusBar_create1(QWidget* parent) {
@@ -226,8 +266,9 @@ extern "C" MSVC_API  void qteQStatusBar_delete1(QStatusBar* wd) {
     printf("Ok\n");
 #endif
 }
-extern "C" MSVC_API  void qteQStatusBar_showMessage(QStatusBar* wd, QString* qs) {
-    wd->showMessage(*qs);
+//93
+extern "C" MSVC_API  void qteQStatusBar_showMessage(QStatusBar* wd, QString* qs, int timeout) {
+    wd->showMessage(*qs, timeout);
 }
 // 314
 extern "C" MSVC_API  void qteQStatusBar_addWidgetXX1(QStatusBar* wd, QWidget* awd, int st, int pr) {

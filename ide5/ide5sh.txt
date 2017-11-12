@@ -800,30 +800,28 @@ auto result = symlink(file.toStringz(), linked.toStringz());
 
 
 %2|Демо|Демонстрационные программы
-%2010|Демо №1 (проще некуда)|Обычный If
+%2010|Демо №1 (проще некуда)|Простейшая программа
 import std.stdio;
 
-// Простейшая программа
-void main() {
-	writeln("Hello...");
+void main(string[] args) { //-> Испытайте разные аргументы запуска
+	writeln("List arguments: ", args);
 }
 %2110|Демо №2 (QtE5 - одиночная форма)|Одиночная форма
 import std.stdio;
 import qte5;				// Графическая библиотека QtE5
 import core.runtime;		// Обработка входных параметров
 
-const strRed   = "background: red";
+const strRed   = "background: pink";
 
-void main(string[] ards) {
+int main(string[] ards) {
 	bool fDebug = true; 
-	if (1 == LoadQt(dll.QtE5Widgets, fDebug)) return;
+	if (1 == LoadQt(dll.QtE5Widgets, fDebug)) return 1;
 	QApplication app = new QApplication(&Runtime.cArgs.argc, Runtime.cArgs.argv, 1);
 	// ---- код программы
 	QWidget widget = new QWidget(null);
-	widget.setWindowTitle("Привет из QtE5!");
-	widget.setStyleSheet(strRed).show();
+	widget.setWindowTitle("===[ Привет из QtE5! ]===").setStyleSheet(strRed).show();
 	// ----
-	app.exec();
+	return app.exec();
 }
 %2310|Демо №3 (QtE5 - Изображение в окне QImage)|Одиночная форма
 import std.stdio;
@@ -831,9 +829,9 @@ import qte5;				// Графическая библиотека QtE5
 import core.runtime;		// Обработка входных параметров
 import asc1251;
 
-// =================================================================
-// Форма: Проверка QImage
-// =================================================================
+//========================
+//==     Форма: Проверка QImage     ==
+//========================
 extern (C) {
 	void  onPaintWidget(CView* uk, void* ev, void* qpaint)  { (*uk).runPaint(ev, qpaint); };
 }
@@ -874,14 +872,12 @@ void main(string[] ards) {
 	// ---- код программы
 	CView widget = new CView(); widget.saveThis(&widget); widget.show();
 	// ----
-	QEndApplication endApp = new QEndApplication('+', app.QtObj);
 	app.exec();
 }
 %2410|Демо №4 (QLabel - HTML)|Приветствие
 // Файл example1.d - example Hello world!
 // -------- compile ---------
 // dmd example1 qte5
-
 import qte5;
 import core.runtime;
 
@@ -891,18 +887,12 @@ int main(string[] args) {
 <p><font size='34' color='red'>QtE5</font>
 <font size='34' color='blue'><i> - a small wrapper of Qt-5 for D</i></font></p>
 ";
-	// Load library QtE5
 	if (1 == LoadQt(dll.QtE5Widgets, true)) return 1;
-	// Create app
 	QApplication app = new QApplication(&Runtime.cArgs.argc, Runtime.cArgs.argv, 1);
-	// Create Label widget
-	QLabel lb = new QLabel(null);
-	// Add in it text (support  HTML)
-	lb.setText(s).show();
-	app.exec();
-	return 0;
+	QLabel lb = new QLabel(null); 	lb.setText(s).show();
+	return app.exec();
 }
-%2510|Пример диапазона|
+%2510|Демо №5 Пример диапазона|
 import std.stdio;
 import std.file;
 import std.conv;
@@ -934,85 +924,3 @@ void main() {
 	writeln(t);
 	writeln(t[4]);
 }
-%2610|Turtle графика|
-import qte5;				// Графическая библиотека QtE5
-import core.runtime;		// Обработка входных параметров
-
-extern(C)
-{
-	void onDraw(QGraphicsBox* boxPointer, void* eventPointer, void* painterPointer) 
-	{ 
-		(*boxPointer).runPaint(eventPointer, painterPointer);
-	}
-}
-
-class QGraphicsBox : QWidget
-{
-	private
-	{
-		QWidget parent;
-		string fileName;
-	}
-
-	this(QWidget parent)
-	{
-		super(parent);
-		this.parent = parent;
-		setStyleSheet(`background : white`);
-		setPaintEvent(&onDraw, aThis);
-	}
-
-	void runPaint(void* eventPointer, void* painterPointer)
-	{
-		QPainter painter = new QPainter('+', painterPointer);
-		QColor color = new QColor;
-		color.setRgb(0, 50, 250, 200);
-
-		QTurtleState turtleState = new QTurtleState(150, 150, (0 * 3.1415926) / 180.0);
-		QTurtle turtle = new QTurtle(painter, color, turtleState, 300, (144 * 3.1415926) / 180.0);
-		turtle.execute("F+F+F+F+F+");
-		color.setRgb(0, 250, 0, 200);
-		turtleState.setX(155); turtleState.setY(155);   turtle.execute("F+F+F+F+F+");
-		color.setRgb(192, 0, 0, 255);
-		turtleState.setX(160); turtleState.setY(160);   turtle.execute("F+F+F+F+F+");
-		painter.end;
-	}
-}
-
-
-class MainForm : QWidget
-{
-	private
-	{
-		QVBoxLayout mainBox;
-		QGraphicsBox box0;
-	}
-
-	this(QWidget parent, WindowType windowType) 
-	{
-		super(parent, windowType); 
-		resize(600, 400); 
-		setWindowTitle("Пример черепашьей графики QtE5");
-		setStyleSheet("background : white");
-		mainBox = new QVBoxLayout(this);
-		box0 = new QGraphicsBox(this);
-		box0.saveThis(&box0);
-		mainBox.addWidget(box0);
-		setLayout(mainBox);
-	}
-}
-
-alias WindowType = QtE.WindowType; // псевдонимы под Qt'шные типы
-alias normalWindow = WindowType.Window;
-
-void main(string[] ards) {
-	bool fDebug = true; 
-	if (1 == LoadQt(dll.QtE5Widgets, fDebug)) return;
-	QApplication app = new QApplication(&Runtime.cArgs.argc, Runtime.cArgs.argv, 1);
-	// ---- код программы
-	MainForm widget = new MainForm(null, normalWindow);
-	widget.saveThis(&widget); widget.show();
-	// ----
-	app.exec();
-}
-

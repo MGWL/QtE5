@@ -42,7 +42,7 @@ class CTestScript: QWidget {
 	// ____________________________
 	// Конструктор формы
 	this(QWidget parent) {
-		super(parent);
+		super(parent);	
 		resize(700, 500);
 		setWindowTitle("Проверка QScript");
 
@@ -75,7 +75,7 @@ class CTestScript: QWidget {
 		vblUr3.addWidget(knN1);
 		vblUr3.addWidget(knN2);
 		vblUr3.addWidget(knN3);
-
+		
 		vblAll.addLayout(vblUr1);
 		vblAll.addLayout(vblUr2);
 		vblAll.addLayout(vblUr3);

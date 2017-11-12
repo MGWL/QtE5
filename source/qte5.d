@@ -907,6 +907,11 @@ int LoadQt(dll ldll, bool showError) { ///  Загрузить DLL-ки Qt и Qt
 	mixin(generateFunQt(	435, 	"qteQWidget_setaMouseWheelEvent"	));
 	mixin(generateFunQt(	436, 	"qteQMouseEvent2"	                ));
 	mixin(generateFunQt(	437, 	"qteQMouseangleDelta"	            ));
+	// ------- QLineEdit -------
+	mixin(generateFunQt(	438, 	"qteQLineEdit_setAlignment"	        ));
+	mixin(generateFunQt(	439, 	"qteQLineEdit_getInt"	        	));
+	mixin(generateFunQt(	440, 	"qteQLineEdit_setX2"	        	));
+	mixin(generateFunQt(	441, 	"qteQLineEdit_setX3"	        	));
 
 	// Последний = 418
 	return 0;
@@ -2727,6 +2732,29 @@ class QResizeEvent : QEvent {
 	} /// QResizeEvent::oldSize();
 }
 // ============ QKeyEvent =======================================
+struct sQKeyEvent {
+	//____________________________
+private:
+	QtObjH adrCppObj;
+	//____________________________
+public:
+	@disable this();
+	@property QtObjH QtObj()	{ 	return adrCppObj;	}
+	void setQtObj(QtObjH adr)	{ 	adrCppObj = adr; 	}
+	//____________________________
+	~this() {}
+	this(void* adr) { setQtObj(cast(QtObjH)adr); }
+	
+	@property int type() { return (cast(t_i__qp) pFunQt[53])(QtObj); } /// QEvent::type(); Вернуть тип события
+	void ignore() { (cast(t_v__qp_i) pFunQt[157])(QtObj, 0); } /// Игнорировать событие
+	void accept() { (cast(t_v__qp_i) pFunQt[157])(QtObj, 1); } /// Принять событие
+	@property uint   key() { return cast(uint)(cast(t_qp__qp)pFunQt[62])(QtObj); }
+	@property uint count() { return cast(uint)(cast(t_qp__qp)pFunQt[63])(QtObj); }
+	@property QtE.KeyboardModifier modifiers() { //-> Признак модификатора кнопки (Ctrl, Alt ...)
+		return cast(QtE.KeyboardModifier)(cast(t_qp__qp)pFunQt[285])(QtObj);
+	}
+}
+
 class QKeyEvent : QEvent {
 	this() {}
  	this(char ch, void* adr) {
@@ -3020,13 +3048,30 @@ class QLineEdit : QWidget {
 		}
 	} /// Создать LineEdit.
 	QLineEdit setText(T: QString)(T str) { //->
-		(cast(t_v__qp_qp) pFunQt[84])(QtObj, str.QtObj);
+		(cast(t_v__qp_qp_i) pFunQt[84])(QtObj, str.QtObj, 0);
 		return this;
 	} /// Установить текст на кнопке
 	QLineEdit setText(T)(T str) { //->
-		(cast(t_v__qp_qp) pFunQt[84])(QtObj, sQString(str).QtObj);
+		(cast(t_v__qp_qp_i) pFunQt[84])(QtObj, sQString(str).QtObj, 0);
 		return this;
 	} /// Установить текст на кнопке
+	
+	QLineEdit insert(T: QString)(T str) { //->
+		(cast(t_v__qp_qp_i) pFunQt[84])(QtObj, str.QtObj, 1);
+		return this;
+	}
+	QLineEdit insert(T)(T str) { //->
+		(cast(t_v__qp_qp) pFunQt[84])(QtObj, sQString(str).QtObj, 1);
+		return this;
+	}
+	QLineEdit setInputMask(T: QString)(T str) { //->
+		(cast(t_v__qp_qp_i) pFunQt[84])(QtObj, str.QtObj, 2);
+		return this;
+	}
+	QLineEdit setInputMask(T)(T str) { //->
+		(cast(t_v__qp_qp) pFunQt[84])(QtObj, sQString(str).QtObj, 2);
+		return this;
+	}
 	QLineEdit clear() { //->
 		(cast(t_v__qp) pFunQt[85])(QtObj);
 		return this;
@@ -3093,6 +3138,48 @@ class QLineEdit : QWidget {
 	}
 	bool isUndoAvailable() { //->
 		return (cast(t_b__qp_i) pFunQt[288])(QtObj, 8);
+	}
+	void setAlignment(QtE.AlignmentFlag flags) {
+		(cast(t_v__qp_i) pFunQt[438])(QtObj, flags);
+	}
+	int cursorPosition() {
+		return (cast(t_i__qp_i) pFunQt[439])(QtObj, 0);
+	}
+	int maxLength() {
+		return (cast(t_i__qp_i) pFunQt[439])(QtObj, 1);
+	}
+	int selectionStart() {
+		return (cast(t_i__qp_i) pFunQt[439])(QtObj, 2);
+	}
+	void delet() { //-> удаляет либо один символ, либо выделенный текст
+		(cast(t_v__qp_i) pFunQt[440])(QtObj, 0);
+	}
+	void deselect() {
+		(cast(t_v__qp_i) pFunQt[440])(QtObj, 1);
+	}
+	void backspace() {
+		(cast(t_v__qp_i) pFunQt[440])(QtObj, 2);
+	}
+	void setSelection(int start, int length) {
+		(cast(t_v__qp_i_i_i) pFunQt[441])(QtObj, start, length, 0);
+	}
+	void setMaxLength(int length) {
+		(cast(t_v__qp_i_i_i) pFunQt[441])(QtObj, 0, length, 1);
+	}
+	void setCursorPosition(int poz) {
+		(cast(t_v__qp_i_i_i) pFunQt[441])(QtObj, 0, poz, 2);
+	}
+	void cursorBackward(bool mark, int steps = 1) {
+		(cast(t_v__qp_i_i_i) pFunQt[441])(QtObj, mark ? 1 : 0, steps, 3);
+	}
+	void cursorForward(bool mark, int steps = 1) {
+		(cast(t_v__qp_i_i_i) pFunQt[441])(QtObj, mark ? 1 : 0, steps, 4);
+	}
+	void setAllSelection() {
+		(cast(t_v__qp_i_i_i) pFunQt[441])(QtObj, 0, 0, 5);
+	}
+	void setEchoMode(QLineEdit.EchoMode echoMode) {
+		(cast(t_v__qp_i_i_i) pFunQt[441])(QtObj, echoMode, 0, 6);
 	}
 }
 // ===================== QMainWindow =====================
@@ -4720,6 +4807,44 @@ class QRect : QObject {
 	}
 }
 // ================ QTextBlock ================
+struct sQTextBlock {
+	//____________________________
+private:
+	QtObjH adrCppObj;
+	//____________________________
+public:
+	@disable this();
+	@property QtObjH QtObj()	{ 	return adrCppObj;	}
+	void setQtObj(QtObjH adr)	{ 	adrCppObj = adr; 	}
+	//____________________________
+	~this() { del(); }
+	// this()  { setQtObj((cast(t_qp__v)pFunQt[238])());	}
+	void del() { 
+		(cast(t_v__qp)pFunQt[239])(QtObj); setQtObj(null);	
+	}
+	this(QTextCursor tk) {	setQtObj((cast(t_qp__qp)pFunQt[240])(tk.QtObj));	}
+	T text(T: QString)() { //-> Содержимое блока в QString
+		QString qs = new QString(); (cast(t_v__qp_qp)pFunQt[237])(QtObj, qs.QtObj); return qs;
+	} /// Выдать содержимое в QString
+	T text(T)() { return to!T(text!QString().String);
+	} /// Выдать всё содержимое в String
+	@property int blockNumber() { //->
+		return (cast(t_i__qp)pFunQt[283])(QtObj);
+	}
+	void next(QTextBlock tb) { //->
+		(cast(t_v__qp_qp_i)pFunQt[299])(QtObj, tb.QtObj, 0);
+	}
+	void previous(QTextBlock tb) { //->
+		(cast(t_v__qp_qp_i)pFunQt[299])(QtObj, tb.QtObj, 1);
+	}
+	@property bool isValid() { //->
+		return (cast(t_b__qp_i)pFunQt[300])(QtObj, 0);
+	}
+	@property bool isVisible() { //->
+		return (cast(t_b__qp_i)pFunQt[300])(QtObj, 1);
+	}
+}
+
 class QTextBlock : QObject {
 	this()  { setQtObj((cast(t_qp__v)pFunQt[238])());	}
 	// Обязателен косвенный вызов (баг D)
