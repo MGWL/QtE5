@@ -16,48 +16,55 @@ bool onChar(void* ev) {
 	if(qe.key == 65) return false;
 	return true;
 }
-
-extern (C) void test2(CTest1* z) {
-	(*z).test();
+extern (C) {
+	void test2(CTest1* uk, int n)	{ (*uk).test(); }
+	void* onKeyPressEvent(CTest1* uk, void* ev)        { return (*uk).runKeyPressEvent(ev); }
 }
 
 class CTest1 : QWidget {
 	QHBoxLayout layH;
 	QVBoxLayout layV;
 	QPushButton pb1, pb2, pb3;
+	QAction        ac1, ac2, ac3;
 	QPlainTextEdit te1;
 	
 	this() {
 		super(null);
 		// Изготовим 3 кнопки
-		QPushButton pb1 = new QPushButton("Кнопка №1"); pb1.setNoDelete(true);
+		ac1    = new QAction(this, &test2, aThis);
+		pb1   = new QPushButton("Кнопка №1",  this); 
+		connects(pb1, "clicked()", ac1, "Slot_AN()");
+
 		pb1.setToolTip("Просто кнопка №1").setToolTipDuration(3000);
 		pb1.setMaximumWidth(100);
 		
-		QPushButton pb2 = new QPushButton("Кнопка №2"); pb2.setNoDelete(true); pb2.setStyleSheet(strElow);
-		QPushButton pb3 = new QPushButton("Кнопка №3"); pb3.setNoDelete(true); pb3.setStyleSheet(strElow);
+		pb2 = new QPushButton("Кнопка №2");  pb2.setStyleSheet(strElow);
+		pb3 = new QPushButton("Кнопка №3");  pb3.setStyleSheet(strElow);
 		// Горизонтальный выравниватель для них
-		QHBoxLayout layH = new QHBoxLayout(); 
-		layH.addWidget(pb1).addWidget(pb2).addWidget(pb3).setNoDelete(true);
+		layH = new QHBoxLayout(null); 
+		layH.addWidget(pb1).addWidget(pb2).addWidget(pb3);
 		// layH.setMargin(50);
 		// Окно редактора
-		QPlainTextEdit te1 = new QPlainTextEdit(null);  
-		te1.setKeyPressEvent(&onChar);
-		
-		// te1.setSizePolicy(QWidget.Policy.Fixed, QWidget.Policy.Expanding);
-		// Вертикальный выравниватель
-		QVBoxLayout layV = new QVBoxLayout(); 
-		layV.addWidget(te1).addLayout(layH).setNoDelete(true);
-		// setSizePolicy(QWidget.Policy.Expanding, QWidget.Policy.Expanding);
-		// Всё в окно
-		setLayout(layV);  // layV.setMargin(10); te1.setSizePolicy(QWidget.Policy.Expanding, QWidget.Policy.Expanding);
+		te1 = new QPlainTextEdit(this);  
+		te1.setKeyPressEvent(&onKeyPressEvent,  aThis);
 
-		// QSlot slotKn1 = new QSlot(&onKn1);
-		QSlot slotKn1 = new QSlot(cast(void*)&test2, aThis); // А что, пусть так и будет!
-		connect(pb1.QtObj, MSS("clicked()", QSIGNAL), slotKn1.QtObj, MSS("Slot()", QSLOT));
+   		// Вертикальный выравниватель
+		layV = new QVBoxLayout(null); 
+		layV.addWidget(te1);  layV.addLayout(layH);
+		// Всё в окно
+		setLayout(layV);
 	}
 	void test() {
 		writeln("--TEST--");
+	}
+	// ______________________________________________________________
+	void* runKeyPressEvent(void* ev) { //-> Обработка события нажатия кнопки
+		sQKeyEvent qe = sQKeyEvent(ev); 
+		// 2 - Выдать тип события
+		writeln(qe.type, "  -- key -> ", qe.key, "  -- count -> ", qe.count);
+		if(qe.key == QtE.Key.Key_A) writeln("--A--");
+		
+		return ev;	// Вернуть событие в C++ Qt для дальнейшей обработки
 	}
 }
 

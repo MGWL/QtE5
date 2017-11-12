@@ -30,7 +30,6 @@ class QGraphicsBox : QWidget
 	this(QWidget parent)
 	{
 		super(parent);
-		this.parent = parent;
 		setStyleSheet(`background : white`);
 		setPaintEvent(&onDraw, aThis);
 	}
@@ -38,7 +37,7 @@ class QGraphicsBox : QWidget
 	void runPaint(void* eventPointer, void* painterPointer)
 	{
 		QPainter painter = new QPainter('+', painterPointer);
-		QColor color = new QColor;
+		QColor color = new QColor(this);
 		color.setRgb(0, 50, 250, 200);
 
 		QTurtleState turtleState = new QTurtleState(150, 150, (0 * 3.1415926) / 180.0);
@@ -90,13 +89,12 @@ class MainForm : QWidget
 		resize(600, 400);
 		setWindowTitle("Пример черепашьей графики QtE5");
 		setStyleSheet("background : white");
-		mainBox = new QVBoxLayout(this);
-		box0 = new QGraphicsBox(this);
-		box0.saveThis(&box0);
+		mainBox = new QVBoxLayout(null);
+		box0 = new QGraphicsBox(this);	box0.saveThis(&box0);
 		mainBox.addWidget(box0);
 		setLayout(mainBox);
-		box0.setMousePressEvent(&onMousePressEvent, box0.aThis());
-		box0.setMouseReleaseEvent(&onMouseReleaseEvent, box0.aThis());
+		// box0.setMousePressEvent(&onMousePressEvent, box0.aThis());
+		// box0.setMouseReleaseEvent(&onMouseReleaseEvent, box0.aThis());
 	}
 }
 
@@ -108,8 +106,7 @@ void main(string[] ards) {
 	if (1 == LoadQt(dll.QtE5Widgets, fDebug)) return;
 	QApplication app = new QApplication(&Runtime.cArgs.argc, Runtime.cArgs.argv, 1);
 	// ---- код программы
-	MainForm widget = new MainForm(null, normalWindow);
-	widget.saveThis(&widget); widget.show();
+	MainForm widget = new MainForm(null, normalWindow); widget.saveThis(&widget); widget.show();
 	// ----
 	app.exec();
 }

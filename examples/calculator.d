@@ -1,4 +1,4 @@
-﻿module app;
+module app;
 
 import core.runtime; 
 import std.conv;
@@ -6,6 +6,7 @@ import std.conv;
 import qte5;
 
 QLCDNumber lcd;
+const strPink   = "background: pink";
 
 int result;
 string resultRegister, numberRegister;
@@ -160,18 +161,18 @@ class MainForm : QWidget
 		super(parent, windowType); 
 		resize(300, 400); 
 		setWindowTitle("QtE Calculator");
-		setStyleSheet(WHITE);
+		setStyleSheet(strPink);
 
 		lcd = new QLCDNumber(this);
 		lcd.setMode(QLCDNumber.Mode.Dec);
 		lcd.setStyleSheet("background: lightgreen; color : gray");
 		lcd.display(0);
 		
-		verticalSizer = new QVBoxLayout;
-		verticalSizer1 = new QVBoxLayout;
-		horizontalSizer = new QHBoxLayout;
+		verticalSizer = new QVBoxLayout(null);
+		verticalSizer1 = new QVBoxLayout(null);
+		horizontalSizer = new QHBoxLayout(null);
 
-		with (buttonGroup1 = new QHBoxLayout)
+		with (buttonGroup1 = new QHBoxLayout(null))
 		{
 			sign = new QPushButton("+/-", this);
 			button0 = new QPushButton("0", this);
@@ -191,7 +192,7 @@ class MainForm : QWidget
 			addWidget(clear);
 		}
 
-		with (buttonGroup2 = new QHBoxLayout)
+		with (buttonGroup2 = new QHBoxLayout(null))
 		{
 			button1 = new QPushButton("1", this);
 			button2 = new QPushButton("2", this);
@@ -211,7 +212,7 @@ class MainForm : QWidget
 			addWidget(button3);
 		}
 
-		with (buttonGroup3 = new QHBoxLayout)
+		with (buttonGroup3 = new QHBoxLayout(null))
 		{
 			button4 = new QPushButton("4", this);
 			button5 = new QPushButton("5", this);
@@ -231,7 +232,7 @@ class MainForm : QWidget
 			addWidget(button6);
 		}
 
-		with (buttonGroup4 = new QHBoxLayout)
+		with (buttonGroup4 = new QHBoxLayout(null))
 		{
 			button7 = new QPushButton("7", this);
 			button8 = new QPushButton("8", this);
@@ -251,7 +252,7 @@ class MainForm : QWidget
 			addWidget(button9);
 		}
 
-		with (buttonGroup5 = new QVBoxLayout)
+		with (buttonGroup5 = new QVBoxLayout(null))
 		{
 			add = new QPushButton("+", this);
 			subtract = new QPushButton("-", this);

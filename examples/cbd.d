@@ -1,3 +1,4 @@
+// обро пожаловать, Геннадий_Мохов! Ваш пароль на сайте: 081c5e63 Теперь в своем профиле вы сможите подключить другие социальные сети. С Уважением, Администрация сайта ...
 //------------------------------
 // Анализ, подготовка и создание БД ФИОД
 // MGW 07.08.2016 16:12
@@ -68,12 +69,13 @@ class CFormaLog: QWidget { //=> Форма лога
 // CFormaMain - Главная Форма для работы
 // =================================================================
 extern (C) {
-	void on_Exit(CFormaMain* uk)			{ (*uk).runExit(); }
-	void on_Test(CFormaMain* uk)			{ (*uk).runTest(); }
-	void on_about(CFormaMain* uk, int n)	{ (*uk).about(n);  }
+	void on_Exit(CFormaMain* uk)				{ (*uk).runExit(); }
+	void on_Test(CFormaMain* uk)				{ (*uk).runTest(); }
+	void on_about(CFormaMain* uk, int n)		{ (*uk).about(n);  }
 	void on_NameRead(CFormaMain* uk, int n)		{ (*uk).runNameRead(); }
-	void on_NameWrite(CFormaMain* uk, int n)		{ (*uk).runNameWrite(); }
-
+	void on_NameWrite(CFormaMain* uk, int n)	{ (*uk).runNameWrite(); }
+	void on_OtvRead(CFormaMain* uk, int n)		{ (*uk).runOtvRead(); }
+	void on_OtvWrite(CFormaMain* uk, int n)		{ (*uk).runOtvWrite(); }
 }
 // __________________________________________________________________
 class CFormaMain: QMainWindow { //=> Основной MAIN класс приложения
@@ -83,14 +85,12 @@ class CFormaMain: QMainWindow { //=> Основной MAIN класс прило
 	QStatusBar	sbSoob;				// Статусбар внизу
 
 	QAction 	acExit, acTest;
-	QAction 	acNameRead, acNameWrite;
+	QAction 	acNameRead, acNameWrite, acOtvRead, acOtvWrite;
 	QAction 	acAbout, acAboutQt;
 	CFormaLog 	wLog;				// Окно лога
 	bool		bIsLog;				// если Log на экране, то .T.
 	// Деревья
 	RedBlackTree!string	rbFio, rbNames, rbOtv;
-
-	QLabel w1;
 	// ______________________________________________________________
 	this() { //-> Базовый конструктор
 		// Главный виджет, в который всё вставим
@@ -135,6 +135,7 @@ class CFormaMain: QMainWindow { //=> Основной MAIN класс прило
 			.addAction(		acAbout		)
 			.addAction(		acAboutQt	     );
 
+		// пара Имена
 		acNameRead = new QAction(this, &on_NameRead, aThis);
 		acNameRead.setText("Имена Читать").setToolTip("Читать файл с именами и заполнять дерево");
 		connects(acNameRead, "triggered()", acNameRead, "Slot_v__A_N_v()");
@@ -148,6 +149,21 @@ class CFormaMain: QMainWindow { //=> Основной MAIN класс прило
 			.addAction(		acNameRead		)
 			.addAction(		acNameWrite		);
 
+		// пара Отчества
+		acOtvRead = new QAction(this, &on_OtvRead, aThis);
+		acOtvRead.setText("Отчества Читать").setToolTip("Читать файл с отчествами и заполнять дерево");
+		connects(acOtvRead, "triggered()", acOtvRead, "Slot_v__A_N_v()");
+
+		acOtvWrite = new QAction(this, &on_OtvWrite, aThis);
+		acOtvWrite.setText("Отчества Писать").setToolTip("Писать файл с отчествами из дерева");
+		connects(acOtvWrite, "triggered()", acOtvWrite, "Slot_v__A_N_v()");
+
+		menuWork
+			.addSeparator()
+			.addAction(		acOtvRead		)
+			.addAction(		acOtvWrite		);
+
+		// формируем всё остальное
 		mb1.addMenu(menuFile).addMenu(menuWork).addMenu(menuHelp);
 		setMenuBar(mb1);
 		setStatusBar(sbSoob);
@@ -163,39 +179,7 @@ class CFormaMain: QMainWindow { //=> Основной MAIN класс прило
 	} // this()
 	// ______________________________________________________________
 	void runTest() { //-> Выйти из программы
-		writeln("active win = ", mainWid.activeSubWindow());
-		string sHtml = 
-`
-<html>
-<head>
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-<title>Здесь название страницы, отображаемое в верхнем левом углу браузера</title>
-</head>
-<body id="kontent">
-<h1 align="center">Моя первая страница!</h1>
-<hr>
-<p align="center">Так можно создавать свою первую страницу.</p>
-<p align="center">Для начала приведен простой пример, по ссылке можно посмотреть пример,
-<br> который создан из таблиц.</p>
-<p>Здесь будем использовать обычный текст описания. Данный приём будет означать,
-что мы сюда вставим описание программы</p><br>
-<pre>
-		// Деревья
-		rbNames = new RedBlackTree!string();	wLog.appendStr("rbNames - create");
-		rbFio   = new RedBlackTree!string();	wLog.appendStr("rbFio - create");
-		rbOtv   = new RedBlackTree!string();	wLog.appendStr("rbOtv - create");
-</pre>
-<p align="center"><a href="http://kapon.com.ua/sign_table.php" title="пример страницы">
-пример страницы</a> построенной на таблицах.</p>
-<br>
-</body></html> - обьявление окончания данной страницы
-`;
-		w1 = new QLabel(this); w1.saveThis(&w1);
-		w1.setText(sHtml);
-		void* rez = mainWid.addSubWindow(w1);
-		writeln(rez, "  ", cast(void*)w1.QtObj);
-		w1.show();
-		// w1.resize(200, 100);
+		showLog();
 	}
 	// ______________________________________________________________
 	void showLog() { //-> Открыть окно лога
@@ -231,16 +215,7 @@ class CFormaMain: QMainWindow { //=> Основной MAIN класс прило
 
 	}
 	// ______________________________________________________________
-	void runNameRead() { //-> Читать файл с именами и формировать дерево
-		QFileDialog fileDlg = new QFileDialog('+', null);
-		string cmd = fileDlg.getOpenFileNameSt("Открыть файл с именами ...", "", "*.txt");
-		if(cmd != "") {
-			createNamesTree(cmd);
-// 			msgbox(cmd ~ " - Читать файл с именами и формировать дерево");
-		}
-	}
-	// ______________________________________________________________
-	void createNamesTree(string nameFile) { //-> Читать файл с именами и формировать дерево
+	void createRbTree(string nameFile, RedBlackTree!string rb) { //-> Читать файл формировать дерево
 		File fhNames;
 		string stringName;
 		try {
@@ -251,8 +226,8 @@ class CFormaMain: QMainWindow { //=> Основной MAIN класс прило
 				string name = strip(to!string(line));
 				if(name == "") continue;		// Обойти пустые строки
 				stringName = capitalize(name);
-				if(stringName !in rbNames) {
-					rbNames.insert(stringName);	wLog.appendStr(stringName ~ " - добавлено");
+				if(stringName !in rb) {
+					rb.insert(stringName);	wLog.appendStr(stringName ~ " ---> добавлено");
 				} else {
 					// wLog.appendStr(stringName ~ " - skip");
 				}
@@ -266,12 +241,28 @@ class CFormaMain: QMainWindow { //=> Основной MAIN класс прило
 m1:
 	}
 	// ______________________________________________________________
-	void runNameWrite() { //-> Писать файл с именами из дерева
-		int i;
-		foreach(s; rbNames) {
-			writeln(s);
+	void runNameRead() { //-> Читать файл с именами и формировать дерево
+		QFileDialog fileDlg = new QFileDialog('+', null);
+		string cmd = fileDlg.getOpenFileNameSt("Открыть файл с именами ...", "", "*.txt");
+		if(cmd != "") {
+			createRbTree(cmd, rbNames);
 		}
-		// msgbox("Писать файл с именами из дерева");
+	}
+	// ______________________________________________________________
+	void runNameWrite() { //-> Писать файл с именами из дерева
+		foreach(s; rbNames) writeln(s);
+	}
+	// ______________________________________________________________
+	void runOtvRead() { //-> Читать файл с отчествами и формировать дерево
+		QFileDialog fileDlg = new QFileDialog('+', null);
+		string cmd = fileDlg.getOpenFileNameSt("Открыть файл с отчествами ...", "", "*.txt");
+		if(cmd != "") {
+			createRbTree(cmd, rbOtv);
+		}
+	}
+	// ______________________________________________________________
+	void runOtvWrite() { //-> Писать файл с отчествами
+		foreach(s; rbOtv) writeln(s);
 	}
 
 } // class CFormaMain
