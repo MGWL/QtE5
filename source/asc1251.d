@@ -490,16 +490,20 @@ char[] from1251to866(char[] str) {
 	char[] rez; foreach (ch; str) rez ~= _1251_866[ch];
 	return rez;
 }
-
 string toCON(T)(T s) {
-	version (Windows) {
-		return to!string(from1251to866(fromUtf8to1251(cast(char[]) s)));
-		// char[] zz = [ 'A', 'B', 'C' ];
-		// return to!string(zz);
-	}
-	version (linux) {
-		return cast(string)s;
-	}
+        string rez;
+        version (Windows) {
+                rez = to!string(from1251to866(fromUtf8to1251(cast(char[]) s)));
+                // char[] zz = [ 'A', 'B', 'C' ];
+                // return to!string(zz);
+        }
+        version (linux) {
+                rez = cast(string)s;
+        }
+        version (osx) {
+                rez = cast(string)s;
+        }
+        return rez;
 }
 string char1251toUtf8(char ch) {
 	return mm1251_Utf8[ch];
