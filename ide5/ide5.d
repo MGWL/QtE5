@@ -1,4 +1,4 @@
-//------------------------------
+//------------------------------!
 // Прототип IDE для D + QtE5
 // MGW 29.04.2016 17:00:10 -- 1 version
 // MGW 04.11.2017 00:22:00 -- 2 version
@@ -1459,12 +1459,14 @@ string getOtstup(string str) { // Вычислить отступ использ
 // Глобальные переменные программы
 QApplication app;	// Само приложение
 string sIniFile;	// Строка с именем файла ini
+string sFileStyle;
 // __________________________________________________________________
 int main(string[] args) {
 	bool fDebug;		// T - выдавать диагностику загрузки QtE5
 	try {
 		auto helpInformation = getopt(args, std.getopt.config.caseInsensitive,
 			"d|debug",	toCON("включить диагностику QtE5"), 		&fDebug,
+			"s|style",    toCON("загрузить файл стилей"),       &sFileStyle,
 			"i|ini", 	toCON("имя INI файла"), 					&sIniFile);
 		if (helpInformation.helpWanted) defaultGetoptPrinter(helps(), helpInformation.options);
 	} catch(Throwable) {
@@ -1472,7 +1474,15 @@ int main(string[] args) {
 	}
 	if (1 == LoadQt(dll.QtE5Widgets, fDebug)) return 1;  // Выйти,если ошибка загрузки библиотеки
 	app = new QApplication(&Runtime.cArgs.argc, Runtime.cArgs.argv, 1);
-
+	// Проверяем путь до файла стилей
+	if(sFileStyle != "") {
+		if(!exists(sFileStyle)) {
+			msgbox("Нет файла Стилей: " ~ "<b>" ~ sFileStyle ~ "</b>", "Внимание! стр: " ~ to!string(__LINE__),
+				QMessageBox.Icon.Critical); return(1);
+		} else {
+			app.setStyleSheet(cast(string) read(sFileStyle));
+		}
+	}
 	// Проверяем путь до INI файла
 	if(!exists(sIniFile)) {
 		msgbox("Нет INI файла: " ~ "<b>" ~ sIniFile ~ "</b>", "Внимание! стр: " ~ to!string(__LINE__),
@@ -1490,3 +1500,4 @@ __EOF__ ________________________________________________________________________
 
 1 - Списки путей, для поиска исходников, интерфейсов
 2 - Список необходимых библиотек, для включения в командную строку
+		
