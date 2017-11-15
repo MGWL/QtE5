@@ -16,7 +16,9 @@ import qte5;
 import core.runtime;     // Обработка входных параметров
 import std.string: strip, format, split;
 import std.conv;
-import std.datetime;
+// import std.datetime;
+import core.time: Duration;
+import std.datetime.stopwatch: StopWatch;
 
 const strElow  = "background: #F8FFA1";
 const strGreen = "background: #F79F81";
@@ -226,7 +228,7 @@ class CModel : QWidget {
 		acKn1 = new QAction(null, &onKn1, aThis);
 		connects(kn1, "clicked()", acKn1, "Slot()");
 		
-		lcdN1 = new QLCDNumber(this, 2); lcdN1.setMaximumHeight(30).setMaximumWidth(60);
+		lcdN1 = new QLCDNumber(2, this); lcdN1.setMaximumHeight(30).setMaximumWidth(60);
 		lcdN1.setStyleSheet(strGreen);
 		lcdN1.display(15).setSegmentStyle(QLCDNumber.SegmentStyle.Flat).setMode(QLCDNumber.Mode.Hex);
 		
@@ -552,7 +554,7 @@ class CMdiFormLogCmd : QWidget, IFormLogCmd {
 		super(parent, fl);
 		resize(200, 180);
 		// Горизонтальный и вертикальный выравниватели
-		vblAll  = new  QBoxLayout(this);			// Главный выравниватель
+		vblAll  = new  QBoxLayout(null);			// Главный выравниватель
 		//Строка команды
 		leCmdStr = new QLineEdit(this);			// Строка команды
 		leCmdStr.setKeyPressEvent(&onChar, parent.aThis);
@@ -566,8 +568,8 @@ class CMdiFormLogCmd : QWidget, IFormLogCmd {
 		teHelp.setToolTip("от F1 до F10 - быстрая вставка слова в командной строке");
 		teHelp.ResizeModeColumn(0);
 		// Создаю раскраску
-		QColor color1 = new QColor(); color1.setRgb(255, 128, 0, 128); // Оранжевый
-		QBrush qbr = new QBrush(); qbr.setColor(color1).setStyle();
+		QColor color1 = new QColor(null); color1.setRgb(255, 128, 0, 128); // Оранжевый
+		QBrush qbr = new QBrush(null); qbr.setColor(color1).setStyle();
 		
 		// Делаю массив для таблицы
  		for(int i; i != 10; i++) {
@@ -720,7 +722,7 @@ class FormaMain: QMainWindow {
 		// Главный виджет, в который всё вставим
 		mainWid = new QMdiArea(this);
 		// Горизонтальный и вертикальный выравниватели
-		vblAll  = new  QVBoxLayout(this);			// Главный выравниватель
+		vblAll  = new  QVBoxLayout(null);			// Главный выравниватель
 		zz = new QProgressBar(null);
 		// Строка сообщений
 		stBar = new QStatusBar(this); stBar.setStyleSheet(strGreen);
@@ -797,7 +799,7 @@ class FormaMain: QMainWindow {
 		tb.setToolButtonStyle(QToolBar.ToolButtonStyle.ToolButtonTextBesideIcon);
 		tb.addAction(acEval).addAction(acIncl)
 			.addSeparator().addAction(acHelp).addAction(acTest);
-		tb.addWidget(zz); zz.setValue(1);
+				tb.addWidget(zz); zz.setValue(1);
 		
 		// --------------- Установки класса -----------------
 		setFont(qf);
@@ -852,8 +854,12 @@ class FormaMain: QMainWindow {
 			// -------------------------
 			sw.stop();
 			winForth.addStrInLog("INCLUDED " ~ cmd);
-			// string s; //  = "   { " ~ to!string(sw.peek().usecs) ~ " microsec}";
-			stBar.showMessage(showSD() ~ "   { " ~ to!string(sw.peek().usecs) ~ " microsec}" );
+			Duration t1 = sw.peek();
+			//ex.mesBox.showMessage("Чтение метафайла: " ~ to!string((t1.total!"msecs")) ~ " миллисекунд" );
+			//ex.winTest3.progresBar.setValue(nAllProgInt);
+			
+			string s = "   { " ~ to!string((t1.total!"msecs")) ~ " microsec}";
+			stBar.showMessage(showSD() ~ "   { " ~ to!string((t1.total!"usecs")) ~ " microsec}" );
 			zz.setValue(cast(int)adr_here());     // А здесь HERE тусуется
 		}
 	}
@@ -874,8 +880,10 @@ class FormaMain: QMainWindow {
 			} catch(Throwable) {
 				msgbox("Error ...");
 			}
+			Duration t1 = sw.peek();
 			winForth.addStrInLog(cmd);
-			stBar.showMessage(showSD() ~ "   { " ~ to!string(sw.peek().usecs) ~ " microsec}" );
+			string s = "   { " ~ to!string((t1.total!"msecs")) ~ " microsec}";
+			stBar.showMessage(showSD() ~ "   { " ~ to!string((t1.total!"usecs")) ~ " microsec}" );
 			zz.setValue(cast(int)adr_here());     // А здесь HERE тусуется
 		}
 	}
@@ -998,7 +1006,9 @@ class FormaMain: QMainWindow {
 		pp rez = executeForth(adrWordForth, 2, 5, 6);
 		// -------------------------
 		sw.stop();
-		stBar.showMessage(showSD() ~ "   { " ~ to!string(sw.peek().usecs) ~ " microsec}" );
+		Duration t1 = sw.peek();
+		string s = "   { " ~ to!string((t1.total!"msecs")) ~ " microsec}";
+		stBar.showMessage(showSD() ~ "   { " ~ to!string((t1.total!"usecs")) ~ " microsec}" );
 		zz.setValue(cast(int)adr_here());     // А здесь HERE тусуется
 		writeln(rez);
 		
@@ -1008,7 +1018,9 @@ class FormaMain: QMainWindow {
 		int q = sr(5, 6);
 		// -------------------------
 		sw.stop();
-		writeln(q, "   { " ~ to!string(sw.peek().usecs) ~ " microsec}");
+		t1 = sw.peek();
+		s = "   { " ~ to!string((t1.total!"msecs")) ~ " microsec}";
+		writeln(q, s);
 		
 		// msgbox("Проверочный Test");
 	}
@@ -1133,3 +1145,4 @@ int main(string[] args) {
 	
 	return app.exec();
 }
+		
