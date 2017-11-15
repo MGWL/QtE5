@@ -430,8 +430,8 @@ private void f_TOKEN_get() {
 		call h_getFromAdr;
 		call h_PLUS;
 		call f_TOKEN;
-		call h_PLUS;
-		ret;
+		jmp h_PLUS;
+		// ret;
 	}
 }
 // \ заменить значение токена dst на src
@@ -447,8 +447,8 @@ private void f_TOKEN_set() {
 		add dword ptr DS:[EAX],EAX;
 		add byte ptr DS:[EAX],AL;
 		call h_PLUS;
-		call h_setToAdr;
-		ret;
+		jmp h_setToAdr;
+		// ret;
 	}
 }
 // ======================== Быстрая арифметика ===============
@@ -544,8 +544,8 @@ private void f_REFzpt() {
 	asm {		naked;
 		call f_REF;
 		call h_PLACE;
-		call h_setToAdr;
-		ret;
+		jmp h_setToAdr;
+		// ret;
 	}
 }
 // \ !!! часто используется и по сути выдает смещение от текущего
@@ -556,8 +556,8 @@ private void f_atod() {
 		call h_HERE;
 		call f_REF;
 		call h_PLUS;
-		call h_MINUS;
-		ret;
+		jmp  h_MINUS;
+		// ret;
 	}
 }
 // \ разрешить ссылку вперед(в коде)
@@ -570,8 +570,8 @@ private void f_R_RESOLVE() {
 		call f_REF;
 		call h_MINUS;
 		call h_SWAP;
-		call h_setToAdr;
-		ret;
+		jmp h_setToAdr;
+		// ret;
 	}
 }
 // \ разрешить ссылку(в коде, то есть в поле данных команды JMP или CALL) назад
@@ -579,8 +579,8 @@ private void f_R_RESOLVE() {
 private void f_L_resolve() {
 	asm {		naked;
 		call f_atod;
-		call f_REFzpt;
-		ret;
+		jmp  f_REFzpt;
+		// ret;
 	}
 }
 // \ запомнить положение для ссылки вперед
@@ -589,16 +589,16 @@ private void f_R_MARK() {
 	asm {		naked;
 		call h_HERE;
 		call f_REF;
-		call h_MINUS;
-		ret;
+		jmp h_MINUS;
+		// ret;
 	}
 }
 // \ заполнить положение для ссылки назад
 // : <MARK ( --> addr ) HERE ;
 private void f_L_MARK() {
 	asm {		naked;
-		call h_HERE;
-		ret;
+		jmp h_HERE;
+		// ret;
 	}
 }
 // : <RESOLVE ( addr --> ) HERE - REF, ;
@@ -606,8 +606,8 @@ private void f_L_RESOLVE() {
 	asm {		naked;
 		call h_HERE;
 		call h_MINUS;
-		call f_REFzpt;
-		ret;
+		jmp f_REFzpt;
+		// ret;
 	}
 }
 // : RESOLVE> ( addr --> ) HERE OVER - SWAP ! ;
@@ -617,8 +617,8 @@ private void f_RESOLVE_R() {
 		call h_OVER;
 		call h_MINUS;
 		call h_SWAP;
-		call h_setToAdr;
-		ret;
+		jmp h_setToAdr;
+		// ret;
 	}
 }
 // 26-06-2005 ~mOleg
@@ -1076,59 +1076,59 @@ private void callD() {
 // Выдать на стек данных F адрес CFA последнего изготовленного слова
 private void* d_LATEST() { return &(gpcb.latest);  }
 private void  h_LATEST() {
-	asm {	naked;	call h_DUP;  call d_LATEST; ret; }
+	asm {	naked;	call h_DUP;  jmp d_LATEST;  }
 }
 // CONTEXT ( -- Alfa)
 // Выдать на стек данных F адрес NFA последнего изготовленного слова. С этого
 // адреса можно перебрать всю цепочку слов в словаре
 private void* d_CONTEXT() { return &(gpcb.context); }
 private void  h_CONTEXT() {
-	asm {	naked;	call h_DUP;  call d_CONTEXT; ret; }
+	asm {	naked;	call h_DUP;  jmp d_CONTEXT;  }
 }
 //  TIB ( -- Atib)
 // Выдать на стек данных F адрес буфера, в котором содержится исходная строка форта
 // для текстового разбора словом WORD
 private void* d_TIB() { return &(gpcb.Tib); }
 private void  h_TIB() {
-	asm {	naked;	call h_DUP;  call d_TIB; ret; }
+	asm {	naked;	call h_DUP;  jmp d_TIB; }
 }
 //  <IN ( -- A)
 // Выдать на стек данных F адрес (позицию) того места, в строковом буфере, откуда
 // будет начинаться поиск след слова (лексемы) словом WORD
 private void* d_IN() { return &(gpcb.In); }
 private void  h_IN() {
-	asm {	naked;	call h_DUP;  call d_IN; ret; }
+	asm {	naked;	call h_DUP;  jmp d_IN; }
 }
 //  dlTib ( -- N )
 // Выдать на стек данных размер строки в TIB
 private void* d_dlTib() { return cast(void*)gpcb.dlTib; }
 private void  h_dlTib() {
-	asm {	naked;	call h_DUP;  call d_dlTib; ret; }
+	asm {	naked;	call h_DUP;  jmp d_dlTib;  }
 }
 // ALLOT ( n -- )
 // Зарезервировать в кодофайле n байт, под собственные нужды
 private void d_ALLOT(int n) {	gpcb.here = gpcb.here + n; }
 private void h_ALLOT() {
-	asm {	naked;	call d_ALLOT;	call h_DROP;	ret; }
+	asm {	naked;	call d_ALLOT;	jmp h_DROP; }
 }
 // HERE ( -- Ahere)
 // Выдать позицию в кодофайле, куда будут записываться новые определяемые слова
 private void* d_HERE() { return gpcb.here; }
 private void  h_HERE() {
-	asm {	naked;	call h_DUP;  call d_HERE;	ret; }
+	asm {	naked;	call h_DUP;  jmp d_HERE; }
 }
 // STATE ( -- Ahere)
 // Выдать состояние переменной, показывающий в компиляции или интерпретации сейчас 
 // мы находимся. TRUE=компиляция, FALSE=интерпретация
 private void* d_STATE() { return &gpcb.state; }
 private void  h_STATE() {
-	asm {	naked;	call h_DUP;  call d_STATE;	ret; }
+	asm {	naked;	call h_DUP;  jmp d_STATE; }
 }
 // COMMONADR ( -- A )
 // Выдать указатель на начало общей таблицы CommonAdr
 private void* d_COMMONADR() { return gpcb.adrCommonTable; }
 private void  h_COMMONADR() {
-	asm {	naked;	call h_DUP;  call d_COMMONADR;	ret; }
+	asm {	naked;	call h_DUP;  jmp d_COMMONADR; }
 }
 // : PLACE ( # --> addr ) HERE SWAP ALLOT ;
 // Указатель на начало "дырки" свободной области в кодофайле
@@ -1136,8 +1136,8 @@ private void h_PLACE() {
 	asm {		naked;
 		call h_HERE;
 		call h_SWAP;
-		call h_ALLOT;
-		ret;
+		jmp  h_ALLOT;
+		// ret;
 	}
 }
 // Зарезервировать одну ячейку в области данных и поместить x в эту ячейку.
@@ -1147,8 +1147,8 @@ private void h_zpt() {
 		// int 3;
 		call h_DUP; mov EAX, CELL;
 		call h_PLACE;
-		call h_setToAdr;
-		ret;
+		jmp  h_setToAdr;
+		// ret;
 	}
 }
 // Зарезервировать одну ячейку в области данных и поместить x в эту ячейку.
@@ -1157,8 +1157,8 @@ private void h_Bzpt() {
 	asm {		naked;
 		call h_DUP; mov EAX, 1;
 		call h_PLACE;
-		call h_setToAdrByte;
-		ret;
+		jmp h_setToAdrByte;
+		// ret;
 	}
 }
 
@@ -1177,8 +1177,8 @@ private void h_COMPILE() {
 		call f_TOKEN_get;
 		call f_TOKEN;
 		call h_R_PLUS;
-		call h_COMPILEzpt;
-		ret;
+		jmp h_COMPILEzpt;
+		// ret;
 	}
 }
 // скомпилировать инструкцию INT3
@@ -1186,8 +1186,8 @@ private void h_COMPILE() {
 private void h_INT3zpt() {	   
 	asm {		naked;
 		call h_DUP; mov EAX, 0xCC;
-		call h_Bzpt;
-		ret;
+		jmp h_Bzpt;
+		// ret;
 	}
 }
 // скомпилировать инструкцию RET
@@ -1195,8 +1195,8 @@ private void h_INT3zpt() {
 private void h_RETzpt() {	   
 	asm {		naked;
 		call h_DUP; mov EAX, 0xC3;
-		call h_Bzpt;
-		ret;
+		jmp h_Bzpt;
+		// ret;
 	}
 }
 // скомпилировать инструкцию CALL √
@@ -1204,8 +1204,8 @@ private void h_RETzpt() {
 private void h_CALLzpt() {	   
 	asm {		naked;
 		call h_DUP; mov EAX, 0xE8;
-		call h_Bzpt;
-		ret;
+		jmp h_Bzpt;
+		//ret;
 	}
 }
 // \ компилировать вызов указанного xt √
@@ -1213,8 +1213,8 @@ private void h_CALLzpt() {
 private void h_COMPILEzpt() {	   
 	asm {		naked;
 		call h_CALLzpt;
-		call f_L_resolve;
-		ret;
+		jmp f_L_resolve;
+		//ret;
 	}
 }
 // \ компилировать безусловный переход на указанный адрес √
@@ -1223,8 +1223,8 @@ private void h_JUMPzpt() {
 	asm {		naked;
 		call h_DUP; mov EAX, 0xE9;
 		call h_Bzpt;
-		call f_L_resolve;
-		ret;
+		jmp f_L_resolve;
+		//ret;
 	}
 }
 // ???????????????????????? Возможно ошибочное словл
@@ -1266,8 +1266,8 @@ private void h_COMP_OFF() {
 	asm {		naked;
 		call f_FALSE;
 		call h_STATE;
-		call h_setToAdr;
-		ret;
+		jmp h_setToAdr;
+		//ret;
 	}
 }
 // CODE ] - начать компиляцию
@@ -1275,8 +1275,8 @@ private void h_COMP_ON() {
 	asm {		naked;
 		call f_TRUE;
 		call h_STATE;
-		call h_setToAdr;
-		ret;
+		jmp h_setToAdr;
+		//ret;
 	}
 }
 // DUMP ( A -- ) Распечатать указанный адрес
@@ -1288,8 +1288,8 @@ void h_zz(pp adr) {
 void h_dump() {
 	asm {	naked;
 		call h_zz;
-		call h_DROP;
-		ret;
+		jmp h_DROP;
+		//ret;
 	}
 }
 // Выдать тип OS W - windows,  L - Linux
@@ -1321,8 +1321,8 @@ pp h_LoadLibrary() {
 void f_LoadLibraryA() {
 	asm {	naked;
 		call h_DUP;
-		call h_LoadLibrary;
-		ret;
+		jmp h_LoadLibrary;
+		//ret;
 	}
 }
 pp h_DlOpen() {
@@ -1336,8 +1336,8 @@ pp h_DlOpen() {
 void f_DlOpen() {
 	asm {	naked;
 		call h_DUP;
-		call h_DlOpen;
-		ret;
+		jmp h_DlOpen;
+		// ret;
 	}
 }
 // Вернуть на стек адрес функции GetProcAdres
@@ -1352,8 +1352,8 @@ pp h_GetPrAdressA() {
 void f_GetPrAdressA() {
 	asm {	naked;
 		call h_DUP;
-		call h_GetPrAdressA;
-		ret;
+		jmp h_GetPrAdressA;
+		// ret;
 	}
 }
 pp h_DlSym() {
@@ -1367,8 +1367,8 @@ pp h_DlSym() {
 void f_DlSym() {
 	asm {	naked;
 		call h_DUP;
-		call h_DlSym;
-		ret;
+		jmp h_DlSym;
+		// ret;
 	}
 }
 
@@ -1384,8 +1384,8 @@ pp h_getSTDOUT() {
 void getSTDOUT() {
 	asm {	naked;
 		call h_DUP;
-		call h_getSTDOUT;
-		ret;
+		jmp h_getSTDOUT;
+		// ret;
 	}
 }
 
@@ -1396,8 +1396,8 @@ void h_TYPE(ps adr) {
 void f_TYPE() {
 	asm {	naked;
 		call h_TYPE;
-		call h_DROP;
-		ret;
+		jmp h_DROP;
+		// ret;
 	}
 }
 
@@ -1413,8 +1413,8 @@ private void f_bmove() {
 		push EAX;
 		call h_DROP;
 		call h_bmove;
-		call h_DROP;
-		ret;
+		jmp h_DROP;
+		// ret;
 	}
 }
 
@@ -1426,7 +1426,7 @@ private void h_THROW(int n) {
 	writeln("[", n, "]", " THROW - error, this mast find ...");
 }
 private void f_THROW() {
-	asm {	naked;	call h_THROW;  call h_DROP;	ret; }
+	asm {	naked;	call h_THROW;  jmp h_DROP;	 }
 }
 // ?COMP - разрешено только при компиляции 
 // private void f_ZNW_COMP() {
@@ -1467,8 +1467,8 @@ private void h_sd_writeln(string* uk) {
 private void  f_SD_WRITELN() {
 	asm {	naked;
 		call h_sd_writeln;
-		call h_DROP;
-		ret;
+		jmp h_DROP;
+		// ret;
 	}
 }
 
@@ -1479,8 +1479,8 @@ private void* h_A_CALL_AN() { return &executeForth_A_N; }
 private void  f_A_CALL_AN() {
 	asm {	naked;
 		call h_DUP;
-		call h_A_CALL_AN;
-		ret;
+		jmp h_A_CALL_AN;
+		// ret;
 	}
 }
 // Обработка вызова слота Slot_A_N_v
@@ -1549,7 +1549,18 @@ void evalForth(string str) {
 
 	gpcb.dlTib = str.length;		// Запишем длину строки в gpcb
 	gpcb.In = cast(ps)gpcb.Tib;     // указатель смещения во входном буфере
+
+	// Копируем входную строку в TIB[1000]
+	h_bmove(str.length, cast(char*)tib.ptr, cast(char*)str.ptr);
+
+/*
+	{
+	import core.stdc.string : memcpy;
+	memcpy(to, from, n);
+}
+
 	for(int i; i != str.length; i++) tib[i] = cast(ubyte)str[i];
+*/
 	NPcb npcb = gpcb;   // Возможность работы с PCB (контекст) переменными в ASM
 	asm {
 		align 4;
@@ -1925,8 +1936,8 @@ kn:
 }
 private void f_find() {
 	asm {	naked;
-		call h_find;
-		ret;
+		jmp h_find;
+		// ret;
 	}
 }
 // CODE IMM ( -- N ) Выдать на стек байт IMM для анализа
@@ -1937,8 +1948,8 @@ private pp h_getIMM() {
 private void f_getIMM() {
 	asm {	naked;
 		call h_DUP;
-		call h_getIMM;
-		ret;
+		jmp h_getIMM;
+		// ret;
 	}
 }
 // Первый (простейший) интерпретатор на основе asm
@@ -1989,8 +2000,8 @@ m2:		call h_DROP;			// Сбросим 0 после не найденного Fin
 		call h_s_LIT_s;
 		call h_zpt;
 		jmp ms;
-me:		call h_DROP;
-		ret;
+me:		jmp h_DROP;
+		// ret;
 	}
 }
 // Слово NUMBER. Задача, положить на стек число 32 разр знаковое
@@ -2011,8 +2022,8 @@ private void h_NUMBER() {
 	asm {	naked;
 		// call h_DUP;
 		call number;
-		call f_TRUE;
-		ret;
+		jmp f_TRUE;
+		// ret;
 	}
 }
 
@@ -2022,8 +2033,8 @@ private void tck(int n) {
 private void h_tck() {
 	asm {	naked;
 		call tck;
-		call h_DROP;
-		ret;
+		jmp h_DROP;
+		// ret;
 	}
 }
 // Часть слова CREATE ( Astr -- ) Создаёт словарную статью, с LFA, но дальше ни чего не делает
@@ -2056,24 +2067,24 @@ private void h_CREATE() {
 		call h_DROP;
 		call h_HERE;
 		call h_LATEST;
-		call h_setToAdr;
-		ret;
+		jmp h_setToAdr;
+		// ret;
 	}
 }
 // CODE : ( слово читает имя из входного потока и создаёт новое слово )
 private void h_dwoetoc() {
 	asm {	naked;
 		call h_CREATE;
-		call h_COMP_ON;
-		ret;
+		jmp h_COMP_ON;
+		// ret;
 	}
 }
 // CODE ; ( заканчивает компиляцию слова начатаю : )
 private void h_tckzpt() {
 	asm {	naked;
 		call h_RETzpt;
-		call h_COMP_OFF;
-		ret;
+		jmp h_COMP_OFF;
+		// ret;
 	}
 }
 // Создаёт список в кодофайле начальных "hard" слов
@@ -2141,12 +2152,13 @@ private int cmpString (const char *s1, const char *s2)
 private void h_INCLUDED(ps adr) {
 	string s = to!string(adr);
 	File f1 = File(s, "r"); foreach(line; f1.byLine()) evalForth(cast(string)line); 
+	// File f1 = File(s, "r"); foreach(line; f1.byLine()) evalForth(line.ptr); 
 }
 private void f_INCLUDED() {
 	asm {	naked;
 		call h_INCLUDED;
-		call h_DROP;
-		ret;
+		jmp h_DROP;
+		// ret;
 	}
 }
 
