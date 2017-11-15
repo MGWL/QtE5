@@ -874,7 +874,7 @@ class FormaMain: QMainWindow {
 				sw.reset();
 				sw.start();
 				// -------------------------
-				evalForth(to!string(fromUtf8to1251(cast(char[])cmd))) ; 
+				evalForth(to!string(fromUtf8to1251(cast(char[])cmd))) ;
 				// -------------------------
 				sw.stop();
 			} catch(Throwable) {
