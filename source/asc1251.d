@@ -1,4 +1,5 @@
 /*
+ 01.12.2017 17:57 - Темплате на toCON
  13.08.2017  6:32 - Проверка и ускорение cp1251 -- Utf-8 -- cp1251
  21.04.2016 18:13 - Проверка ИНН на корректность
  31.05.2014 7:36:58
@@ -406,15 +407,17 @@ char[] from1251toUtf8(char[] str) pure nothrow {
 	char[] rez;
 	foreach (char c1; str) {
 		string str1 = mm1251_Utf8[c1];
-		foreach (char c2; str1) {
-			rez ~= c2;
-		}
+		foreach (char c2; str1) {	rez ~= c2;	}
 	}
 	return rez;
 }
 string from1251toUtf8(T)(T str) pure nothrow {
 	char[] rez; foreach (char c1; cast(char[])str) { string str1 = mm1251_Utf8[c1]; foreach (char c2; str1) rez ~= c2; }
 	return cast(string)rez;
+}
+
+T1 fromUtf8to1251(T1, T2)(T2 str) {
+	return to!(T1)(fromUtf8to1251(to!(char[])(str)));
 }
 
 char[] fromUtf8to1251(char[] str) pure {
@@ -483,6 +486,9 @@ unittest {
 
 	assert(fromUtf8to1251(cast(char[]) "Гена") == "\xC3\xE5\xED\xE0");
 	assert(fromUtf8to1251(cast(char[]) "Gena123") == "Gena123");
+	char[] g = [ 'G', 'e', 'n', 'a', '1', '2', '3' ];
+	assert(fromUtf8to1251!(char[])("Gena123") == g);
+	assert(fromUtf8to1251!(char[])("Гена") == "\xC3\xE5\xED\xE0");
 
 }
 
@@ -490,20 +496,17 @@ char[] from1251to866(char[] str) {
 	char[] rez; foreach (ch; str) rez ~= _1251_866[ch];
 	return rez;
 }
+
 string toCON(T)(T s) {
-        string rez;
-        version (Windows) {
-                rez = to!string(from1251to866(fromUtf8to1251(cast(char[]) s)));
-                // char[] zz = [ 'A', 'B', 'C' ];
-                // return to!string(zz);
-        }
-        version (linux) {
-                rez = cast(string)s;
-        }
-        version (osx) {
-                rez = cast(string)s;
-        }
-        return rez;
+	version (Windows) {
+		return to!string(from1251to866(fromUtf8to1251(cast(char[]) s)));
+	}
+	version (linux) {
+		return cast(string)s;
+	}
+	version (OSX) {
+		return cast(string)s;
+	}
 }
 string char1251toUtf8(char ch) {
 	return mm1251_Utf8[ch];
