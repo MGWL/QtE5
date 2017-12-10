@@ -5,7 +5,7 @@
 This is a small study library to work with GUI Qt-5.
 It is used for dynamic linking and easy in use on Windows 32/64 and Linux 32/64.
 
-**Short video about qte5 and ide5 in Linux [https://www.youtube.com/watch?v=RBan5Dwt_JM](https://www.youtube.com/watch?v=DuOl-4g117E)**
+**Short video about qte5 and ide5 in Linux [https://www.youtube.com/watch?v=RBan5Dwt_JM](https://www.youtube.com/watch?v=RBan5Dwt_JM)**
 <br>
 **QtE5 in Mac OSX 10.10.5 https://www.youtube.com/watch?v=JbvUJwShN_c**
 <br>
