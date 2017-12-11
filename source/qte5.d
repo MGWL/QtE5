@@ -6697,6 +6697,46 @@ class QTabBar : QWidget {
 
 }
 
+/*
+---- автор Олег Бахарев 2016 -- https://vk.com/vk_dlang Роберт Брайтс-Грей ----
+
+Это темплате формирует стандартную "упрощенную" функцию main()
+
+Пример использования:
+
+class MainForm : QWidget {
+  .......
+}
+mixin(QtE5EntryPoint!"MainForm");
+
+*/
+template QtE5EntryPoint(string mainFormName) {
+	import std.string : format;
+	enum QtE5EntryPoint = format(
+		`
+			import core.runtime;
+			import std.stdio;
+
+			auto QtEDebugInfo(bool debugFlag) {
+				if(LoadQt(dll.QtE5Widgets, debugFlag)) return 1; 
+				else		return 0;	
+			}
+
+			int main(string[] args) {
+				%1$s mainForm;
+				QtEDebugInfo(true);
+				QApplication app = new QApplication(&Runtime.cArgs.argc, Runtime.cArgs.argv, 1);
+				with (mainForm = new %1$s(null, QtE.WindowType.Window))		{
+					show;
+					saveThis(&mainForm);
+				}
+				return app.exec;
+			}
+		`,
+		mainFormName
+		);
+}
+
 __EOF__
 
 

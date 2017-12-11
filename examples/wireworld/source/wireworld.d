@@ -155,11 +155,11 @@ class WireWorld(size_t WORLD_WIDTH, size_t WORLD_HEIGHT)
 	void drawWorld(QPainter painter, int cellWidth, int cellHeight)
 	{
 
-	    QColor BLACK = new QColor;
-	    QColor BLUE = new QColor;
-	    QColor RED = new QColor;
-	    QColor YELLOW = new QColor;
-	    QColor GRAY = new QColor;
+	    QColor BLACK = new QColor(null);
+	    QColor BLUE = new QColor(null);
+	    QColor RED = new QColor(null);
+	    QColor YELLOW = new QColor(null);
+	    QColor GRAY = new QColor(null);
 
 	    BLACK.setRgb(0, 0, 0, 230);
 		BLUE.setRgb(0, 0, 255, 230);

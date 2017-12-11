@@ -85,6 +85,7 @@ class MainForm : QWidget
     this(QWidget parent, WindowType windowType) 
 	{
 		super(parent, windowType); 
+		resize(700, 500);
 		setWindowTitle("QWireWorld");
 
         mainBox = new QVBoxLayout(this);
