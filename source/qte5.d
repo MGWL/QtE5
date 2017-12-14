@@ -6314,6 +6314,103 @@ class QLSystem
 		return parameters;
 	}
 }
+					
+/*
+	Интерполяция точек по Лагранжу. 
+	Может быть применено для математической графики для увеличения количества точек
+	при построении, т.к. недостающие промежуточные точки могут быть вычислены с помощью 
+	этого класса.
+
+	Применение:
+
+		// массив точек для расчета (ради эксперимента, выбрана прстая квадратичная функция)
+		QPoint[] points = [
+	    		new QPoint(0, 0),
+	    		new QPoint(1, 1),
+	    		new QPoint(2, 4),
+	    		new QPoint(3, 9),
+	    		new QPoint(5, 25),
+	    		new QPoint(8, 64),
+	    		new QPoint(9, 81)
+	    	];
+
+		// создаем экземпляр класса
+    	QLagrangeInterpolator interpolator = new QLagrangeInterpolator(points);
+    	// ** важно ! **
+    	// для получения промежуточной точки, нужно ее задать с известной координатой x
+    	// и нулевой (хотя тут может быть любая другая координата) координатой y !
+    	// интерполятор в этом случае вернет точку с правильными координатами (т.е)
+    	// вычисленными с пмщью интерполяции 
+    	writeln(interpolator.interpolate(new QPoint(4, 0)).y);
+    	
+    	import std.algorithm, std.range;
+
+    	interpolator
+    			// теперь расчитаем промежуточные точки на интервале от 4 до 7
+    			.interval(4, 7)
+    			.map!(a => a.y)
+    			.each!(a => writeln(a));
+*/
+
+class QLagrangeInterpolator
+{
+	private
+	{
+		float[] xs_Floats;
+		float[] ys_Floats;
+
+		float basePolynom(float x, size_t N)
+		{
+			float product = 1.0f;
+
+			for (size_t i = 0; i < xs_Floats.length; i++)
+			{
+				if (i != N)
+				{
+					product *= (x - xs_Floats[i]) / (xs_Floats[N] - xs_Floats[i]);
+				}
+			}
+
+			return product;
+		}
+	}
+
+	public
+	{
+		this(QPoint[] points...)
+		{
+			foreach (point; points)
+			{
+				xs_Floats ~= point.x;
+				ys_Floats ~= point.y;
+			}
+		}
+
+		QPoint interpolate(QPoint point)
+		{
+			float sum = 0.0f;
+
+			for (size_t i = 0; i < ys_Floats.length; i++)
+			{
+				sum += ys_Floats[i] * basePolynom(point.x, i);
+			}
+			
+			return new QPoint(point.x, cast(int) sum);
+		}
+
+		QPoint[] interval(int a, int b, int step = 1)
+		{
+			QPoint[] points;
+
+			for (int x = a; x < b; x += step)
+			{
+				points ~= interpolate(new QPoint(x, 0));
+			}
+
+			return points;
+		}
+	}
+}
 
 // ================ QPixmap ================
 class QPixmap: QPaintDevice {
