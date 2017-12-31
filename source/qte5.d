@@ -740,6 +740,9 @@ int LoadQt(dll ldll, bool showError) { ///  Загрузить DLL-ки Qt и Qt
 	//  ------- Highlighter -- Временный, подлежит в дальнейшем удалению -----
 	mixin(generateFunQt(	257, 	"qteHighlighter_create"				));
 	mixin(generateFunQt(	258, 	"qteHighlighter_delete"				));
+	//  ------- HighlighterM -- Временный, подлежит в дальнейшем удалению -----
+	mixin(generateFunQt(	442, 	"qteHighlighterM_create"				));
+	mixin(generateFunQt(	443, 	"qteHighlighterM_delete"				));
 
 	// ------- QTextEdit -------
 	mixin(generateFunQt(	260, 	"qteQTextEdit_create1"				));
@@ -4971,6 +4974,25 @@ class Highlighter : QObject {
 		}
 	} /// Конструктор
 }
+// ============ HighlighterM =======================================
+class HighlighterM : QObject {
+	this() {}				// Обязателен
+	~this() { del(); }		// Косвенный вызов деструк C++ обязателен
+	void del() {
+		if(!fNoDelete && (QtObj != null)) { (cast(t_v__qp) pFunQt[443])(QtObj); setQtObj(null); }
+	}
+	this(char ch, void* adr) {
+		if(ch == '+') setQtObj(cast(QtObjH)adr);
+	} /// Конструктор
+	this(void* parent) {
+		super();
+		if (parent) {
+			setQtObj((cast(t_qp__vp) pFunQt[442])(parent));
+		} else {
+			setQtObj((cast(t_qp__vp) pFunQt[442])(null));
+		}
+	} /// Конструктор
+}
 
 // ================ QTextEdit ================
 /++
@@ -5013,6 +5035,15 @@ class QTextEdit : QAbstractScrollArea {
 	QTextEdit setHtml(T)(T str) { //-> Удалить всё и вставить с начала
 		(cast(t_v__qp_qp_i) pFunQt[270])(QtObj, sQString(str).QtObj, 2); return this;
 	} /// Удалить всё и вставить с начала
+
+	QTextEdit append(T: QString)(T str) {  //-> Дописать в конец
+		(cast(t_v__qp_qp_i) pFunQt[270])(QtObj, str.QtObj, 4); return this;
+	}
+	QTextEdit append(T)(T str) { //-> Дописать в конец
+		(cast(t_v__qp_qp_i) pFunQt[270])(QtObj, sQString(str).QtObj, 4); return this;
+	}
+
+
 	QTextEdit insertHtml(T: QString)(T str) {  //-> Вставить текст в месте курсора
 		(cast(t_v__qp_qp_i) pFunQt[270])(QtObj, str.QtObj, 3); return this;
 	} /// Вставить текст в месте курсора

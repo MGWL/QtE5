@@ -2516,6 +2516,120 @@ extern "C" MSVC_API  void qteQSpinBox_setXX2(QSpinBox* wd, QString *str, int pr)
     case 1:   wd->setSuffix(*str);           break;
     }
 }
+// =========== HighlighterM ==========
+HighlighterM::HighlighterM(QTextDocument *parent) : QSyntaxHighlighter(parent) {
+     HighlightingRule rule;
+
+     //Numbers
+     classFormat.setForeground(Qt::red);
+     rule.pattern = QRegExp("\\b[0-9]+(\\.)?\\d*\\b");
+     rule.format = classFormat;
+     highlightingRules.append(rule);
+
+     // keywordFormat.setFontWeight(QFont::Bold);
+     keywordFormat.setForeground(Qt::blue);
+     QStringList keywordPatterns;
+     keywordPatterns
+                     << "\\b[s,S]{1,1}\\b" << "\\b[w,W]{1,1}\\b"
+                     << "\\b[f,F]{1,1}\\b" << "\\b[i,I]{1,1}\\b"
+                     << "\\b[d,D]{1,1}\\b" << "\\b[e,E]{1,1}\\b"
+                     << "\\b[g,G]{1,1}\\b" << "\\b[h,H]{1,1}\\b"
+                     << "\\b[k,K]{1,1}\\b" << "\\b[ks,KS]{1,1}\\b"
+                     << "\\b[kv,KV]{1,1}\\b" << "\\b[l,L]{1,1}\\b"
+                     << "\\b[m,M]{1,1}\\b" << "\\b[n,N]{1,1}\\b"
+                     << "\\b[o,O]{1,1}\\b" << "\\b[q,Q]{1,1}\\b"
+                     << "\\b[r,R]{1,1}\\b" << "\\b[tc,TC]{1,1}\\b"
+                     << "\\b[tr,TR]{1,1}\\b" << "\\b[ts,TS]{1,1}\\b"
+                     << "\\b[u,U]{1,1}\\b" << "\\b[x,X]{1,1}\\b"
+                     << "\\b[znew,ZNEW]{1,1}\\b" << "\\b[zn,ZN]{1,1}\\b"
+                     << "\\b[zp,ZP]{1,1}\\b" << "\\b[zsync,ZSYNC]{1,1}\\b"
+
+                     << "\\b[c,C]{1,1}\\b";
+     foreach (const QString &pattern, keywordPatterns) {
+         rule.pattern = QRegExp(pattern);
+         rule.format = keywordFormat;
+         highlightingRules.append(rule);
+     }
+
+     // classFormat.setFontWeight(QFont::Bold);
+     classFormat.setForeground(Qt::darkMagenta);
+     rule.pattern = QRegExp("\\bQ[A-Za-z()]+\\b");
+     rule.format = classFormat;
+     highlightingRules.append(rule);
+
+     // functionFormat.setFontItalic(true);
+     functionFormat.setForeground(Qt::blue);
+     rule.pattern = QRegExp("\\b[A-Za-z0-9_]+(?=\\()");
+     rule.format = functionFormat;
+     highlightingRules.append(rule);
+
+     multiLineCommentFormat.setForeground(Qt::gray);
+
+     quotationFormat.setForeground(Qt::darkGreen);
+     rule.pattern = QRegExp("\"[^\"]*\"");
+     rule.format = quotationFormat;
+     highlightingRules.append(rule);
+
+     singleLineCommentFormat.setForeground(Qt::gray);
+     rule.pattern = QRegExp(";[^\n]*");
+     rule.format = singleLineCommentFormat;
+     highlightingRules.append(rule);
+
+     singleLineCommentFormat2.setForeground(Qt::darkRed);
+     rule.pattern = QRegExp("//==[^\n]*");
+     rule.format = singleLineCommentFormat2;
+     highlightingRules.append(rule);
+
+
+     commentStartExpression = QRegExp("/\\*");
+     commentEndExpression = QRegExp("\\*/");
+}
+
+void HighlighterM::highlightBlock(const QString &text) {
+     foreach (const HighlightingRule &rule, highlightingRules) {
+         QRegExp expression(rule.pattern);
+         int index = expression.indexIn(text);
+         while (index >= 0) {
+             int length = expression.matchedLength();
+             setFormat(index, length, rule.format);
+             index = expression.indexIn(text, index + length);
+         }
+     }
+     setCurrentBlockState(0);
+
+     int startIndex = 0;
+     if (previousBlockState() != 1)
+         startIndex = commentStartExpression.indexIn(text);
+
+     while (startIndex >= 0) {
+         int endIndex = commentEndExpression.indexIn(text, startIndex);
+         int commentLength;
+         if (endIndex == -1) {
+             setCurrentBlockState(1);
+             commentLength = text.length() - startIndex;
+         } else {
+             commentLength = endIndex - startIndex
+                             + commentEndExpression.matchedLength();
+         }
+         setFormat(startIndex, commentLength, multiLineCommentFormat);
+         startIndex = commentStartExpression.indexIn(text, startIndex + commentLength);
+     }
+}
+
+extern "C" MSVC_API  HighlighterM* qteHighlighterM_create(QTextDocument* parent) {
+    return new HighlighterM(parent);
+}
+extern "C" MSVC_API  void qteHighlighterM_delete(HighlighterM* wd) {
+#ifdef debDelete
+    printf("del Highlighter --> \n");
+#endif
+#ifdef debDestr
+    if(wd->parent() == NULL) delete wd;
+#endif
+#ifdef debDelete
+    printf("Ok\n");
+#endif
+}
 
 // =========== Highlighter ==========
 Highlighter::Highlighter(QTextDocument *parent) : QSyntaxHighlighter(parent) {
@@ -2568,7 +2682,7 @@ Highlighter::Highlighter(QTextDocument *parent) : QSyntaxHighlighter(parent) {
      multiLineCommentFormat.setForeground(Qt::gray);
 
      quotationFormat.setForeground(Qt::darkGreen);
-     rule.pattern = QRegExp("\".*\"");
+     rule.pattern = QRegExp("\"[^\"]*\"");
      rule.format = quotationFormat;
      highlightingRules.append(rule);
 
@@ -2692,6 +2806,7 @@ extern "C" MSVC_API  void qteQTextEdit_setFromString(QTextEdit* wd, QString* str
     case 1:   wd->insertPlainText(*str); break;
     case 2:   wd->setHtml(*str);         break;
     case 3:   wd->insertHtml(*str);      break;
+    case 4:   wd->append(*str);          break;
     }
 }
 extern "C" MSVC_API  QString* qteQTextEdit_toString(QTextEdit* wd, QString* rez, int pr) {
@@ -3068,6 +3183,7 @@ static QScriptValue getSetFoo(QScriptContext *context, QScriptEngine *engine)
     //callee.setProperty("value", QScriptValue(engine, *qsRez));
     return callee.property("value");
     if(engine == NULL) {}
+    return callee;
 }
 // 361
 extern "C" MSVC_API  void QScriptEngine_callFunDlang(QScriptEngine* engine)

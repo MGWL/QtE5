@@ -260,6 +260,36 @@ private:
     QTextCharFormat functionFormat;
 };
 //___________________________________________________
+class HighlighterM : public QSyntaxHighlighter
+{
+    // Q_OBJECT
+public:
+    HighlighterM(QTextDocument *parent = 0);
+
+protected:
+    void highlightBlock(const QString &text);
+
+private:
+    struct HighlightingRule
+    {
+        QRegExp pattern;
+        QTextCharFormat format;
+    };
+    QVector<HighlightingRule> highlightingRules;
+
+    QRegExp commentStartExpression;
+    QRegExp commentEndExpression;
+
+    QTextCharFormat keywordFormat;
+    QTextCharFormat classFormat;
+    QTextCharFormat singleLineCommentFormat;
+    QTextCharFormat singleLineCommentFormat2;
+    QTextCharFormat multiLineCommentFormat;
+    QTextCharFormat quotationFormat;
+    QTextCharFormat functionFormat;
+};
+
+//___________________________________________________
 class eQTextEdit : public QTextEdit {
     // Q_OBJECT
 public:
