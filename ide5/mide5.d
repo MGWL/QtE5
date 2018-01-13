@@ -31,7 +31,7 @@ const strElow  = "background: #F8FFA1";
 const strGreen = "background: #F79F81";
 const strEdit  = "font-size: 9pt; font-family: 'Anonymous Pro';";
 const strTabl  = "font-size: 9pt; font-family: 'Anonymous Pro';";
-const strEdit2  = "font-family:'Lucida Console'; font-size: 12pt";
+const strEdit2  = "font-family:'Lucida Fax'; font-size: 12pt";
 const constMesAhtung = "Внимание! стр: ";
 const constNameLog = "dmderror.log"; 	// Имя файла протокола
 
@@ -1258,20 +1258,28 @@ class CFormaMain: QMainWindow { //=> Основной MAIN класс прило
 			if(winEd.rbServ.isChecked()) {		// Сервер
 				if(isConnectServer) {
 					mCmd = "$O(^|" ~ `"` ~ winEd.leNameTom.text!string ~ `"` ~ "|ROUTINE(\"" ~ nameRoutine ~ "\",-1))";
-					
 					fromStringToExp(&cmd, mCmd);
 					int ret = MNMRead( ConnectServer, &cmd, &rez);
 					if(ret) {
 						if(!indexIs(&rez)) { msgbox("Не найдена: " ~ nameRoutine);	return;	}
+						mCmd = "$O(^|" ~ `"` ~ winEd.leNameTom.text!string ~ `"` ~ "|ROUTINE(\"" ~ nameRoutine ~ "\",\"\"),-1)";
+						fromStringToExp(&cmd, mCmd);
+						ret = MNMRead( ConnectServer, &cmd, &rez);
+						int kolStrokRoutine = to!int(fromResToString( &rez ));
 						winEd.teEdit.clear();
-						for(int j = 1; j != 1000; j++) {
+						for(int j = 1; j != kolStrokRoutine + 1; j++) {
 							mCmd = "^|" ~ `"` ~ winEd.leNameTom.text!string ~ `"` ~ "|ROUTINE(\"" ~ nameRoutine ~ "\"," ~ to!string(j) ~ ")";
 							fromStringToExp(&cmd, mCmd);
 							MNMRead( ConnectServer, &cmd, &rez);
 							scope string stmp = fromResToString( &rez );
+							
+							/*
+							writeln("length = ", stmp.length);
 							if(stmp.length > 0) {	if(stmp[0] == '<') break;	}
 							if(strip(stmp) == "") break;
 							// stmp = fromResToString( &rez );
+							*/
+							
 							winEd.parentMainWin.finder1.addLine(stmp);
 							winEd.teEdit.appendPlainText(stmp);
 						}
@@ -1504,20 +1512,117 @@ class CFormaMain: QMainWindow { //=> Основной MAIN класс прило
 		}
 		scope CConsoleWin winCon = nd.adrWinCon;  // cast(CEditWin)(nd.adrWin);
 
-		string str2 = fromResToString( str );
+		string strTCP= fromResToString( str );		// Это исходная строка
+		size_t len_sttTCP = strTCP.length;		char c1,c2;  string outStrTCP;
+		// writeln("len string = ", len_sttTCP);
+		for(int i; i < len_sttTCP;) {
+			// writeln(i, " == [", cast(ubyte)strTCP[i], "] = ", winCon.bufStr);
+			c1 = strTCP[i];
+			// Проверки
+			if(c1 == 10) {
+				if(i < len_sttTCP) {	// Не Последний
+					c2 = strTCP[i+1];
+					if( c2 == 10 ) { // 2 раза 10, там пустая строка
+						if(winCon.appHTML) 	winCon.pteEdit.appendHtml( winCon.bufStr );	
+						else 				winCon.pteEdit.appendPlainText( winCon.bufStr );
+						if(winCon.appHTML) 	winCon.pteEdit.appendHtml( "" );	
+						else 				winCon.pteEdit.appendPlainText( "" );
+						winCon.bufStr.length = 0;
+						i = i +2;
+						continue;
+					} else {
+						if( c2 == 13 ) { // 1 раз 10,13
+							if(winCon.appHTML) 	winCon.pteEdit.appendHtml( winCon.bufStr );	
+							else 				winCon.pteEdit.appendPlainText( winCon.bufStr );
+							winCon.bufStr.length = 0;	i = i + 2;
+							continue;
+						} else {
+							if(winCon.appHTML) 	winCon.pteEdit.appendHtml( winCon.bufStr );	
+							else 				winCon.pteEdit.appendPlainText( winCon.bufStr );
+							winCon.bufStr.length = 0; i++; 
+							continue;
+						}
+					}
+				} else {
+					if(winCon.appHTML) 	winCon.pteEdit.appendHtml( winCon.bufStr );	
+					else 				winCon.pteEdit.appendPlainText( winCon.bufStr );
+					winCon.bufStr.length = 0;
+					break;
+				}
+			} 
+			
+			if(c1 == 13) {
+				if(i < len_sttTCP) {	// Не Последний
+					c2 = strTCP[i+1];
+					if( c2 == 13 ) { // 2 раза 10, там пустая строка
+						if(winCon.appHTML) 	winCon.pteEdit.appendHtml( winCon.bufStr );	
+						else 				winCon.pteEdit.appendPlainText( winCon.bufStr );
+						if(winCon.appHTML) 	winCon.pteEdit.appendHtml( "" );	
+						else 				winCon.pteEdit.appendPlainText( "" );
+						winCon.bufStr.length = 0;
+						i = i +2;
+						continue;
+					} else {
+						if( c2 == 10 ) { // 1 раз 10,13
+							if(winCon.appHTML) 	winCon.pteEdit.appendHtml( winCon.bufStr );	
+							else 				winCon.pteEdit.appendPlainText( winCon.bufStr );
+							winCon.bufStr.length = 0;	i = i + 2;
+							continue;
+						} else {
+							if(winCon.appHTML) 	winCon.pteEdit.appendHtml( winCon.bufStr );	
+							else 				winCon.pteEdit.appendPlainText( winCon.bufStr );
+							winCon.bufStr.length = 0;	i++; 
+							continue;
+						}
+					}
+				} else {
+					if(winCon.appHTML) 	winCon.pteEdit.appendHtml( winCon.bufStr );	
+					else 				winCon.pteEdit.appendPlainText( winCon.bufStr );
+					winCon.bufStr.length = 0;
+					break;
+				}
+			} 
+			winCon.bufStr ~= c1; i++;
+		}
+		
+		
+		
+		
+		
+		
+		
+		
+/*
+writeln("----------------------");
+writeln("CALL:", str.len, " -- [",str2,"]");
+deb(cast(ubyte*)str2.ptr);
+		auto mStrAll = split(str2, "\n"); int kChankAll = mStrAll.length;
+		writeln(mStrAll);
+
 		if(str2[$-1] == 10) {
+writeln("--1--");		
 			string str3 = str2[0 .. $-2];
 			winCon.bufStr ~= str3;
+writeln("--11--winCon.bufStr = ", winCon.bufStr);		
 			
 			if(winCon.appHTML) 	winCon.pteEdit.appendHtml( winCon.bufStr );	
 			else 				winCon.pteEdit.appendPlainText( winCon.bufStr );
 			
 			winCon.bufStr = "";
 		} else {
-			winCon.bufStr ~= str2;
+writeln("--2--");		
+			// Возможны чанки
+			auto mStr = split(str2, 10); int kChank = mStr.length;
+writeln("kChank = ", kChank);
+			for(int i; i != kChank; i++) {
+writeln("i=", i, "  [",mStr[i],"]");
+				if(mStr[i][$-1] == 10) {
+					if(winCon.appHTML) 	winCon.pteEdit.appendHtml( winCon.bufStr );	
+					else 				winCon.pteEdit.appendPlainText( winCon.bufStr );
+				} else winCon.bufStr ~= mStr[i];
+			}
 		}
-//		deb(cast(ubyte*)str2.ptr);
-//		writeln(pConnect, " -- M: ", fromResToString( str ));
+*/		
 	}
 	// ______________________________________________________________
 	void runFind2(int n) { //-> Промежуточная для поиска
@@ -1944,7 +2049,7 @@ writeln("--12--");
 			
 			
 			GetDefaultSettingsVM(&vm);
-			vm.DataFile = cast(char*)pathDataBase.ptr;		// assign datafile name you are using
+			vm.DataFile = pathDataBase.ptr;						// assign datafile name you are using
 			vm.DBCacheSize = 10;							// 10 Mbytes
 			vm.JournalingEnabled = 0;						// this example does not require journaling
 				vm.WriteStr		= &DevWriteStr;
