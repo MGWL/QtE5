@@ -17,6 +17,8 @@ QtE5 - uses the following libraries depending from OS<br>
     QtE5Widgets64.dll     --->  Windows 64<br>
     libQtE5Widgets32.so   --->  Linux   32<br>
     libQtE5Widgets64.so   --->  Linux   64<br>
+    libQtE5Widgets64.dylib ---> OSX 10.5 64<br>
+    
 <p>The most actual version for Windows 32 (QtE5Widgets32.dll) as on it the basic working out and testing is conducted.</p>   
 <br>
 
