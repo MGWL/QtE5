@@ -58,8 +58,6 @@
 #include <QStackedWidget>
 // #include <QtCore/qpointer.h>
 
-#include <QtScript>
-
 typedef int PTRINT;
 typedef unsigned int PTRUINT;
 

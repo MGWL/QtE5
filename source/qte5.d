@@ -32,7 +32,8 @@ alias PTRUINT = uint;
 struct QtObj__ { PTRINT dummy; } alias QtObjH = QtObj__*;
 
 
-private void*[500] pFunQt; /// Масив указателей на функции из DLL
+private void*[500] pFunQt; 				/// Масив указателей на функции из DLL
+private uint maxValueInPFunQt;
 
 immutable int QMETHOD = 0; // member type codes
 immutable int QSLOT = 1;
@@ -58,8 +59,11 @@ private {
 		rez = rez[0 .. $-2];	rez ~= ");";
 		return rez;
 	}
-	string generateFunQt(int n, string name) {
-		return "funQt(" ~ to!string(n) ~ `,bQtE5Widgets,hQtE5Widgets,sQtE5Widgets,r"` ~ name ~ `",showError);`;
+	//in: n = nomer function (12), name = name func in library (funCreateQWidget), nameAliasLib = short name DLL/SO (Script)
+	//out: funQt(12,bQtE5Script,hQtE5Script,sQtE5Script,"funCreateQWidget", showError);
+	string generateFunQt(int n, string name, string nameAliasLib) {
+		enum s = "QtE5";
+		return "funQt("~to!string(n)~",b"~s~nameAliasLib~",h"~s~ nameAliasLib~",s"~s~nameAliasLib~`,"`~name~`"`~",showError);";
 	}
 
 	alias t_QObject_connect = extern (C) @nogc void function(void*, char*, void*, char*, int);
@@ -213,6 +217,8 @@ private void* GetHlib(T)(T name) {
 
 // Найти адреса функций в DLL. To find addresses of executed out functions in DLL
 private void* GetPrAddress(T)(bool isLoad, void* hLib, T nameFun) {
+	if(!hLib) writeln(nameFun, " -- ", hLib);
+	if(!hLib) return null;
 	// // Искать или не искать функцию. Find or not find function in library
 	if (isLoad) return GetProcAddress(hLib, nameFun.ptr);
 	return cast(void*) 1;
@@ -237,19 +243,24 @@ char* MSS(string s, int n) {
 
 // Qt5Core & Qt5Gui & Qt5Widgets - Are loaded always
 enum dll {
-	QtE5Widgets = 0x1
+	QtE5Widgets = 1,
+	QtE5Script  = 2,
+	QtE5Web		= 4,
+	QtE5WebEng	= 8
 } /// Загрузка DLL. Необходимо выбрать какие грузить. Load DLL, we mast change load
 
 // Найти и сохранить адрес функции DLL
 void funQt(int n, bool b, void* h, string s, string name, bool she) {
+	if(!h) return; // { MessageErrorLoad(she, s, "no DLL/SO for function " ~ name); writeln("add in LoadQt(... + "~ s ~" + ...)"); return; }
 	pFunQt[n] = GetPrAddress(b, h, name); if (!pFunQt[n]) MessageErrorLoad(she, name, s);
+	maxValueInPFunQt = n;
 	// writeln(name, " ", pFunQt[n]);
 }
 
 int LoadQt(dll ldll, bool showError) { ///  Загрузить DLL-ки Qt и QtE
-	bool	bCore5, bGui5, bWidget5, bQtE5Widgets;
-	string	sCore5, sGui5, sWidget5, sQtE5Widgets;
-	void*	hCore5, hGui5, hWidget5, hQtE5Widgets;
+	bool	bCore5, bGui5, bWidget5, bQtE5Widgets, bQtE5Script, bQtE5Web, bQtE5WebEng;
+	string	sCore5, sGui5, sWidget5, sQtE5Widgets, sQtE5Script, sQtE5Web, sQtE5WebEng;
+	void*	hCore5, hGui5, hWidget5, hQtE5Widgets, hQtE5Script, hQtE5Web, hQtE5WebEng;
 
 	// Add path to directory with real file Qt5 DLL
 	version (Windows) {
@@ -258,12 +269,18 @@ int LoadQt(dll ldll, bool showError) { ///  Загрузить DLL-ки Qt и Qt
 			sGui5			= "Qt5Gui.dll";
 			sWidget5		= "Qt5Widgets.dll";
 			sQtE5Widgets	= "QtE5Widgets32.dll";
+			sQtE5Script		= "QtE5Script32.dll";
+			sQtE5Web		= "QtE5Web32.dll";
+			sQtE5WebEng		= "QtE5WebEng32.so";
 		}
 		version (X86_64) {	// ... 64 bit code
 			sCore5			= "Qt5Core.dll";
 			sGui5			= "Qt5Gui.dll";
 			sWidget5		= "Qt5Widgets.dll";
 			sQtE5Widgets	= "QtE5Widgets64.dll";
+			sQtE5Script		= "QtE5Script64.dll";
+			sQtE5Web		= "QtE5Web64.dll";
+			sQtE5WebEng		= "QtE5WebEng64.so";
 		}
 	}
 	// Use symlink for create link on real file Qt5
@@ -273,12 +290,18 @@ int LoadQt(dll ldll, bool showError) { ///  Загрузить DLL-ки Qt и Qt
 			sGui5			= "libQt5Gui.so";
 			sWidget5		= "libQt5Widgets.so";
 			sQtE5Widgets	= "libQtE5Widgets32.so";
+			sQtE5Script		= "libQtE5Script32.so";
+			sQtE5Web		= "libQtE5Web32.so";
+			sQtE5WebEng		= "libQtE5WebEng32.so";
 		}
 		version (X86_64) {	// ... 64 bit code
 			sCore5			= "libQt5Core.so";
 			sGui5			= "libQt5Gui.so";
 			sWidget5		= "libQt5Widgets.so";
 			sQtE5Widgets	= "libQtE5Widgets64.so";
+			sQtE5Script		= "libQtE5Script64.so";
+			sQtE5Web		= "libQtE5Web64.so";
+			sQtE5WebEng		= "libQtE5WebEng64.so";
 		}
 	}
 	// Use symlink for create link on real file Qt5
@@ -292,12 +315,19 @@ int LoadQt(dll ldll, bool showError) { ///  Загрузить DLL-ки Qt и Qt
 		// sGui5			= "QtGui";
 		// sWidget5		= "QtWidgets";
 		sQtE5Widgets	= "libQtE5Widgets64.dylib";
+		sQtE5Script		= "libQtE5Script64.dylib";
+		sQtE5Web		= "libQtE5Web64.dylib";
+		sQtE5WebEng		= "libQtE5WebEng64.dylib";
 	}
 
 	// Если на входе указана dll.QtE5Widgets то автоматом надо грузить и bCore5, bGui5, bWidget5
 	// If on an input it is specified dll.QtE5Widgets then automatic loaded bCore5, bGui5, bWidget5
-	bQtE5Widgets= ldll && dll.QtE5Widgets;
+	bQtE5Widgets= cast(bool)(ldll & dll.QtE5Widgets);
 	if(bQtE5Widgets) { bCore5 = true; bGui5 = true; bWidget5 = true; }
+	bQtE5Script = cast(bool)(ldll & dll.QtE5Script);
+	bQtE5Web 	= cast(bool)(ldll & dll.QtE5Web);
+	bQtE5Web 	= cast(bool)(ldll & dll.QtE5Web);
+	bQtE5WebEng	= cast(bool)(ldll & dll.QtE5WebEng);
 
 	// Load library in memory
  	if (bCore5) {
@@ -312,611 +342,643 @@ int LoadQt(dll ldll, bool showError) { ///  Загрузить DLL-ки Qt и Qt
 	if (bQtE5Widgets) {
 		hQtE5Widgets = GetHlib(sQtE5Widgets); if (!hQtE5Widgets) { MessageErrorLoad(showError, sQtE5Widgets); return 1; }
 	}
+	if (bQtE5Script) {
+		hQtE5Script = GetHlib(sQtE5Script); if (!hQtE5Script) { MessageErrorLoad(showError, sQtE5Script); return 1; }
+	}
+	if (bQtE5Web) {
+		hQtE5Web = GetHlib(sQtE5Web); if (!hQtE5Web) { MessageErrorLoad(showError, sQtE5Web); return 1; }
+	}
+	if (bQtE5WebEng) {
+		hQtE5WebEng = GetHlib(sQtE5WebEng); if (!hQtE5WebEng) { MessageErrorLoad(showError, sQtE5WebEng); return 1; }
+	}
 	// Find name function in DLL
 
 	// ------- QObject -------
-	mixin(generateFunQt(344, "qteQObject_parent"));
+	mixin(generateFunQt(344, "qteQObject_parent","Widgets"));
 
 	// ------- QApplication -------
-	mixin(generateFunQt(	0,   	"qteQApplication_create1"			));
-	mixin(generateFunQt(	1,   	"qteQApplication_exec"				));
-	mixin(generateFunQt(	2,   	"qteQApplication_aboutQt"			));
-	mixin(generateFunQt(	3,   	"qteQApplication_delete1"			));
-	mixin(generateFunQt(	4,   	"qteQApplication_sizeof"			));
-	mixin(generateFunQt(	20,  	"qteQApplication_appDirPath"		));
-	mixin(generateFunQt(	21,  	"qteQApplication_appFilePath"		));
-	mixin(generateFunQt(	273,  	"qteQApplication_quit"				));
-	mixin(generateFunQt(	368,  	"qteQApplication_processEvents"		));
-	mixin(generateFunQt(	276,  	"qteQApplication_exit"				));
-	mixin(generateFunQt(	277,  	"qteQApplication_setStyleSheet"		));
+	mixin(generateFunQt(	0,   	"qteQApplication_create1"			,"Widgets"));
+	mixin(generateFunQt(	1,   	"qteQApplication_exec"				,"Widgets"));
+	mixin(generateFunQt(	2,   	"qteQApplication_aboutQt"			,"Widgets"));
+	mixin(generateFunQt(	3,   	"qteQApplication_delete1"			,"Widgets"));
+	mixin(generateFunQt(	4,   	"qteQApplication_sizeof"			,"Widgets"));
+	mixin(generateFunQt(	20,  	"qteQApplication_appDirPath"		,"Widgets"));
+	mixin(generateFunQt(	21,  	"qteQApplication_appFilePath"		,"Widgets"));
+	mixin(generateFunQt(	273,  	"qteQApplication_quit"				,"Widgets"));
+	mixin(generateFunQt(	368,  	"qteQApplication_processEvents"		,"Widgets"));
+	mixin(generateFunQt(	276,  	"qteQApplication_exit"				,"Widgets"));
+	mixin(generateFunQt(	277,  	"qteQApplication_setStyleSheet"		,"Widgets"));
 
 	// ------- QWidget -------
-	mixin(generateFunQt(	5,   	"qteQWidget_create1"				));
-	mixin(generateFunQt(	6,   	"qteQWidget_setVisible"				));
-	mixin(generateFunQt(	7,   	"qteQWidget_delete1"				));
-	mixin(generateFunQt(	11,  	"qteQWidget_setWindowTitle"			));
-	mixin(generateFunQt(	12,  	"qteQWidget_isVisible"				));
-	mixin(generateFunQt(	30,  	"qteQWidget_setStyleSheet"			));
-	mixin(generateFunQt(	31,  	"qteQWidget_setMMSize"				));
-	mixin(generateFunQt(	32,  	"qteQWidget_setEnabled"				));
-	mixin(generateFunQt(	33,  	"qteQWidget_setToolTip"				));
-	mixin(generateFunQt(	40,  	"qteQWidget_setLayout"				));
-	mixin(generateFunQt(	78,  	"qteQWidget_setSizePolicy"			));
-	mixin(generateFunQt(	79,  	"qteQWidget_setMax1"				));
-	mixin(generateFunQt(	87,  	"qteQWidget_exWin1"					));
-	mixin(generateFunQt(	94,  	"qteQWidget_exWin2"					));
-	mixin(generateFunQt(	49,  	"qteQWidget_setKeyPressEvent"		));
-	mixin(generateFunQt(	50,  	"qteQWidget_setPaintEvent"			));
-	mixin(generateFunQt(	51,  	"qteQWidget_setCloseEvent"			));
-	mixin(generateFunQt(	52,  	"qteQWidget_setResizeEvent"			));
-	mixin(generateFunQt(	131, 	"qteQWidget_setFont"				));
-	mixin(generateFunQt(	148, 	"qteQWidget_winId"					));
-	mixin(generateFunQt(	172, 	"qteQWidget_getPr"					));
-	mixin(generateFunQt(	259, 	"qteQWidget_getBoolXX"				));
-	mixin(generateFunQt(	279, 	"qteQWidget_setGeometry"			));
-	mixin(generateFunQt(	280, 	"qteQWidget_contentsRect"			));
+	mixin(generateFunQt(	5,   	"qteQWidget_create1"				,"Widgets"));
+	mixin(generateFunQt(	6,   	"qteQWidget_setVisible"				,"Widgets"));
+	mixin(generateFunQt(	7,   	"qteQWidget_delete1"				,"Widgets"));
+	mixin(generateFunQt(	11,  	"qteQWidget_setWindowTitle"			,"Widgets"));
+	mixin(generateFunQt(	12,  	"qteQWidget_isVisible"				,"Widgets"));
+	mixin(generateFunQt(	30,  	"qteQWidget_setStyleSheet"			,"Widgets"));
+	mixin(generateFunQt(	31,  	"qteQWidget_setMMSize"				,"Widgets"));
+	mixin(generateFunQt(	32,  	"qteQWidget_setEnabled"				,"Widgets"));
+	mixin(generateFunQt(	33,  	"qteQWidget_setToolTip"				,"Widgets"));
+	mixin(generateFunQt(	40,  	"qteQWidget_setLayout"				,"Widgets"));
+	mixin(generateFunQt(	78,  	"qteQWidget_setSizePolicy"			,"Widgets"));
+	mixin(generateFunQt(	79,  	"qteQWidget_setMax1"				,"Widgets"));
+	mixin(generateFunQt(	87,  	"qteQWidget_exWin1"					,"Widgets"));
+	mixin(generateFunQt(	94,  	"qteQWidget_exWin2"					,"Widgets"));
+	mixin(generateFunQt(	49,  	"qteQWidget_setKeyPressEvent"		,"Widgets"));
+	mixin(generateFunQt(	50,  	"qteQWidget_setPaintEvent"			,"Widgets"));
+	mixin(generateFunQt(	51,  	"qteQWidget_setCloseEvent"			,"Widgets"));
+	mixin(generateFunQt(	52,  	"qteQWidget_setResizeEvent"			,"Widgets"));
+	mixin(generateFunQt(	131, 	"qteQWidget_setFont"				,"Widgets"));
+	mixin(generateFunQt(	148, 	"qteQWidget_winId"					,"Widgets"));
+	mixin(generateFunQt(	172, 	"qteQWidget_getPr"					,"Widgets"));
+	mixin(generateFunQt(	259, 	"qteQWidget_getBoolXX"				,"Widgets"));
+	mixin(generateFunQt(	279, 	"qteQWidget_setGeometry"			,"Widgets"));
+	mixin(generateFunQt(	280, 	"qteQWidget_contentsRect"			,"Widgets"));
 
 	// ------- QString -------
-	mixin(generateFunQt(	8,   	"qteQString_create1"				));
-	mixin(generateFunQt(	9,   	"qteQString_create2"				));
-	mixin(generateFunQt(	10,  	"qteQString_delete"					));
-	mixin(generateFunQt(	18,  	"qteQString_data"					));
-	mixin(generateFunQt(	19,  	"qteQString_size"					));
-	mixin(generateFunQt(	281, 	"qteQString_sizeOf"					));
+	mixin(generateFunQt(	8,   	"qteQString_create1"				,"Widgets"));
+	mixin(generateFunQt(	9,   	"qteQString_create2"				,"Widgets"));
+	mixin(generateFunQt(	10,  	"qteQString_delete"					,"Widgets"));
+	mixin(generateFunQt(	18,  	"qteQString_data"					,"Widgets"));
+	mixin(generateFunQt(	19,  	"qteQString_size"					,"Widgets"));
+	mixin(generateFunQt(	281, 	"qteQString_sizeOf"					,"Widgets"));
 
 	// ------- QColor -------
-	mixin(generateFunQt(	13,  	"qteQColor_create1"					));
-	mixin(generateFunQt(	14,  	"qteQColor_delete"					));
-	mixin(generateFunQt(	15,  	"qteQColor_setRgb"					));
-	mixin(generateFunQt(	320, 	"qteQColor_getRgb"					));
-	mixin(generateFunQt(	322, 	"qteQColor_rgb"						));
-	mixin(generateFunQt(	323, 	"qteQColor_setRgb2"					));
-	mixin(generateFunQt(	324, 	"qteQColor_create2"					));
+	mixin(generateFunQt(	13,  	"qteQColor_create1"					,"Widgets"));
+	mixin(generateFunQt(	14,  	"qteQColor_delete"					,"Widgets"));
+	mixin(generateFunQt(	15,  	"qteQColor_setRgb"					,"Widgets"));
+	mixin(generateFunQt(	320, 	"qteQColor_getRgb"					,"Widgets"));
+	mixin(generateFunQt(	322, 	"qteQColor_rgb"						,"Widgets"));
+	mixin(generateFunQt(	323, 	"qteQColor_setRgb2"					,"Widgets"));
+	mixin(generateFunQt(	324, 	"qteQColor_create2"					,"Widgets"));
 
 	// ------- QPalette -------
-	mixin(generateFunQt(	16,  	"qteQPalette_create1"				));
-	mixin(generateFunQt(	17,  	"qteQPalette_delete"				));
+	mixin(generateFunQt(	16,  	"qteQPalette_create1"				,"Widgets"));
+	mixin(generateFunQt(	17,  	"qteQPalette_delete"				,"Widgets"));
 
 	// ------- QPushButton -------
-	mixin(generateFunQt(	22,  	"qteQPushButton_create1"			));
-	mixin(generateFunQt(	23,  	"qteQPushButton_delete"				));
-	mixin(generateFunQt(	210, 	"qteQPushButton_setXX"				));
+	mixin(generateFunQt(	22,  	"qteQPushButton_create1"			,"Widgets"));
+	mixin(generateFunQt(	23,  	"qteQPushButton_delete"				,"Widgets"));
+	mixin(generateFunQt(	210, 	"qteQPushButton_setXX"				,"Widgets"));
 
+	// ------- QWebView -------
+	mixin(generateFunQt(	24,  	"qteQWebView_create"				,"Web"));
+	mixin(generateFunQt(	25,  	"qteQWebView_delete"				,"Web"));
+	mixin(generateFunQt(	26,  	"qteQWebView_load"					,"Web"));
+
+	// ------- QUrl -------
+	mixin(generateFunQt(	81,  	"qteQUrl_create"					,"Widgets"));
+	mixin(generateFunQt(   173,  	"qteQUrl_delete"					,"Widgets"));
+	mixin(generateFunQt(   444,  	"qteQUrl_setUrl"					,"Widgets"));
+	
 	// ------- QSlot -------
-//	funQt(24, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQSlot_create",            showError);
-//	funQt(25, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "QSlot_setSlotN",             showError);
-//	funQt(26, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQSlot_delete",            showError);
-	mixin(generateFunQt(	27,  	"qteConnect"						));
-	mixin(generateFunQt(	343, 	"qteDisconnect"						));
-//	funQt(81, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "QSlot_setSlotN2",            showError);
+//	funQt(xx, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQSlot_create",            showError);
+//	funQt(xx, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "QSlot_setSlotN",             showError);
+//	funQt(xx, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQSlot_delete",            showError);
+	mixin(generateFunQt(	27,  	"qteConnect"						,"Widgets"));
+	mixin(generateFunQt(	343, 	"qteDisconnect"						,"Widgets"));
+//	funQt(xx, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "QSlot_setSlotN2",            showError);
 
 	// ------- QAbstractButton -------
-	mixin(generateFunQt(	28,  	"qteQAbstractButton_setText"		));
-	mixin(generateFunQt(	29,  	"qteQAbstractButton_text"			));
-	mixin(generateFunQt(	209, 	"qteQAbstractButton_setXX"			));
-	mixin(generateFunQt(	211, 	"qteQAbstractButton_setIcon"		));
-	mixin(generateFunQt(	224, 	"qteQAbstractButton_getXX"			));
+	mixin(generateFunQt(	28,  	"qteQAbstractButton_setText"		,"Widgets"));
+	mixin(generateFunQt(	29,  	"qteQAbstractButton_text"			,"Widgets"));
+	mixin(generateFunQt(	209, 	"qteQAbstractButton_setXX"			,"Widgets"));
+	mixin(generateFunQt(	211, 	"qteQAbstractButton_setIcon"		,"Widgets"));
+	mixin(generateFunQt(	224, 	"qteQAbstractButton_getXX"			,"Widgets"));
 
 	// ------- QLayout -------
-	mixin(generateFunQt(	34,  	"qteQBoxLayout"						));
-	mixin(generateFunQt(	35,  	"qteQVBoxLayout"					));
-	mixin(generateFunQt(	36,  	"qteQHBoxLayout"					));
-	mixin(generateFunQt(	37,  	"qteQBoxLayout_delete"				));
-	mixin(generateFunQt(	38,  	"qteQBoxLayout_addWidget"			));
-	mixin(generateFunQt(	39,  	"qteQBoxLayout_addLayout"			));
-	mixin(generateFunQt(	74,  	"qteQBoxLayout_setSpacing"			));
-	mixin(generateFunQt(	75,  	"qteQBoxLayout_spacing"				));
-	mixin(generateFunQt(	76,  	"qteQBoxLayout_setMargin"			));
-	mixin(generateFunQt(	77,  	"qteQBoxLayout_margin"				));
+	mixin(generateFunQt(	34,  	"qteQBoxLayout"						,"Widgets"));
+	mixin(generateFunQt(	35,  	"qteQVBoxLayout"					,"Widgets"));
+	mixin(generateFunQt(	36,  	"qteQHBoxLayout"					,"Widgets"));
+	mixin(generateFunQt(	37,  	"qteQBoxLayout_delete"				,"Widgets"));
+	mixin(generateFunQt(	38,  	"qteQBoxLayout_addWidget"			,"Widgets"));
+	mixin(generateFunQt(	39,  	"qteQBoxLayout_addLayout"			,"Widgets"));
+	mixin(generateFunQt(	74,  	"qteQBoxLayout_setSpacing"			,"Widgets"));
+	mixin(generateFunQt(	75,  	"qteQBoxLayout_spacing"				,"Widgets"));
+	mixin(generateFunQt(	76,  	"qteQBoxLayout_setMargin"			,"Widgets"));
+	mixin(generateFunQt(	77,  	"qteQBoxLayout_margin"				,"Widgets"));
 
 	// ------- QFrame -------
-	mixin(generateFunQt(	41,  	"qteQFrame_create1"					));
-	mixin(generateFunQt(	42,  	"qteQFrame_delete1"					));
-	mixin(generateFunQt(	43,  	"qteQFrame_setFrameShape"			));
-	mixin(generateFunQt(	44,  	"qteQFrame_setFrameShadow"			));
-	mixin(generateFunQt(	45,  	"qteQFrame_setLineWidth"			));
-	mixin(generateFunQt(	290, 	"qteQFrame_listChildren"			));
+	mixin(generateFunQt(	41,  	"qteQFrame_create1"					,"Widgets"));
+	mixin(generateFunQt(	42,  	"qteQFrame_delete1"					,"Widgets"));
+	mixin(generateFunQt(	43,  	"qteQFrame_setFrameShape"			,"Widgets"));
+	mixin(generateFunQt(	44,  	"qteQFrame_setFrameShadow"			,"Widgets"));
+	mixin(generateFunQt(	45,  	"qteQFrame_setLineWidth"			,"Widgets"));
+	mixin(generateFunQt(	290, 	"qteQFrame_listChildren"			,"Widgets"));
 
 	// ------- QLabel --------
-	mixin(generateFunQt(	46,  	"qteQLabel_create1"					));
-	mixin(generateFunQt(	47,  	"qteQLabel_delete1"					));
-	mixin(generateFunQt(	48,  	"qteQLabel_setText"					));
+	mixin(generateFunQt(	46,  	"qteQLabel_create1"					,"Widgets"));
+	mixin(generateFunQt(	47,  	"qteQLabel_delete1"					,"Widgets"));
+	mixin(generateFunQt(	48,  	"qteQLabel_setText"					,"Widgets"));
 
 	// ------- QEvent -------
-	mixin(generateFunQt(	53,  	"qteQEvent_type"					));
-	mixin(generateFunQt(	157, 	"qteQEvent_ia"						));
+	mixin(generateFunQt(	53,  	"qteQEvent_type"					,"Widgets"));
+	mixin(generateFunQt(	157, 	"qteQEvent_ia"						,"Widgets"));
 
 	// ------- QResizeEvent -------
-	mixin(generateFunQt(	54,  	"qteQResizeEvent_size"				));
-	mixin(generateFunQt(	55,  	"qteQResizeEvent_oldSize"			));
+	mixin(generateFunQt(	54,  	"qteQResizeEvent_size"				,"Widgets"));
+	mixin(generateFunQt(	55,  	"qteQResizeEvent_oldSize"			,"Widgets"));
 
 	// ------- QSize -------
-	mixin(generateFunQt(	56,  	"qteQSize_create1"					));
-	mixin(generateFunQt(	57,  	"qteQSize_delete1"					));
-	mixin(generateFunQt(	58,  	"qteQSize_width"					));
-	mixin(generateFunQt(	59,  	"qteQSize_height"					));
-	mixin(generateFunQt(	60,  	"qteQSize_setWidth"					));
-	mixin(generateFunQt(	61,  	"qteQSize_setHeight"				));
+	mixin(generateFunQt(	56,  	"qteQSize_create1"					,"Widgets"));
+	mixin(generateFunQt(	57,  	"qteQSize_delete1"					,"Widgets"));
+	mixin(generateFunQt(	58,  	"qteQSize_width"					,"Widgets"));
+	mixin(generateFunQt(	59,  	"qteQSize_height"					,"Widgets"));
+	mixin(generateFunQt(	60,  	"qteQSize_setWidth"					,"Widgets"));
+	mixin(generateFunQt(	61,  	"qteQSize_setHeight"				,"Widgets"));
 
 	// ------- QKeyEvent -------
-	mixin(generateFunQt(	62,  	"qteQKeyEvent_key"					));
-	mixin(generateFunQt(	63, 	"qteQKeyEvent_count"				));
-	mixin(generateFunQt(	285,	"qteQKeyEvent_modifiers"			));
+	mixin(generateFunQt(	62,  	"qteQKeyEvent_key"					,"Widgets"));
+	mixin(generateFunQt(	63, 	"qteQKeyEvent_count"				,"Widgets"));
+	mixin(generateFunQt(	285,	"qteQKeyEvent_modifiers"			,"Widgets"));
 
 	// ------- QAbstractScrollArea -------
-	mixin(generateFunQt(	64, 	"qteQAbstractScrollArea_create1"	));
-	mixin(generateFunQt(	65, 	"qteQAbstractScrollArea_delete1"	));
+	mixin(generateFunQt(	64, 	"qteQAbstractScrollArea_create1"	,"Widgets"));
+	mixin(generateFunQt(	65, 	"qteQAbstractScrollArea_delete1"	,"Widgets"));
 
 	// ------- QPlainTextEdit -------
-	mixin(generateFunQt(	66, 	"qteQPlainTextEdit_create1"			));
-	mixin(generateFunQt(	67, 	"qteQPlainTextEdit_delete1"			));
-	mixin(generateFunQt(	68, 	"qteQPlainTextEdit_appendPlainText"	));
-	mixin(generateFunQt(	69, 	"qteQPlainTextEdit_appendHtml"		));
-	mixin(generateFunQt(	70, 	"qteQPlainTextEdit_setPlainText"	));
-	mixin(generateFunQt(	71, 	"qteQPlainTextEdit_insertPlainText"	));
-	mixin(generateFunQt(	72, 	"qteQPlainTextEdit_cutn"			));
-	mixin(generateFunQt(	73, 	"qteQPlainTextEdit_toPlainText"		));
-	mixin(generateFunQt(	80, 	"qteQPlainTextEdit_setKeyPressEvent"));
-	mixin(generateFunQt(	225,	"qteQPlainTextEdit_setKeyReleaseEvent"));
-	mixin(generateFunQt(	226,	"qteQPlainTextEdit_document"		));
-	mixin(generateFunQt(	230,	"qteQPlainTextEdit_textCursor"		));
-	mixin(generateFunQt(	235,	"qteQPlainTextEdit_cursorRect"		));
-	mixin(generateFunQt(	235,	"qteQPlainTextEdit_cursorRect"		));
-	mixin(generateFunQt(	236,	"qteQPlainTextEdit_setTabStopWidth"	));
-	mixin(generateFunQt(	253,	"qteQPlainTextEdit_setTextCursor"	));
-	mixin(generateFunQt(	278,	"qteQPlainTextEdit_setViewportMargins"));
-	mixin(generateFunQt(	282,	"qteQPlainTextEdit_firstVisibleBlock"));
-	mixin(generateFunQt(	284,	"qteQPlainTextEdit_getXYWH"			));
-	mixin(generateFunQt(	294,	"qteQPlainTextEdit_setWordWrapMode"	));
-	mixin(generateFunQt(	325,	"eQPlainTextEdit_setPaintEvent"		));
-	mixin(generateFunQt(	326,	"qteQPlainTextEdit_getXX1"			));
-	mixin(generateFunQt(	328,	"qteQPlainTextEdit_setCursorPosition"));
-	mixin(generateFunQt(	329,	"qteQPlainTextEdit_find1"			));
-	mixin(generateFunQt(	330,	"qteQPlainTextEdit_find2"			));
+	mixin(generateFunQt(	66, 	"qteQPlainTextEdit_create1"			,"Widgets"));
+	mixin(generateFunQt(	67, 	"qteQPlainTextEdit_delete1"			,"Widgets"));
+	mixin(generateFunQt(	68, 	"qteQPlainTextEdit_appendPlainText"	,"Widgets"));
+	mixin(generateFunQt(	69, 	"qteQPlainTextEdit_appendHtml"		,"Widgets"));
+	mixin(generateFunQt(	70, 	"qteQPlainTextEdit_setPlainText"	,"Widgets"));
+	mixin(generateFunQt(	71, 	"qteQPlainTextEdit_insertPlainText"	,"Widgets"));
+	mixin(generateFunQt(	72, 	"qteQPlainTextEdit_cutn"			,"Widgets"));
+	mixin(generateFunQt(	73, 	"qteQPlainTextEdit_toPlainText"		,"Widgets"));
+	mixin(generateFunQt(	80, 	"qteQPlainTextEdit_setKeyPressEvent","Widgets"));
+	mixin(generateFunQt(	225,	"qteQPlainTextEdit_setKeyReleaseEvent","Widgets"));
+	mixin(generateFunQt(	226,	"qteQPlainTextEdit_document"		,"Widgets"));
+	mixin(generateFunQt(	230,	"qteQPlainTextEdit_textCursor"		,"Widgets"));
+	mixin(generateFunQt(	235,	"qteQPlainTextEdit_cursorRect"		,"Widgets"));
+	mixin(generateFunQt(	235,	"qteQPlainTextEdit_cursorRect"		,"Widgets"));
+	mixin(generateFunQt(	236,	"qteQPlainTextEdit_setTabStopWidth"	,"Widgets"));
+	mixin(generateFunQt(	253,	"qteQPlainTextEdit_setTextCursor"	,"Widgets"));
+	mixin(generateFunQt(	278,	"qteQPlainTextEdit_setViewportMargins","Widgets"));
+	mixin(generateFunQt(	282,	"qteQPlainTextEdit_firstVisibleBlock","Widgets"));
+	mixin(generateFunQt(	284,	"qteQPlainTextEdit_getXYWH"			,"Widgets"));
+	mixin(generateFunQt(	294,	"qteQPlainTextEdit_setWordWrapMode"	,"Widgets"));
+	mixin(generateFunQt(	325,	"eQPlainTextEdit_setPaintEvent"		,"Widgets"));
+	mixin(generateFunQt(	326,	"qteQPlainTextEdit_getXX1"			,"Widgets"));
+	mixin(generateFunQt(	328,	"qteQPlainTextEdit_setCursorPosition","Widgets"));
+	mixin(generateFunQt(	329,	"qteQPlainTextEdit_find1"			,"Widgets"));
+	mixin(generateFunQt(	330,	"qteQPlainTextEdit_find2"			,"Widgets"));
 
 	//  ------- QLineEdit -------
-	mixin(generateFunQt(	82, 	"qteQLineEdit_create1"				));
-	mixin(generateFunQt(	83, 	"qteQLineEdit_delete1"				));
-	mixin(generateFunQt(	84, 	"qteQLineEdit_set"					));
-	mixin(generateFunQt(	85, 	"qteQLineEdit_clear"				));
-	mixin(generateFunQt(	86, 	"qteQLineEdit_text"					));
-	mixin(generateFunQt(	158,	"qteQLineEdit_setKeyPressEvent"		));
-	mixin(generateFunQt(	287,	"qteQLineEdit_setX1"				));
-	mixin(generateFunQt(	288,	"qteQLineEdit_getX1"				));
+	mixin(generateFunQt(	82, 	"qteQLineEdit_create1"				,"Widgets"));
+	mixin(generateFunQt(	83, 	"qteQLineEdit_delete1"				,"Widgets"));
+	mixin(generateFunQt(	84, 	"qteQLineEdit_set"					,"Widgets"));
+	mixin(generateFunQt(	85, 	"qteQLineEdit_clear"				,"Widgets"));
+	mixin(generateFunQt(	86, 	"qteQLineEdit_text"					,"Widgets"));
+	mixin(generateFunQt(	158,	"qteQLineEdit_setKeyPressEvent"		,"Widgets"));
+	mixin(generateFunQt(	287,	"qteQLineEdit_setX1"				,"Widgets"));
+	mixin(generateFunQt(	288,	"qteQLineEdit_getX1"				,"Widgets"));
 
 	//  ------- QMainWindow -------
-	mixin(generateFunQt(	88, 	"qteQMainWindow_create1"			));
-	mixin(generateFunQt(	89, 	"qteQMainWindow_delete1"			));
-	mixin(generateFunQt(	90, 	"qteQMainWindow_setXX"				));
-	mixin(generateFunQt(	126, 	"qteQMainWindow_addToolBar"			));
+	mixin(generateFunQt(	88, 	"qteQMainWindow_create1"			,"Widgets"));
+	mixin(generateFunQt(	89, 	"qteQMainWindow_delete1"			,"Widgets"));
+	mixin(generateFunQt(	90, 	"qteQMainWindow_setXX"				,"Widgets"));
+	mixin(generateFunQt(	126, 	"qteQMainWindow_addToolBar"			,"Widgets"));
 
 	//  ------- QStatusBar -------
-	mixin(generateFunQt(	91, 	"qteQStatusBar_create1"				));
-	mixin(generateFunQt(	92, 	"qteQStatusBar_delete1"				));
-	mixin(generateFunQt(	93, 	"qteQStatusBar_showMessage"			));
-	mixin(generateFunQt(	314,	"qteQStatusBar_addWidgetXX1"		));
+	mixin(generateFunQt(	91, 	"qteQStatusBar_create1"				,"Widgets"));
+	mixin(generateFunQt(	92, 	"qteQStatusBar_delete1"				,"Widgets"));
+	mixin(generateFunQt(	93, 	"qteQStatusBar_showMessage"			,"Widgets"));
+	mixin(generateFunQt(	314,	"qteQStatusBar_addWidgetXX1"		,"Widgets"));
 
 	//  ------- QAction -------
-	mixin(generateFunQt(	95, 	"qteQAction_create"					));
-	mixin(generateFunQt(	96, 	"qteQAction_delete"					));
-	mixin(generateFunQt(	289,	"qteQAction_getParent"				));
-	mixin(generateFunQt(	97, 	"qteQAction_setXX1"					));
-	mixin(generateFunQt(	98, 	"qteQAction_setSlotN2"				));
+	mixin(generateFunQt(	95, 	"qteQAction_create"					,"Widgets"));
+	mixin(generateFunQt(	96, 	"qteQAction_delete"					,"Widgets"));
+	mixin(generateFunQt(	289,	"qteQAction_getParent"				,"Widgets"));
+	mixin(generateFunQt(	97, 	"qteQAction_setXX1"					,"Widgets"));
+	mixin(generateFunQt(	98, 	"qteQAction_setSlotN2"				,"Widgets"));
 
-	mixin(generateFunQt(	105,  	"qteQAction_setHotKey"				));
-	mixin(generateFunQt(	109,  	"qteQAction_setEnabled"				));
-	mixin(generateFunQt(	113,  	"qteQAction_setIcon"				));
-	mixin(generateFunQt(	339,  	"qteQAction_SendSignal_V"			));
-	mixin(generateFunQt(	340,  	"qteQAction_SendSignal_VI"			));
-	mixin(generateFunQt(	341,  	"qteQAction_SendSignal_VS"			));
+	mixin(generateFunQt(	105,  	"qteQAction_setHotKey"				,"Widgets"));
+	mixin(generateFunQt(	109,  	"qteQAction_setEnabled"				,"Widgets"));
+	mixin(generateFunQt(	113,  	"qteQAction_setIcon"				,"Widgets"));
+	mixin(generateFunQt(	339,  	"qteQAction_SendSignal_V"			,"Widgets"));
+	mixin(generateFunQt(	340,  	"qteQAction_SendSignal_VI"			,"Widgets"));
+	mixin(generateFunQt(	341,  	"qteQAction_SendSignal_VS"			,"Widgets"));
 
 	//  ------- QMenu -------
-	mixin(generateFunQt(	99,   	"qteQMenu_create"					));
-	mixin(generateFunQt(	100,  	"qteQMenu_delete"					));
-	mixin(generateFunQt(	101,  	"qteQMenu_addAction"				));
-	mixin(generateFunQt(	106,  	"qteQMenu_setTitle"					));
-	mixin(generateFunQt(	107,  	"qteQMenu_addSeparator"				));
-	mixin(generateFunQt(	108,  	"qteQMenu_addMenu"					));
+	mixin(generateFunQt(	99,   	"qteQMenu_create"					,"Widgets"));
+	mixin(generateFunQt(	100,  	"qteQMenu_delete"					,"Widgets"));
+	mixin(generateFunQt(	101,  	"qteQMenu_addAction"				,"Widgets"));
+	mixin(generateFunQt(	106,  	"qteQMenu_setTitle"					,"Widgets"));
+	mixin(generateFunQt(	107,  	"qteQMenu_addSeparator"				,"Widgets"));
+	mixin(generateFunQt(	108,  	"qteQMenu_addMenu"					,"Widgets"));
 
 	//  ------- QMenuBar -------
-	mixin(generateFunQt(	102,  	"qteQMenuBar_create"				));
-	mixin(generateFunQt(	103,  	"qteQMenuBar_delete"				));
-	mixin(generateFunQt(	104,  	"qteQMenuBar_addMenu"				));
+	mixin(generateFunQt(	102,  	"qteQMenuBar_create"				,"Widgets"));
+	mixin(generateFunQt(	103,  	"qteQMenuBar_delete"				,"Widgets"));
+	mixin(generateFunQt(	104,  	"qteQMenuBar_addMenu"				,"Widgets"));
 
 	//  ------- QIcon -------
-	mixin(generateFunQt(	110,  	"qteQIcon_create"					));
-	mixin(generateFunQt(	111,  	"qteQIcon_delete"					));
-	mixin(generateFunQt(	112,  	"qteQIcon_addFile"					));
-	mixin(generateFunQt(	377,  	"qteQIcon_addFile2"					));
-	mixin(generateFunQt(	378,  	"qteQIcon_swap"						));
+	mixin(generateFunQt(	110,  	"qteQIcon_create"					,"Widgets"));
+	mixin(generateFunQt(	111,  	"qteQIcon_delete"					,"Widgets"));
+	mixin(generateFunQt(	112,  	"qteQIcon_addFile"					,"Widgets"));
+	mixin(generateFunQt(	377,  	"qteQIcon_addFile2"					,"Widgets"));
+	mixin(generateFunQt(	378,  	"qteQIcon_swap"						,"Widgets"));
 
 	//  ------- QToolBar -------
-	mixin(generateFunQt(	114,  	"qteQToolBar_create"				));
-	mixin(generateFunQt(	115,  	"qteQToolBar_delete"				));
-	mixin(generateFunQt(	116,  	"qteQToolBar_setXX1"				));
-	mixin(generateFunQt(	124,  	"qteQToolBar_setAllowedAreas"		));
-	mixin(generateFunQt(	125,  	"qteQToolBar_setToolButtonStyle"	));
-	mixin(generateFunQt(	132,  	"qteQToolBar_addSeparator"			));
+	mixin(generateFunQt(	114,  	"qteQToolBar_create"				,"Widgets"));
+	mixin(generateFunQt(	115,  	"qteQToolBar_delete"				,"Widgets"));
+	mixin(generateFunQt(	116,  	"qteQToolBar_setXX1"				,"Widgets"));
+	mixin(generateFunQt(	124,  	"qteQToolBar_setAllowedAreas"		,"Widgets"));
+	mixin(generateFunQt(	125,  	"qteQToolBar_setToolButtonStyle"	,"Widgets"));
+	mixin(generateFunQt(	132,  	"qteQToolBar_addSeparator"			,"Widgets"));
 
 	//  ------- QDialog -------
-	mixin(generateFunQt(	117, 	"qteQDialog_create"					));
-	mixin(generateFunQt(	118, 	"qteQDialog_delete"					));
-	mixin(generateFunQt(	119, 	"qteQDialog_exec"					));
+	mixin(generateFunQt(	117, 	"qteQDialog_create"					,"Widgets"));
+	mixin(generateFunQt(	118, 	"qteQDialog_delete"					,"Widgets"));
+	mixin(generateFunQt(	119, 	"qteQDialog_exec"					,"Widgets"));
 
 	//  ------- QDialog -------
-	mixin(generateFunQt(	120, 	"qteQMessageBox_create"				));
-	mixin(generateFunQt(	121, 	"qteQMessageBox_delete"				));
-	mixin(generateFunQt(	122, 	"qteQMessageBox_setXX1"				));
-	mixin(generateFunQt(	123, 	"qteQMessageBox_setStandardButtons"	));
+	mixin(generateFunQt(	120, 	"qteQMessageBox_create"				,"Widgets"));
+	mixin(generateFunQt(	121, 	"qteQMessageBox_delete"				,"Widgets"));
+	mixin(generateFunQt(	122, 	"qteQMessageBox_setXX1"				,"Widgets"));
+	mixin(generateFunQt(	123, 	"qteQMessageBox_setStandardButtons"	,"Widgets"));
 
 	//  ------- QFont -------
-	mixin(generateFunQt(	127, 	"qteQFont_create"					));
-	mixin(generateFunQt(	128, 	"qteQFont_delete"					));
-	mixin(generateFunQt(	129, 	"qteQFont_setPointSize"				));
-	mixin(generateFunQt(	130, 	"qteQFont_setFamily"				));
-	mixin(generateFunQt(	312, 	"qteQFont_setBoolXX1"				));
-	mixin(generateFunQt(	313, 	"qteQFont_getBoolXX1"				));
+	mixin(generateFunQt(	127, 	"qteQFont_create"					,"Widgets"));
+	mixin(generateFunQt(	128, 	"qteQFont_delete"					,"Widgets"));
+	mixin(generateFunQt(	129, 	"qteQFont_setPointSize"				,"Widgets"));
+	mixin(generateFunQt(	130, 	"qteQFont_setFamily"				,"Widgets"));
+	mixin(generateFunQt(	312, 	"qteQFont_setBoolXX1"				,"Widgets"));
+	mixin(generateFunQt(	313, 	"qteQFont_getBoolXX1"				,"Widgets"));
 
 	//  ------- QProgressBar -------
-	mixin(generateFunQt(	133, 	"qteQProgressBar_create"			));
-	mixin(generateFunQt(	134, 	"qteQProgressBar_delete"			));
-	mixin(generateFunQt(	135, 	"qteQProgressBar_setPr"				));
+	mixin(generateFunQt(	133, 	"qteQProgressBar_create"			,"Widgets"));
+	mixin(generateFunQt(	134, 	"qteQProgressBar_delete"			,"Widgets"));
+	mixin(generateFunQt(	135, 	"qteQProgressBar_setPr"				,"Widgets"));
 
 	//  ------- QDate -------
-	mixin(generateFunQt(	136, 	"qteQDate_create"					));
-	mixin(generateFunQt(	137, 	"qteQDate_delete"					));
-	mixin(generateFunQt(	140, 	"qteQDate_toString"					));
+	mixin(generateFunQt(	136, 	"qteQDate_create"					,"Widgets"));
+	mixin(generateFunQt(	137, 	"qteQDate_delete"					,"Widgets"));
+	mixin(generateFunQt(	140, 	"qteQDate_toString"					,"Widgets"));
 
 	//  ------- QTime -------
-	mixin(generateFunQt(	138, 	"qteQTime_create"					));
-	mixin(generateFunQt(	139, 	"qteQTime_delete"					));
-	mixin(generateFunQt(	141, 	"qteQTime_toString"					));
+	mixin(generateFunQt(	138, 	"qteQTime_create"					,"Widgets"));
+	mixin(generateFunQt(	139, 	"qteQTime_delete"					,"Widgets"));
+	mixin(generateFunQt(	141, 	"qteQTime_toString"					,"Widgets"));
 
 	//  ------- QFileDialog -------
-	mixin(generateFunQt(	142, 	"qteQFileDialog_create"				));
-	mixin(generateFunQt(	143, 	"qteQFileDialog_delete"				));
-	mixin(generateFunQt(	144, 	"qteQFileDialog_setNameFilter"		));
-	mixin(generateFunQt(	145, 	"qteQFileDialog_setViewMode"		));
-	mixin(generateFunQt(	146, 	"qteQFileDialog_getOpenFileName"	));
-	mixin(generateFunQt(	147, 	"qteQFileDialog_getSaveFileName"	));
-	mixin(generateFunQt(	274, 	"qteQFileDialog_stGetOpenFileName"	));
-	mixin(generateFunQt(	275, 	"qteQFileDialog_stGetSaveFileName"	));
+	mixin(generateFunQt(	142, 	"qteQFileDialog_create"				,"Widgets"));
+	mixin(generateFunQt(	143, 	"qteQFileDialog_delete"				,"Widgets"));
+	mixin(generateFunQt(	144, 	"qteQFileDialog_setNameFilter"		,"Widgets"));
+	mixin(generateFunQt(	145, 	"qteQFileDialog_setViewMode"		,"Widgets"));
+	mixin(generateFunQt(	146, 	"qteQFileDialog_getOpenFileName"	,"Widgets"));
+	mixin(generateFunQt(	147, 	"qteQFileDialog_getSaveFileName"	,"Widgets"));
+	mixin(generateFunQt(	274, 	"qteQFileDialog_stGetOpenFileName"	,"Widgets"));
+	mixin(generateFunQt(	275, 	"qteQFileDialog_stGetSaveFileName"	,"Widgets"));
 
 	//  ------- QAbstractScrollArea -------
-	mixin(generateFunQt(	149, 	"qteQAbstractScrollArea_create"		));
-	mixin(generateFunQt(	150, 	"qteQAbstractScrollArea_delete"		));
+	mixin(generateFunQt(	149, 	"qteQAbstractScrollArea_create"		,"Widgets"));
+	mixin(generateFunQt(	150, 	"qteQAbstractScrollArea_delete"		,"Widgets"));
 
 	//  ------- QMdiArea -------
-	mixin(generateFunQt(	151, 	"qteQMdiArea_create"				));
-	mixin(generateFunQt(	152, 	"qteQMdiArea_delete"				));
-	mixin(generateFunQt(	155, 	"qteQMdiArea_addSubWindow"			));
-	mixin(generateFunQt(	338, 	"qteQMdiArea_activeSubWindow"		));
+	mixin(generateFunQt(	151, 	"qteQMdiArea_create"				,"Widgets"));
+	mixin(generateFunQt(	152, 	"qteQMdiArea_delete"				,"Widgets"));
+	mixin(generateFunQt(	155, 	"qteQMdiArea_addSubWindow"			,"Widgets"));
+	mixin(generateFunQt(	338, 	"qteQMdiArea_activeSubWindow"		,"Widgets"));
 
 	//  ------- QMdiSubWindow -------
-	mixin(generateFunQt(	153, 	"qteQMdiSubWindow_create"			));
-	mixin(generateFunQt(	154, 	"qteQMdiSubWindow_delete"			));
-	mixin(generateFunQt(	156, 	"qteQMdiSubWindow_addLayout"		));
+	mixin(generateFunQt(	153, 	"qteQMdiSubWindow_create"			,"Widgets"));
+	mixin(generateFunQt(	154, 	"qteQMdiSubWindow_delete"			,"Widgets"));
+	mixin(generateFunQt(	156, 	"qteQMdiSubWindow_addLayout"		,"Widgets"));
 
 	//  ------- QTableView -------
-	mixin(generateFunQt(	159, 	"qteQTableView_create"				));
-	mixin(generateFunQt(	160, 	"qteQTableView_delete"				));
-	mixin(generateFunQt(	174, 	"qteQTableView_setN1"				));
-	mixin(generateFunQt(	175, 	"qteQTableView_getN1"				));
-	mixin(generateFunQt(	182, 	"qteQTableView_ResizeMode"			));
+	mixin(generateFunQt(	159, 	"qteQTableView_create"				,"Widgets"));
+	mixin(generateFunQt(	160, 	"qteQTableView_delete"				,"Widgets"));
+	mixin(generateFunQt(	174, 	"qteQTableView_setN1"				,"Widgets"));
+	mixin(generateFunQt(	175, 	"qteQTableView_getN1"				,"Widgets"));
+	mixin(generateFunQt(	182, 	"qteQTableView_ResizeMode"			,"Widgets"));
 
 	//  ------- QTableWidget -------
-	mixin(generateFunQt(	161, 	"qteQTableWidget_create"			));
-	mixin(generateFunQt(	162, 	"qteQTableWidget_delete"			));
-	mixin(generateFunQt(	163, 	"qteQTableWidget_setRC"				));
-	mixin(generateFunQt(	167, 	"qteQTableWidget_setItem"			));
-	mixin(generateFunQt(	176, 	"qteQTableWidget_setHVheaderItem"	));
-	mixin(generateFunQt(	241, 	"qteQTableWidget_setCurrentCell"	));
-	mixin(generateFunQt(	369, 	"qteQTableWidget_getCurrent"		));
-	mixin(generateFunQt(	370, 	"qteQTableWidget_item"				));
-	mixin(generateFunQt(	371, 	"qteQTableWidget_takeItem"			));
+	mixin(generateFunQt(	161, 	"qteQTableWidget_create"			,"Widgets"));
+	mixin(generateFunQt(	162, 	"qteQTableWidget_delete"			,"Widgets"));
+	mixin(generateFunQt(	163, 	"qteQTableWidget_setRC"				,"Widgets"));
+	mixin(generateFunQt(	167, 	"qteQTableWidget_setItem"			,"Widgets"));
+	mixin(generateFunQt(	176, 	"qteQTableWidget_setHVheaderItem"	,"Widgets"));
+	mixin(generateFunQt(	241, 	"qteQTableWidget_setCurrentCell"	,"Widgets"));
+	mixin(generateFunQt(	369, 	"qteQTableWidget_getCurrent"		,"Widgets"));
+	mixin(generateFunQt(	370, 	"qteQTableWidget_item"				,"Widgets"));
+	mixin(generateFunQt(	371, 	"qteQTableWidget_takeItem"			,"Widgets"));
 
 	//  ------- QTableWidgetItem -------
-	mixin(generateFunQt(	164, 	"qteQTableWidgetItem_create"		));
-	mixin(generateFunQt(	165, 	"qteQTableWidgetItem_delete"		));
-	mixin(generateFunQt(	166, 	"qteQTableWidgetItem_setXX"			));
-	mixin(generateFunQt(	168, 	"qteQTableWidgetItem_setYY"			));
-	mixin(generateFunQt(	169, 	"qteQTableWidget_item"				));
-	mixin(generateFunQt(	170, 	"qteQTableWidgetItem_text"			));
-	mixin(generateFunQt(	171, 	"qteQTableWidgetItem_setAlignment"	));
-	mixin(generateFunQt(	180, 	"qteQTableWidgetItem_setBackground"	));
-	mixin(generateFunQt(	372, 	"qteQTableWidgetItem_setFlags"		));
-	mixin(generateFunQt(	373, 	"qteQTableWidgetItem_flags"			));
-	mixin(generateFunQt(	374, 	"qteQTableWidgetItem_setSelected"	));
-	mixin(generateFunQt(	375, 	"qteQTableWidgetItem_isSelected"	));
-	mixin(generateFunQt(	376, 	"qteQTableWidgetItem_setIcon"		));
+	mixin(generateFunQt(	164, 	"qteQTableWidgetItem_create"		,"Widgets"));
+	mixin(generateFunQt(	165, 	"qteQTableWidgetItem_delete"		,"Widgets"));
+	mixin(generateFunQt(	166, 	"qteQTableWidgetItem_setXX"			,"Widgets"));
+	mixin(generateFunQt(	168, 	"qteQTableWidgetItem_setYY"			,"Widgets"));
+	mixin(generateFunQt(	169, 	"qteQTableWidget_item"				,"Widgets"));
+	mixin(generateFunQt(	170, 	"qteQTableWidgetItem_text"			,"Widgets"));
+	mixin(generateFunQt(	171, 	"qteQTableWidgetItem_setAlignment"	,"Widgets"));
+	mixin(generateFunQt(	180, 	"qteQTableWidgetItem_setBackground"	,"Widgets"));
+	mixin(generateFunQt(	372, 	"qteQTableWidgetItem_setFlags"		,"Widgets"));
+	mixin(generateFunQt(	373, 	"qteQTableWidgetItem_flags"			,"Widgets"));
+	mixin(generateFunQt(	374, 	"qteQTableWidgetItem_setSelected"	,"Widgets"));
+	mixin(generateFunQt(	375, 	"qteQTableWidgetItem_isSelected"	,"Widgets"));
+	mixin(generateFunQt(	376, 	"qteQTableWidgetItem_setIcon"		,"Widgets"));
 
 	//  ------- QBrush -------
-	mixin(generateFunQt(	177, 	"qteQBrush_create1"					));
-	mixin(generateFunQt(	178, 	"qteQBrush_delete"					));
-	mixin(generateFunQt(	179, 	"qteQBrush_setColor"				));
-	mixin(generateFunQt(	181, 	"qteQBrush_setStyle"				));
+	mixin(generateFunQt(	177, 	"qteQBrush_create1"					,"Widgets"));
+	mixin(generateFunQt(	178, 	"qteQBrush_delete"					,"Widgets"));
+	mixin(generateFunQt(	179, 	"qteQBrush_setColor"				,"Widgets"));
+	mixin(generateFunQt(	181, 	"qteQBrush_setStyle"				,"Widgets"));
 
 	//  ------- QComboBox -------
-	mixin(generateFunQt(	183, 	"qteQComboBox_create"				));
-	mixin(generateFunQt(	184, 	"qteQComboBox_delete"				));
-	mixin(generateFunQt(	185, 	"qteQComboBox_setXX"				));
-	mixin(generateFunQt(	186, 	"qteQComboBox_getXX"				));
-	mixin(generateFunQt(	187, 	"qteQComboBox_text"					));
+	mixin(generateFunQt(	183, 	"qteQComboBox_create"				,"Widgets"));
+	mixin(generateFunQt(	184, 	"qteQComboBox_delete"				,"Widgets"));
+	mixin(generateFunQt(	185, 	"qteQComboBox_setXX"				,"Widgets"));
+	mixin(generateFunQt(	186, 	"qteQComboBox_getXX"				,"Widgets"));
+	mixin(generateFunQt(	187, 	"qteQComboBox_text"					,"Widgets"));
 
 	//  ------- QPainter -------
-	mixin(generateFunQt(	301, 	"qteQPainter_create"				));
-	mixin(generateFunQt(	302, 	"qteQPainter_delete"				));
-	mixin(generateFunQt(	188, 	"qteQPainter_drawPoint"				));
-	mixin(generateFunQt(	189, 	"qteQPainter_drawLine"				));
-	mixin(generateFunQt(	190, 	"qteQPainter_setXX1"				));
-	mixin(generateFunQt(	196, 	"qteQPainter_setText"				));
-	mixin(generateFunQt(	197, 	"qteQPainter_end"					));
-	mixin(generateFunQt(	243, 	"qteQPainter_drawRect1"				));
-	mixin(generateFunQt(	244, 	"qteQPainter_drawRect2"				));
-	mixin(generateFunQt(	245, 	"qteQPainter_fillRect2"				));
-	mixin(generateFunQt(	246, 	"qteQPainter_fillRect3"				));
-	mixin(generateFunQt(	298, 	"qteQPainter_getFont"				));
-	mixin(generateFunQt(	310, 	"qteQPainter_drawImage1"			));
-	mixin(generateFunQt(	311, 	"qteQPainter_drawImage2"			));
+	mixin(generateFunQt(	301, 	"qteQPainter_create"				,"Widgets"));
+	mixin(generateFunQt(	302, 	"qteQPainter_delete"				,"Widgets"));
+	mixin(generateFunQt(	188, 	"qteQPainter_drawPoint"				,"Widgets"));
+	mixin(generateFunQt(	189, 	"qteQPainter_drawLine"				,"Widgets"));
+	mixin(generateFunQt(	190, 	"qteQPainter_setXX1"				,"Widgets"));
+	mixin(generateFunQt(	196, 	"qteQPainter_setText"				,"Widgets"));
+	mixin(generateFunQt(	197, 	"qteQPainter_end"					,"Widgets"));
+	mixin(generateFunQt(	243, 	"qteQPainter_drawRect1"				,"Widgets"));
+	mixin(generateFunQt(	244, 	"qteQPainter_drawRect2"				,"Widgets"));
+	mixin(generateFunQt(	245, 	"qteQPainter_fillRect2"				,"Widgets"));
+	mixin(generateFunQt(	246, 	"qteQPainter_fillRect3"				,"Widgets"));
+	mixin(generateFunQt(	298, 	"qteQPainter_getFont"				,"Widgets"));
+	mixin(generateFunQt(	310, 	"qteQPainter_drawImage1"			,"Widgets"));
+	mixin(generateFunQt(	311, 	"qteQPainter_drawImage2"			,"Widgets"));
 
 	//  ------- QPen -------
-	mixin(generateFunQt(	191, 	"qteQPen_create1"					));
-	mixin(generateFunQt(	192, 	"qteQPen_delete"					));
-	mixin(generateFunQt(	193, 	"qteQPen_setColor"					));
-	mixin(generateFunQt(	194, 	"qteQPen_setStyle"					));
-	mixin(generateFunQt(	195, 	"qteQPen_setWidth"					));
+	mixin(generateFunQt(	191, 	"qteQPen_create1"					,"Widgets"));
+	mixin(generateFunQt(	192, 	"qteQPen_delete"					,"Widgets"));
+	mixin(generateFunQt(	193, 	"qteQPen_setColor"					,"Widgets"));
+	mixin(generateFunQt(	194, 	"qteQPen_setStyle"					,"Widgets"));
+	mixin(generateFunQt(	195, 	"qteQPen_setWidth"					,"Widgets"));
 
 	//  ------- QLCDNumber -------
-	mixin(generateFunQt(	198, 	"qteQLCDNumber_create1"				));
-	mixin(generateFunQt(	199, 	"qteQLCDNumber_delete1"				));
-	mixin(generateFunQt(	200, 	"qteQLCDNumber_create2"				));
-	mixin(generateFunQt(	201, 	"qteQLCDNumber_display"				));
-	mixin(generateFunQt(	202, 	"qteQLCDNumber_setSegmentStyle"		));
-	mixin(generateFunQt(	203, 	"qteQLCDNumber_setDigitCount"		));
-	mixin(generateFunQt(	204, 	"qteQLCDNumber_setMode"				));
+	mixin(generateFunQt(	198, 	"qteQLCDNumber_create1"				,"Widgets"));
+	mixin(generateFunQt(	199, 	"qteQLCDNumber_delete1"				,"Widgets"));
+	mixin(generateFunQt(	200, 	"qteQLCDNumber_create2"				,"Widgets"));
+	mixin(generateFunQt(	201, 	"qteQLCDNumber_display"				,"Widgets"));
+	mixin(generateFunQt(	202, 	"qteQLCDNumber_setSegmentStyle"		,"Widgets"));
+	mixin(generateFunQt(	203, 	"qteQLCDNumber_setDigitCount"		,"Widgets"));
+	mixin(generateFunQt(	204, 	"qteQLCDNumber_setMode"				,"Widgets"));
 
 	//  ------- QAbstractSlider -------
-	mixin(generateFunQt(	205, 	"qteQAbstractSlider_setXX"			));
-	mixin(generateFunQt(	208, 	"qteQAbstractSlider_getXX"			));
+	mixin(generateFunQt(	205, 	"qteQAbstractSlider_setXX"			,"Widgets"));
+	mixin(generateFunQt(	208, 	"qteQAbstractSlider_getXX"			,"Widgets"));
 
 	//  ------- QSlider -------
-	mixin(generateFunQt(	206, 	"qteQSlider_create1"				));
-	mixin(generateFunQt(	207, 	"qteQSlider_delete1"				));
+	mixin(generateFunQt(	206, 	"qteQSlider_create1"				,"Widgets"));
+	mixin(generateFunQt(	207, 	"qteQSlider_delete1"				,"Widgets"));
 
 	//  ------- QGroupBox -------
-	mixin(generateFunQt(	212, 	"qteQGroupBox_create"				));
-	mixin(generateFunQt(	213, 	"qteQGroupBox_delete"				));
-	mixin(generateFunQt(	214, 	"qteQGroupBox_setTitle"				));
-	mixin(generateFunQt(	215, 	"qteQGroupBox_setAlignment"			));
+	mixin(generateFunQt(	212, 	"qteQGroupBox_create"				,"Widgets"));
+	mixin(generateFunQt(	213, 	"qteQGroupBox_delete"				,"Widgets"));
+	mixin(generateFunQt(	214, 	"qteQGroupBox_setTitle"				,"Widgets"));
+	mixin(generateFunQt(	215, 	"qteQGroupBox_setAlignment"			,"Widgets"));
 
 	//  ------- QCheckBox -------
-	mixin(generateFunQt(	216, 	"qteQCheckBox_create1"				));
-	mixin(generateFunQt(	217, 	"qteQCheckBox_delete"				));
-	mixin(generateFunQt(	218, 	"qteQCheckBox_checkState"			));
-	mixin(generateFunQt(	219, 	"qteQCheckBox_setCheckState"		));
-	mixin(generateFunQt(	220, 	"qteQCheckBox_setTristate"			));
-	mixin(generateFunQt(	221, 	"qteQCheckBox_isTristate"			));
+	mixin(generateFunQt(	216, 	"qteQCheckBox_create1"				,"Widgets"));
+	mixin(generateFunQt(	217, 	"qteQCheckBox_delete"				,"Widgets"));
+	mixin(generateFunQt(	218, 	"qteQCheckBox_checkState"			,"Widgets"));
+	mixin(generateFunQt(	219, 	"qteQCheckBox_setCheckState"		,"Widgets"));
+	mixin(generateFunQt(	220, 	"qteQCheckBox_setTristate"			,"Widgets"));
+	mixin(generateFunQt(	221, 	"qteQCheckBox_isTristate"			,"Widgets"));
 
 	//  ------- QRadioButton -------
-	mixin(generateFunQt(	222, 	"qteQRadioButton_create1"			));
-	mixin(generateFunQt(	223, 	"qteQRadioButton_delete"			));
+	mixin(generateFunQt(	222, 	"qteQRadioButton_create1"			,"Widgets"));
+	mixin(generateFunQt(	223, 	"qteQRadioButton_delete"			,"Widgets"));
 
 	//  ------- QTextCursor -------
-	mixin(generateFunQt(	227, 	"qteQTextCursor_create1"			));
-	mixin(generateFunQt(	228, 	"qteQTextCursor_delete"				));
-	mixin(generateFunQt(	229, 	"qteQTextCursor_create2"			));
-	mixin(generateFunQt(	231, 	"qteQTextCursor_getXX1"				));
-	mixin(generateFunQt(	254, 	"qteQTextCursor_movePosition"		));
-	mixin(generateFunQt(	255, 	"qteQTextCursor_runXX"				));
-	mixin(generateFunQt(	256, 	"qteQTextCursor_insertText1"		));
-	mixin(generateFunQt(	286, 	"qteQTextCursor_select"				));
-	mixin(generateFunQt(	327, 	"qteQTextCursor_setPosition"		));
+	mixin(generateFunQt(	227, 	"qteQTextCursor_create1"			,"Widgets"));
+	mixin(generateFunQt(	228, 	"qteQTextCursor_delete"				,"Widgets"));
+	mixin(generateFunQt(	229, 	"qteQTextCursor_create2"			,"Widgets"));
+	mixin(generateFunQt(	231, 	"qteQTextCursor_getXX1"				,"Widgets"));
+	mixin(generateFunQt(	254, 	"qteQTextCursor_movePosition"		,"Widgets"));
+	mixin(generateFunQt(	255, 	"qteQTextCursor_runXX"				,"Widgets"));
+	mixin(generateFunQt(	256, 	"qteQTextCursor_insertText1"		,"Widgets"));
+	mixin(generateFunQt(	286, 	"qteQTextCursor_select"				,"Widgets"));
+	mixin(generateFunQt(	327, 	"qteQTextCursor_setPosition"		,"Widgets"));
 
 	//  ------- QRect -------
-	mixin(generateFunQt(	232, 	"qteQRect_create1"					));
-	mixin(generateFunQt(	233, 	"qteQRect_delete"					));
-	mixin(generateFunQt(	234, 	"qteQRect_setXX1"					));
-	mixin(generateFunQt(	242, 	"qteQRect_setXX2"					));
+	mixin(generateFunQt(	232, 	"qteQRect_create1"					,"Widgets"));
+	mixin(generateFunQt(	233, 	"qteQRect_delete"					,"Widgets"));
+	mixin(generateFunQt(	234, 	"qteQRect_setXX1"					,"Widgets"));
+	mixin(generateFunQt(	242, 	"qteQRect_setXX2"					,"Widgets"));
 
 	//  ------- QTextBlock -------
-	mixin(generateFunQt(	237, 	"qteQTextBlock_text"				));
-	mixin(generateFunQt(	238, 	"qteQTextBlock_create"				));
-	mixin(generateFunQt(	239, 	"qteQTextBlock_delete"				));
-	mixin(generateFunQt(	240, 	"qteQTextBlock_create2"				));
-	mixin(generateFunQt(	283, 	"qteQTextBlock_blockNumber"			));
-	mixin(generateFunQt(	299, 	"qteQTextBlock_next2"				));
-	mixin(generateFunQt(	300, 	"qteQTextBlock_isValid2"			));
+	mixin(generateFunQt(	237, 	"qteQTextBlock_text"				,"Widgets"));
+	mixin(generateFunQt(	238, 	"qteQTextBlock_create"				,"Widgets"));
+	mixin(generateFunQt(	239, 	"qteQTextBlock_delete"				,"Widgets"));
+	mixin(generateFunQt(	240, 	"qteQTextBlock_create2"				,"Widgets"));
+	mixin(generateFunQt(	283, 	"qteQTextBlock_blockNumber"			,"Widgets"));
+	mixin(generateFunQt(	299, 	"qteQTextBlock_next2"				,"Widgets"));
+	mixin(generateFunQt(	300, 	"qteQTextBlock_isValid2"			,"Widgets"));
 
 	//  ------- QSpinBox -------
-	mixin(generateFunQt(	247, 	"qteQSpinBox_create"				));
-	mixin(generateFunQt(	248, 	"qteQSpinBox_delete"				));
-	mixin(generateFunQt(	249, 	"qteQSpinBox_setXX1"				));
-	mixin(generateFunQt(	250, 	"qteQSpinBox_getXX1"				));
-	mixin(generateFunQt(	251, 	"qteQSpinBox_setXX2"				));
+	mixin(generateFunQt(	247, 	"qteQSpinBox_create"				,"Widgets"));
+	mixin(generateFunQt(	248, 	"qteQSpinBox_delete"				,"Widgets"));
+	mixin(generateFunQt(	249, 	"qteQSpinBox_setXX1"				,"Widgets"));
+	mixin(generateFunQt(	250, 	"qteQSpinBox_getXX1"				,"Widgets"));
+	mixin(generateFunQt(	251, 	"qteQSpinBox_setXX2"				,"Widgets"));
 
 	//  ------- QAbstractSpinBox -------
-	mixin(generateFunQt(	252, 	"qteQAbstractSpinBox_setReadOnly"	));
+	mixin(generateFunQt(	252, 	"qteQAbstractSpinBox_setReadOnly"	,"Widgets"));
 
 	//  ------- Highlighter -- Временный, подлежит в дальнейшем удалению -----
-	mixin(generateFunQt(	257, 	"qteHighlighter_create"				));
-	mixin(generateFunQt(	258, 	"qteHighlighter_delete"				));
+	mixin(generateFunQt(	257, 	"qteHighlighter_create"				,"Widgets"));
+	mixin(generateFunQt(	258, 	"qteHighlighter_delete"				,"Widgets"));
 	//  ------- HighlighterM -- Временный, подлежит в дальнейшем удалению -----
-	mixin(generateFunQt(	442, 	"qteHighlighterM_create"				));
-	mixin(generateFunQt(	443, 	"qteHighlighterM_delete"				));
+	mixin(generateFunQt(	442, 	"qteHighlighterM_create"				,"Widgets"));
+	mixin(generateFunQt(	443, 	"qteHighlighterM_delete"				,"Widgets"));
 
 	// ------- QTextEdit -------
-	mixin(generateFunQt(	260, 	"qteQTextEdit_create1"				));
-	mixin(generateFunQt(	261, 	"qteQTextEdit_delete1"				));
-	mixin(generateFunQt(	270, 	"qteQTextEdit_setFromString"		));
-	mixin(generateFunQt(	271, 	"qteQTextEdit_toString"				));
-	mixin(generateFunQt(	272, 	"qteQTextEdit_cutn"					));
-	mixin(generateFunQt(	345, 	"qteQTextEdit_setBool"				));
-	mixin(generateFunQt(	346, 	"qteQTextEdit_toBool"				));
+	mixin(generateFunQt(	260, 	"qteQTextEdit_create1"				,"Widgets"));
+	mixin(generateFunQt(	261, 	"qteQTextEdit_delete1"				,"Widgets"));
+	mixin(generateFunQt(	270, 	"qteQTextEdit_setFromString"		,"Widgets"));
+	mixin(generateFunQt(	271, 	"qteQTextEdit_toString"				,"Widgets"));
+	mixin(generateFunQt(	272, 	"qteQTextEdit_cutn"					,"Widgets"));
+	mixin(generateFunQt(	345, 	"qteQTextEdit_setBool"				,"Widgets"));
+	mixin(generateFunQt(	346, 	"qteQTextEdit_toBool"				,"Widgets"));
 
 	// ------- QTimer -------
-	mixin(generateFunQt(	262, 	"qteQTimer_create"					));
-	mixin(generateFunQt(	263, 	"qteQTimer_delete"					));
-	mixin(generateFunQt(	264, 	"qteQTimer_setInterval"				));
-	mixin(generateFunQt(	265, 	"qteQTimer_getXX1"					));
-	mixin(generateFunQt(	266, 	"qteQTimer_getXX2"					));
-	mixin(generateFunQt(	267, 	"qteQTimer_setTimerType"			));
-	mixin(generateFunQt(	268, 	"qteQTimer_setSingleShot"			));
-	mixin(generateFunQt(	269, 	"qteQTimer_timerType"				));
-	mixin(generateFunQt(	342, 	"qteQTimer_setStartInterval"		));
+	mixin(generateFunQt(	262, 	"qteQTimer_create"					,"Widgets"));
+	mixin(generateFunQt(	263, 	"qteQTimer_delete"					,"Widgets"));
+	mixin(generateFunQt(	264, 	"qteQTimer_setInterval"				,"Widgets"));
+	mixin(generateFunQt(	265, 	"qteQTimer_getXX1"					,"Widgets"));
+	mixin(generateFunQt(	266, 	"qteQTimer_getXX2"					,"Widgets"));
+	mixin(generateFunQt(	267, 	"qteQTimer_setTimerType"			,"Widgets"));
+	mixin(generateFunQt(	268, 	"qteQTimer_setSingleShot"			,"Widgets"));
+	mixin(generateFunQt(	269, 	"qteQTimer_timerType"				,"Widgets"));
+	mixin(generateFunQt(	342, 	"qteQTimer_setStartInterval"		,"Widgets"));
 
 	// ------- QTextOption -------
-	mixin(generateFunQt(	291, 	"QTextOption_create"				));
-	mixin(generateFunQt(	292, 	"QTextOption_delete"				));
-	mixin(generateFunQt(	293, 	"QTextOption_setWrapMode"			));
+	mixin(generateFunQt(	291, 	"QTextOption_create"				,"Widgets"));
+	mixin(generateFunQt(	292, 	"QTextOption_delete"				,"Widgets"));
+	mixin(generateFunQt(	293, 	"QTextOption_setWrapMode"			,"Widgets"));
 
 	// ------- QFontMetrics -------
-	mixin(generateFunQt(	295, 	"QFontMetrics_create"				));
-	mixin(generateFunQt(	296, 	"QFontMetrics_delete"				));
-	mixin(generateFunQt(	297, 	"QFontMetrics_getXX1"				));
+	mixin(generateFunQt(	295, 	"QFontMetrics_create"				,"Widgets"));
+	mixin(generateFunQt(	296, 	"QFontMetrics_delete"				,"Widgets"));
+	mixin(generateFunQt(	297, 	"QFontMetrics_getXX1"				,"Widgets"));
 
 	// ------- QImage -------
-	mixin(generateFunQt(	303, 	"qteQImage_create1"					));
-	mixin(generateFunQt(	304, 	"qteQImage_delete"					));
-	mixin(generateFunQt(	305, 	"qteQImage_load"					));
-	mixin(generateFunQt(	315, 	"qteQImage_create2"					));
+	mixin(generateFunQt(	303, 	"qteQImage_create1"					,"Widgets"));
+	mixin(generateFunQt(	304, 	"qteQImage_delete"					,"Widgets"));
+	mixin(generateFunQt(	305, 	"qteQImage_load"					,"Widgets"));
+	mixin(generateFunQt(	315, 	"qteQImage_create2"					,"Widgets"));
 
-	mixin(generateFunQt(	316, 	"qteQImage_fill1"					));
-	mixin(generateFunQt(	317, 	"qteQImage_fill2"					));
-	mixin(generateFunQt(	318, 	"qteQImage_setPixel1"				));
-	mixin(generateFunQt(	319, 	"qteQImage_getXX1"					));
-	mixin(generateFunQt(	321, 	"qteQImage_pixel"					));
+	mixin(generateFunQt(	316, 	"qteQImage_fill1"					,"Widgets"));
+	mixin(generateFunQt(	317, 	"qteQImage_fill2"					,"Widgets"));
+	mixin(generateFunQt(	318, 	"qteQImage_setPixel1"				,"Widgets"));
+	mixin(generateFunQt(	319, 	"qteQImage_getXX1"					,"Widgets"));
+	mixin(generateFunQt(	321, 	"qteQImage_pixel"					,"Widgets"));
 
 	// ------- QPoint -------
-	mixin(generateFunQt(	306, 	"qteQPoint_create1"					));
-	mixin(generateFunQt(	307, 	"qteQPoint_delete"					));
-	mixin(generateFunQt(	308, 	"qteQPoint_setXX1"					));
-	mixin(generateFunQt(	309, 	"qteQPoint_getXX1"					));
+	mixin(generateFunQt(	306, 	"qteQPoint_create1"					,"Widgets"));
+	mixin(generateFunQt(	307, 	"qteQPoint_delete"					,"Widgets"));
+	mixin(generateFunQt(	308, 	"qteQPoint_setXX1"					,"Widgets"));
+	mixin(generateFunQt(	309, 	"qteQPoint_getXX1"					,"Widgets"));
 
 	// ------- QGridLayout -------
-	mixin(generateFunQt(	330, 	"qteQGridLayout_create1"			));
-	mixin(generateFunQt(	331, 	"qteQGridLayout_delete"				));
-	mixin(generateFunQt(	332, 	"qteQGridLayout_getXX1"				));
-	mixin(generateFunQt(	333, 	"qteQGridLayout_addWidget1"			));
-	mixin(generateFunQt(	334, 	"qteQGridLayout_addWidget2"			));
-	mixin(generateFunQt(	335, 	"qteQGridLayout_setXX1"				));
-	mixin(generateFunQt(	336, 	"qteQGridLayout_setXX2"				));
-	mixin(generateFunQt(	337, 	"qteQGridLayout_addLayout1"			));
+	mixin(generateFunQt(	330, 	"qteQGridLayout_create1"			,"Widgets"));
+	mixin(generateFunQt(	331, 	"qteQGridLayout_delete"				,"Widgets"));
+	mixin(generateFunQt(	332, 	"qteQGridLayout_getXX1"				,"Widgets"));
+	mixin(generateFunQt(	333, 	"qteQGridLayout_addWidget1"			,"Widgets"));
+	mixin(generateFunQt(	334, 	"qteQGridLayout_addWidget2"			,"Widgets"));
+	mixin(generateFunQt(	335, 	"qteQGridLayout_setXX1"				,"Widgets"));
+	mixin(generateFunQt(	336, 	"qteQGridLayout_setXX2"				,"Widgets"));
+	mixin(generateFunQt(	337, 	"qteQGridLayout_addLayout1"			,"Widgets"));
 
 	// ------- QMouseEvent -------
-	mixin(generateFunQt(	347, 	"qteQMouseEvent1"					));
-	mixin(generateFunQt(	348, 	"qteQWidget_setMousePressEvent"		));
-	mixin(generateFunQt(	349, 	"qteQWidget_setMouseReleaseEvent"	));
-	mixin(generateFunQt(	350, 	"qteQMouse_button"					));
+	mixin(generateFunQt(	347, 	"qteQMouseEvent1"					,"Widgets"));
+	mixin(generateFunQt(	348, 	"qteQWidget_setMousePressEvent"		,"Widgets"));
+	mixin(generateFunQt(	349, 	"qteQWidget_setMouseReleaseEvent"	,"Widgets"));
+	mixin(generateFunQt(	350, 	"qteQMouse_button"					,"Widgets"));
 
 	// ------- QScriptEngine -------
-	mixin(generateFunQt(	351, 	"QScriptEngine_create1"				));
-	mixin(generateFunQt(	352, 	"QScriptEngine_delete1"				));
-	mixin(generateFunQt(	353, 	"QScriptEngine_evaluate"			));
-	mixin(generateFunQt(	358, 	"QScriptEngine_newQObject"			));
-	mixin(generateFunQt(	359, 	"QScriptEngine_globalObject"		));
-	mixin(generateFunQt(	361, 	"QScriptEngine_callFunDlang"		));
-	mixin(generateFunQt(	362, 	"QScriptEngine_setFunDlang"			));
+	mixin(generateFunQt(	351, 	"QScriptEngine_create1"				,"Script"));
+	mixin(generateFunQt(	352, 	"QScriptEngine_delete1"				,"Script"));
+	mixin(generateFunQt(	353, 	"QScriptEngine_evaluate"			,"Script"));
+	mixin(generateFunQt(	358, 	"QScriptEngine_newQObject"			,"Script"));
+	mixin(generateFunQt(	359, 	"QScriptEngine_globalObject"		,"Script"));
+	mixin(generateFunQt(	361, 	"QScriptEngine_callFunDlang"		,"Script"));
+	mixin(generateFunQt(	362, 	"QScriptEngine_setFunDlang"			,"Script"));
 
 	// ------- QScriptValue -------
-	mixin(generateFunQt(	354, 	"QScriptValue_create1"				));
-	mixin(generateFunQt(	355, 	"QScriptValue_delete1"				));
-	mixin(generateFunQt(	356, 	"QScriptValue_toInt32"				));
-	mixin(generateFunQt(	357, 	"QScriptValue_toString"				));
-	mixin(generateFunQt(	360, 	"QScriptValue_setProperty"			));
+	mixin(generateFunQt(	354, 	"QScriptValue_create1"				,"Script"));
+	mixin(generateFunQt(	355, 	"QScriptValue_delete1"				,"Script"));
+	mixin(generateFunQt(	356, 	"QScriptValue_toInt32"				,"Script"));
+	mixin(generateFunQt(	357, 	"QScriptValue_toString"				,"Script"));
+	mixin(generateFunQt(	360, 	"QScriptValue_setProperty"			,"Script"));
 
-	mixin(generateFunQt(	365, 	"QScriptValue_createQstring"		));
-	mixin(generateFunQt(	366, 	"QScriptValue_createInteger"		));
-	mixin(generateFunQt(	367, 	"QScriptValue_createBool"			));
+	mixin(generateFunQt(	365, 	"QScriptValue_createQstring"		,"Script"));
+	mixin(generateFunQt(	366, 	"QScriptValue_createInteger"		,"Script"));
+	mixin(generateFunQt(	367, 	"QScriptValue_createBool"			,"Script"));
 
 	// ------- QScriptContext -------
-	mixin(generateFunQt(	363, 	"QScriptContext_argumentCount"		));
-	mixin(generateFunQt(	364, 	"QScriptContext_argument"			));
+	mixin(generateFunQt(	363, 	"QScriptContext_argumentCount"		,"Script"));
+	mixin(generateFunQt(	364, 	"QScriptContext_argument"			,"Script"));
 
 	// ------- QPaintDevice -------
-	mixin(generateFunQt(	379, 	"QPaintDevice_hw"					));
-	mixin(generateFunQt(	380, 	"QPaintDevice_pa"					));
+	mixin(generateFunQt(	379, 	"QPaintDevice_hw"					,"Widgets"));
+	mixin(generateFunQt(	380, 	"QPaintDevice_pa"					,"Widgets"));
 
-	mixin(generateFunQt(	381, 	"QObject_setObjectName"				));
-	mixin(generateFunQt(	382, 	"QObject_objectName"				));
-	mixin(generateFunQt(	383, 	"QObject_dumpObjectInfo"			));
+	mixin(generateFunQt(	381, 	"QObject_setObjectName"				,"Widgets"));
+	mixin(generateFunQt(	382, 	"QObject_objectName"				,"Widgets"));
+	mixin(generateFunQt(	383, 	"QObject_dumpObjectInfo"			,"Widgets"));
 
 	// ------- QPixmap -------
-	mixin(generateFunQt(	384, 	"QPixmap_create1"					));
-	mixin(generateFunQt(	385, 	"QPixmap_delete1"					));
-	mixin(generateFunQt(	386, 	"QPixmap_create2"					));
-	mixin(generateFunQt(	387, 	"QPixmap_create3"					));
-	mixin(generateFunQt(	388, 	"QPixmap_load1"						));
-	mixin(generateFunQt(	394, 	"QPixmap_fill"						));
-	mixin(generateFunQt(	389, 	"qteQLabel_setPixmap"				));
-	mixin(generateFunQt(	391, 	"qteQPainter_drawPixmap1"			));
+	mixin(generateFunQt(	384, 	"QPixmap_create1"					,"Widgets"));
+	mixin(generateFunQt(	385, 	"QPixmap_delete1"					,"Widgets"));
+	mixin(generateFunQt(	386, 	"QPixmap_create2"					,"Widgets"));
+	mixin(generateFunQt(	387, 	"QPixmap_create3"					,"Widgets"));
+	mixin(generateFunQt(	388, 	"QPixmap_load1"						,"Widgets"));
+	mixin(generateFunQt(	394, 	"QPixmap_fill"						,"Widgets"));
+	mixin(generateFunQt(	389, 	"qteQLabel_setPixmap"				,"Widgets"));
+	mixin(generateFunQt(	391, 	"qteQPainter_drawPixmap1"			,"Widgets"));
 
 	// ------- QBitmap -------
-	mixin(generateFunQt(	392, 	"QBitmap_create1"					));
-	mixin(generateFunQt(	395, 	"QBitmap_create2"					));
-	mixin(generateFunQt(	390, 	"qteQPainter_create3"				));
+	mixin(generateFunQt(	392, 	"QBitmap_create1"					,"Widgets"));
+	mixin(generateFunQt(	395, 	"QBitmap_create2"					,"Widgets"));
+	mixin(generateFunQt(	390, 	"qteQPainter_create3"				,"Widgets"));
 
-	mixin(generateFunQt(	396, 	"qteQPen_create2"					));
-	mixin(generateFunQt(	397, 	"QPixmap_setMask"					));
+	mixin(generateFunQt(	396, 	"qteQPen_create2"					,"Widgets"));
+	mixin(generateFunQt(	397, 	"QPixmap_setMask"					,"Widgets"));
 
 	// ------- QResource -------
-	mixin(generateFunQt(	398, 	"QResource_create1"					));
-	mixin(generateFunQt(	399, 	"QResource_delete1"					));
-	mixin(generateFunQt(	400, 	"QResource_registerResource"		));
-	mixin(generateFunQt(	401, 	"QResource_registerResource2"		));
+	mixin(generateFunQt(	398, 	"QResource_create1"					,"Widgets"));
+	mixin(generateFunQt(	399, 	"QResource_delete1"					,"Widgets"));
+	mixin(generateFunQt(	400, 	"QResource_registerResource"		,"Widgets"));
+	mixin(generateFunQt(	401, 	"QResource_registerResource2"		,"Widgets"));
 
 	// ------- QStackedWidget -------
-	mixin(generateFunQt(	402, 	"QStackedWidget_create1"			));
-	mixin(generateFunQt(	403, 	"QStackedWidget_delete1"			));
-	mixin(generateFunQt(	404, 	"QStackedWidget_setXX1"				));
-	mixin(generateFunQt(	405, 	"QStackedWidget_setXX2"				));
-	mixin(generateFunQt(	406, 	"QStackedWidget_setXX3"				));
+	mixin(generateFunQt(	402, 	"QStackedWidget_create1"			,"Widgets"));
+	mixin(generateFunQt(	403, 	"QStackedWidget_delete1"			,"Widgets"));
+	mixin(generateFunQt(	404, 	"QStackedWidget_setXX1"				,"Widgets"));
+	mixin(generateFunQt(	405, 	"QStackedWidget_setXX2"				,"Widgets"));
+	mixin(generateFunQt(	406, 	"QStackedWidget_setXX3"				,"Widgets"));
 
 	// ------- QTabBar -------
-	mixin(generateFunQt(	407, 	"QTabBar_create1"					));
-	mixin(generateFunQt(	408, 	"QTabBar_delete1"					));
-	mixin(generateFunQt(	409, 	"QTabBar_setXX1"					));
-	mixin(generateFunQt(	410, 	"QTabBar_addTab1"					));
-	mixin(generateFunQt(	411, 	"QTabBar_tabTextX1"					));
-	mixin(generateFunQt(	412, 	"QTabBar_tabBoolX1"					));
-	mixin(generateFunQt(	413, 	"QTabBar_addTab2"					));
-	mixin(generateFunQt(	414, 	"QTabBar_ElideMode"					));
-	mixin(generateFunQt(	415, 	"QTabBar_iconSize"					));
-	mixin(generateFunQt(	416, 	"QTabBar_addTab3"					));
-	mixin(generateFunQt(	417, 	"QTabBar_moveTab1"					));
-	mixin(generateFunQt(	418, 	"QTabBar_selectionBehaviorOnRemove"	));
-	mixin(generateFunQt(	419, 	"QTabBar_set3"						));
-	mixin(generateFunQt(	420, 	"QTabBar_setElideMode"				));
-	mixin(generateFunQt(	421, 	"QTabBar_setIconSize"				));
-	mixin(generateFunQt(	422, 	"QTabBar_setShape"					));
-	mixin(generateFunQt(	423, 	"QTabBar_setTabEnabled"				));
-	mixin(generateFunQt(	424, 	"QTabBar_setX5"						));
+	mixin(generateFunQt(	407, 	"QTabBar_create1"					,"Widgets"));
+	mixin(generateFunQt(	408, 	"QTabBar_delete1"					,"Widgets"));
+	mixin(generateFunQt(	409, 	"QTabBar_setXX1"					,"Widgets"));
+	mixin(generateFunQt(	410, 	"QTabBar_addTab1"					,"Widgets"));
+	mixin(generateFunQt(	411, 	"QTabBar_tabTextX1"					,"Widgets"));
+	mixin(generateFunQt(	412, 	"QTabBar_tabBoolX1"					,"Widgets"));
+	mixin(generateFunQt(	413, 	"QTabBar_addTab2"					,"Widgets"));
+	mixin(generateFunQt(	414, 	"QTabBar_ElideMode"					,"Widgets"));
+	mixin(generateFunQt(	415, 	"QTabBar_iconSize"					,"Widgets"));
+	mixin(generateFunQt(	416, 	"QTabBar_addTab3"					,"Widgets"));
+	mixin(generateFunQt(	417, 	"QTabBar_moveTab1"					,"Widgets"));
+	mixin(generateFunQt(	418, 	"QTabBar_selectionBehaviorOnRemove"	,"Widgets"));
+	mixin(generateFunQt(	419, 	"QTabBar_set3"						,"Widgets"));
+	mixin(generateFunQt(	420, 	"QTabBar_setElideMode"				,"Widgets"));
+	mixin(generateFunQt(	421, 	"QTabBar_setIconSize"				,"Widgets"));
+	mixin(generateFunQt(	422, 	"QTabBar_setShape"					,"Widgets"));
+	mixin(generateFunQt(	423, 	"QTabBar_setTabEnabled"				,"Widgets"));
+	mixin(generateFunQt(	424, 	"QTabBar_setX5"						,"Widgets"));
 
-	mixin(generateFunQt(	425, 	"qteQColor_create3"					));
+	mixin(generateFunQt(	425, 	"qteQColor_create3"					,"Widgets"));
 
 	// ------- QCoreApplication -------
-	mixin(generateFunQt(	426, 	"QCoreApplication_create1"			));
-	mixin(generateFunQt(	427, 	"QCoreApplication_delete1"			));
+	mixin(generateFunQt(	426, 	"QCoreApplication_create1"			,"Widgets"));
+	mixin(generateFunQt(	427, 	"QCoreApplication_delete1"			,"Widgets"));
 	// ------- QGuiApplication -------
-	mixin(generateFunQt(	428, 	"qteQApplication_setX1"				));
+	mixin(generateFunQt(	428, 	"qteQApplication_setX1"				,"Widgets"));
 
-	mixin(generateFunQt(	429, 	"QTabBar_setPoint"					));
-	mixin(generateFunQt(	430, 	"QTabBar_tabPoint"					));
+	mixin(generateFunQt(	429, 	"QTabBar_setPoint"					,"Widgets"));
+	mixin(generateFunQt(	430, 	"QTabBar_tabPoint"					,"Widgets"));
 	// ------- QMdiArea -------
-	mixin(generateFunQt(	431, 	"qteQMdiArea_getN1"					));
-	mixin(generateFunQt(	432, 	"qteQMdiArea_setN1"					));
-	mixin(generateFunQt(	433, 	"qteQMdiArea_removeSubWin"			));
-	mixin(generateFunQt(	434, 	"qteQMdiArea_setViewMode"			));
+	mixin(generateFunQt(	431, 	"qteQMdiArea_getN1"					,"Widgets"));
+	mixin(generateFunQt(	432, 	"qteQMdiArea_setN1"					,"Widgets"));
+	mixin(generateFunQt(	433, 	"qteQMdiArea_removeSubWin"			,"Widgets"));
+	mixin(generateFunQt(	434, 	"qteQMdiArea_setViewMode"			,"Widgets"));
 	// ------- Колесико мыша -------
-	mixin(generateFunQt(	435, 	"qteQWidget_setaMouseWheelEvent"	));
-	mixin(generateFunQt(	436, 	"qteQMouseEvent2"	                ));
-	mixin(generateFunQt(	437, 	"qteQMouseangleDelta"	            ));
+	mixin(generateFunQt(	435, 	"qteQWidget_setaMouseWheelEvent"	,"Widgets"));
+	mixin(generateFunQt(	436, 	"qteQMouseEvent2"	                ,"Widgets"));
+	mixin(generateFunQt(	437, 	"qteQMouseangleDelta"	            ,"Widgets"));
 	// ------- QLineEdit -------
-	mixin(generateFunQt(	438, 	"qteQLineEdit_setAlignment"	        ));
-	mixin(generateFunQt(	439, 	"qteQLineEdit_getInt"	        	));
-	mixin(generateFunQt(	440, 	"qteQLineEdit_setX2"	        	));
-	mixin(generateFunQt(	441, 	"qteQLineEdit_setX3"	        	));
+	mixin(generateFunQt(	438, 	"qteQLineEdit_setAlignment"	        ,"Widgets"));
+	mixin(generateFunQt(	439, 	"qteQLineEdit_getInt"	        	,"Widgets"));
+	mixin(generateFunQt(	440, 	"qteQLineEdit_setX2"	        	,"Widgets"));
+	mixin(generateFunQt(	441, 	"qteQLineEdit_setX3"	        	,"Widgets"));
 
-	// Последний = 418
+	// ------- QWebEng ----------
+	mixin(generateFunQt(	446, 	"qteQWebEngView_create"				,"WebEng"));
+	mixin(generateFunQt(	445, 	"qteQWebEngView_delete"				,"WebEng"));
+	mixin(generateFunQt(	447, 	"qteQWebEngView_load"				,"WebEng"));
+	
+	
+	// Дополнительная проверка на загрузку функций, при условии, что включена диагностика
+	if(showError) {
+		write("The numbers in pFunQt[] is null: ");
+		for(int i; i != maxValueInPFunQt; i++) if(!pFunQt[i])	write(i,", ");
+		writeln();
+	}
+	
+	// Последний = 445
 	return 0;
 } ///  Загрузить DLL-ки Qt и QtE. Найти в них адреса функций и заполнить ими таблицу
 
@@ -6345,103 +6407,6 @@ class QLSystem
 		return parameters;
 	}
 }
-					
-/*
-	Интерполяция точек по Лагранжу. 
-	Может быть применено для математической графики для увеличения количества точек
-	при построении, т.к. недостающие промежуточные точки могут быть вычислены с помощью 
-	этого класса.
-
-	Применение:
-
-		// массив точек для расчета (ради эксперимента, выбрана прстая квадратичная функция)
-		QPoint[] points = [
-	    		new QPoint(0, 0),
-	    		new QPoint(1, 1),
-	    		new QPoint(2, 4),
-	    		new QPoint(3, 9),
-	    		new QPoint(5, 25),
-	    		new QPoint(8, 64),
-	    		new QPoint(9, 81)
-	    	];
-
-		// создаем экземпляр класса
-    	QLagrangeInterpolator interpolator = new QLagrangeInterpolator(points);
-    	// ** важно ! **
-    	// для получения промежуточной точки, нужно ее задать с известной координатой x
-    	// и нулевой (хотя тут может быть любая другая координата) координатой y !
-    	// интерполятор в этом случае вернет точку с правильными координатами (т.е)
-    	// вычисленными с пмщью интерполяции 
-    	writeln(interpolator.interpolate(new QPoint(4, 0)).y);
-    	
-    	import std.algorithm, std.range;
-
-    	interpolator
-    			// теперь расчитаем промежуточные точки на интервале от 4 до 7
-    			.interval(4, 7)
-    			.map!(a => a.y)
-    			.each!(a => writeln(a));
-*/
-
-class QLagrangeInterpolator
-{
-	private
-	{
-		float[] xs_Floats;
-		float[] ys_Floats;
-
-		float basePolynom(float x, size_t N)
-		{
-			float product = 1.0f;
-
-			for (size_t i = 0; i < xs_Floats.length; i++)
-			{
-				if (i != N)
-				{
-					product *= (x - xs_Floats[i]) / (xs_Floats[N] - xs_Floats[i]);
-				}
-			}
-
-			return product;
-		}
-	}
-
-	public
-	{
-		this(QPoint[] points...)
-		{
-			foreach (point; points)
-			{
-				xs_Floats ~= point.x;
-				ys_Floats ~= point.y;
-			}
-		}
-
-		QPoint interpolate(QPoint point)
-		{
-			float sum = 0.0f;
-
-			for (size_t i = 0; i < ys_Floats.length; i++)
-			{
-				sum += ys_Floats[i] * basePolynom(point.x, i);
-			}
-			
-			return new QPoint(point.x, cast(int) sum);
-		}
-
-		QPoint[] interval(int a, int b, int step = 1)
-		{
-			QPoint[] points;
-
-			for (int x = a; x < b; x += step)
-			{
-				points ~= interpolate(new QPoint(x, 0));
-			}
-
-			return points;
-		}
-	}
-}
 
 // ================ QPixmap ================
 class QPixmap: QPaintDevice {
@@ -6605,6 +6570,69 @@ class QStackedWidget : QFrame {
 		(cast(t_i__qp_qp_i) pFunQt[404])(QtObj, wd.QtObj, 5); return this;
 	}
 }
+
+// ============ QWebView =======================================
+class QWebView : QWidget {
+	this() {  }				// Обязателен
+	this(QWidget parent = null) {
+		super();
+		if (parent) {
+			setNoDelete(true);
+			setQtObj((cast(t_qp__qp) pFunQt[24])(parent.QtObj));
+		} else {
+			setQtObj((cast(t_qp__qp) pFunQt[24])(null));
+		}
+	} /// Конструктор
+	~this() { del(); }		// Косвенный вызов деструк C++ обязателен
+	override void del() {
+		if(!fNoDelete && (QtObj != null)) { (cast(t_v__qp) pFunQt[25])(QtObj); setQtObj(null); }
+	}
+	void load(QUrl qu) {
+		(cast(t_v__qp_qp) pFunQt[26])(QtObj, qu.QtObj);
+	}
+}
+// ============ QWebEngView =======================================
+class QWebEngView : QWidget {
+	this() {  }				// Обязателен
+	this(QWidget parent = null) {
+		super();
+		if (parent) {
+			setNoDelete(true);
+			setQtObj((cast(t_qp__qp) pFunQt[446])(parent.QtObj));
+		} else {
+			setQtObj((cast(t_qp__qp) pFunQt[446])(null));
+		}
+	} /// Конструктор
+	~this() { del(); }		// Косвенный вызов деструк C++ обязателен
+	override void del() {
+		if(!fNoDelete && (QtObj != null)) { (cast(t_v__qp) pFunQt[445])(QtObj); setQtObj(null); }
+	}
+	void load(QUrl qu) {
+		(cast(t_v__qp_qp) pFunQt[447])(QtObj, qu.QtObj);
+	}
+}
+
+
+
+// ============ QUrl =======================================
+class QUrl : QObject {
+	this() {
+		setQtObj((cast(t_qp__v) pFunQt[81])());
+	}
+	~this() { del(); }
+	void del() { 
+		if(!fNoDelete && (QtObj !is null)) { (cast(t_v__qp)pFunQt[173])(QtObj); setQtObj(null); }	
+	}
+	void setUrl(QString* qs) {
+		(cast(t_v__qp_qp) pFunQt[444])(QtObj, qs.QtObj);
+	}
+	void setUrl(T)(T str) {
+		(cast(t_v__qp_qp) pFunQt[444])(QtObj, sQString(str).QtObj);
+	}
+	
+}
+
+
 // ============ QTabBar =======================================
 class QTabBar : QWidget {
 
@@ -6823,46 +6851,6 @@ class QTabBar : QWidget {
 	}
 
 
-}
-
-/*
----- автор Олег Бахарев 2016 -- https://vk.com/vk_dlang Роберт Брайтс-Грей ----
-
-Этот шаблон формирует стандартную "упрощенную" функцию main()
-
-Пример использования:
-
-class MainForm : QWidget {
-  .......
-}
-mixin(QtE5EntryPoint!"MainForm");
-
-*/
-template QtE5EntryPoint(string mainFormName) {
-	import std.string : format;
-	enum QtE5EntryPoint = format(
-		`
-			import core.runtime;
-			import std.stdio;
-
-			auto QtEDebugInfo(bool debugFlag) {
-				if(LoadQt(dll.QtE5Widgets, debugFlag)) return 1; 
-				else		return 0;	
-			}
-
-			int main(string[] args) {
-				%1$s mainForm;
-				QtEDebugInfo(true);
-				QApplication app = new QApplication(&Runtime.cArgs.argc, Runtime.cArgs.argv, 1);
-				with (mainForm = new %1$s(null, QtE.WindowType.Window))		{
-					show;
-					saveThis(&mainForm);
-				}
-				return app.exec;
-			}
-		`,
-		mainFormName
-		);
 }
 
 __EOF__

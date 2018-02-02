@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += widgets gui script
+QT       += widgets gui
 
 TARGET = QtE5Widgets
 TEMPLATE = lib
