@@ -24,3 +24,4 @@ QtE5 - uses the following libraries depending from OS<br>
 
 ##Screenshot    
 ![screen](https://pp.userapi.com/c638923/v638923410/5e562/5VCDQWdgr_M.jpg)
+![screen](https://pp.userapi.com/c840122/v840122383/70ffe/OIi51ZRtG3c.jpg)
