@@ -103,7 +103,7 @@ class ClassMain: QMainWindow {
 
 	// ____________________________
 	this() {
-		super();
+		super(null);
 		// resize(800, 600); 
 		setWindowTitle("Use: " ~ nameFileIndex);
 		wd_main = new QWidget(this);
