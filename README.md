@@ -1,9 +1,8 @@
-# QtE5 - is a D wrapper for Qt-5 graphics library.
+# QtE5 is Qt-based library, provides easy access to Qt-5 from D and C++.
 
 ![logo](https://github.com/MGWL/QtE5/blob/master/ICONS/qte5.png)
 
-This is a small study library to work with GUI Qt-5.
-It is used for dynamic linking and easy in use on Windows 32/64 and Linux 32/64.
+It uses dynamic Qt5 loading and a predefined set of slots, allows you not to use the metacompiler. To compile and execute an application, it is enough to have only QtE5 and some DLL/SO from Qt. There is no need to install Qt.
 
 **Short video about qte5 and ide5 in Linux [https://www.youtube.com/watch?v=RBan5Dwt_JM](https://www.youtube.com/watch?v=RBan5Dwt_JM)**
 <br>
