@@ -7,11 +7,11 @@ It uses dynamic Qt5 loading and a predefined set of slots, allows you not to use
 ## Usage
 ```
 Make app for D:
-    dmd test.d qte5.d
+    dmd app.d qte5.d
     
 Make app for C++:
-    dmc:  dmc test.cpp qte5.cpp
-    g++:  g++ test.cpp qte5.cpp -ldl
+    dmc:  dmc app.cpp qte5.cpp
+    g++:  g++ app.cpp qte5.cpp -ldl
 ```
 
 **Short video about qte5 and ide5 in Linux [https://www.youtube.com/watch?v=RBan5Dwt_JM](https://www.youtube.com/watch?v=RBan5Dwt_JM)**
