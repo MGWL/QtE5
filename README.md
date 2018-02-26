@@ -4,6 +4,16 @@
 
 It uses dynamic Qt5 loading and a predefined set of slots, allows you not to use the metacompiler. To compile and execute an application, it is enough to have only QtE5 and some DLL/SO from Qt. There is no need to install Qt.
 
+## Usage
+```
+Compile for D:
+    dmd test.d qte5.d
+    
+Compile for C++:
+    dmc:  dmc test.cpp qte5.cpp
+    g++:  g++ test.cpp qte5.cpp -ldl
+```
+
 **Short video about qte5 and ide5 in Linux [https://www.youtube.com/watch?v=RBan5Dwt_JM](https://www.youtube.com/watch?v=RBan5Dwt_JM)**
 <br>
 **QtE5 in Mac OSX 10.10.5 https://www.youtube.com/watch?v=JbvUJwShN_c**
