@@ -6,10 +6,10 @@ It uses dynamic Qt5 loading and a predefined set of slots, allows you not to use
 
 ## Usage
 ```
-Compile for D:
+Make app for D:
     dmd test.d qte5.d
     
-Compile for C++:
+Make app for C++:
     dmc:  dmc test.cpp qte5.cpp
     g++:  g++ test.cpp qte5.cpp -ldl
 ```
