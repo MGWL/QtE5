@@ -2782,7 +2782,7 @@ extern "C" MSVC_API  void qteQTextEdit_setKeyReleaseEvent(eQTextEdit* wd, void* 
 // extern "C" MSVC_API  void qteQTextEdit_appendHtml(QTextEdit* wd, QtRefH str) {
 //    wd->appendHtml((const QString &)*str);
 // }
-
+// 270
 extern "C" MSVC_API  void qteQTextEdit_setFromString(QTextEdit* wd, QString* str, int pr) {
     switch ( pr ) {
     case 0:   wd->setPlainText(*str);    break;
@@ -3451,6 +3451,17 @@ extern "C" MSVC_API  void qteQUrl_delete(QUrl* wd) {
 // 444
 extern "C" MSVC_API void qteQUrl_setUrl(QUrl* url, QString *qstr) {
     url->setUrl(*qstr);
+}
+// ============ QTextCodec =======================================
+extern "C" QTextCodec* p_QTextCodec(char* strNameCodec) {
+    return QTextCodec::codecForName(strNameCodec);
+}
+// Переприсваивание QString
+extern "C" void QT_QTextCodec_toUnicode(QTextCodec *codec, QString *qstr, char *strz) {
+    *qstr = codec->toUnicode(strz);
+}
+extern "C" void QT_QTextCodec_fromUnicode(QTextCodec *codec, QString *qstr, char *strz) {
+    sprintf(strz, "%s", codec->fromUnicode(*qstr).data());
 }
 
 
