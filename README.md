@@ -13,7 +13,7 @@ Make app for C++:
     dmc:  dmc app.cpp qte5.cpp
     g++:  g++ app.cpp qte5.cpp -ldl
 ```
-<img>arx.png</img>
+![QtE5 Architecture](https://github.com/MGWL/QtE5/arx.png)
 
 **Short video about qte5 and ide5 in Linux [https://www.youtube.com/watch?v=RBan5Dwt_JM](https://www.youtube.com/watch?v=RBan5Dwt_JM)**
 <br>
