@@ -66,7 +66,7 @@ namespace QtE5_Const {
 //___________________________________________________________________
 namespace QtE5 {
     
-static void* pFunQt[500]; 				/// Масив указателей на функции из DLL
+static void* pFunQt[1000]; 				/// Масив указателей на функции из DLL
 
 enum dll {  // Загрузка DLL. Необходимо выбрать какие грузить. Load DLL, we mast change load
 	QtE5Widgets = 1,
@@ -79,6 +79,7 @@ enum dll {  // Загрузка DLL. Необходимо выбрать как�
 int LoadQt(dll ldll, bool showError);  //  Загрузить DLL-ки Qt и QtE
 // void run(int argc, char** argv);
 
+class QByteArray;
 //___________________________________________________________________
 class QObject {
 private:
@@ -102,7 +103,7 @@ unsigned int dlockGet();
 class QString : public QObject {
 public:
 	QString(char const*);
-	// QString(wchar_t const * str);
+	QString(QByteArray*);
 	~QString();
 };
 //___________________________________________________________________
@@ -120,6 +121,8 @@ public:
 	QWidget(char ch);
 	QWidget(QWidget* parent = NULL, QtE5_Const::WindowType fl = QtE5_Const::Widget);
 	~QWidget();
+	void setStyleSheet(QString* qstr); 
+	void setWindowTitle(QString* qstr);   //-> // Установить заголовок окна
 	void setStyleSheet(QString qstr); 
 	void setWindowTitle(QString qstr);   //-> // Установить заголовок окна
 	void show();
@@ -201,6 +204,59 @@ public:
 	QTextCodec(char* strNameCodec);
 	QString toUnicode(char* str, QString qstr);
 	char* fromUnicode(char* str, QString qstr);
+};
+//___________________________________________________________________
+class QByteArray : public QObject {
+public:
+	QByteArray(char* str);
+	QByteArray(QByteArray*);
+	~QByteArray();
+	int size();
+	int length();
+	char* data();
+	const char* constData();
+	char getChar(int n);
+	void trimmed();	   					// Выкинуть пробелы с обоих концов строки (AllTrim())
+	void simplified(); 					// выкинуть лишние пробелы внутри строки
+	void prepend(char* str); 				// Приклеить строку спереди
+	void append(char* str); 				// Добавить строку сзади
+	void prepend(QByteArray* ba); 			// Приклеить строку спереди
+	void append(QByteArray* ba); 			// Добавить строку сзади
+	bool startsWith(QByteArray* ba); 		// Совпадение с началом
+	bool endsWith(QByteArray* ba); 		// Совпадение с концом
+};
+//___________________________________________________________________
+class QIODevice : public QObject {
+public:
+	enum OpenMode {
+		NotOpen    = 0x0000,  // The device is not open.
+		ReadOnly   = 0x0001,  // The device is open for reading.
+		WriteOnly  = 0x0002,  // The device is open for writing.
+		ReadWrite  = ReadOnly | WriteOnly,  //  The device is open for reading and writing.
+		Append     = 0x0004,  // The device is opened in append mode, so that all data is written to the end of the file.
+		Truncate   = 0x0008,  // If possible, the device is truncated before it is opened. All earlier contents of the device are lost.
+		Text       = 0x0010,  // When reading, the end-of-line terminators are translated to '\n'. When writing, the end-of-line terminators are translated to the local encoding, for example '\r\n' for Win32.
+		Unbuffered = 0x0020   // Any buffer in the device is bypassed.
+	};
+
+	QIODevice(char);
+	~QIODevice();
+	void readAll(QByteArray*);
+};
+//___________________________________________________________________
+class QFileDevice : public QIODevice {
+public:
+	QFileDevice(char);
+	~QFileDevice();
+};
+//___________________________________________________________________
+class QFile : public QFileDevice {
+public:
+	QFile(QObject*);
+	QFile(QString*, QObject*);
+	QFile(QString, QObject*);
+	bool open(QIODevice::OpenMode);
+	~QFile();
 };
   
 

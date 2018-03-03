@@ -23,17 +23,30 @@ import std.utf: encode;
 import std.stdio;
 
 int verQt5Eu = 0;
-int verQt5El = 09;
-string verQt5Ed = "06.10.17 11:02";
+int verQt5El = 10;
+string verQt5Ed = "26.02.18 12:27";
 
 alias PTRINT = int;
 alias PTRUINT = uint;
 
 struct QtObj__ { PTRINT dummy; } alias QtObjH = QtObj__*;
 
-
-private void*[500] pFunQt; 				/// Масив указателей на функции из DLL
+enum maxLength_pFunQt = 1000;
+private void*[maxLength_pFunQt] pFunQt; 				/// Масив указателей на функции из DLL
 private uint maxValueInPFunQt;
+
+
+void copyFunQt(void* adr) {
+	void*[maxLength_pFunQt]* aMas = cast(void*[maxLength_pFunQt]*)adr;
+	for(int i; i != maxLength_pFunQt; i++) 	pFunQt[i] = (*aMas)[i];
+	for(int i; i != 10; i++) writeln(i, " = ", pFunQt[i]);
+}
+string verQtE5() {
+	string verQtE5;
+	import std.string: format;
+	verQtE5 = format("QtE5 [%d] ver: %s.%s %s", size_t.sizeof * 8, verQt5El, verQt5Eu, verQt5Ed );
+	return verQtE5;
+}
 
 immutable int QMETHOD = 0; // member type codes
 immutable int QSLOT = 1;
@@ -124,6 +137,7 @@ private {
 	mixin(generateAlias("t_qp__ui"));
 	mixin(generateAlias("t_qp__vp"));
 
+	mixin(generateAlias("t_vp__vp"));
 	mixin(generateAlias("t_vp__vp_i_i"));
 	mixin(generateAlias("t_vp__vp_i_vp"));
 
@@ -969,7 +983,18 @@ int LoadQt(dll ldll, bool showError) { ///  Загрузить DLL-ки Qt и Qt
 	mixin(generateFunQt(	446, 	"qteQWebEngView_create"				,"WebEng"));
 	mixin(generateFunQt(	445, 	"qteQWebEngView_delete"				,"WebEng"));
 	mixin(generateFunQt(	447, 	"qteQWebEngView_load"				,"WebEng"));
-	
+
+	// ------- QTextCodec ----------
+	mixin(generateFunQt(	448, 	"p_QTextCodec"						,"Widgets"));
+	mixin(generateFunQt(	449, 	"QT_QTextCodec_toUnicode"			,"Widgets"));
+	mixin(generateFunQt(	450, 	"QT_QTextCodec_fromUnicode"			,"Widgets"));
+
+	// ------- QByteArray ----------
+	mixin(generateFunQt(	500, 	"new_QByteArray_vc"					,"Widgets"));
+	mixin(generateFunQt(	501, 	"delete_QByteArray"					,"Widgets"));
+	mixin(generateFunQt(	502, 	"QByteArray_size"					,"Widgets"));
+	mixin(generateFunQt(	503, 	"new_QByteArray_data"				,"Widgets"));
+	mixin(generateFunQt(	504, 	"QByteArray_trimmed"				,"Widgets"));
 	
 	// Дополнительная проверка на загрузку функций, при условии, что включена диагностика
 	if(showError) {
@@ -978,7 +1003,8 @@ int LoadQt(dll ldll, bool showError) { ///  Загрузить DLL-ки Qt и Qt
 		writeln();
 	}
 	
-	// Последний = 445
+	// Последний = 451
+	// -+-+-+-+- = 500
 	return 0;
 } ///  Загрузить DLL-ки Qt и QtE. Найти в них адреса функций и заполнить ими таблицу
 
@@ -1796,7 +1822,7 @@ class QWidget: QPaintDevice {
 	this() { /*assert(false, mesNoThisWitoutPar ~ to!string(__LINE__) ~ " : " ~ to!string(__FILE__)); */ }				// Обязателен
 	~this() { del(); }		// Косвенный вызов деструк C++ обязателен
 	void del() { 	
-		if(!fNoDelete && (QtObj !is null)) { (cast(t_v__qp) pFunQt[7])(QtObj); setQtObj(null); }
+		if(!fNoDelete && (QtObj !is null)) { writeln("del QWidget"); (cast(t_v__qp) pFunQt[7])(QtObj); setQtObj(null); }
 	}
 	this(char ch, void* adr) {
 		if(ch == '+') setQtObj(cast(QtObjH)adr);
@@ -1807,7 +1833,9 @@ class QWidget: QPaintDevice {
 			setNoDelete(true);
 			setQtObj((cast(t_qp__qp_i)pFunQt[5])(parent.QtObj, cast(int)fl));
 		} else {
+			writeln("--0->", pFunQt[5]);
 			setQtObj((cast(t_qp__qp_i)pFunQt[5])(null, cast(int)fl));
+			writeln("--1->", pFunQt[5]);
 		}
 	} /// QWidget::QWidget(QWidget * parent = 0, Qt::WindowFlags f = 0)
 	bool isVisible() { //->
@@ -6849,14 +6877,150 @@ class QTabBar : QWidget {
 	void* tabData(int index) {
 		return cast(void*)((cast(t_qp__qp_i) pFunQt[430])(QtObj, index));
 	}
-
-
+}
+// ================ QTextCodec ==================
+/++
+Преобразование в - из кодовых страниц в unicod
++/
+class QTextCodec  : QObject {
+	this(){}
+	this(string strNameCodec) {
+		setQtObj((cast(t_qp__qp)pFunQt[448])(cast(QtObjH)strNameCodec.ptr));
+	}
+	QString toUnicode(string str, QString qstr) {
+		(cast(t_v__qp_qp_qp) pFunQt[449])(QtObj, qstr.QtObj, cast(QtObjH)str.ptr);
+		return qstr;
+	}
+	char* fromUnicode(char* str, QString qstr) {
+		(cast(t_v__qp_qp_qp) pFunQt[450])(QtObj, qstr.QtObj, cast(QtObjH)str); return str;
+	}
+}
+// ================ QByteArray ================
+class QByteArray : QObject {
+	this(){}
+	this(char* buf)   {	setQtObj((cast(t_qp__qp)pFunQt[500])(cast(QtObjH)buf)); }
+	this(string strD) {	setQtObj((cast(t_qp__qp)pFunQt[500])(cast(QtObjH)strD.ptr)); }
+	~this() {	(cast(t_v__qp)pFunQt[501])(cast(QtObjH)QtObj);	}
+	@property int size() { return (cast(t_i__qp) pFunQt[502])(cast(QtObjH)QtObj); }
+	@property int length() {	return size();	}
+	@property char* data() {	return cast(char*)(cast(t_qp__qp)pFunQt[503])(QtObj);	}
+	char getChar(int n) { return *(n + (cast(char*) data()));	}
+	QByteArray trimmed() {	(cast(t_v__qp_i)pFunQt[504])(cast(QtObjH)QtObj, 0);	return this;
+	} /// Выкинуть пробелы с обоих концов строки (AllTrim())
+	QByteArray simplified() {	(cast(t_v__qp_i)pFunQt[504])(cast(QtObjH)QtObj, 1);	return this;
+	} /// выкинуть лишние пробелы внутри строки
+	
+	
 }
 
+
+/*
+	string toStringD() {
+		return to!string(cast(char*) data());
+	} /// Convert QByteArray --> strinng Dlang
+	bool arrIsEquals(QByteArray ab) {
+		return (cast(t_bool__vp_vp) pFunQt4[140])(QtObj, ab.QtObj);
+	}
+	// Забить массив символом ch и если указан resize изменить размер
+	void* fill(char ch, int resize = -1) {
+		return (cast(t_vp__vp_c_i) pFunQt4[143])(QtObj, ch, resize);
+	}
+	// Создать массив из сырых байтов без NULL в конце из s размером n
+	void* fromRawData(char* s, int n) {
+		return (cast(t_vp__vp_cp_i) pFunQt4[144])(QtObj, s, n);
+	}
+	// Искать позицию вхождения подстроки в массиве
+	int indexOf(QByteArray str, int poz = 0) {
+		return (cast(t_i__vp_vp_vp) pFunQt4[145])(QtObj, str.QtObj, cast(void*) poz);
+	}
+	// Искать позицию вхождения подстроки в массиве
+	int indexOf(char* str, int poz = 0) {
+		return (cast(t_i__vp_vp_vp) pFunQt4[146])(QtObj, cast(void*) str, cast(void*) poz);
+	}
+	// Искать позицию вхождения подстроки в массиве
+	int indexOf(char ch, int poz = 0) {
+		return (cast(t_i__vp_vp_vp) pFunQt4[147])(QtObj, cast(void*) ch, cast(void*) poz);
+	}
+
+	void* operator1(QByteArray mas) {
+		return (cast(t_vp__vp_vp) pFunQt4[148])(QtObj, mas.QtObj);
+	}
+	// Вынимает левые n байт и запихивает их в QByteArray arr
+	void* left(QByteArray arr, int n) {
+		return (cast(t_vp__vp_vp_i) pFunQt4[149])(QtObj, arr.QtObj, n);
+	} /// Вынимает левые n байт и запихивает их в QByteArray arr
+
+	void clear() {
+		(cast(t_v__vp) pFunQt4[153])(QtObj);
+	} /// Очищает массив и сбрасывает его длину в 0
+	void resize(int rez) {
+		(cast(t_v__vp_i) pFunQt4[156])(QtObj, rez);
+	} /// Очищает массив и сбрасывает его длину в 0
+	void* mid(QByteArray arr, int pos, int len = -1) {
+		return (cast(t_vp__vp_vp_i_i) pFunQt4[150])(QtObj, arr.QtObj, pos, len);
+	} /// Вынимает левые len байт с позиции pos и запихивает их в QByteArray arr
+	void* prepend(char* str) {
+		return (cast(t_vp__vp_vp) pFunQt4[237])(QtObj, str);
+	} /// дописывает строку в начало
+	void* prepend(string strD) {
+		return (cast(t_vp__vp_vp) pFunQt4[237])(QtObj, cast(char*) strD.ptr);
+	} /// дописывает строку в начало
+	void* prepend(char s) {
+		return (cast(t_vp__vp_i) pFunQt4[239])(QtObj, cast(int) s);
+	} /// дописывает char в начало
+
+	void* append(char* str, int len) {
+		return (cast(t_vp__vp_vp_i) pFunQt4[151])(QtObj, str, len);
+	} /// дописывает строку длиной n в конец
+	void* append(char* str) {
+		return (cast(t_vp__vp_vp) pFunQt4[152])(QtObj, str);
+	} /// дописывает строку в конец
+	void* append(char s) {
+		return (cast(t_vp__vp_i) pFunQt4[154])(QtObj, cast(int) s);
+	} /// дописывает char в конец
+	void* append(QByteArray arr) {
+		return (cast(t_vp__vp_vp) pFunQt4[155])(QtObj, arr.QtObj);
+	} /// дописывает QByteArray
+	void* append(string strD) {
+		return (cast(t_vp__vp_vp) pFunQt4[152])(QtObj, cast(char*) strD.ptr);
+	} /// дописывает stringD  в конец
+	void* remove(int pos, int len) {
+		return (cast(t_vp__vp_i_i) pFunQt4[157])(QtObj, pos, len);
+	} /// дописывает char в конец
+	int toInt(bool* b = null, int base = 10) {
+		return (cast(t_i__vp_vbool_i) pFunQt4[158])(QtObj, b, base);
+	}
+
+	void add0() {
+		int dl = size();
+		append('\0');
+		resize(dl);
+	} /// Дописать в конец масива 0
+
+	void opAssign(void* mas) {
+		(cast(t_vp__vp_vp) pFunQt4[148])(QtObj, mas);
+	}
+	// Brrrrrrrr ....
+	override bool opEquals(Object o) {
+		string s_this;
+		string s_o;
+		bool rez;
+		rez = false;
+		s_this = this.toString();
+		s_o = o.toString();
+		if (s_this == s_o) {
+			rez = (cast(t_bool__vp_vp) pFunQt4[140])(QtObj, (cast(QByteArray) o).QtObj);
+		} else { // Ещё будем сравнивать с другими типами например char*
+		}
+		writeln("!!!!!!!! ==== opEquals =======!!!!!!!");
+		writeln("   o = [", o.toString(), "]");
+		writeln("this = [", this.toString(), "]");
+		writeln(this, "  =  ", o);
+		return rez;
+	} /// Перегрузка операторов == и !=
+*/
+
 __EOF__
-
-
-
 
 
 // Пример возврата объекта из С++ и подхвата его в объект D

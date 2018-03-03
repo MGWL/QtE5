@@ -1428,7 +1428,7 @@ class CFormaMain: QMainWindow { //=> Основной MAIN класс прило
 <H3>MGW 2016 " ~ verApp ~ "</H3>
 <BR>
 <IMG src='ICONS/qte5.png'>
-<BR>
+<h4>" ~ verQtE5 ~ "</h4>
 <p>miniIDE for dmd + QtE5 + Qt-5</p>
 <p>It application is only demo work with QtE5</p>
 

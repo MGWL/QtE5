@@ -3464,7 +3464,53 @@ extern "C" void QT_QTextCodec_fromUnicode(QTextCodec *codec, QString *qstr, char
     sprintf(strz, "%s", codec->fromUnicode(*qstr).data());
 }
 
+// ============ QByteArray =======================================
+extern "C" QByteArray* new_QByteArray_vc(char* buf) {  return new QByteArray(buf); }
+extern "C" QByteArray* new_QByteArray_2(QByteArray* other) {
+    return new QByteArray(*other);
+}
+extern "C" void delete_QByteArray(QByteArray* buf) {
+    delete buf;
+}
+extern "C" int QByteArray_size(QByteArray* s) { return s->size(); }
+extern "C" char* new_QByteArray_data(QByteArray* buf) { return buf->data(); }
+extern "C" const char* new_QByteArray_data2(QByteArray* buf) { return buf->constData(); }
+extern "C" void QByteArray_trimmed(QByteArray* s1, int pr) {
+    switch ( pr ) {
+        case 0:   *s1 = s1->trimmed();        break;
+        case 1:   *s1 = s1->simplified();     break;
+    }
+}
+extern "C" void QByteArray_app1(QByteArray* s1, char* str, int pr) {
+    switch ( pr ) {
+        case 0:   *s1 = s1->prepend(str);        break;
+        case 1:   *s1 = s1->append(str);     break;
+    }
+}
+extern "C" void QByteArray_app2(QByteArray* s1, QByteArray* s2, int pr) {
+    switch ( pr ) {
+        case 0:   *s1 = s1->prepend(*s2);        break;
+        case 1:   *s1 = s1->append(*s2);         break;
+    }
+}
+extern "C" bool QByteArray_app3(QByteArray* s1, QByteArray* s2, int pr) {
+    bool rez = false;
+    switch ( pr ) {
+        case 0:   rez = s1->startsWith(*s2);        break;
+        case 1:   rez = s1->endsWith(*s2);         break;
+    }
+    return rez;
+}
 
+// ============ QIODEvice ===================
+extern "C" void QT_QIODevice_read1(QIODevice* dev, QByteArray* ba) {
+    ba->append(dev->readAll());
+}
+
+// ============ QFile ===================
+extern "C" void *QT_QFile_new(QObject* parent) { return new QFile(parent); }
+extern "C" void *QT_QFile_new1(QString* str, QObject* parent) { return new QFile(*str, parent); }
+extern "C" bool  QT_QFile_open(QFile* f, QIODevice::OpenMode flag) { return f->open(flag); }
 
 // Пример возврата объекта из С++
 // --------------------------------

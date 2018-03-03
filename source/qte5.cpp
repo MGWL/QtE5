@@ -42,7 +42,10 @@ namespace QtE5 {
     typedef int   (*t_i__vp)(void*);
     typedef void* (*t_v__vp_i_i_i)(void*, int, int, int);
     typedef void  (*t_v__vp_vc_vp_vc_i)(void*, char*, void*, char*, int);
+    typedef void  (*t_v__vp_vp_i)(void*, void*, int);
     typedef void  (*t_v__vp_vp_i_i)(void*, void*, int, int);
+    typedef bool  (*t_b__vp_vp_i)(void*, void*, int);
+    typedef bool  (*t_b__vp_i)(void*, int);
     
     //___________________________________________________________________
     void dumpString(char* str) {
@@ -229,10 +232,28 @@ namespace QtE5 {
 		funQt(38,bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQBoxLayout_addWidget",     showError);
 		// ------- QAbstractButton -------
 		funQt(28,bQtE5Widgets, hQtE5Widgets, sQtE5Widgets, "qteQAbstractButton_setText",  showError);
-	// ------- QTextCodec ----------
+		// ------- QTextCodec ----------
 		funQt(448,bQtE5Widgets, hQtE5Widgets, sQtE5Widgets,"p_QTextCodec",  			  showError);
 		funQt(449,bQtE5Widgets, hQtE5Widgets, sQtE5Widgets,"QT_QTextCodec_toUnicode",  	  showError);
 		funQt(450,bQtE5Widgets, hQtE5Widgets, sQtE5Widgets,"QT_QTextCodec_fromUnicode",   showError);
+		// ------- QByteArray ----------
+		funQt(500,bQtE5Widgets, hQtE5Widgets, sQtE5Widgets,"new_QByteArray_vc",   		  showError);
+		funQt(501,bQtE5Widgets, hQtE5Widgets, sQtE5Widgets,"delete_QByteArray",   		  showError);
+		funQt(502,bQtE5Widgets, hQtE5Widgets, sQtE5Widgets,"QByteArray_size",   		  showError);
+		funQt(503,bQtE5Widgets, hQtE5Widgets, sQtE5Widgets,"new_QByteArray_data",  		  showError);
+		funQt(504,bQtE5Widgets, hQtE5Widgets, sQtE5Widgets,"QByteArray_trimmed",   		  showError);
+		funQt(505,bQtE5Widgets, hQtE5Widgets, sQtE5Widgets,"QByteArray_app1",   		  showError);
+		funQt(506,bQtE5Widgets, hQtE5Widgets, sQtE5Widgets,"QByteArray_app2",   		  showError);
+		funQt(507,bQtE5Widgets, hQtE5Widgets, sQtE5Widgets,"new_QByteArray_2",   		  showError);
+		funQt(508,bQtE5Widgets, hQtE5Widgets, sQtE5Widgets,"new_QByteArray_data2",   		  showError);
+		funQt(509,bQtE5Widgets, hQtE5Widgets, sQtE5Widgets,"QByteArray_app3",   		  showError);
+		// ------- QFile ----------
+		funQt(510,bQtE5Widgets, hQtE5Widgets, sQtE5Widgets,"QT_QFile_new",   		  showError);
+		funQt(511,bQtE5Widgets, hQtE5Widgets, sQtE5Widgets,"QT_QFile_new1",   		  showError);
+		funQt(512,bQtE5Widgets, hQtE5Widgets, sQtE5Widgets,"QT_QFile_open",   		  showError);
+		funQt(513,bQtE5Widgets, hQtE5Widgets, sQtE5Widgets,"QT_QIODevice_read1",   		  showError);
+		// ------- QIODevice ----------
+		funQt(514,bQtE5Widgets, hQtE5Widgets, sQtE5Widgets,"QT_QIODevice_read1",   		  showError);
 
 		return 0;
 	}
@@ -306,6 +327,12 @@ QString::QString(char const* str) :  QObject('S')  {
 	free(buf);
 	*/
 };
+QString::QString(QByteArray* ba) :  QObject('S')  {
+	char buf[100];
+	setQtObj(((t_vp__vp_i)pFunQt[9])(buf, 80));
+	QTextCodec cUtf8((char*)"UTF-8");
+	((t_v__vp_vp_vp)pFunQt[449])(cUtf8.QtObj(), QtObj(), ba->data());
+};
 QString::~QString() {
 	// printf("--- QString = [%d]  %p\n", dlockGet(), QtObj());
 	dlockSet(-1);
@@ -353,9 +380,14 @@ QWidget::~QWidget() {
 	if(QtObj()) { ((t_v__vp)pFunQt[7])(QtObj()); setQtObj(NULL);  }
 	// printf("--2- QWidget %p\n", QtObj());
 };
+void QWidget::setStyleSheet(QString* qstr) {  //-> Изменить оформление виджета
+	((t_v__vp_vp)pFunQt[30])(QtObj(), qstr->QtObj()); qstr->dlockSet(1);	qstr->QtObj();
+};
+void QWidget::setWindowTitle(QString* qstr) {  //-> Установить заголовок окна
+	((t_v__vp_vp)pFunQt[11])(QtObj(), qstr->QtObj()); qstr->dlockSet(1);
+};
 void QWidget::setStyleSheet(QString qstr) {  //-> Изменить оформление виджета
-	((t_v__vp_vp)pFunQt[30])(QtObj(), qstr.QtObj()); qstr.dlockSet(1);
-	qstr.QtObj();
+	((t_v__vp_vp)pFunQt[30])(QtObj(), qstr.QtObj()); qstr.dlockSet(1);	qstr.QtObj();
 };
 void QWidget::setWindowTitle(QString qstr) {  //-> Установить заголовок окна
 	((t_v__vp_vp)pFunQt[11])(QtObj(), qstr.QtObj()); qstr.dlockSet(1);
@@ -495,6 +527,74 @@ QString QTextCodec::toUnicode(char* str, QString qstr) {
 char* QTextCodec::fromUnicode(char* str, QString qstr) {
 	((t_v__vp_vp_vp)pFunQt[450])(QtObj(), qstr.QtObj(), str); return str;
 };
-	
-    
+//____________________________________________________________________
+QByteArray::QByteArray(char* str) : QObject('A') {
+	setQtObj(((t_vp__vp)pFunQt[500])((void*)str));
+};
+QByteArray::QByteArray(QByteArray* ba) : QObject('A') {
+	setQtObj(((t_vp__vp)pFunQt[507])((void*)ba->QtObj()));
+};
+QByteArray::~QByteArray() {
+	// printf("--1- QByteArray %p\n", QtObj());
+	if(QtObj()) { ((t_v__vp)pFunQt[501])(QtObj()); setQtObj(NULL);  }
+	// printf("--2- QByteArray %p\n", QtObj());
+};
+int QByteArray::size() { return ((t_i__vp)pFunQt[502])(QtObj()); };
+int QByteArray::length() {	return size();	};
+char* QByteArray::data() {	return (char*)((t_vp__vp)pFunQt[503])(QtObj());	};
+const char* QByteArray::constData() {	return (const char*)((t_vp__vp)pFunQt[503])(QtObj());	};
+char QByteArray::getChar(int n) { return *(n + ((char*) data()));	};
+// Выкинуть пробелы с обоих концов строки (AllTrim())
+void	QByteArray::trimmed() {	((t_v__vp_i)pFunQt[504])(QtObj(), 0);	};
+// выкинуть лишние пробелы внутри строки
+void	QByteArray::simplified() {	((t_v__vp_i)pFunQt[504])(QtObj(), 1);	}; 
+// Приклеить строку спереди
+void	QByteArray::prepend(char* str) {	((t_v__vp_vp_i)pFunQt[505])(QtObj(), (void*)str, 0);	}; 
+// Добавить строку сзади
+void	QByteArray::append(char* str) {	((t_v__vp_vp_i)pFunQt[505])(QtObj(), (void*)str, 1);	}; 
+// Приклеить строку спереди
+void	QByteArray::prepend(QByteArray* ba) {	((t_v__vp_vp_i)pFunQt[506])(QtObj(), ba->QtObj(), 0);	}; 
+// Добавить строку сзади
+void	QByteArray::append(QByteArray* ba) {	((t_v__vp_vp_i)pFunQt[506])(QtObj(), ba->QtObj(), 1);	};
+// Сравнить с началом
+bool 	QByteArray::startsWith(QByteArray* ba) { return ((t_b__vp_vp_i)pFunQt[509])(QtObj(), ba->QtObj(), 0);	};
+// Сравнить с концом
+bool 	QByteArray::endsWith(QByteArray* ba) { return ((t_b__vp_vp_i)pFunQt[509])(QtObj(), ba->QtObj(), 1);	};
+//____________________________________________________________________
+QIODevice::QIODevice(char c) :  QObject('A') {
+	printf("create QIODevice \n");
+};
+QIODevice::~QIODevice() {
+	printf("delete QIODevice \n");
+};    
+void QIODevice::readAll(QByteArray* ba) {
+	((t_v__vp_vp)pFunQt[514])(QtObj(), ba->QtObj());
+	printf("QIODevice::readAll()\n");
+};
+//____________________________________________________________________
+QFileDevice::QFileDevice(char c) :  QIODevice('A') {
+	printf("create QFileDevice \n");
+};
+QFileDevice::~QFileDevice() {
+	printf("delete QFileDevice \n");
+};    
+//____________________________________________________________________
+QFile::QFile(QObject* ob) :  QFileDevice('A') {
+	setQtObj(((t_vp__vp)pFunQt[510])((void*)ob->QtObj()));
+	printf("create QFile \n");
+};
+QFile::QFile(QString* qs, QObject* ob) :  QFileDevice('A') {
+	setQtObj(((t_vp__vp_vp)pFunQt[511])((void*)qs->QtObj(), (void*)ob->QtObj()));
+	printf("create QFile Str-> \n");
+};
+QFile::QFile(QString qs, QObject* ob) :  QFileDevice('A') {
+	setQtObj(((t_vp__vp_vp)pFunQt[511])((void*)qs.QtObj(), (void*)ob->QtObj()));
+	printf("create QFile Str. \n");
+};
+QFile::~QFile() {
+	printf("delete QFile \n");
+};    
+bool QFile::open(QIODevice::OpenMode mode) {
+	return ((t_b__vp_i)pFunQt[512])(QtObj(), mode);
+};
 } /* end namespace QtE5 */
