@@ -1,4 +1,5 @@
 /*
+ 19.03.2018 12:58 - Применен алгоритм Максима Шибнева для fromUtf8to1251 (3-x кратное ускорение)
  01.12.2017 17:57 - Темплате на toCON
  13.08.2017  6:32 - Проверка и ускорение cp1251 -- Utf-8 -- cp1251
  21.04.2016 18:13 - Проверка ИНН на корректность
@@ -402,83 +403,111 @@ unittest {
 	assert(tstINN("5911013765") == true);
 }
 
-
-char[] from1251toUtf8(char[] str) pure nothrow {
+char[] from1251toUtf8(char[] str) pure nothrow @trusted {
 	char[] rez;
-	foreach (char c1; str) {
-		string str1 = mm1251_Utf8[c1];
-		foreach (char c2; str1) {	rez ~= c2;	}
-	}
+	foreach (char c1; str) rez ~= mm1251_Utf8[c1];
 	return rez;
 }
 string from1251toUtf8(T)(T str) pure nothrow {
-	char[] rez; foreach (char c1; cast(char[])str) { string str1 = mm1251_Utf8[c1]; foreach (char c2; str1) rez ~= c2; }
+	char[] rez; 
+	foreach (char c1; cast(char[])str) rez ~= mm1251_Utf8[c1];
 	return cast(string)rez;
 }
-
 T1 fromUtf8to1251(T1, T2)(T2 str) {
 	return to!(T1)(fromUtf8to1251(to!(char[])(str)));
 }
 
-char[] fromUtf8to1251(char[] str) pure {
-	char[] rez;	int id;	auto dl = str.length;
-	if (dl == 0)	return rez;
-	for (int i;;) {
-		id = stride(str, i);
-		if (id == 1)
-			rez ~= str[i];
-		if (id == 3) {
-			if (str[i] == '\xE2') {
-				if (str[i + 1] == '\x80') {
-					char prb =  tbl_x80[(str[i + 2]) - 147]; if(prb == 0) rez ~= '?'; else rez ~= prb;
-				} else {
-					if (str[i + 1] == '\x82') {
-						switch (str[i + 2]) {
-							case '\xAC':		rez ~= 136;		break;
-							default:			rez ~= '?';		break;
+pragma(inline) size_t utf8Length(char[] src) pure nothrow @trusted {	size_t len; foreach (ref b; src) { if ((b & 0xC0) != 0x80) len++; } return len; }
+char[] fromUtf8to1251(char[] str) pure
+{
+	if (str.length == 0) return str;
+
+	auto ret = new char[str.utf8Length];
+	//auto ret = new char[str.length * 4];
+	//char prb;
+	size_t srcPos;
+	size_t dstPos;
+	size_t id;
+
+	while(srcPos < str.length) {
+		id = stride(str, srcPos);
+		switch (id) {
+			case 1:
+				ret[dstPos] = str[srcPos];
+				break;
+			case 2:
+				switch (str[srcPos]) {
+					case '\xD0':
+						immutable prb = tbl_xD0[(str[srcPos + 1]) - 129];
+						ret[dstPos] = ((prb == 0) ? '?' : prb);
+						break;
+					case '\xD1':
+						immutable prb = tbl_xD1[(str[srcPos + 1]) - 128];
+						ret[dstPos] = ((prb == 0) ? '2' : prb);
+						break;
+					case '\xD2':
+						switch (str[srcPos + 1]) {
+							case '\x91':
+								ret[dstPos] = cast(char)180;
+								break;
+							case '\x90':
+								ret[dstPos] = cast(char)165;
+								break;
+							default:
+								ret[dstPos] = cast(char)7;
+								break;
 						}
-					} else {
-						if (str[i + 1] == '\x84') {
-							switch (str[i + 2]) {
-								case '\x96':	rez ~= 185;		break;
-								case '\xA2':	rez ~= 153;		break;
-								default:		rez ~= '?';		break;
+						break;
+					case '\xD3':
+						break;
+					case '\xC2':
+						immutable prb = tbl_xC2[(str[srcPos + 1]) - 152];
+						ret[dstPos] = ((prb == 0) ? '3' : prb);
+						break;
+					default:
+						ret[dstPos] = '?';
+						break;
+				}
+				break;
+			case 3:
+				if (str[srcPos] == '\xE2') {
+					switch (str[srcPos + 1]) {
+						case '\x80':
+							immutable prb = tbl_x80[(str[srcPos + 2]) - 147];
+							ret[dstPos] = ((prb == 0) ? '?' : prb);
+							break;
+						case '\x82':
+							ret[dstPos] = ((str[srcPos + 2] == '\xAC') ? cast(char)136 : '?');
+							break;
+						case '\x84':
+							switch (str[srcPos + 2]) {
+								case '\x96':
+									ret[dstPos] = (cast(char)185);
+									break;
+								case '\xA2':
+									ret[dstPos] = (cast(char)153);
+									break;
+								default:
+									ret[dstPos] = '?';
+									break;
 							}
-						}
+							break;
+						default:
+							break;
 					}
 				}
-			} else {
-			}
-		}
-		if (id == 4) {
-		}
-		if (id == 2) {
-			switch (str[i]) {
-				case '\xD0':
-					char prb =  tbl_xD0[(str[i + 1]) - 129]; if(prb == 0) rez ~= '?'; else rez ~= prb;	break;
-				case '\xD1':
-					char prb =  tbl_xD1[(str[i + 1]) - 128]; if(prb == 0) rez ~= '2'; else rez ~= prb;	break;
-				case '\xD2':
-					switch (str[i + 1]) {
-						case '\x91':	rez ~= 180;		break;
-						case '\x90':	rez ~= 165;		break;
-						default:		rez ~= '7';		break;
-					}
-					break;
-				case '\xD3':
-					break;
-				case '\xC2':
-					char prb =  tbl_xC2[(str[i + 1]) - 152]; if(prb == 0) rez ~= '3'; else rez ~= prb;	break;
-				default:
-					rez ~= '?';
-					break;
-			}
-		}
-		i = i + id;		
-		if (i >= dl)	break;
+				break;
+			default: // 4, 5, 6
+				break;
+		} // switch (id)
+
+		srcPos += id;
+		dstPos++;
 	}
-	return rez;
+
+	return ret;
 }
+
 
 unittest {
 	assert(from1251toUtf8(cast(char[]) "\xC3\xE5\xED\xE0") == "Гена");
@@ -493,8 +522,10 @@ unittest {
 }
 
 char[] from1251to866(char[] str) {
-	char[] rez; foreach (ch; str) rez ~= _1251_866[ch];
-	return rez;
+	if (str.length == 0) return str;
+	int dlStr = str.length;
+	auto ret = new char[dlStr];	for(int i; i != dlStr; i++) ret[i] = _1251_866[str[i]];
+	return ret;
 }
 
 string toCON(T)(T s) {
