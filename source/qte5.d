@@ -23,8 +23,8 @@ import std.utf: encode;
 import std.stdio;
 
 int verQt5Eu = 0;
-int verQt5El = 10;
-string verQt5Ed = "26.02.18 12:27";
+int verQt5El = 11;
+string verQt5Ed = "23.03.18 10:08";
 
 alias PTRINT = int;
 alias PTRUINT = uint;
@@ -58,6 +58,7 @@ immutable int QSIGNAL = 2;
 // Give type Qt. There is an implicit transformation. cast (GetObjQt_t) Z == *Z on any type.
 // alias GetObjQt_t = void**; // Дай тип Qt. Происходит неявное преобразование. cast(GetObjQt_t)Z == *Z на любой тип.
 private {
+	import std.string : split;
 	static mesNoThisWitoutPar = " without parameters is forbidden!";
 	// Generate alias for types call function Qt
 	string generateAlias(string ind) {
@@ -912,28 +913,23 @@ int LoadQt(dll ldll, bool showError) { ///  Загрузить DLL-ки Qt и Qt
 	mixin(generateFunQt(	394, 	"QPixmap_fill"						,"Widgets"));
 	mixin(generateFunQt(	389, 	"qteQLabel_setPixmap"				,"Widgets"));
 	mixin(generateFunQt(	391, 	"qteQPainter_drawPixmap1"			,"Widgets"));
-
 	// ------- QBitmap -------
 	mixin(generateFunQt(	392, 	"QBitmap_create1"					,"Widgets"));
 	mixin(generateFunQt(	395, 	"QBitmap_create2"					,"Widgets"));
 	mixin(generateFunQt(	390, 	"qteQPainter_create3"				,"Widgets"));
-
 	mixin(generateFunQt(	396, 	"qteQPen_create2"					,"Widgets"));
 	mixin(generateFunQt(	397, 	"QPixmap_setMask"					,"Widgets"));
-
 	// ------- QResource -------
 	mixin(generateFunQt(	398, 	"QResource_create1"					,"Widgets"));
 	mixin(generateFunQt(	399, 	"QResource_delete1"					,"Widgets"));
 	mixin(generateFunQt(	400, 	"QResource_registerResource"		,"Widgets"));
 	mixin(generateFunQt(	401, 	"QResource_registerResource2"		,"Widgets"));
-
 	// ------- QStackedWidget -------
 	mixin(generateFunQt(	402, 	"QStackedWidget_create1"			,"Widgets"));
 	mixin(generateFunQt(	403, 	"QStackedWidget_delete1"			,"Widgets"));
 	mixin(generateFunQt(	404, 	"QStackedWidget_setXX1"				,"Widgets"));
 	mixin(generateFunQt(	405, 	"QStackedWidget_setXX2"				,"Widgets"));
 	mixin(generateFunQt(	406, 	"QStackedWidget_setXX3"				,"Widgets"));
-
 	// ------- QTabBar -------
 	mixin(generateFunQt(	407, 	"QTabBar_create1"					,"Widgets"));
 	mixin(generateFunQt(	408, 	"QTabBar_delete1"					,"Widgets"));
@@ -953,15 +949,12 @@ int LoadQt(dll ldll, bool showError) { ///  Загрузить DLL-ки Qt и Qt
 	mixin(generateFunQt(	422, 	"QTabBar_setShape"					,"Widgets"));
 	mixin(generateFunQt(	423, 	"QTabBar_setTabEnabled"				,"Widgets"));
 	mixin(generateFunQt(	424, 	"QTabBar_setX5"						,"Widgets"));
-
 	mixin(generateFunQt(	425, 	"qteQColor_create3"					,"Widgets"));
-
 	// ------- QCoreApplication -------
 	mixin(generateFunQt(	426, 	"QCoreApplication_create1"			,"Widgets"));
 	mixin(generateFunQt(	427, 	"QCoreApplication_delete1"			,"Widgets"));
 	// ------- QGuiApplication -------
 	mixin(generateFunQt(	428, 	"qteQApplication_setX1"				,"Widgets"));
-
 	mixin(generateFunQt(	429, 	"QTabBar_setPoint"					,"Widgets"));
 	mixin(generateFunQt(	430, 	"QTabBar_tabPoint"					,"Widgets"));
 	// ------- QMdiArea -------
@@ -978,24 +971,43 @@ int LoadQt(dll ldll, bool showError) { ///  Загрузить DLL-ки Qt и Qt
 	mixin(generateFunQt(	439, 	"qteQLineEdit_getInt"	        	,"Widgets"));
 	mixin(generateFunQt(	440, 	"qteQLineEdit_setX2"	        	,"Widgets"));
 	mixin(generateFunQt(	441, 	"qteQLineEdit_setX3"	        	,"Widgets"));
-
 	// ------- QWebEng ----------
 	mixin(generateFunQt(	446, 	"qteQWebEngView_create"				,"WebEng"));
 	mixin(generateFunQt(	445, 	"qteQWebEngView_delete"				,"WebEng"));
 	mixin(generateFunQt(	447, 	"qteQWebEngView_load"				,"WebEng"));
-
 	// ------- QTextCodec ----------
 	mixin(generateFunQt(	448, 	"p_QTextCodec"						,"Widgets"));
 	mixin(generateFunQt(	449, 	"QT_QTextCodec_toUnicode"			,"Widgets"));
 	mixin(generateFunQt(	450, 	"QT_QTextCodec_fromUnicode"			,"Widgets"));
-
 	// ------- QByteArray ----------
 	mixin(generateFunQt(	500, 	"new_QByteArray_vc"					,"Widgets"));
 	mixin(generateFunQt(	501, 	"delete_QByteArray"					,"Widgets"));
 	mixin(generateFunQt(	502, 	"QByteArray_size"					,"Widgets"));
 	mixin(generateFunQt(	503, 	"new_QByteArray_data"				,"Widgets"));
 	mixin(generateFunQt(	504, 	"QByteArray_trimmed"				,"Widgets"));
-	
+	mixin(generateFunQt(	505, 	"QByteArray_app1"					,"Widgets"));
+	mixin(generateFunQt(	506, 	"QByteArray_app2"					,"Widgets"));
+	mixin(generateFunQt(	507, 	"new_QByteArray_2"					,"Widgets"));
+	mixin(generateFunQt(	508, 	"new_QByteArray_data2"				,"Widgets"));
+	mixin(generateFunQt(	509, 	"QByteArray_app3"					,"Widgets"));
+	// ------- QFile ----------
+	mixin(generateFunQt(	510, 	"QT_QFile_new"						,"Widgets"));
+	mixin(generateFunQt(	511, 	"QT_QFile_new1"						,"Widgets"));
+	mixin(generateFunQt(	516, 	"QT_QFile_del"						,"Widgets"));
+	mixin(generateFunQt(	512, 	"QT_QFile_open"						,"Widgets"));
+	// ------- QIODevice ----------
+	mixin(generateFunQt(	514, 	"QT_QIODevice_read1"				,"Widgets"));
+	mixin(generateFunQt(	519, 	"QT_QTextStream_atEnd"				,"Widgets"));
+	// ------- QFileDevice ----------
+	mixin(generateFunQt(	520, 	"QT_QFileDevice_close"				,"Widgets"));
+	// ------- QTextStream ----------
+	mixin(generateFunQt(	513, 	"QT_QTextStream_new1"				,"Widgets"));
+	mixin(generateFunQt(	515, 	"QT_QTextStream_del"				,"Widgets"));
+	mixin(generateFunQt(	516, 	"QT_QTextStream_LL1"				,"Widgets"));
+	mixin(generateFunQt(	517, 	"QT_QTextStream_setCodec"			,"Widgets"));
+	mixin(generateFunQt(	518, 	"QT_QTextStream_readLine"			,"Widgets"));
+
+
 	// Дополнительная проверка на загрузку функций, при условии, что включена диагностика
 	if(showError) {
 		write("The numbers in pFunQt[] is null: ");
@@ -1822,7 +1834,7 @@ class QWidget: QPaintDevice {
 	this() { /*assert(false, mesNoThisWitoutPar ~ to!string(__LINE__) ~ " : " ~ to!string(__FILE__)); */ }				// Обязателен
 	~this() { del(); }		// Косвенный вызов деструк C++ обязателен
 	void del() { 	
-		if(!fNoDelete && (QtObj !is null)) { writeln("del QWidget"); (cast(t_v__qp) pFunQt[7])(QtObj); setQtObj(null); }
+		if(!fNoDelete && (QtObj !is null)) { /* writeln("del QWidget"); */ (cast(t_v__qp) pFunQt[7])(QtObj); setQtObj(null); }
 	}
 	this(char ch, void* adr) {
 		if(ch == '+') setQtObj(cast(QtObjH)adr);
@@ -1833,9 +1845,9 @@ class QWidget: QPaintDevice {
 			setNoDelete(true);
 			setQtObj((cast(t_qp__qp_i)pFunQt[5])(parent.QtObj, cast(int)fl));
 		} else {
-			writeln("--0->", pFunQt[5]);
+			// writeln("--0->", pFunQt[5]);
 			setQtObj((cast(t_qp__qp_i)pFunQt[5])(null, cast(int)fl));
-			writeln("--1->", pFunQt[5]);
+			// writeln("--1->", pFunQt[5]);
 		}
 	} /// QWidget::QWidget(QWidget * parent = 0, Qt::WindowFlags f = 0)
 	bool isVisible() { //->
@@ -2348,8 +2360,21 @@ private {
 		return  to!string(buf);
 	}
 }
-
-
+// ================ QByteArray ================
+class QByteArray : QObject {
+	this(){}
+	this(char* buf)   {	setQtObj((cast(t_qp__qp)pFunQt[500])(cast(QtObjH)buf)); }
+	this(string strD) {	setQtObj((cast(t_qp__qp)pFunQt[500])(cast(QtObjH)strD.ptr)); }
+	~this() {	(cast(t_v__qp)pFunQt[501])(cast(QtObjH)QtObj);	}
+	@property int size() { return (cast(t_i__qp) pFunQt[502])(cast(QtObjH)QtObj); }
+	@property int length() {	return size();	}
+	@property char* data() {	return cast(char*)(cast(t_qp__qp)pFunQt[503])(QtObj);	}
+	char getChar(int n) { return *(n + (cast(char*) data()));	}
+	QByteArray trimmed() {	(cast(t_v__qp_i)pFunQt[504])(cast(QtObjH)QtObj, 0);	return this;
+	} /// Выкинуть пробелы с обоих концов строки (AllTrim())
+	QByteArray simplified() {	(cast(t_v__qp_i)pFunQt[504])(cast(QtObjH)QtObj, 1);	return this;
+	} /// выкинуть лишние пробелы внутри строки
+}
 // ================ sQString ================
 struct sQString {
 	//____________________________
@@ -5610,7 +5635,6 @@ class QScriptContext : QObject {
 //	математическая графика и L-системы.
 //
 // --------------------------------------------------------------------------------
-
 private
 {
 	import std.algorithm;
@@ -5654,6 +5678,108 @@ private
 			propertyVariableName,
 			propertyName
 			);
+	}
+}
+
+template QtE5EntryPoint(alias mainFormName)
+{
+	import std.string : format;
+
+	enum QtE5EntryPoint = format(
+		`
+			import core.runtime;
+			import std.stdio;
+
+			auto QtEDebugInfo(bool debugFlag)
+			{
+			    if (LoadQt(dll.QtE5Widgets, debugFlag)) 
+			    {
+			        return 1;
+			    }
+			    else
+			    {
+			        return 0;
+			    }
+			}
+
+			int main(string[] args) 
+			{
+			    %1$s mainForm;
+
+			    QtEDebugInfo(true);
+			    
+			    QApplication app = new QApplication(&Runtime.cArgs.argc, Runtime.cArgs.argv, 1);
+			    
+			    with (mainForm = new %1$s(null, QtE.WindowType.Window))
+			    {
+			        show;
+			        saveThis(&mainForm);
+			    }
+			    
+			    return app.exec;
+			}
+		`,
+		mainFormName.stringof
+		);
+}
+
+class QLagrangeInterpolator
+{
+	private
+	{
+		float[] xs_Floats;
+		float[] ys_Floats;
+
+		float basePolynom(float x, size_t N)
+		{
+			float product = 1.0f;
+
+			for (size_t i = 0; i < xs_Floats.length; i++)
+			{
+				if (i != N)
+				{
+					product *= (x - xs_Floats[i]) / (xs_Floats[N] - xs_Floats[i]);
+				}
+			}
+
+			return product;
+		}
+	}
+
+	public
+	{
+		this(QPoint[] points...)
+		{
+			foreach (point; points)
+			{
+				xs_Floats ~= point.x;
+				ys_Floats ~= point.y;
+			}
+		}
+
+		QPoint interpolate(QPoint point)
+		{
+			float sum = 0.0f;
+
+			for (size_t i = 0; i < ys_Floats.length; i++)
+			{
+				sum += ys_Floats[i] * basePolynom(point.x, i);
+			}
+			
+			return new QPoint(point.x, cast(int) sum);
+		}
+
+		QPoint[] interval(int a, int b, int step = 1)
+		{
+			QPoint[] points;
+
+			for (int x = a; x < b; x += step)
+			{
+				points ~= interpolate(new QPoint(x, 0));
+			}
+
+			return points;
+		}
 	}
 }
 
@@ -6895,23 +7021,6 @@ class QTextCodec  : QObject {
 		(cast(t_v__qp_qp_qp) pFunQt[450])(QtObj, qstr.QtObj, cast(QtObjH)str); return str;
 	}
 }
-// ================ QByteArray ================
-class QByteArray : QObject {
-	this(){}
-	this(char* buf)   {	setQtObj((cast(t_qp__qp)pFunQt[500])(cast(QtObjH)buf)); }
-	this(string strD) {	setQtObj((cast(t_qp__qp)pFunQt[500])(cast(QtObjH)strD.ptr)); }
-	~this() {	(cast(t_v__qp)pFunQt[501])(cast(QtObjH)QtObj);	}
-	@property int size() { return (cast(t_i__qp) pFunQt[502])(cast(QtObjH)QtObj); }
-	@property int length() {	return size();	}
-	@property char* data() {	return cast(char*)(cast(t_qp__qp)pFunQt[503])(QtObj);	}
-	char getChar(int n) { return *(n + (cast(char*) data()));	}
-	QByteArray trimmed() {	(cast(t_v__qp_i)pFunQt[504])(cast(QtObjH)QtObj, 0);	return this;
-	} /// Выкинуть пробелы с обоих концов строки (AllTrim())
-	QByteArray simplified() {	(cast(t_v__qp_i)pFunQt[504])(cast(QtObjH)QtObj, 1);	return this;
-	} /// выкинуть лишние пробелы внутри строки
-	
-	
-}
 
 
 /*
@@ -7019,6 +7128,8 @@ class QByteArray : QObject {
 		return rez;
 	} /// Перегрузка операторов == и !=
 */
+
+// -------------------- Бахарев Олег ----------------------------
 
 __EOF__
 
