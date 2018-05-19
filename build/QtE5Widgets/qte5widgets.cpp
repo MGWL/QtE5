@@ -3453,47 +3453,48 @@ extern "C" MSVC_API void qteQUrl_setUrl(QUrl* url, QString *qstr) {
     url->setUrl(*qstr);
 }
 // ============ QTextCodec =======================================
-extern "C" QTextCodec* p_QTextCodec(char* strNameCodec) {
+extern "C" MSVC_API QTextCodec* p_QTextCodec(char* strNameCodec) {
     return QTextCodec::codecForName(strNameCodec);
 }
 // Переприсваивание QString
-extern "C" void QT_QTextCodec_toUnicode(QTextCodec *codec, QString *qstr, char *strz) {
+extern "C" MSVC_API void QT_QTextCodec_toUnicode(QTextCodec *codec, QString *qstr, char *strz) {
     *qstr = codec->toUnicode(strz);
 }
-extern "C" void QT_QTextCodec_fromUnicode(QTextCodec *codec, QString *qstr, char *strz) {
+extern "C" MSVC_API void QT_QTextCodec_fromUnicode(QTextCodec *codec, QString *qstr, char *strz) {
     sprintf(strz, "%s", codec->fromUnicode(*qstr).data());
 }
 
 // ============ QByteArray =======================================
-extern "C" QByteArray* new_QByteArray_vc(char* buf) {  return new QByteArray(buf); }
-extern "C" QByteArray* new_QByteArray_2(QByteArray* other) {
+extern "C" MSVC_API QByteArray* new_QByteArray_vc(char* buf) {  return new QByteArray(buf); }
+extern "C" MSVC_API QByteArray* new_QByteArray_2(QByteArray* other) {
     return new QByteArray(*other);
 }
-extern "C" void delete_QByteArray(QByteArray* buf) {
+extern "C" MSVC_API void delete_QByteArray(QByteArray* buf) {
     delete buf;
 }
-extern "C" int QByteArray_size(QByteArray* s) { return s->size(); }
-extern "C" char* new_QByteArray_data(QByteArray* buf) { return buf->data(); }
-extern "C" const char* new_QByteArray_data2(QByteArray* buf) { return buf->constData(); }
-extern "C" void QByteArray_trimmed(QByteArray* s1, int pr) {
+extern "C" MSVC_API int QByteArray_size(QByteArray* s) { return s->size(); }
+extern "C" MSVC_API char* new_QByteArray_data(QByteArray* buf) { return buf->data(); }
+extern "C" MSVC_API const char* new_QByteArray_data2(QByteArray* buf) { return buf->constData(); }
+extern "C" MSVC_API void QByteArray_trimmed(QByteArray* s1, int pr) {
     switch ( pr ) {
         case 0:   *s1 = s1->trimmed();        break;
         case 1:   *s1 = s1->simplified();     break;
+        case 2:   s1->clear();          break;
     }
 }
-extern "C" void QByteArray_app1(QByteArray* s1, char* str, int pr) {
+extern "C" MSVC_API void QByteArray_app1(QByteArray* s1, char* str, int pr) {
     switch ( pr ) {
         case 0:   *s1 = s1->prepend(str);        break;
         case 1:   *s1 = s1->append(str);     break;
     }
 }
-extern "C" void QByteArray_app2(QByteArray* s1, QByteArray* s2, int pr) {
+extern "C" MSVC_API void QByteArray_app2(QByteArray* s1, QByteArray* s2, int pr) {
     switch ( pr ) {
         case 0:   *s1 = s1->prepend(*s2);        break;
         case 1:   *s1 = s1->append(*s2);         break;
     }
 }
-extern "C" bool QByteArray_app3(QByteArray* s1, QByteArray* s2, int pr) {
+extern "C" MSVC_API bool QByteArray_app3(QByteArray* s1, QByteArray* s2, int pr) {
     bool rez = false;
     switch ( pr ) {
         case 0:   rez = s1->startsWith(*s2);        break;
@@ -3503,15 +3504,59 @@ extern "C" bool QByteArray_app3(QByteArray* s1, QByteArray* s2, int pr) {
 }
 
 // ============ QIODEvice ===================
-extern "C" void QT_QIODevice_read1(QIODevice* dev, QByteArray* ba) {
+extern "C" MSVC_API void QT_QIODevice_read1(QIODevice* dev, QByteArray* ba) {
+    ba->clear();
     ba->append(dev->readAll());
 }
-
 // ============ QFile ===================
-extern "C" void *QT_QFile_new(QObject* parent) { return new QFile(parent); }
-extern "C" void *QT_QFile_new1(QString* str, QObject* parent) { return new QFile(*str, parent); }
-extern "C" bool  QT_QFile_open(QFile* f, QIODevice::OpenMode flag) { return f->open(flag); }
+extern "C" MSVC_API void *QT_QFile_new(QObject* parent) { return new QFile(parent); }
+extern "C" MSVC_API void *QT_QFile_new1(QString* str, QObject* parent) { return new QFile(*str, parent); }
+extern "C" MSVC_API bool  QT_QFile_open(QFile* f, QIODevice::OpenMode flag) { return f->open(flag); }
+extern "C" MSVC_API void  QT_QFile_del(QFile* ts) {
+    if(!ts) return;
+#ifdef debDelete
+    printf("del QFile --> \n");
+#endif
+#ifdef debDestr
+    delete ts;
+#endif
+#ifdef debDelete
+    printf("Ok\n");
+#endif
+}
+extern "C" MSVC_API void QT_QFileDevice_close(QFileDevice* dev) { dev->close(); }
 
+// ============ QTextStream ===================
+extern "C" MSVC_API void *QT_QTextStream_new1(QIODevice* dev) { return new QTextStream(dev); }
+extern "C" MSVC_API void  QT_QTextStream_del(QTextStream* ts) {
+    if(!ts) return;
+#ifdef debDelete
+    printf("del QTextStream --> \n");
+#endif
+#ifdef debDestr
+    delete ts;
+#endif
+#ifdef debDelete
+    printf("Ok\n");
+#endif
+}
+extern "C" MSVC_API void  QT_QTextStream_LL1(QTextStream* ts, void* adr, int pr) {
+    switch ( pr ) {
+        case 0:  *ts << (const char*)adr;         break;
+        case 1:  *ts << (QByteArray*)adr;         break;
+        case 2:  *ts << *(QString*)adr;            break;
+    }
+}
+extern "C" MSVC_API void  QT_QTextStream_setCodec(QTextStream* ts, const char *codecName) {
+    ts->setCodec(codecName);
+}
+extern "C" MSVC_API void  QT_QTextStream_readLine(QTextStream* ts, QByteArray* ba, int maxLen) {
+    ba->clear();
+    ba->append( ts->readLine(maxLen) );
+}
+extern "C" MSVC_API bool QT_QTextStream_atEnd(QTextStream* dev) {
+    return dev->atEnd();
+}
 // Пример возврата объекта из С++
 // --------------------------------
 // extern "C" MSVC_API  void* proverka(QString* qs)  {

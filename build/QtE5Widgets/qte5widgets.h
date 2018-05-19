@@ -57,6 +57,7 @@
 #include <QResource>
 #include <QStackedWidget>
 #include <QTextCodec>
+#include <QTextStream>
 // #include <QtCore/qpointer.h>
 
 typedef int PTRINT;

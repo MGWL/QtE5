@@ -154,6 +154,24 @@ public:
 	void setLineWidth(int sh);
 };
 //___________________________________________________________________
+class QLineEdit : public QWidget {
+public:
+enum EchoMode {
+		Normal = 0, 				// Показывать символы при вводе. По умолчанию
+		NoEcho = 1, 				// Ни чего не показывать, что бы длинна пароля была не понятной
+		Password = 2, 				// Звездочки вместо символов
+		PasswordEchoOnEdit = 3 		// Показывает только один символ, а остальные скрыты
+	};
+	QLineEdit(char ch);
+	QLineEdit(QWidget*);
+	~QLineEdit();
+	void setText(QString*);
+	void insert(QString*);
+	void setInputMask(QString*);
+	void clear();
+	QString* text(QString*);      		// Забрать текст из LineEdit
+};
+//___________________________________________________________________
 class QLabel : public QFrame {
 public:
 	QLabel(char ch);
@@ -217,6 +235,7 @@ public:
 	const char* constData();
 	char getChar(int n);
 	void trimmed();	   					// Выкинуть пробелы с обоих концов строки (AllTrim())
+	void clear();
 	void simplified(); 					// выкинуть лишние пробелы внутри строки
 	void prepend(char* str); 				// Приклеить строку спереди
 	void append(char* str); 				// Добавить строку сзади
@@ -248,6 +267,7 @@ class QFileDevice : public QIODevice {
 public:
 	QFileDevice(char);
 	~QFileDevice();
+	void close();
 };
 //___________________________________________________________________
 class QFile : public QFileDevice {
@@ -257,6 +277,19 @@ public:
 	QFile(QString, QObject*);
 	bool open(QIODevice::OpenMode);
 	~QFile();
+};
+//___________________________________________________________________
+class QTextStream : public QObject {
+public:
+	QTextStream(char);
+	QTextStream(QIODevice*);
+	~QTextStream();
+	void codecName(char*);
+	void LL(char*);
+	void LL(QByteArray*);
+	void LL(QString*);
+	void readLine(QByteArray*, int);
+	bool atEnd();
 };
   
 

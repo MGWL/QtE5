@@ -46,6 +46,7 @@ namespace QtE5 {
     typedef void  (*t_v__vp_vp_i_i)(void*, void*, int, int);
     typedef bool  (*t_b__vp_vp_i)(void*, void*, int);
     typedef bool  (*t_b__vp_i)(void*, int);
+    typedef bool  (*t_b__vp)(void*);
     
     //___________________________________________________________________
     void dumpString(char* str) {
@@ -250,11 +251,25 @@ namespace QtE5 {
 		// ------- QFile ----------
 		funQt(510,bQtE5Widgets, hQtE5Widgets, sQtE5Widgets,"QT_QFile_new",   		  showError);
 		funQt(511,bQtE5Widgets, hQtE5Widgets, sQtE5Widgets,"QT_QFile_new1",   		  showError);
+		funQt(516,bQtE5Widgets, hQtE5Widgets, sQtE5Widgets,"QT_QFile_del",   		  showError);
 		funQt(512,bQtE5Widgets, hQtE5Widgets, sQtE5Widgets,"QT_QFile_open",   		  showError);
-		funQt(513,bQtE5Widgets, hQtE5Widgets, sQtE5Widgets,"QT_QIODevice_read1",   		  showError);
 		// ------- QIODevice ----------
-		funQt(514,bQtE5Widgets, hQtE5Widgets, sQtE5Widgets,"QT_QIODevice_read1",   		  showError);
-
+		funQt(514,bQtE5Widgets, hQtE5Widgets, sQtE5Widgets,"QT_QIODevice_read1",   		showError);
+		funQt(519,bQtE5Widgets, hQtE5Widgets, sQtE5Widgets,"QT_QTextStream_atEnd",		showError);
+		// ------- QFileDevice ----------
+		funQt(520,bQtE5Widgets, hQtE5Widgets, sQtE5Widgets,"QT_QFileDevice_close",		showError);
+		// ------- QTextStream ----------
+		funQt(513,bQtE5Widgets, hQtE5Widgets, sQtE5Widgets,"QT_QTextStream_new1",   	showError);
+		funQt(515,bQtE5Widgets, hQtE5Widgets, sQtE5Widgets,"QT_QTextStream_del",   		showError);
+		funQt(516,bQtE5Widgets, hQtE5Widgets, sQtE5Widgets,"QT_QTextStream_LL1",   		showError);
+		funQt(517,bQtE5Widgets, hQtE5Widgets, sQtE5Widgets,"QT_QTextStream_setCodec",	showError);
+		funQt(518,bQtE5Widgets, hQtE5Widgets, sQtE5Widgets,"QT_QTextStream_readLine",	showError);
+		// ------- QLineEdit ----------
+		funQt(82, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets,"qteQLineEdit_create1",		showError);
+		funQt(83, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets,"qteQMainWindow_delete1",	showError);
+		funQt(84, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets,"qteQLineEdit_set",			showError);
+		funQt(85, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets,"qteQLineEdit_clear",		showError);
+		funQt(86, bQtE5Widgets, hQtE5Widgets, sQtE5Widgets,"qteQLineEdit_text",		showError);
 		return 0;
 	}
 //___________________________________________________________________
@@ -517,6 +532,24 @@ void QBoxLayout::addWidget(QWidget* wd, int stretch, QtE5_Const::AlignmentFlag a
 	// printf("++1+ addWidget %p добавил виджет %p\n", QtObj(), wd->QtObj() );
 };
 //____________________________________________________________________
+QLineEdit::QLineEdit(char ch) {};
+QLineEdit::QLineEdit(QWidget* parent) : QWidget('X') {
+	if(parent) {
+		// setNoDelete(true);
+		setQtObj(((t_vp__vp) pFunQt[82])(parent->QtObj()));
+	} else {
+		setQtObj(((t_vp__vp) pFunQt[82])(NULL));
+	}
+};
+QLineEdit::~QLineEdit() {
+	if(QtObj()) { ((t_v__vp)pFunQt[83])(QtObj()); setQtObj(NULL);  }
+};
+void QLineEdit::setText(QString* qs) {	((t_v__vp_vp_i)pFunQt[84])(QtObj(), (void*)qs->QtObj(), 0); };
+void QLineEdit::insert(QString* qs) {	((t_v__vp_vp_i)pFunQt[84])(QtObj(), (void*)qs->QtObj(), 1); };
+void QLineEdit::setInputMask(QString* qs) {	((t_v__vp_vp_i)pFunQt[84])(QtObj(), (void*)qs->QtObj(), 2); };
+void QLineEdit::clear() {	((t_v__vp)pFunQt[85])(QtObj()); };
+QString* QLineEdit::text(QString* qs) {	((t_v__vp_vp)pFunQt[86])(QtObj(), (void*)qs->QtObj()); return qs; };
+//____________________________________________________________________
 QTextCodec::QTextCodec(char* strNameCodec) : QObject('A') {
 	setQtObj(((t_vp__vp)pFunQt[448])(strNameCodec));
 };
@@ -544,6 +577,8 @@ int QByteArray::length() {	return size();	};
 char* QByteArray::data() {	return (char*)((t_vp__vp)pFunQt[503])(QtObj());	};
 const char* QByteArray::constData() {	return (const char*)((t_vp__vp)pFunQt[503])(QtObj());	};
 char QByteArray::getChar(int n) { return *(n + ((char*) data()));	};
+// Очистить массив
+void	QByteArray::clear() {	((t_v__vp_i)pFunQt[504])(QtObj(), 2);	};
 // Выкинуть пробелы с обоих концов строки (AllTrim())
 void	QByteArray::trimmed() {	((t_v__vp_i)pFunQt[504])(QtObj(), 0);	};
 // выкинуть лишние пробелы внутри строки
@@ -577,7 +612,10 @@ QFileDevice::QFileDevice(char c) :  QIODevice('A') {
 };
 QFileDevice::~QFileDevice() {
 	printf("delete QFileDevice \n");
-};    
+};   
+void QFileDevice::close() {
+	((t_v__vp)pFunQt[520])(QtObj());
+}
 //____________________________________________________________________
 QFile::QFile(QObject* ob) :  QFileDevice('A') {
 	setQtObj(((t_vp__vp)pFunQt[510])((void*)ob->QtObj()));
@@ -592,9 +630,31 @@ QFile::QFile(QString qs, QObject* ob) :  QFileDevice('A') {
 	printf("create QFile Str. \n");
 };
 QFile::~QFile() {
+	if(QtObj()) { ((t_v__vp)pFunQt[516])(QtObj()); setQtObj(NULL);  }
 	printf("delete QFile \n");
 };    
 bool QFile::open(QIODevice::OpenMode mode) {
 	return ((t_b__vp_i)pFunQt[512])(QtObj(), mode);
 };
+//____________________________________________________________________
+QTextStream::QTextStream(char c) :  QObject('A') {
+	printf("create QTextStream \n");
+};
+QTextStream::QTextStream(QIODevice* dev) {
+	// 513
+	setQtObj(((t_vp__vp)pFunQt[513])((void*)dev->QtObj()));
+	printf("create QTextStream DEV\n");
+};
+QTextStream::~QTextStream() {
+	if(QtObj()) { ((t_v__vp)pFunQt[515])(QtObj()); setQtObj(NULL);  }
+	printf("delete QTextStream \n");
+};
+void QTextStream::codecName(char* str) { ((t_v__vp_vp)pFunQt[517])(QtObj(), (void*)str); }
+void QTextStream::LL(char* str) { ((t_v__vp_vp_i)pFunQt[516])(QtObj(), (void*)str, 0); }
+void QTextStream::LL(QByteArray* ba) {	((t_v__vp_vp_i)pFunQt[516])(QtObj(), (void*)ba->QtObj(), 1);}
+void QTextStream::LL(QString* ba) {	((t_v__vp_vp_i)pFunQt[516])(QtObj(), (void*)ba->QtObj(), 2);}
+void QTextStream::readLine(QByteArray* ba, int maxLen) {	((t_v__vp_vp_i)pFunQt[518])(QtObj(), (void*)ba->QtObj(), maxLen);}
+bool QTextStream::atEnd() {	return ((t_b__vp)pFunQt[519])(QtObj()); };
+//____________________________________________________________________
+
 } /* end namespace QtE5 */

@@ -523,7 +523,7 @@ unittest {
 
 char[] from1251to866(char[] str) {
 	if (str.length == 0) return str;
-	int dlStr = str.length;
+	size_t dlStr = str.length;
 	auto ret = new char[dlStr];	for(int i; i != dlStr; i++) ret[i] = _1251_866[str[i]];
 	return ret;
 }
