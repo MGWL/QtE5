@@ -1366,6 +1366,15 @@ void eAction::sendSignal_VS(QString* s) {    emit Signal_VS(*s); }
 extern "C" MSVC_API  void qteQAction_SendSignal_VS(eAction* qw, QString* s) { qw->sendSignal_VS(s); }
 
 // -------------------------------------------------------
+// 460
+extern "C" MSVC_API  QString* qteQAction_getQStr(eAction* qw) {  return &qw->m_qstr; }
+// 461
+extern "C" MSVC_API  void qteQAction_setQStr(eAction* qw, QString* pqs) {  qw->setQstr(*pqs); }
+// 462
+extern "C" MSVC_API  int qteQAction_getInt(eAction* qw) {  return qw->m_qint; }
+// 463
+extern "C" MSVC_API  void qteQAction_setInt(eAction* qw, int pqs) {  qw->setQint(pqs); }
+// -------------------------------------------------------
 extern "C" MSVC_API  void* qteQAction_create(QObject * parent) {  return new eAction(parent); }
 extern "C" MSVC_API  void  qteQAction_delete(eAction* wd)      {
 #ifdef debDelete
@@ -1410,13 +1419,10 @@ extern "C" MSVC_API  void qteQAction_setEnabled(eAction *act, bool p, int pr) {
     }
 
 }
-
-
 extern "C" MSVC_API  void qteQAction_setSlotN(eAction* slot, void* adr, int n) {
     slot->aSlotN = adr;
     slot->N = n;
 }
-
 /*
 extern "C" MSVC_API  void qte_Connect(QtRefH obj1, char* signal, QtRefH slot, char* sslot, int n) {
     QObject::connect((const QObject*)obj1, (const char*)signal, (const eAction*)slot,

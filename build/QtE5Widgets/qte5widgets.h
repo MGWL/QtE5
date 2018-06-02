@@ -96,10 +96,38 @@ public:
     void* aDThis;       // Хранит адрес экземпляра объекта D
     int        N;       // параметр для aSlotN. Идея запомнить параметр при установке слота и выдать
                         // при срабатывании слота. А ля - диспечерезация
+    int m_qint;
+    QString m_qstr;
 
     void sendSignal_V();
     void sendSignal_VI(int n);
     void sendSignal_VS(QString* s);
+
+    Q_INVOKABLE void Qml_Slot_AN() {   Slot_AN();    }
+    Q_INVOKABLE void Qml_Slot_ANQ(QObject* ob) {   Slot_ANQ(ob);    }
+    Q_INVOKABLE void Qml_Slot_ANI(int ob)      {   Slot_ANI(ob);    }
+
+     Q_PROPERTY(QString qstr READ qstr WRITE setQstr NOTIFY qstrChange)
+     Q_PROPERTY(int qint READ qint WRITE setQint NOTIFY qintChange)
+
+    // Q_PROPERTY( int someProperty READ getSomeProperty WRITE setSomeProperty NOTIFY somePropertyChanged)
+
+    QString qstr() const     { return m_qstr;    }
+    int qint() const    {   return m_qint;    }
+
+public slots:
+    void setQint(int qint)   {
+        m_qint = qint;  emit
+        qintChange(m_qint);
+        //if (aSlotN != NULL)  ((ExecZIM_v__vp_n)aSlotN)(*(void**)aDThis, N);
+    }
+
+    void setQstr(QString qstr)    {
+        if (m_qstr == qstr)     return;
+        m_qstr = qstr;
+        emit qstrChange(m_qstr);
+        //if (aSlotN != NULL)  ((ExecZIM_v__vp_n)aSlotN)(*(void**)aDThis, N);
+    }
 
 private slots:
     void Slot();
@@ -122,6 +150,8 @@ signals:
     void Signal_V();          // Сигнал без параметра
     void Signal_VI(int);      // Сигнал с int
     void Signal_VS(QString);  // Сигнал с QString
+    void qintChange(int qint);
+    void qstrChange(QString qstr);
 };
 
 //___________________________________________________

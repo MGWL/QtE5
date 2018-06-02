@@ -23,8 +23,8 @@ import std.utf: encode;
 import std.stdio;
 
 int verQt5Eu = 0;
-int verQt5El = 11;
-string verQt5Ed = "23.03.18 10:08";
+int verQt5El = 12;
+string verQt5Ed = "26.05.18 7:12";
 
 alias PTRINT = int;
 alias PTRUINT = uint;
@@ -261,7 +261,8 @@ enum dll {
 	QtE5Widgets = 1,
 	QtE5Script  = 2,
 	QtE5Web		= 4,
-	QtE5WebEng	= 8
+	QtE5WebEng	= 8,
+	QtE5Qml		=16
 } /// Загрузка DLL. Необходимо выбрать какие грузить. Load DLL, we mast change load
 
 // Найти и сохранить адрес функции DLL
@@ -273,9 +274,9 @@ void funQt(int n, bool b, void* h, string s, string name, bool she) {
 }
 
 int LoadQt(dll ldll, bool showError) { ///  Загрузить DLL-ки Qt и QtE
-	bool	bCore5, bGui5, bWidget5, bQtE5Widgets, bQtE5Script, bQtE5Web, bQtE5WebEng;
-	string	sCore5, sGui5, sWidget5, sQtE5Widgets, sQtE5Script, sQtE5Web, sQtE5WebEng;
-	void*	hCore5, hGui5, hWidget5, hQtE5Widgets, hQtE5Script, hQtE5Web, hQtE5WebEng;
+	bool	bCore5, bGui5, bWidget5, bQtE5Widgets, bQtE5Script, bQtE5Web, bQtE5WebEng, bQtE5Qml;
+	string	sCore5, sGui5, sWidget5, sQtE5Widgets, sQtE5Script, sQtE5Web, sQtE5WebEng, sQtE5Qml;
+	void*	hCore5, hGui5, hWidget5, hQtE5Widgets, hQtE5Script, hQtE5Web, hQtE5WebEng, hQtE5Qml;
 
 	// Add path to directory with real file Qt5 DLL
 	version (Windows) {
@@ -287,6 +288,7 @@ int LoadQt(dll ldll, bool showError) { ///  Загрузить DLL-ки Qt и Qt
 			sQtE5Script		= "QtE5Script32.dll";
 			sQtE5Web		= "QtE5Web32.dll";
 			sQtE5WebEng		= "QtE5WebEng32.so";
+			sQtE5Qml		= "QtE5Qml32.dll";
 		}
 		version (X86_64) {	// ... 64 bit code
 			sCore5			= "Qt5Core.dll";
@@ -308,6 +310,7 @@ int LoadQt(dll ldll, bool showError) { ///  Загрузить DLL-ки Qt и Qt
 			sQtE5Script		= "libQtE5Script32.so";
 			sQtE5Web		= "libQtE5Web32.so";
 			sQtE5WebEng		= "libQtE5WebEng32.so";
+			sQtE5Qml		= "libQtE5Qml32.so";
 		}
 		version (X86_64) {	// ... 64 bit code
 			sCore5			= "libQt5Core.so";
@@ -317,6 +320,7 @@ int LoadQt(dll ldll, bool showError) { ///  Загрузить DLL-ки Qt и Qt
 			sQtE5Script		= "libQtE5Script64.so";
 			sQtE5Web		= "libQtE5Web64.so";
 			sQtE5WebEng		= "libQtE5WebEng64.so";
+			sQtE5Qml		= "libQtE5Qml64.so";
 		}
 	}
 	// Use symlink for create link on real file Qt5
@@ -333,6 +337,7 @@ int LoadQt(dll ldll, bool showError) { ///  Загрузить DLL-ки Qt и Qt
 		sQtE5Script		= "libQtE5Script64.dylib";
 		sQtE5Web		= "libQtE5Web64.dylib";
 		sQtE5WebEng		= "libQtE5WebEng64.dylib";
+		sQtE5Qml		= "libQtE5Qml64.dylib";
 	}
 
 	// Если на входе указана dll.QtE5Widgets то автоматом надо грузить и bCore5, bGui5, bWidget5
@@ -343,6 +348,7 @@ int LoadQt(dll ldll, bool showError) { ///  Загрузить DLL-ки Qt и Qt
 	bQtE5Web 	= cast(bool)(ldll & dll.QtE5Web);
 	bQtE5Web 	= cast(bool)(ldll & dll.QtE5Web);
 	bQtE5WebEng	= cast(bool)(ldll & dll.QtE5WebEng);
+	bQtE5Qml	= cast(bool)(ldll & dll.QtE5Qml);
 
 	// Load library in memory
  	if (bCore5) {
@@ -365,6 +371,9 @@ int LoadQt(dll ldll, bool showError) { ///  Загрузить DLL-ки Qt и Qt
 	}
 	if (bQtE5WebEng) {
 		hQtE5WebEng = GetHlib(sQtE5WebEng); if (!hQtE5WebEng) { MessageErrorLoad(showError, sQtE5WebEng); return 1; }
+	}
+	if (bQtE5Qml) {
+		hQtE5Qml = GetHlib(sQtE5Qml); if (!hQtE5Qml) { MessageErrorLoad(showError, sQtE5Qml); return 1; }
 	}
 	// Find name function in DLL
 
@@ -979,6 +988,25 @@ int LoadQt(dll ldll, bool showError) { ///  Загрузить DLL-ки Qt и Qt
 	mixin(generateFunQt(	448, 	"p_QTextCodec"						,"Widgets"));
 	mixin(generateFunQt(	449, 	"QT_QTextCodec_toUnicode"			,"Widgets"));
 	mixin(generateFunQt(	450, 	"QT_QTextCodec_fromUnicode"			,"Widgets"));
+	// ------- QJSEngine ----------
+	mixin(generateFunQt(	454, 	"QJSEngine_create1"					,"Qml"));
+	mixin(generateFunQt(	455, 	"QJSEngine_delete1"					,"Qml"));
+	mixin(generateFunQt(	458, 	"QJSEngine_evaluate"					,"Qml"));
+	// ------- QQmlEngine ----------
+	mixin(generateFunQt(	456, 	"QQmlEngine_create1"				,"Qml"));
+	mixin(generateFunQt(	457, 	"QQmlEngine_delete1"				,"Qml"));
+	// ------- QQmlApplicationEngine ----------
+	mixin(generateFunQt(	451, 	"QQmlApplicationEngine_create1"		,"Qml"));
+	mixin(generateFunQt(	452, 	"QQmlApplicationEngine_delete1"		,"Qml"));
+	mixin(generateFunQt(	453, 	"QQmlApplicationEngine_load1"		,"Qml"));
+
+		
+	mixin(generateFunQt(	459, 	"QQmlApplicationEngine_setContextProperty1"		,"Qml"));
+	mixin(generateFunQt(	460, 	"qteQAction_getQStr"				,"Widgets"));
+	mixin(generateFunQt(	461, 	"qteQAction_setQStr"				,"Widgets"));
+	mixin(generateFunQt(	462, 	"qteQAction_getInt"					,"Widgets"));
+	mixin(generateFunQt(	463, 	"qteQAction_setInt"					,"Widgets"));
+		
 	// ------- QByteArray ----------
 	mixin(generateFunQt(	500, 	"new_QByteArray_vc"					,"Widgets"));
 	mixin(generateFunQt(	501, 	"delete_QByteArray"					,"Widgets"));
@@ -1015,7 +1043,7 @@ int LoadQt(dll ldll, bool showError) { ///  Загрузить DLL-ки Qt и Qt
 		writeln();
 	}
 	
-	// Последний = 451
+	// Последний = 521
 	// -+-+-+-+- = 500
 	return 0;
 } ///  Загрузить DLL-ки Qt и QtE. Найти в них адреса функций и заполнить ими таблицу
@@ -3474,14 +3502,27 @@ class QAction : QObject {
 		(cast(t_v__qp_i) pFunQt[340])(QtObj, n);
 		return this;
 	}
-	QAction Signal_VS(T: QString)(T str) { //-> Послать сигнал с QAction "Signal_V(int)"
+	QAction Signal_VS(T: QString)(T str) { //-> Послать сигнал с QAction "Signal_VS(QString)"
 		(cast(t_v__qp_qp) pFunQt[341])(QtObj, str.QtObj);
 		return this;
 	}
-	QAction Signal_VS(T)(T str) { //-> Послать сигнал с QAction "Signal_V(int)"
+	QAction Signal_VS(T)(T str) { //-> Послать сигнал с QAction "Signal_VS(string)"
 		(cast(t_v__qp_qp) pFunQt[341])(QtObj, sQString(str).QtObj);
 		return this;
 	}
+	@property string fromQmlString() {  //-> return from QML Qstring 
+		QString qs = new QString('+', (cast(t_qp__qp) pFunQt[460])(QtObj) );
+		return qs.String();
+	}
+	void toQmlString(T)(T str) {
+		(cast(t_v__qp_qp) pFunQt[461])(QtObj, sQString(str).QtObj);
+	}
+	@property int fromQmlInt() {  //-> return from QML Int 
+		return (cast(t_i__qp) pFunQt[462]) (QtObj);
+	}
+	void toQmlInt(int str) {
+		(cast(t_v__qp_i) pFunQt[463])(QtObj, str);
+	}	
 }
 // ============ QMenu =======================================
 /++
@@ -5157,8 +5198,6 @@ class QTextEdit : QAbstractScrollArea {
 	QTextEdit append(T)(T str) { //-> Дописать в конец
 		(cast(t_v__qp_qp_i) pFunQt[270])(QtObj, sQString(str).QtObj, 4); return this;
 	}
-
-
 	QTextEdit insertHtml(T: QString)(T str) {  //-> Вставить текст в месте курсора
 		(cast(t_v__qp_qp_i) pFunQt[270])(QtObj, str.QtObj, 3); return this;
 	} /// Вставить текст в месте курсора
@@ -5492,6 +5531,82 @@ class QPoint : QObject {
 		(cast(t_v__qp_i_i)pFunQt[308])(QtObj, y, 1); return y;
 	}
 
+}
+// ================ QJSEngine ================
+class QJSEngine : QObject {
+	this() {}				// Обязателен
+	~this() { del(); }		// Косвенный вызов деструк C++ обязателен
+	 void del() {
+		if(!fNoDelete && (QtObj != null)) { (cast(t_v__qp) pFunQt[455])(QtObj); setQtObj(null); }
+	}
+	this(char ch, void* adr) {
+		if(ch == '+') { setQtObj(cast(QtObjH)adr); setNoDelete(true); }
+	}
+	this(QObject parent) {
+		if (parent) {
+			setNoDelete(true);
+			setQtObj((cast(t_qp__qp) pFunQt[454])(parent.QtObj));
+		} else {
+			setQtObj((cast(t_qp__qp) pFunQt[454])(null));
+		}
+	}
+	// -----------
+	void evaluate(T: QString)(T sourceLine) {
+		(cast(t_v__qp_qp_qp_i) pFunQt[458])(QtObj, sourceLine.QtObj, null, 1);
+	}
+	void evaluate(T)(T sourceLine) {
+		(cast(t_v__qp_qp_qp_i) pFunQt[458])(QtObj, sQString(sourceLine).QtObj, null, 1);
+	}
+}
+// ================ QQmlEngine ================
+class QQmlEngine : QJSEngine {
+	this() {}				// Обязателен
+	~this() { del(); }		// Косвенный вызов деструк C++ обязателен
+	override void del() {
+		if(!fNoDelete && (QtObj != null)) { (cast(t_v__qp) pFunQt[457])(QtObj); setQtObj(null); }
+	}
+	this(char ch, void* adr) {
+		if(ch == '+') { setQtObj(cast(QtObjH)adr); setNoDelete(true); }
+	}
+	this(QObject parent) {
+		if (parent) {
+			setNoDelete(true);
+			setQtObj((cast(t_qp__qp) pFunQt[456])(parent.QtObj));
+		} else {
+			setQtObj((cast(t_qp__qp) pFunQt[456])(null));
+		}
+	}
+}
+// ================ QQmlApplicationEngine ================
+class QQmlApplicationEngine : QQmlEngine {
+	this() {}				// Обязателен
+	~this() { del(); }		// Косвенный вызов деструк C++ обязателен
+	override void del() {
+		if(!fNoDelete && (QtObj != null)) { (cast(t_v__qp) pFunQt[452])(QtObj); setQtObj(null); }
+	}
+	this(char ch, void* adr) {
+		if(ch == '+') { setQtObj(cast(QtObjH)adr); setNoDelete(true); }
+	}
+	this(QWidget parent) {
+		if (parent) {
+			setNoDelete(true);
+			setQtObj((cast(t_qp__qp) pFunQt[451])(parent.QtObj));
+		} else {
+			setQtObj((cast(t_qp__qp) pFunQt[451])(null));
+		}
+	} /// Загрузить файл qml
+	void load(T: QString)(T nameFile) {
+		(cast(t_v__qp_qp) pFunQt[453])(QtObj, nameFile.QtObj);
+	}
+	void load(T)(T nameFile) {
+		(cast(t_v__qp_qp) pFunQt[453])(QtObj, sQString(to!string(nameFile)).QtObj);
+	}
+	void setContextProperty(T: QString)(T nameProperty, QAction ac) {
+		(cast(t_v__qp_qp_qp) pFunQt[459])(QtObj, nameProperty.QtObj, ac.QtObj);
+	}
+	void setContextProperty(T)(T nameProperty, QAction ac) {
+		(cast(t_v__qp_qp_qp) pFunQt[459])(QtObj, sQString(to!string(nameProperty)).QtObj, ac.QtObj);
+	}
 }
 
 // ================ QScriptEngine ================
