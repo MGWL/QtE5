@@ -58,6 +58,8 @@
 #include <QStackedWidget>
 #include <QTextCodec>
 #include <QTextStream>
+#include <QCalendarWidget>
+#include <QTranslator>
 // #include <QtCore/qpointer.h>
 
 typedef int PTRINT;

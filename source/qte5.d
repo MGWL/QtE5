@@ -962,6 +962,7 @@ int LoadQt(dll ldll, bool showError) { ///  Загрузить DLL-ки Qt и Qt
 	// ------- QCoreApplication -------
 	mixin(generateFunQt(	426, 	"QCoreApplication_create1"			,"Widgets"));
 	mixin(generateFunQt(	427, 	"QCoreApplication_delete1"			,"Widgets"));
+	mixin(generateFunQt(	470, 	"QCoreApplication_installTranslator"	,"Widgets"));
 	// ------- QGuiApplication -------
 	mixin(generateFunQt(	428, 	"qteQApplication_setX1"				,"Widgets"));
 	mixin(generateFunQt(	429, 	"QTabBar_setPoint"					,"Widgets"));
@@ -1034,8 +1035,19 @@ int LoadQt(dll ldll, bool showError) { ///  Загрузить DLL-ки Qt и Qt
 	mixin(generateFunQt(	516, 	"QT_QTextStream_LL1"				,"Widgets"));
 	mixin(generateFunQt(	517, 	"QT_QTextStream_setCodec"			,"Widgets"));
 	mixin(generateFunQt(	518, 	"QT_QTextStream_readLine"			,"Widgets"));
-
-
+	// ------- QCalendarWidget ----------
+	mixin(generateFunQt(	464, 	"qteQCalendarWidget_create1"		,"Widgets"));
+	mixin(generateFunQt(	465, 	"qteQCalendarWidget_delete1"		,"Widgets"));
+	mixin(generateFunQt(	466, 	"qteQCalendarWidget_selectedDate"	,"Widgets"));
+	mixin(generateFunQt(	471, 	"qteQCalendarWidget_getBool1"		,"Widgets"));
+	mixin(generateFunQt(	472, 	"qteQCalendarWidget_setBool1"		,"Widgets"));
+	// ------- QTranslator --------
+	mixin(generateFunQt(	467, 	"qteQTranslator_create1"			,"Widgets"));
+	mixin(generateFunQt(	468, 	"qteQTranslator_delete1"			,"Widgets"));
+	mixin(generateFunQt(	469, 	"qteQTranslator_load"				,"Widgets"));
+	// ------- QWidget --------
+	mixin(generateFunQt(	473, 	"qteQWidget_getQStr1"				,"Widgets"));
+	
 	// Дополнительная проверка на загрузку функций, при условии, что включена диагностика
 	if(showError) {
 		write("The numbers in pFunQt[] is null: ");
@@ -2090,6 +2102,33 @@ class QWidget: QPaintDevice {
 	QRect contentsRect(QRect tk) { //-> Вернуть QRect дочерней области
 		(cast(t_v__qp_qp) pFunQt[280])(QtObj, tk.QtObj);	return tk;
 	}
+	@property string windowTitle() { //-> Выдать заголовок окна
+		QString qs = new QString('+', (cast(t_qp__qp_i) pFunQt[473])(QtObj, 0)); qs.fNoDelete = false; return qs.String();
+	}
+	@property string accessibleDescription() { //-> Выдать описание окна (отладка)
+		QString qs = new QString('+', (cast(t_qp__qp_i) pFunQt[473])(QtObj, 1)); qs.fNoDelete = false; return qs.String();
+	}
+	@property string accessibleName() { //-> Выдать наименование окна (отладка)
+		QString qs = new QString('+', (cast(t_qp__qp_i) pFunQt[473])(QtObj, 2)); qs.fNoDelete = false; return qs.String();
+	}
+	@property string statusTip() { //-> Выдать подсказку о состоянии виджета
+		QString qs = new QString('+', (cast(t_qp__qp_i) pFunQt[473])(QtObj, 3)); qs.fNoDelete = false; return qs.String();
+	}
+	@property string styleSheet() { //-> Выдать описание
+		QString qs = new QString('+', (cast(t_qp__qp_i) pFunQt[473])(QtObj, 4)); qs.fNoDelete = false; return qs.String();
+	}
+	@property string toolTip() { //->
+		QString qs = new QString('+', (cast(t_qp__qp_i) pFunQt[473])(QtObj, 5)); qs.fNoDelete = false; return qs.String();
+	}
+	@property string whatsThis() { //->
+		QString qs = new QString('+', (cast(t_qp__qp_i) pFunQt[473])(QtObj, 6)); qs.fNoDelete = false; return qs.String();
+	}
+	@property string windowFilePath() { //->
+		QString qs = new QString('+', (cast(t_qp__qp_i) pFunQt[473])(QtObj, 7)); qs.fNoDelete = false; return qs.String();
+	}
+	@property string windowRole() { //->
+		QString qs = new QString('+', (cast(t_qp__qp_i) pFunQt[473])(QtObj, 8)); qs.fNoDelete = false; return qs.String();
+	}
 }
 // ============ QAbstractButton =======================================
 class QAbstractButton : QWidget {
@@ -2273,6 +2312,9 @@ class QCoreApplication : QObject {
 	this(int* m_argc, char** m_argv, int gui) {
 		setQtObj((cast(t_qp__qp_qp_i) pFunQt[426])(cast(QtObjH)m_argc, cast(QtObjH)m_argv, gui));
 		saveAppPtrQt = QtObj;
+	}
+	bool installTranslator(QTranslator qtr) { //-> Загрузить файл локализации
+		return (cast(t_b__qp_qp) pFunQt[470])(QtObj, qtr.QtObj);
 	}
 	T appDirPath(T: QString)() { //-> Путь до приложения
 		QString qs = new QString();
@@ -7137,6 +7179,60 @@ class QTextCodec  : QObject {
 	}
 }
 
+// ============ QCalendarWidget =======================================
+class QCalendarWidget : QWidget {
+	this() {}				// Обязателен
+	~this() { del(); }		// Косвенный вызов деструк C++ обязателен
+	override void del() {
+		if(!fNoDelete && (QtObj != null)) { (cast(t_v__qp) pFunQt[465])(QtObj); setQtObj(null); }
+	}
+	this(char ch, void* adr) {
+		if(ch == '+') setQtObj(cast(QtObjH)adr);
+	}
+	this(QWidget parent, QtE.WindowType fl = QtE.WindowType.Widget) {
+		super();
+		if (parent) {
+			setNoDelete(true);
+			setQtObj((cast(t_qp__qp) pFunQt[464])(parent.QtObj));
+		} else {
+			setQtObj((cast(t_qp__qp) pFunQt[464])(null));
+		}
+	} /// Конструктор
+	QDate selectedDate() {
+		QDate tkd = new QDate(); 
+		(cast(t_qp__qp_qp) pFunQt[466])(QtObj, tkd.QtObj);
+		return tkd;
+	}
+	@property bool isDateEditEnabled() {	return (cast(t_b__qp_i) pFunQt[471])(QtObj, 0);	}
+	@property bool isGridVisible() {	return (cast(t_b__qp_i) pFunQt[471])(QtObj, 1);	}
+	@property bool isNavigationBarVisible() {	return (cast(t_b__qp_i) pFunQt[471])(QtObj, 2);	}
+	QCalendarWidget setGridVisible(bool b) {	(cast(t_v__qp_b_i) pFunQt[472])(QtObj, b, 0);	return this; 	}
+	QCalendarWidget setNavigationBarVisible(bool b) {	(cast(t_v__qp_b_i) pFunQt[472])(QtObj, b, 1);	return this; 	}
+	QCalendarWidget showNextMonth() { (cast(t_v__qp_b_i) pFunQt[472])(QtObj, true, 2);	return this; 	}
+	QCalendarWidget showNextYear() {(cast(t_v__qp_b_i) pFunQt[472])(QtObj, true, 3); return this; }
+	QCalendarWidget showPreviousMonth() {	(cast(t_v__qp_b_i) pFunQt[472])(QtObj, true, 4);	return this; 	}
+	QCalendarWidget showPreviousYear() { (cast(t_v__qp_b_i) pFunQt[472])(QtObj, true, 5);	return this; 	}
+	QCalendarWidget showSelectedDate() { (cast(t_v__qp_b_i) pFunQt[472])(QtObj, true, 6);	return this; 	}
+	QCalendarWidget showToday() {	(cast(t_v__qp_b_i) pFunQt[472])(QtObj, true, 7);	return this; 	}
+	QCalendarWidget setDateEditAcceptDelay(bool b) {(cast(t_v__qp_b_i) pFunQt[472])(QtObj, b, 8);	return this; 	}
+	QCalendarWidget setDateEditEnabled(bool b) { (cast(t_v__qp_b_i) pFunQt[472])(QtObj, b, 9);	return this; 	}
+	
+}
+// ============ QTranslator =======================================
+class QTranslator  : QObject {
+	this(){}
+	~this() { (cast(t_v__qp) pFunQt[468])(QtObj); }
+	this(QWidget parent) { // Only null !!!
+		super();
+		setQtObj((cast(t_qp__v) pFunQt[467])());
+	}
+	bool load(T: QString)(T str) { //-> Загрузить файл локализации
+		return (cast(t_b__qp_qp) pFunQt[469])(QtObj, str.QtObj);
+	}
+	bool load(T)(T str) { //-> Загрузить файл локализации
+		return (cast(t_b__qp_qp) pFunQt[469])(QtObj, sQString(str).QtObj);
+	}
+}
 
 /*
 	string toStringD() {

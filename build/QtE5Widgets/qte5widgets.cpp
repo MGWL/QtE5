@@ -426,6 +426,22 @@ void eQWidget::closeEvent(QCloseEvent *event) {
     }
 }
 // -------------------------------------------------
+// 473
+extern "C" MSVC_API QString* qteQWidget_getQStr1(eQWidget* wd, int pr) {
+    QString* uqstr = new QString();
+    switch ( pr ) {
+    case 0:   *uqstr = wd->windowTitle();    break;
+    case 1:   *uqstr = wd->accessibleDescription();    break;
+    case 2:   *uqstr = wd->accessibleName();    break;
+    case 3:   *uqstr = wd->statusTip();    break;
+    case 4:   *uqstr = wd->styleSheet();    break;
+    case 5:   *uqstr = wd->toolTip();    break;
+    case 6:   *uqstr = wd->whatsThis();    break;
+    case 7:   *uqstr = wd->windowFilePath();    break;
+    case 8:   *uqstr = wd->windowRole();    break;
+    }
+    return uqstr;
+}
 extern "C" MSVC_API  void qteQWidget_setResizeEvent(eQWidget* wd, void* adr, void* dThis) {
     ((eQWidget*)wd)->aBEG_ResizeEvent = 1007;
     wd->aResizeEvent = adr;
@@ -3423,6 +3439,10 @@ extern "C" MSVC_API void* QTabBar_tabPoint(QTabBar* wd, int ind) {
 extern "C" MSVC_API  QtRefH QCoreApplication_create1(int* argc, char *argv[], int AnParam3) {
     return (QtRefH)new QCoreApplication(*argc, argv, AnParam3);
 }
+// 470
+extern "C" MSVC_API  bool QCoreApplication_installTranslator(QApplication* app, QTranslator* tr) {
+    return app->installTranslator(tr);
+}
 // 427
 extern "C" MSVC_API  void QCoreApplication_delete1(QApplication* app) {
 #ifdef debDelete
@@ -3570,3 +3590,73 @@ extern "C" MSVC_API bool QT_QTextStream_atEnd(QTextStream* dev) {
     // return (void*)(*u);
 //    return *((void**)&(*qs));
 // }
+
+// =============== QCalendarWidget ================
+// 464
+extern "C" MSVC_API  QCalendarWidget* qteQCalendarWidget_create1(QWidget* parent) {
+    return new QCalendarWidget(parent);
+}
+// 465
+extern "C" MSVC_API  void qteQCalendarWidget_delete1(QCalendarWidget* wd) {
+#ifdef debDelete
+    printf("del QCalendarWidget --> \n");
+#endif
+#ifdef debDestr
+    if(wd->parent() == NULL) delete wd;
+#endif
+#ifdef debDelete
+    printf("Ok\n");
+#endif
+}
+extern "C" MSVC_API void* qteQCalendarWidget_selectedDate(QCalendarWidget* dev, QDate* dt) {
+    *dt = dev->selectedDate();
+    return dt;
+}
+// 471
+extern "C" MSVC_API bool qteQCalendarWidget_getBool1(QCalendarWidget* s1, int pr) {
+    bool rez = false;
+    switch ( pr ) {
+        case 0:   rez = s1->isDateEditEnabled();     break;
+        case 1:   rez = s1->isGridVisible();         break;
+        case 2:   rez = s1->isNavigationBarVisible(); break;
+    }
+    return rez;
+}
+// 472
+extern "C" MSVC_API void qteQCalendarWidget_setBool1(QCalendarWidget* s1, bool b, int pr) {
+    switch ( pr ) {
+        case 0:   s1->setGridVisible(b);                break;
+        case 1:   s1->setNavigationBarVisible(b);       break;
+        case 2:   s1->showNextMonth();       break;
+        case 3:   s1->showNextYear();       break;
+        case 4:   s1->showPreviousMonth();       break;
+        case 5:   s1->showPreviousYear();       break;
+        case 6:   s1->showSelectedDate();       break;
+        case 7:   s1->showToday();       break;
+        case 8:   s1->setDateEditAcceptDelay(b);    break;
+        case 9:   s1->setDateEditEnabled(b);       break;
+    }
+}
+
+// =============== QTranslator ================
+// 467
+extern "C" MSVC_API  QTranslator* qteQTranslator_create1() {
+    return new QTranslator();
+}
+// 468
+extern "C" MSVC_API  void qteQTranslator_delete1(QTranslator* wd) {
+#ifdef debDelete
+    printf("del QTranslator --> \n");
+#endif
+#ifdef debDestr
+    delete wd;
+#endif
+#ifdef debDelete
+    printf("Ok\n");
+#endif
+}
+// 469
+extern "C" MSVC_API  bool qteQTranslator_load(QTranslator* wd, QString* file) {
+    return wd->load(*file);
+}
+

@@ -1,4 +1,5 @@
 /*
+ 07.07.2018 10:12 - Добавлен алгоритм секций/шаблонов
  19.03.2018 12:58 - Применен алгоритм Максима Шибнева для fromUtf8to1251 (3-x кратное ускорение)
  01.12.2017 17:57 - Темплате на toCON
  13.08.2017  6:32 - Проверка и ускорение cp1251 -- Utf-8 -- cp1251
@@ -222,9 +223,7 @@ string shifr8n(T)(bool sh, T inStr) {
 	string rez;
 	ubyte b;
 	string str = cast(string) inStr;
-	return str;
-	if (str.length == 0)
-		return rez;
+	if (str.length == 0) return rez;
 	if (sh) {
 		for (int i; i != str.length; i++) {
 			b = cast(ubyte) str[i];
@@ -243,6 +242,104 @@ string shifr8n(T)(bool sh, T inStr) {
 		}
 	}
 	return rez;
+}
+
+// Перевод русского текста в транслитерал. Алгортм из 1С 8.3
+string translit(string s) {
+	import std.string: replace;
+	string str = s;
+	str = str.replace("а","a");	str = str.replace("б","b");	str = str.replace("в","v");	str = str.replace("г","g");
+	str = str.replace("д","d");	str = str.replace("е","e");	str = str.replace("ё","e");	str = str.replace("ж","zh");
+	str = str.replace("з","z");	str = str.replace("и","i");	str = str.replace("к","k");	str = str.replace("л","l");
+	str = str.replace("м","m");	str = str.replace("н","n");	str = str.replace("о","o");	str = str.replace("п","p");
+	str = str.replace("р","r");	str = str.replace("с","s");	str = str.replace("т","t");	str = str.replace("у","u");
+	str = str.replace("ф","f");	str = str.replace("х","h");	str = str.replace("ч","ch");	str = str.replace("ш","sh");
+	str = str.replace("щ","sch");	str = str.replace("ъ","");	str = str.replace("ь","");	str = str.replace("э","e");
+	str = str.replace("ю","yu");	str = str.replace("й","i");	str = str.replace("ц","c");	str = str.replace("я","ya");
+	str = str.replace("ы","i");	str = str.replace("А","A");	str = str.replace("Б","B");	str = str.replace("В","V");
+	str = str.replace("Г","G");	str = str.replace("Д","D");	str = str.replace("Е","E");	str = str.replace("Ё","E");
+	str = str.replace("Ж","ZH");	str = str.replace("З","Z");	str = str.replace("И","I");	str = str.replace("К","K");
+	str = str.replace("Л","L");	str = str.replace("М","M");	str = str.replace("Н","N");	str = str.replace("О","O");
+	str = str.replace("П","P");	str = str.replace("Р","R");	str = str.replace("С","S");	str = str.replace("Т","T");
+	str = str.replace("У","U");	str = str.replace("Ф","F");	str = str.replace("Х","H");	str = str.replace("Ч","CH");
+	str = str.replace("Ш","SH");	str = str.replace("Щ","SCH");	str = str.replace("Ъ","");	str = str.replace("Ь","");
+	str = str.replace("Ы","I");	str = str.replace("Ц","C");	str = str.replace("Э","E");	str = str.replace("Ю","YU");
+	str = str.replace("Я","YA");	str = str.replace("Й","I");
+	return str;
+}
+
+// strShablon - Текст с использованием шаблонов и секций
+// nameSection - Имя секции для отбора
+// dict - Словарь замены
+/*
+string shablonHtmlFile = 
+`
+    head1|  [[zg2]]Вопрос №</td>
+    head1|  [[zg2]]Количество выборов</td>
+    head1|  [[zg2]]Средний % истинности</td>
+    head1|  [[zg2]]Среднее время в Сек</td>
+    head1| </tr>
+ strTable| <tr align="center">
+ strTable|  [[zg2]][[vprosN]]</td>
+ strTable|  [[zg2]][[kolPoint]]</td>
+ strTable|  [[zg2]][[sredProc]]</td>
+ strTable|  [[zg2]][[sredSek]]</td>
+ strTable| </tr>
+   podval|</table>
+   podval|</body>
+   podval|</html>
+`;
+*/
+string sh1c(string strShablon, string nameSection, string[string] dict) {
+	import std.string: split, join, strip;
+	string rez;
+	// Проверки входных параметров
+	if(strShablon == "") return rez;
+	if(nameSection == "") return rez;
+	// Разделение шаблона
+	auto strSh2 = split(strShablon, "\n");
+	string[] rez2;
+	foreach(str; strSh2) {
+		if(strip(str) == "") continue;
+		auto fields = split(str, "|");
+		string sek = strip(fields[0]); string nameField, strOut;
+		if(sek == nameSection) {	
+			string rez5; int iSost; char predCh = 0;
+			foreach(ch; fields[1]) {
+				if(iSost == 0) {	if(ch == '[') iSost = 1;
+				} else {
+					if(iSost == 1) { if(predCh == '[') 	iSost = 2; else	{ iSost = 0;  nameField = ""; }
+					} else {
+						if(iSost == 2) {	if(ch == ']') { { iSost = 0; nameField = ""; }
+							} else {	iSost = 3;
+							}
+						} else {
+							if(iSost == 3) {	if(ch == ']')  iSost = 4;
+							} else {
+								if(iSost == 4) { if(ch == ']')  iSost = 5; else { iSost = 0; nameField = ""; }
+								} else {	if(iSost == 5) { if(ch == '[') iSost = 1; else { iSost = 0; } nameField = "";	}}
+							}
+						}
+					}
+				}
+				if(iSost == 0) strOut ~= ch;
+				if(iSost == 3) nameField ~= ch;
+				if(iSost == 5) { auto p = (nameField in dict); if (p !is null) strOut ~= dict[nameField]; }
+				predCh = ch;
+			}
+			rez2 ~= strOut;
+		}
+	}
+	rez = join(rez2, "\n"); 	return rez;
+}
+
+unittest {
+	assert(translit("") == "");
+	assert(translit("Иванова Мария Константиновна") == "Ivanova Mariya Konstantinovna");
+	assert(translit("Иванова Мария Константиновна") == "Ivanova Mariya Konstantinovna");
+	assert(translit("АБВГДЕЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯабвгдежзийклмнопрстуфхцчшщъыьэюя0123456789") 
+	== "ABVGDEZHZIIKLMNOPRSTUFHCCHSHSCHIEYUYAabvgdezhziiklmnoprstufhcchshschieyuya0123456789");	
+	assert(sh1c("s1|[[F]] [[I]]", "s1", ["F":"Иванова","I":"Мария"]) == "Иванова Мария");
 }
 
 // Проверка даты вида '27.12.2014' на корректность
