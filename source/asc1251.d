@@ -1,4 +1,5 @@
 /*
+ 20.07.2018 10:12 - секций/шаблонов + date
  07.07.2018 10:12 - Добавлен алгоритм секций/шаблонов
  19.03.2018 12:58 - Применен алгоритм Максима Шибнева для fromUtf8to1251 (3-x кратное ускорение)
  01.12.2017 17:57 - Темплате на toCON
@@ -19,6 +20,8 @@ module asc1251;
 import std.ascii;
 import std.conv;
 import std.utf;
+import std.datetime;
+import std.string: split;
 
 
 bool isDigit1251(char c)	pure nothrow { return (mm1251[c] & tDigit) != 0; }
@@ -268,6 +271,26 @@ string translit(string s) {
 	return str;
 }
 
+// На вход получаю строку вида "26.02.1916", а на выход отдаю тип Date
+Date strToDate(string s) {
+	int y, m, d;
+	try {
+		auto mm = split(s, "."); d = to!int(mm[0]); m = to!int(mm[1]); y = to!int(mm[2]);
+	} catch(Throwable) {		d = 0; m = 0; y = 0;  	}
+	return Date(y, m, d);
+}
+
+// Входит в временную зону T или нет F
+// На вход 1 - контролирукмая дата, D1 и D2 - период действия D1+ и D2-
+bool isSupport(string dk, string d1, string d2) {
+	bool rez;
+	if(d1.length == 0) 	return true;
+	if(d2.length == 0) 	return true;
+	Date ddk, dd1, dd2;	ddk = strToDate(dk);	 dd1 = strToDate(d1); dd2 = strToDate(d2);
+	rez = (dd1 <= ddk) && (ddk < dd2);
+	return rez;
+}
+
 // strShablon - Текст с использованием шаблонов и секций
 // nameSection - Имя секции для отбора
 // dict - Словарь замены
@@ -306,6 +329,75 @@ string sh1c(string strShablon, string nameSection, string[string] dict) {
 		if(sek == nameSection) {	
 			string rez5; int iSost; char predCh = 0;
 			foreach(ch; fields[1]) {
+				if(iSost == 0) {	if(ch == '[') iSost = 1;
+				} else {
+					if(iSost == 1) { if(predCh == '[') 	iSost = 2; else	{ iSost = 0;  nameField = ""; }
+					} else {
+						if(iSost == 2) {	if(ch == ']') { { iSost = 0; nameField = ""; }
+							} else {	iSost = 3;
+							}
+						} else {
+							if(iSost == 3) {	if(ch == ']')  iSost = 4;
+							} else {
+								if(iSost == 4) { if(ch == ']')  iSost = 5; else { iSost = 0; nameField = ""; }
+								} else {	if(iSost == 5) { if(ch == '[') iSost = 1; else { iSost = 0; } nameField = "";	}}
+							}
+						}
+					}
+				}
+				if(iSost == 0) strOut ~= ch;
+				if(iSost == 3) nameField ~= ch;
+				if(iSost == 5) { auto p = (nameField in dict); if (p !is null) strOut ~= dict[nameField]; }
+				predCh = ch;
+			}
+			rez2 ~= strOut;
+		}
+	}
+	rez = join(rez2, "\n"); 	return rez;
+}
+
+// strShablon - Текст с использованием шаблонов и секций
+// nameSection - Имя секции для отбора
+// td - дата в виде строки, если пусто, то все строки входят
+// dict - Словарь замены
+/*
+string shablonHtmlFile = 
+`
+    head1|01.01.2000|01.01.2900|  [[zg2]]Вопрос №</td>
+    head1|01.01.2000|01.01.2900|  [[zg2]]Количество выборов</td>
+    head1|01.01.2000|01.01.2900|  [[zg2]]Средний % истинности</td>
+    head1|01.01.2030|01.01.2900|  [[zg2]]Среднее время в Сек</td>
+    head1|01.01.2000|01.01.2900| </tr>
+ strTable|01.01.2000|01.01.2900| <tr align="center">
+ strTable|01.01.2000|01.01.2900|  [[zg2]][[vprosN]]</td>
+ strTable|01.01.2000|01.01.2900|  [[zg2]][[kolPoint]]</td>
+ strTable|01.01.2000|01.01.2900|  [[zg2]][[sredProc]]</td>
+ strTable|01.01.2000|01.01.2900|  [[zg2]][[sredSek]]</td>
+ strTable|01.01.2000|01.01.2900| </tr>
+   podval|01.01.2000|01.01.2900|</table>
+   podval|01.01.2000|01.01.2900|</body>
+   podval|01.01.2000|01.01.2900|</html>
+`;
+*/
+string shd1c(string strShablon, string nameSection, string td, string[string] dict) {
+	import std.string: split, join, strip;
+	string strip_td = strip(td);
+	string rez;
+	// Проверки входных параметров
+	if(strShablon == "") return rez;
+	if(nameSection == "") return rez;
+	// Разделение шаблона
+	auto strSh2 = split(strShablon, "\n");
+	string[] rez2;
+	foreach(str; strSh2) {
+		if(strip(str) == "") continue;
+		auto fields = split(str, "|");
+		string sek = strip(fields[0]); string nameField, strOut;
+		if(sek == nameSection) {	
+			// Проверим дату вхождения
+			if(strip_td != "") if( !isSupport(td, strip(fields[1]), strip(fields[2]))  ) { continue; }
+			string rez5; int iSost; char predCh = 0;
+			foreach(ch; fields[3]) {
 				if(iSost == 0) {	if(ch == '[') iSost = 1;
 				} else {
 					if(iSost == 1) { if(predCh == '[') 	iSost = 2; else	{ iSost = 0;  nameField = ""; }
