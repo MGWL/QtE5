@@ -7,7 +7,7 @@ It uses dynamic Qt5 loading and a predefined set of slots, allows you not to use
 ## Usage
 ```
 Make app for D:
-    dmd app.d qte5.d
+    <b>dmd app.d qte5.d</b>
     
 Make app for C++:
     dmc:  dmc app.cpp qte5.cpp
