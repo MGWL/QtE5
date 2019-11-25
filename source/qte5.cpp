@@ -9,6 +9,9 @@
 // Windows 32 dmc:  dmc main.cpp qte5.cpp
 //         OSX 64:  g++ main.cpp qte5.cpp
 //       Linux 64:  g++ main.cpp qte5.cpp -ldl
+//
+// for MinGW
+// g++ t2.cpp qte5.cpp mgwGC.cpp -o t2.exe -mwindows
 
 #include <stdio.h>
 #include <string.h>
@@ -20,7 +23,11 @@
 	#include <windows.h>
 #endif // __DMC__ 
 #ifdef __GNUG__
-	#include <dlfcn.h>
+	#ifdef __MINGW32__
+		#include <windows.h>
+	#else
+        #include <dlfcn.h>
+	#endif
 #endif // __GNUG__ 
 
 #include "qte5.hpp"
@@ -54,9 +61,11 @@ namespace QtE5 {
         printf("\n");
     }
     //___________________________________________________________________
-#ifdef __GNUG__
-    void* GetProcAddress(void* hLib, const char* nameFun) {  return dlsym(hLib, nameFun);    }
-#endif // __GNUG__ 
+#ifndef __MINGW32__
+	#ifdef __GNUG__
+		void* GetProcAddress(void* hLib, const char* nameFun) {  return dlsym(hLib, nameFun);    }
+	#endif // __GNUG__ 
+#endif
     //___________________________________________________________________
     // Сообщить об ошибке загрузки. Message on error.
     // Message on error. s - text error, sw=1 - error load dll and sw=2 - error find function
@@ -77,7 +86,11 @@ namespace QtE5 {
 #ifdef _MSC_VER
         if (isLoad) return GetProcAddress((HMODULE)hLib, nameFun);
 #else		
+	#ifdef __MINGW32__
+        if (isLoad) return (void*)GetProcAddress((HMODULE)hLib, nameFun);
+	#else
         if (isLoad) return GetProcAddress(hLib, nameFun);
+	#endif
 #endif // _MSC_VER
         return (void*) 1;
     }
@@ -91,7 +104,8 @@ namespace QtE5 {
         return LoadLibrary(name);
 #endif // __DMC__ 
 #ifdef __GNUG__
-        return dlopen(name, RTLD_GLOBAL || RTLD_LAZY);
+        return LoadLibrary(name);
+        // return dlopen(name, RTLD_GLOBAL || RTLD_LAZY);
 #endif // __GNUG__
 		return NULL;
     }
@@ -116,7 +130,18 @@ namespace QtE5 {
 		sQtE5Script		= "QtE5Script32.dll";
 		sQtE5Web		= "QtE5Web32.dll";
 		sQtE5WebEng		= "QtE5WebEng32.dll";
-#endif /* __DMC__ */
+#endif // __DMC__ 
+
+#ifdef __MINGW32__
+	sCore5			= "Qt5Core.dll";
+	sGui5			= "Qt5Gui.dll";
+	sWidget5		= "Qt5Widgets.dll";
+	sQtE5Widgets	= "QtE5Widgets32.dll";
+	sQtE5Script		= "QtE5Script32.dll";
+	sQtE5Web		= "QtE5Web32.dll";
+	sQtE5WebEng		= "QtE5WebEng32.dll";
+#endif // __MINGW32__
+
 #ifdef __GNUG__
 	#ifdef __x86_64__
 		#ifdef __MACH__
@@ -156,8 +181,6 @@ namespace QtE5 {
 			sQtE5Web		= "libQtE5Web32.so";
 			sQtE5WebEng		= "libQtE5WebEng32.so";
 		#endif // __linux__
-
-
 	#endif /* __x86_64__ */
 		
 #endif /* __GNUG__ */

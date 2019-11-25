@@ -1,4 +1,5 @@
 /*
+ 26.05.2019 09:09 - Исправлена ошибка при выводе 1Csh ( a[123] -выкид одиночные скобки )
  20.07.2018 10:12 - секций/шаблонов + date
  07.07.2018 10:12 - Добавлен алгоритм секций/шаблонов
  19.03.2018 12:58 - Применен алгоритм Максима Шибнева для fromUtf8to1251 (3-x кратное ускорение)
@@ -322,16 +323,18 @@ string sh1c(string strShablon, string nameSection, string[string] dict) {
 	// Разделение шаблона
 	auto strSh2 = split(strShablon, "\n");
 	string[] rez2;
+	int iSost; char predCh = 0;
 	foreach(str; strSh2) {
 		if(strip(str) == "") continue;
 		auto fields = split(str, "|");
 		string sek = strip(fields[0]); string nameField, strOut;
 		if(sek == nameSection) {	
-			string rez5; int iSost; char predCh = 0;
 			foreach(ch; fields[1]) {
-				if(iSost == 0) {	if(ch == '[') iSost = 1;
+				if(iSost == 0) {
+					if( (ch == 10)  || (ch == 13)) continue;
+					if(ch == '[') iSost = 1;
 				} else {
-					if(iSost == 1) { if(predCh == '[') 	iSost = 2; else	{ iSost = 0;  nameField = ""; }
+					if(iSost == 1) { if(ch == '[') 	iSost = 2; else	{ strOut ~= '['; iSost = 0;  nameField = ""; }
 					} else {
 						if(iSost == 2) {	if(ch == ']') { { iSost = 0; nameField = ""; }
 							} else {	iSost = 3;
@@ -363,10 +366,11 @@ string sh1c(string strShablon, string nameSection, string[string] dict) {
 /*
 string shablonHtmlFile = 
 `
+    @test|01.01.2000|01.01.2900|" This is wstavka "
     head1|01.01.2000|01.01.2900|  [[zg2]]Вопрос №</td>
     head1|01.01.2000|01.01.2900|  [[zg2]]Количество выборов</td>
     head1|01.01.2000|01.01.2900|  [[zg2]]Средний % истинности</td>
-    head1|01.01.2030|01.01.2900|  [[zg2]]Среднее время в Сек</td>
+    head1|01.01.2030|01.01.2900|  [[zg2]]Среднее время в Сек[[test]]</td>
     head1|01.01.2000|01.01.2900| </tr>
  strTable|01.01.2000|01.01.2900| <tr align="center">
  strTable|01.01.2000|01.01.2900|  [[zg2]][[vprosN]]</td>
@@ -389,18 +393,21 @@ string shd1c(string strShablon, string nameSection, string td, string[string] di
 	// Разделение шаблона
 	auto strSh2 = split(strShablon, "\n");
 	string[] rez2;
+	int iSost; char predCh = 0;
 	foreach(str; strSh2) {
 		if(strip(str) == "") continue;
 		auto fields = split(str, "|");
 		string sek = strip(fields[0]); string nameField, strOut;
-		if(sek == nameSection) {	
+		if(sek == "") continue;
+		if(sek == nameSection) {
 			// Проверим дату вхождения
-			if(strip_td != "") if( !isSupport(td, strip(fields[1]), strip(fields[2]))  ) { continue; }
-			string rez5; int iSost; char predCh = 0;
+			if(strip_td != "") { if( !isSupport(td, strip(fields[1]), strip(fields[2]))  ) { continue; } }
 			foreach(ch; fields[3]) {
-				if(iSost == 0) {	if(ch == '[') iSost = 1;
+				if(iSost == 0) {
+					if( (ch == 10)  || (ch == 13)) continue;
+					if(ch == '[') iSost = 1;
 				} else {
-					if(iSost == 1) { if(predCh == '[') 	iSost = 2; else	{ iSost = 0;  nameField = ""; }
+					if(iSost == 1) { if(ch == '[') 	iSost = 2; else	{ strOut ~= '['; iSost = 0;  nameField = ""; }
 					} else {
 						if(iSost == 2) {	if(ch == ']') { { iSost = 0; nameField = ""; }
 							} else {	iSost = 3;
@@ -420,6 +427,14 @@ string shd1c(string strShablon, string nameSection, string td, string[string] di
 				predCh = ch;
 			}
 			rez2 ~= strOut;
+		} else {
+			if( sek[0] == '@' ) {	// Алиас
+				if(strip_td != "") if( !isSupport(td, strip(fields[1]), strip(fields[2]))  ) { continue; }
+				string nf = sek[1 .. $];
+				auto p = (nf in dict); if(p is null) dict[nf] = strip(fields[3]);  // Дозапись в словарь алиаса
+			} else {
+				if( sek[0] == '#' ) continue;  // Комментарий
+			}
 		}
 	}
 	rez = join(rez2, "\n"); 	return rez;

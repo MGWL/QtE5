@@ -1,4 +1,5 @@
 // Written in the D programming language.
+// Written in the D programming language.
 // MGW Мохов Геннадий Владимирович 2016
 
 /*
@@ -6,6 +7,7 @@ Slots:
     void Slot_AN();             --> "Slot_AN()" 				// void call(Aдркласса, Nчисло);
     void Slot_ANI(int);         --> "Slot_ANI(int)" 			// void call(Aдркласса, Nчисло, int);
     void Slot_ANII(int, int);   --> "Slot_ANII(int, int)"		// void call(Aдркласса, Nчисло, int, int);
+    void Slot_ANII(int, int, int);--> "Slot_ANIII(int, int, int)"	// void call(Aдркласса, Nчисло, int, int, int);
     void Slot_ANB(bool);        --> "Slot_ANB(bool)"			// void call(Aдркласса, Nчисло, bool);
     void Slot_ANQ(QObject*);    --> "Slot_ANQ(QObject*)"		// void call(Aдркласса, Nчисло, QObject*);
 Signals:
@@ -23,8 +25,8 @@ import std.utf: encode;
 import std.stdio;
 
 int verQt5Eu = 0;
-int verQt5El = 12;
-string verQt5Ed = "26.05.18 7:12";
+int verQt5El = 13;
+string verQt5Ed = "02.010.19 13:35"; // + QML + QScintilla
 
 alias PTRINT = int;
 alias PTRUINT = uint;
@@ -101,6 +103,7 @@ private {
 	mixin(generateAlias("t_v__qp_qp_i_i_i_i"));
 	mixin(generateAlias("t_v__qp_qp_i_i_i_i_i"));
 
+	mixin(generateAlias("t_b__vp"));
 	mixin(generateAlias("t_b__qp"));
 	mixin(generateAlias("t_b__qp_qp"));
 	mixin(generateAlias("t_b__qp_qp_qp"));
@@ -258,11 +261,12 @@ char* MSS(string s, int n) {
 
 // Qt5Core & Qt5Gui & Qt5Widgets - Are loaded always
 enum dll {
-	QtE5Widgets = 1,
-	QtE5Script  = 2,
-	QtE5Web		= 4,
-	QtE5WebEng	= 8,
-	QtE5Qml		=16
+	QtE5Widgets  		=  1,
+	QtE5Script   		=  2,
+	QtE5Web		 		=  4,
+	QtE5WebEng	 		=  8,
+	QtEQml				= 16,
+	QtE5Qscintilla   	= 32
 } /// Загрузка DLL. Необходимо выбрать какие грузить. Load DLL, we mast change load
 
 // Найти и сохранить адрес функции DLL
@@ -274,9 +278,12 @@ void funQt(int n, bool b, void* h, string s, string name, bool she) {
 }
 
 int LoadQt(dll ldll, bool showError) { ///  Загрузить DLL-ки Qt и QtE
-	bool	bCore5, bGui5, bWidget5, bQtE5Widgets, bQtE5Script, bQtE5Web, bQtE5WebEng, bQtE5Qml;
-	string	sCore5, sGui5, sWidget5, sQtE5Widgets, sQtE5Script, sQtE5Web, sQtE5WebEng, sQtE5Qml;
-	void*	hCore5, hGui5, hWidget5, hQtE5Widgets, hQtE5Script, hQtE5Web, hQtE5WebEng, hQtE5Qml;
+	bool	bCore5, bGui5, bWidget5, bQtE5Widgets, bQtE5Script, bQtE5Web, bQtE5WebEng, 
+				bQtE5Qml, bQtE5Qscintilla;
+	string	sCore5, sGui5, sWidget5, sQtE5Widgets, sQtE5Script, sQtE5Web, sQtE5WebEng, 
+				sQtE5Qml, sQtE5Qscintilla;
+	void*	hCore5, hGui5, hWidget5, hQtE5Widgets, hQtE5Script, hQtE5Web, hQtE5WebEng, 
+				hQtE5Qml, hQtE5Qscintilla;
 
 	// Add path to directory with real file Qt5 DLL
 	version (Windows) {
@@ -289,6 +296,7 @@ int LoadQt(dll ldll, bool showError) { ///  Загрузить DLL-ки Qt и Qt
 			sQtE5Web		= "QtE5Web32.dll";
 			sQtE5WebEng		= "QtE5WebEng32.so";
 			sQtE5Qml		= "QtE5Qml32.dll";
+			sQtE5Qscintilla = "QtE5Qscintilla32.dll";
 		}
 		version (X86_64) {	// ... 64 bit code
 			sCore5			= "Qt5Core.dll";
@@ -298,6 +306,8 @@ int LoadQt(dll ldll, bool showError) { ///  Загрузить DLL-ки Qt и Qt
 			sQtE5Script		= "QtE5Script64.dll";
 			sQtE5Web		= "QtE5Web64.dll";
 			sQtE5WebEng		= "QtE5WebEng64.so";
+			sQtE5Qml		= "QtE5Qml64.dll";
+			sQtE5Qscintilla = "QtE5Qscintilla64.dll";
 		}
 	}
 	// Use symlink for create link on real file Qt5
@@ -310,7 +320,8 @@ int LoadQt(dll ldll, bool showError) { ///  Загрузить DLL-ки Qt и Qt
 			sQtE5Script		= "libQtE5Script32.so";
 			sQtE5Web		= "libQtE5Web32.so";
 			sQtE5WebEng		= "libQtE5WebEng32.so";
-			sQtE5Qml		= "libQtE5Qml32.so";
+			sQtE5Qml		= "libQtE5Qml64.so";
+			sQtE5Qscintilla = "libQtE5Qscintilla64.so";
 		}
 		version (X86_64) {	// ... 64 bit code
 			sCore5			= "libQt5Core.so";
@@ -321,6 +332,7 @@ int LoadQt(dll ldll, bool showError) { ///  Загрузить DLL-ки Qt и Qt
 			sQtE5Web		= "libQtE5Web64.so";
 			sQtE5WebEng		= "libQtE5WebEng64.so";
 			sQtE5Qml		= "libQtE5Qml64.so";
+			sQtE5Qscintilla = "libQtE5Qscintilla64.so";
 		}
 	}
 	// Use symlink for create link on real file Qt5
@@ -338,17 +350,18 @@ int LoadQt(dll ldll, bool showError) { ///  Загрузить DLL-ки Qt и Qt
 		sQtE5Web		= "libQtE5Web64.dylib";
 		sQtE5WebEng		= "libQtE5WebEng64.dylib";
 		sQtE5Qml		= "libQtE5Qml64.dylib";
+		sQtE5Qscintilla = "libQtE5Qscintilla64.dylib";
 	}
 
 	// Если на входе указана dll.QtE5Widgets то автоматом надо грузить и bCore5, bGui5, bWidget5
 	// If on an input it is specified dll.QtE5Widgets then automatic loaded bCore5, bGui5, bWidget5
-	bQtE5Widgets= cast(bool)(ldll & dll.QtE5Widgets);
+	bQtE5Widgets	= cast(bool)(ldll & dll.QtE5Widgets);
 	if(bQtE5Widgets) { bCore5 = true; bGui5 = true; bWidget5 = true; }
-	bQtE5Script = cast(bool)(ldll & dll.QtE5Script);
-	bQtE5Web 	= cast(bool)(ldll & dll.QtE5Web);
-	bQtE5Web 	= cast(bool)(ldll & dll.QtE5Web);
-	bQtE5WebEng	= cast(bool)(ldll & dll.QtE5WebEng);
-	bQtE5Qml	= cast(bool)(ldll & dll.QtE5Qml);
+	bQtE5Script 	= cast(bool)(ldll & dll.QtE5Script);
+	bQtE5Web 		= cast(bool)(ldll & dll.QtE5Web);
+	bQtE5Web 		= cast(bool)(ldll & dll.QtE5Web);
+	bQtE5WebEng		= cast(bool)(ldll & dll.QtE5WebEng);
+	bQtE5Qscintilla	= cast(bool)(ldll & dll.QtE5Qscintilla);
 
 	// Load library in memory
  	if (bCore5) {
@@ -374,6 +387,9 @@ int LoadQt(dll ldll, bool showError) { ///  Загрузить DLL-ки Qt и Qt
 	}
 	if (bQtE5Qml) {
 		hQtE5Qml = GetHlib(sQtE5Qml); if (!hQtE5Qml) { MessageErrorLoad(showError, sQtE5Qml); return 1; }
+	}
+	if (bQtE5Qscintilla) {
+		hQtE5Qscintilla = GetHlib(sQtE5Qscintilla); if (!hQtE5Qscintilla) { MessageErrorLoad(showError, sQtE5Qscintilla); return 1; }
 	}
 	// Find name function in DLL
 
@@ -962,7 +978,7 @@ int LoadQt(dll ldll, bool showError) { ///  Загрузить DLL-ки Qt и Qt
 	// ------- QCoreApplication -------
 	mixin(generateFunQt(	426, 	"QCoreApplication_create1"			,"Widgets"));
 	mixin(generateFunQt(	427, 	"QCoreApplication_delete1"			,"Widgets"));
-	mixin(generateFunQt(	470, 	"QCoreApplication_installTranslator"	,"Widgets"));
+	mixin(generateFunQt(	470, 	"QCoreApplication_installTranslator","Widgets"));
 	// ------- QGuiApplication -------
 	mixin(generateFunQt(	428, 	"qteQApplication_setX1"				,"Widgets"));
 	mixin(generateFunQt(	429, 	"QTabBar_setPoint"					,"Widgets"));
@@ -989,7 +1005,7 @@ int LoadQt(dll ldll, bool showError) { ///  Загрузить DLL-ки Qt и Qt
 	mixin(generateFunQt(	448, 	"p_QTextCodec"						,"Widgets"));
 	mixin(generateFunQt(	449, 	"QT_QTextCodec_toUnicode"			,"Widgets"));
 	mixin(generateFunQt(	450, 	"QT_QTextCodec_fromUnicode"			,"Widgets"));
-	// ------- QJSEngine ----------
+// ------- QJSEngine ----------
 	mixin(generateFunQt(	454, 	"QJSEngine_create1"					,"Qml"));
 	mixin(generateFunQt(	455, 	"QJSEngine_delete1"					,"Qml"));
 	mixin(generateFunQt(	458, 	"QJSEngine_evaluate"					,"Qml"));
@@ -1000,14 +1016,13 @@ int LoadQt(dll ldll, bool showError) { ///  Загрузить DLL-ки Qt и Qt
 	mixin(generateFunQt(	451, 	"QQmlApplicationEngine_create1"		,"Qml"));
 	mixin(generateFunQt(	452, 	"QQmlApplicationEngine_delete1"		,"Qml"));
 	mixin(generateFunQt(	453, 	"QQmlApplicationEngine_load1"		,"Qml"));
-
 		
 	mixin(generateFunQt(	459, 	"QQmlApplicationEngine_setContextProperty1"		,"Qml"));
 	mixin(generateFunQt(	460, 	"qteQAction_getQStr"				,"Widgets"));
 	mixin(generateFunQt(	461, 	"qteQAction_setQStr"				,"Widgets"));
 	mixin(generateFunQt(	462, 	"qteQAction_getInt"					,"Widgets"));
 	mixin(generateFunQt(	463, 	"qteQAction_setInt"					,"Widgets"));
-		
+	
 	// ------- QByteArray ----------
 	mixin(generateFunQt(	500, 	"new_QByteArray_vc"					,"Widgets"));
 	mixin(generateFunQt(	501, 	"delete_QByteArray"					,"Widgets"));
@@ -1045,9 +1060,26 @@ int LoadQt(dll ldll, bool showError) { ///  Загрузить DLL-ки Qt и Qt
 	mixin(generateFunQt(	467, 	"qteQTranslator_create1"			,"Widgets"));
 	mixin(generateFunQt(	468, 	"qteQTranslator_delete1"			,"Widgets"));
 	mixin(generateFunQt(	469, 	"qteQTranslator_load"				,"Widgets"));
-	// ------- QWidget --------
-	mixin(generateFunQt(	473, 	"qteQWidget_getQStr1"				,"Widgets"));
-	
+	// ------- qscintilla ----------
+	mixin(generateFunQt(	600, 	"qteQScin_create"			        ,"Qscintilla"));
+	mixin(generateFunQt(	601, 	"qteQScin_delete"			        ,"Qscintilla"));
+	mixin(generateFunQt(	602, 	"qteQScin_setColor"			        ,"Qscintilla"));
+	mixin(generateFunQt(	603, 	"qteQScin_overwriteMode"            ,"Qscintilla"));
+	mixin(generateFunQt(	604, 	"qteQScin_setOverwriteMode"	        ,"Qscintilla"));
+	mixin(generateFunQt(	605, 	"qteQScin_color"			        ,"Qscintilla"));
+	mixin(generateFunQt(	606, 	"qteQScin_setPaper"			        ,"Qscintilla"));
+	mixin(generateFunQt(	607, 	"qteQScin_paper"			        ,"Qscintilla"));
+
+	mixin(generateFunQt(	608, 	"qteQScin_setFont"			        ,"Qscintilla"));
+	mixin(generateFunQt(	609, 	"qteQScin_setAutoIndent"	        ,"Qscintilla"));
+	mixin(generateFunQt(	610, 	"qteQScin_isReadOnly"	            ,"Qscintilla"));
+	mixin(generateFunQt(	611, 	"qteQScin_setReadOnly"	            ,"Qscintilla"));
+
+	mixin(generateFunQt(	612, 	"qteQScin_setMarginWidth"           ,"Qscintilla"));
+	mixin(generateFunQt(	613, 	"qteQScin_setMarginMarkerMask"	    ,"Qscintilla"));
+	mixin(generateFunQt(	614, 	"qteQScin_markerDefine"	            ,"Qscintilla"));
+	mixin(generateFunQt(	615, 	"qteQScin_markerAdd"	            ,"Qscintilla"));
+
 	// Дополнительная проверка на загрузку функций, при условии, что включена диагностика
 	if(showError) {
 		write("The numbers in pFunQt[] is null: ");
@@ -1055,7 +1087,7 @@ int LoadQt(dll ldll, bool showError) { ///  Загрузить DLL-ки Qt и Qt
 		writeln();
 	}
 	
-	// Последний = 521
+	// Последний = 451
 	// -+-+-+-+- = 500
 	return 0;
 } ///  Загрузить DLL-ки Qt и QtE. Найти в них адреса функций и заполнить ими таблицу
@@ -1685,6 +1717,9 @@ class QColor : QObject {
 	this(QtE.GlobalColor color) {
 		setQtObj((cast(t_qp__ui) pFunQt[425])(color));
 	}
+	this(char ch, void* adr) {
+		if(ch == '+') setQtObj(cast(QtObjH)adr);
+	}
 	QColor setRgb(int r, int g, int b, int a = 255) { //->
 		(cast(t_v__qp_i_i_i_i) pFunQt[15])(QtObj, r, g, b, a);
 		return this;
@@ -2101,33 +2136,6 @@ class QWidget: QPaintDevice {
 	}
 	QRect contentsRect(QRect tk) { //-> Вернуть QRect дочерней области
 		(cast(t_v__qp_qp) pFunQt[280])(QtObj, tk.QtObj);	return tk;
-	}
-	@property string windowTitle() { //-> Выдать заголовок окна
-		QString qs = new QString('+', (cast(t_qp__qp_i) pFunQt[473])(QtObj, 0)); qs.fNoDelete = false; return qs.String();
-	}
-	@property string accessibleDescription() { //-> Выдать описание окна (отладка)
-		QString qs = new QString('+', (cast(t_qp__qp_i) pFunQt[473])(QtObj, 1)); qs.fNoDelete = false; return qs.String();
-	}
-	@property string accessibleName() { //-> Выдать наименование окна (отладка)
-		QString qs = new QString('+', (cast(t_qp__qp_i) pFunQt[473])(QtObj, 2)); qs.fNoDelete = false; return qs.String();
-	}
-	@property string statusTip() { //-> Выдать подсказку о состоянии виджета
-		QString qs = new QString('+', (cast(t_qp__qp_i) pFunQt[473])(QtObj, 3)); qs.fNoDelete = false; return qs.String();
-	}
-	@property string styleSheet() { //-> Выдать описание
-		QString qs = new QString('+', (cast(t_qp__qp_i) pFunQt[473])(QtObj, 4)); qs.fNoDelete = false; return qs.String();
-	}
-	@property string toolTip() { //->
-		QString qs = new QString('+', (cast(t_qp__qp_i) pFunQt[473])(QtObj, 5)); qs.fNoDelete = false; return qs.String();
-	}
-	@property string whatsThis() { //->
-		QString qs = new QString('+', (cast(t_qp__qp_i) pFunQt[473])(QtObj, 6)); qs.fNoDelete = false; return qs.String();
-	}
-	@property string windowFilePath() { //->
-		QString qs = new QString('+', (cast(t_qp__qp_i) pFunQt[473])(QtObj, 7)); qs.fNoDelete = false; return qs.String();
-	}
-	@property string windowRole() { //->
-		QString qs = new QString('+', (cast(t_qp__qp_i) pFunQt[473])(QtObj, 8)); qs.fNoDelete = false; return qs.String();
 	}
 }
 // ============ QAbstractButton =======================================
@@ -3544,10 +3552,7 @@ class QAction : QObject {
 		(cast(t_v__qp_i) pFunQt[340])(QtObj, n);
 		return this;
 	}
-	QAction Signal_VS(T: QString)(T str) { //-> Послать сигнал с QAction "Signal_VS(QString)"
-		(cast(t_v__qp_qp) pFunQt[341])(QtObj, str.QtObj);
-		return this;
-	}
+	
 	QAction Signal_VS(T)(T str) { //-> Послать сигнал с QAction "Signal_VS(string)"
 		(cast(t_v__qp_qp) pFunQt[341])(QtObj, sQString(str).QtObj);
 		return this;
@@ -5240,6 +5245,8 @@ class QTextEdit : QAbstractScrollArea {
 	QTextEdit append(T)(T str) { //-> Дописать в конец
 		(cast(t_v__qp_qp_i) pFunQt[270])(QtObj, sQString(str).QtObj, 4); return this;
 	}
+
+
 	QTextEdit insertHtml(T: QString)(T str) {  //-> Вставить текст в месте курсора
 		(cast(t_v__qp_qp_i) pFunQt[270])(QtObj, str.QtObj, 3); return this;
 	} /// Вставить текст в месте курсора
@@ -5540,7 +5547,6 @@ class QImage: QPaintDevice {
 		return (cast(t_ui__qp_i_i) pFunQt[321])(QtObj, x, y);
 	}
 }
-
 // ================ QPoint ================
 class QPoint : QObject {
 	this() {}				// Обязателен
@@ -5572,7 +5578,6 @@ class QPoint : QObject {
 	@property int y(int y) { //->
 		(cast(t_v__qp_i_i)pFunQt[308])(QtObj, y, 1); return y;
 	}
-
 }
 // ================ QJSEngine ================
 class QJSEngine : QObject {
@@ -5650,7 +5655,6 @@ class QQmlApplicationEngine : QQmlEngine {
 		(cast(t_v__qp_qp_qp) pFunQt[459])(QtObj, sQString(to!string(nameProperty)).QtObj, ac.QtObj);
 	}
 }
-
 // ================ QScriptEngine ================
 class QScriptEngine : QObject {
 	this() {}				// Обязателен
@@ -7161,24 +7165,136 @@ class QTabBar : QWidget {
 		return cast(void*)((cast(t_qp__qp_i) pFunQt[430])(QtObj, index));
 	}
 }
-// ================ QTextCodec ==================
-/++
-Преобразование в - из кодовых страниц в unicod
-+/
-class QTextCodec  : QObject {
-	this(){}
-	this(string strNameCodec) {
-		setQtObj((cast(t_qp__qp)pFunQt[448])(cast(QtObjH)strNameCodec.ptr));
-	}
-	QString toUnicode(string str, QString qstr) {
-		(cast(t_v__qp_qp_qp) pFunQt[449])(QtObj, qstr.QtObj, cast(QtObjH)str.ptr);
-		return qstr;
-	}
-	char* fromUnicode(char* str, QString qstr) {
-		(cast(t_v__qp_qp_qp) pFunQt[450])(QtObj, qstr.QtObj, cast(QtObjH)str); return str;
-	}
-}
+// ============ QScintilla ===========================================
+class QScintilla : QWidget {
+    //! Этот перечисление определяет различные стили автоиндентификации.
+    enum lineIdent {
+        //! Линия автоматически сгибается в соответствии с предыдущей линией.
+        AiMaintain = 0x01,
+        // Если язык, поддерживаемый текущим лексиконом, имеет специфический старт 
+		// блочного символа (например, '{' в Си++), затем строка, начинающаяся с 
+		// что символ имеет отступы, а также линии, из которых состоят блок.
+        // Логически это может быть логически связано с закрытием AiClosing.
+        AiOpening = 0x02,
+        //! If the language supported by the current lexer has a specific end
+        //! of block character (e.g. } in C++), then a line that begins with
+        //! that character is indented as well as the lines that make up the
+        //! block.  It may be logically ored with AiOpening.
+        AiClosing = 0x04
+    } 
+    //! Этот список определяет различные стили отображения аннотаций.
+    enum AnnotationDisplay {
+        //!  Аннотации не отображаются.
+        AnnotationHidden,
+        //!  Примечания нарисованы слева, без украшения
+        AnnotationStandard,
+        //! Аннотации окружены рамкой.
+        AnnotationBoxed,
+        //! Аннотации снабжены отступом в соответствии с текстом
+        AnnotationIndented
+    } 
+    enum MarkerSymbol {
+        Circle 						= 0,	// Кпуг.
+        Rectangle 					= 1,	// Квадрат.
+        RightTriangle 				= 2,	// Треугольник вправо.
+        SmallRectangle 				= 3,	// Прямоугольник поменьше.
+        RightArrow 					= 4,	// Стрелка указывающая направо 
+        Invisible 					= 5,	// Невидимый маркер, позволяющий коду отслеживать движение линий
+        DownTriangle 				= 6,	// Треугольник напрвленный вниз
+        Minus 	 					= 7,	// SC_MARK_MINUS,
+        Plus  						= 8, 	// A drawn plus sign.
+        VerticalLine 				= 9,	// Вертикальная линия, нарисованная цветом фона
+        BottomLeftCorner 			= 10,	// Нижний левый угол, нарисованный фоновым цветом
+        LeftSideSplitter 			= 11,	// Вертикальная линия с центральной правой горизонтальной линией, нарисованной справа
+        BoxedPlus 					= 12,	// Нарисованный знак плюс в квадрате
+        BoxedPlusConnected 			= 13,	// Нарисованный знак плюс в подключенной коробке
+        BoxedMinus 					= 14,	// A drawn minus sign in a box.
+        BoxedMinusConnected 		= 15,	// Нарисованный знак минус в подключенной коробке
+        RoundedBottomLeftCorner 	= 16,	// Закругленный левый нижний угол, нарисованный фоновым цветом.
+        LeftSideRoundedSplitter 	= 17,	// Вертикальная линия с центральной правой изогнутой линией, нарисованной в фоновый цвет 
+        CircledPlus 				= 18,	// Нарисованный знак плюс в виде круга
 
+        //! A drawn plus sign in a connected box.
+        CircledPlusConnected = 19,
+        //! A drawn minus sign in a circle.
+        CircledMinus = 20,
+        //! A drawn minus sign in a connected circle.
+        CircledMinusConnected = 21,
+        //! No symbol is drawn but the line is drawn with the same background
+        //! color as the marker's.
+        Background = 22,
+        ThreeDots 					= 23,	// Три нарисованные точки
+        //! Three drawn arrows pointing right.
+        ThreeRightArrows = 24,
+        //! A full rectangle (ie. the margin background) using the marker's
+        //! background color.
+        FullRectangle = 25,
+        //! A left rectangle (ie. the left part of the margin background) using
+        //! the marker's background color.
+        LeftRectangle = 26,
+        //! No symbol is drawn but the line is drawn underlined using the
+        //! marker's background color.
+        Underline 					= 27,	// Цвет фона маркера
+        Bookmark 					= 28	// Закладка
+    }; 	
+
+	this() {}				// Обязателен
+	~this() { del(); }		// Косвенный вызов деструк C++ обязателен
+	override void del() {
+		if(!fNoDelete && (QtObj != null)) { (cast(t_v__qp) pFunQt[601])(QtObj); setQtObj(null); }
+	}
+	this(QWidget parent, QtE.WindowType fl = QtE.WindowType.Widget) {
+		super();
+		if (parent) {
+			setNoDelete(true);
+			setQtObj((cast(t_qp__qp) pFunQt[600])(parent.QtObj));
+		} else {
+			setQtObj((cast(t_qp__qp) pFunQt[600])(null));
+		}
+	} /// Конструктор
+	// Установить цвет основного шрифта в окне редактора
+	void setColor( QColor color ) {
+		(cast(t_v__qp_qp)pFunQt[602])( QtObj, color.QtObj );
+	}
+	// Вернуть цвет основного шрафта
+	QColor color() {
+		return new QColor('+', (cast(t_qp__qp) pFunQt[605])(QtObj) );
+	}
+	// 603
+	bool overwriteMode() {
+		return (cast(t_b__qp)pFunQt[603])( QtObj );
+	}
+	// 604
+	void setOverwriteMode(bool mode) {(cast(t_v__qp_b)pFunQt[604])( QtObj, mode );}
+	// 606 Установить цвет foreground (paper) 
+	void setPaper( QColor color ) {(cast(t_v__qp_qp)pFunQt[606])( QtObj, color.QtObj );}
+	// 607
+	// Вернуть цвет foreground (paper) 
+	QColor paper() {return new QColor('+', (cast(t_qp__qp) pFunQt[607])(QtObj) );}
+	// 608
+	void setFontEdit(QFont font) {(cast(t_v__qp_qp)pFunQt[608])( QtObj, font.QtObj );}
+	// 609
+	void setAutoIndent(bool mode) {(cast(t_v__qp_b)pFunQt[609])( QtObj, mode );}
+	// 610
+	bool isReadOnly() { return (cast(t_b__qp)pFunQt[610])( QtObj );}
+	// 611
+	void setReadOnly(bool ro) {(cast(t_v__qp_b)pFunQt[611])( QtObj, ro );}
+	// 612  Ширина скрытого столбца номер его
+	void setMarginWidth(int	margin, int width) {(cast(t_v__qp_i_i)pFunQt[612])( QtObj, margin, width );	}
+	// 613  Установить маску на отоброжение столбца
+	void setMarginMarkerMask(int margin, int mask) {(cast(t_v__qp_i_i)pFunQt[613])( QtObj, margin, mask );	}
+	// 614  тип маркера отображаемого в столбце nm
+	int markerDefine(MarkerSymbol ms, int nomKol) {
+		return (cast(t_i__qp_i_i)pFunQt[614])( QtObj, ms, nomKol );
+	}
+	// 615  Добавить маркер на строку в колонку
+	int markerAdd(int liner, int marerNum) {
+		return (cast(t_i__qp_i_i)pFunQt[615])( QtObj, liner, marerNum );
+	}
+	
+	
+	
+}
 // ============ QCalendarWidget =======================================
 class QCalendarWidget : QWidget {
 	this() {}				// Обязателен
@@ -7216,7 +7332,6 @@ class QCalendarWidget : QWidget {
 	QCalendarWidget showToday() {	(cast(t_v__qp_b_i) pFunQt[472])(QtObj, true, 7);	return this; 	}
 	QCalendarWidget setDateEditAcceptDelay(bool b) {(cast(t_v__qp_b_i) pFunQt[472])(QtObj, b, 8);	return this; 	}
 	QCalendarWidget setDateEditEnabled(bool b) { (cast(t_v__qp_b_i) pFunQt[472])(QtObj, b, 9);	return this; 	}
-	
 }
 // ============ QTranslator =======================================
 class QTranslator  : QObject {
@@ -7233,6 +7348,24 @@ class QTranslator  : QObject {
 		return (cast(t_b__qp_qp) pFunQt[469])(QtObj, sQString(str).QtObj);
 	}
 }
+// ================ QTextCodec ==================
+/++
+Преобразование в - из кодовых страниц в unicod
++/
+class QTextCodec  : QObject {
+	this(){}
+	this(string strNameCodec) {
+		setQtObj((cast(t_qp__qp)pFunQt[448])(cast(QtObjH)strNameCodec.ptr));
+	}
+	QString toUnicode(string str, QString qstr) {
+		(cast(t_v__qp_qp_qp) pFunQt[449])(QtObj, qstr.QtObj, cast(QtObjH)str.ptr);
+		return qstr;
+	}
+	char* fromUnicode(char* str, QString qstr) {
+		(cast(t_v__qp_qp_qp) pFunQt[450])(QtObj, qstr.QtObj, cast(QtObjH)str); return str;
+	}
+}
+
 
 /*
 	string toStringD() {
