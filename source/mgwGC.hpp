@@ -3,7 +3,7 @@
 #define __mgwGC_H 1
 
 class mgwGC {
-	#define MAXLENMAS 10
+	#define MAXLENMAS 1000
 	protected:
 		void* mMem[MAXLENMAS];
 		int   mSiz[MAXLENMAS];

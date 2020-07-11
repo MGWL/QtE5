@@ -405,7 +405,9 @@ char* mybuf = cast(char*)"tclsh".ptr;
 // Поддержка TCL + Qt
 class CTclQt  {
 	enum TypeOb {
-		QApplication, QWidget, QLineEdit, QPushButton, QAction, QConnects, QBoxLayout, QMainWindow, QPlainTextEdit, QStatusBar, QToolBar
+		QApplication, QWidget, QLineEdit, QPushButton, 
+		QAction, QConnects, QBoxLayout, QMainWindow, 
+		QPlainTextEdit, QStatusBar, QToolBar, QMsgBox, QFrame, QLabel
 	}
 	union UnQObj {
 		QApplication 	uQApplication;
@@ -418,6 +420,9 @@ class CTclQt  {
 		QPlainTextEdit  uQPlainTextEdit;
 		QStatusBar		uQStatusBar;
 		QToolBar		uQToolBar;
+		QToolBar		uQMsgBox;
+		QFrame			uQFrame;
+		QLabel			uQLabel;
 	}
 	struct SQobject {
 		TypeOb 			type;
@@ -425,15 +430,10 @@ class CTclQt  {
 	}
 	// _________________________________________________________________________________
 	~this() {
-		// mas_QWidget[0].destroy();
-		// (cast(QApplication)mas_QObject[0]).destroy(); saveAppPtrQt = null;
 		if(mas_QObject[0].type == TypeOb.QApplication) {
 			mas_QObject[0].qobj.uQApplication.destroy(); saveAppPtrQt = null;
 		}
-
-		// MessageBoxA(null, "Warning! destructor".ptr, "Warning!!!".ptr, MB_OK);
 	}
-	
 	// _________________________________________________________________________________
 	private void* 		adrThis;    			/// Адрес собственного экземпляра
 	
@@ -474,6 +474,16 @@ class CTclQt  {
 					case "exec":
 						if(objc != 3)  { rez = "1exec adr"; break; }
 						rez = "0" ~ to!string(mas_QObject[to!uint(objv[2])].qobj.uQApplication.exec());
+						break;
+					case "exit":
+						if(objc != 4)  { rez = "1exit adr kodExit"; break; }
+						mas_QObject[to!uint(objv[2])].qobj.uQApplication.exit(to!int(objv[3]));
+						rez = "0";
+						break;
+					case "aboutQt":
+						if(objc != 3)  { rez = "1aboutQt adr"; break; }
+						mas_QObject[to!uint(objv[2])].qobj.uQApplication.aboutQt();
+						rez = "0";
 						break;
 					default:
 				}
@@ -530,7 +540,196 @@ class CTclQt  {
 					default:
 				}
 				break;
-
+// QFrame		
+			case "QFrame":
+				if(objc < 2) { rez = "1new|adr ..."; break; }
+				cmdArg = objv[1];
+				switch(cmdArg) {
+					case "new":
+						if(objc != 3)  { rez = "1new null|adr"; break; }
+						if(objv[2] == "null") {
+							SQobject ob; 
+								ob.type = TypeOb.QFrame;
+								ob.qobj.uQFrame = new QFrame(null);
+							mas_QObject ~= ob;
+							rez = "0" ~ to!string(mas_QObject.length - 1);
+						} else {
+							if(mas_QObject[to!uint(objv[2])].type == TypeOb.QFrame) {
+								SQobject ob; 
+									ob.type = TypeOb.QFrame;
+									ob.qobj.uQFrame = new QFrame(mas_QObject[to!uint(objv[2])].qobj.uQWidget);
+								mas_QObject ~= ob;
+								rez = "0" ~ to!string(mas_QObject.length - 1);
+							} else {
+								rez = "1new adr!=QFrame";
+							}
+						}
+						break;
+					case "show":
+						if(objc != 3)  { rez = "1show adr"; break; }
+						if(mas_QObject[to!uint(objv[2])].type == TypeOb.QFrame) {
+							mas_QObject[to!uint(objv[2])].qobj.uQFrame.show();
+							rez = "0";
+						} else {
+							rez = "1show adr!=QFrame";
+						}
+						break;
+					case "resize":
+						if(objc != 5)  { rez = "1resize adr w h"; break; }
+						mas_QObject[to!uint(objv[2])].qobj.uQFrame.resize(to!int(objv[3]), to!int(objv[4]));
+						rez = "0";
+						break;
+					case "setWindowTitle":
+						if(objc != 4)  { rez = "1setWindowTitle adr str"; break; }
+						mas_QObject[to!uint(objv[2])].qobj.uQFrame.setWindowTitle(objv[3]);
+						rez = "0";
+						break;
+					case "setStyleSheet":
+						if(objc != 4)  { rez = "1setStyleSheet adr str"; break; }
+						mas_QObject[to!uint(objv[2])].qobj.uQFrame.setStyleSheet(objv[3]);
+						rez = "0";
+						break;
+					case "setFrameShape":
+						if(objc != 4)  { rez = "1setFrameShape adr NoFrame|Box|Panel|WinPanel|HLine|VLine|StyledPanel"; break; }
+						if(toUpper(objv[3]) == "NOFRAME") {
+							mas_QObject[to!uint(objv[2])].qobj.uQFrame.setFrameShape(QFrame.Shape.NoFrame);
+						}
+						if(toUpper(objv[3]) == "BOX") {
+							mas_QObject[to!uint(objv[2])].qobj.uQFrame.setFrameShape(QFrame.Shape.Box);
+						}
+						if(toUpper(objv[3]) == "PANEL") {
+							mas_QObject[to!uint(objv[2])].qobj.uQFrame.setFrameShape(QFrame.Shape.Panel);
+						}
+						if(toUpper(objv[3]) == "WINPANEL") {
+							mas_QObject[to!uint(objv[2])].qobj.uQFrame.setFrameShape(QFrame.Shape.WinPanel);
+						}
+						if(toUpper(objv[3]) == "HLINE") {
+							mas_QObject[to!uint(objv[2])].qobj.uQFrame.setFrameShape(QFrame.Shape.HLine);
+						}
+						if(toUpper(objv[3]) == "VLINE") {
+							mas_QObject[to!uint(objv[2])].qobj.uQFrame.setFrameShape(QFrame.Shape.VLine);
+						}
+						if(toUpper(objv[3]) == "STYLEDPANEL") {
+							mas_QObject[to!uint(objv[2])].qobj.uQFrame.setFrameShape(QFrame.Shape.StyledPanel);
+						}
+						rez = "0";
+						break;
+					case "setFrameShadow":
+						if(objc != 4)  { rez = "1setFrameShape adr Plain|Box"; break; }
+						if(toUpper(objv[3]) == "PLAIN") {
+							mas_QObject[to!uint(objv[2])].qobj.uQFrame.setFrameShadow(QFrame.Shadow.Plain);
+						}
+						if(toUpper(objv[3]) == "RAISED") {
+							mas_QObject[to!uint(objv[2])].qobj.uQFrame.setFrameShadow(QFrame.Shadow.Raised);
+						}
+						if(toUpper(objv[3]) == "SUNKEN") {
+							mas_QObject[to!uint(objv[2])].qobj.uQFrame.setFrameShadow(QFrame.Shadow.Sunken);
+						}
+						rez = "0";
+						break;
+					case "setLineWidth":
+						if(objc != 4)  { rez = "1setLineWidth adr LineWidth"; break; }
+						mas_QObject[to!uint(objv[2])].qobj.uQFrame.setLineWidth(to!int(objv[3]));
+						rez = "0";
+						break;
+					default:
+				}
+				break;
+// QLabel		
+			case "QLabel":
+				if(objc < 2) { rez = "1new|adr ..."; break; }
+				cmdArg = objv[1];
+				switch(cmdArg) {
+					case "new":
+						if(objc != 3)  { rez = "1new null|adr"; break; }
+						if(objv[2] == "null") {
+							SQobject ob; 
+								ob.type = TypeOb.QLabel;
+								ob.qobj.uQFrame = new QLabel(null);
+							mas_QObject ~= ob;
+							rez = "0" ~ to!string(mas_QObject.length - 1);
+						} else {
+							if( (mas_QObject[to!uint(objv[2])].type == TypeOb.QFrame) || (mas_QObject[to!uint(objv[2])].type == TypeOb.QWidget)) {
+								SQobject ob; 
+									ob.type = TypeOb.QLabel;
+									ob.qobj.uQFrame = new QLabel(mas_QObject[to!uint(objv[2])].qobj.uQWidget);
+								mas_QObject ~= ob;
+								rez = "0" ~ to!string(mas_QObject.length - 1);
+							} else {
+								rez = "1new adr!=QWidget|QFrame";
+							}
+						}
+						break;
+					case "show":
+						if(objc != 3)  { rez = "1show adr"; break; }
+						if(mas_QObject[to!uint(objv[2])].type == TypeOb.QLabel) {
+							mas_QObject[to!uint(objv[2])].qobj.uQLabel.show();
+							rez = "0";
+						} else {
+							rez = "1show adr!=QWidget|QFrame";
+						}
+						break;
+					case "resize":
+						if(objc != 5)  { rez = "1resize adr w h"; break; }
+						mas_QObject[to!uint(objv[2])].qobj.uQLabel.resize(to!int(objv[3]), to!int(objv[4]));
+						rez = "0";
+						break;
+					case "setStyleSheet":
+						if(objc != 4)  { rez = "1setStyleSheet adr str"; break; }
+						mas_QObject[to!uint(objv[2])].qobj.uQLabel.setStyleSheet(objv[3]);
+						rez = "0";
+						break;
+					case "setFrameShape":
+						if(objc != 4)  { rez = "1setFrameShape adr NoFrame|Box|Panel|WinPanel|HLine|VLine|StyledPanel"; break; }
+						if(toUpper(objv[3]) == "NOFRAME") {
+							mas_QObject[to!uint(objv[2])].qobj.uQLabel.setFrameShape(QFrame.Shape.NoFrame);
+						}
+						if(toUpper(objv[3]) == "BOX") {
+							mas_QObject[to!uint(objv[2])].qobj.uQLabel.setFrameShape(QFrame.Shape.Box);
+						}
+						if(toUpper(objv[3]) == "PANEL") {
+							mas_QObject[to!uint(objv[2])].qobj.uQLabel.setFrameShape(QFrame.Shape.Panel);
+						}
+						if(toUpper(objv[3]) == "WINPANEL") {
+							mas_QObject[to!uint(objv[2])].qobj.uQLabel.setFrameShape(QFrame.Shape.WinPanel);
+						}
+						if(toUpper(objv[3]) == "HLINE") {
+							mas_QObject[to!uint(objv[2])].qobj.uQLabel.setFrameShape(QFrame.Shape.HLine);
+						}
+						if(toUpper(objv[3]) == "VLINE") {
+							mas_QObject[to!uint(objv[2])].qobj.uQLabel.setFrameShape(QFrame.Shape.VLine);
+						}
+						if(toUpper(objv[3]) == "STYLEDPANEL") {
+							mas_QObject[to!uint(objv[2])].qobj.uQLabel.setFrameShape(QFrame.Shape.StyledPanel);
+						}
+						rez = "0";
+						break;
+					case "setFrameShadow":
+						if(objc != 4)  { rez = "1setFrameShape adr Plain|Box"; break; }
+						if(toUpper(objv[3]) == "PLAIN") {
+							mas_QObject[to!uint(objv[2])].qobj.uQLabel.setFrameShadow(QFrame.Shadow.Plain);
+						}
+						if(toUpper(objv[3]) == "RAISED") {
+							mas_QObject[to!uint(objv[2])].qobj.uQLabel.setFrameShadow(QFrame.Shadow.Raised);
+						}
+						if(toUpper(objv[3]) == "SUNKEN") {
+							mas_QObject[to!uint(objv[2])].qobj.uQLabel.setFrameShadow(QFrame.Shadow.Sunken);
+						}
+						rez = "0";
+						break;
+					case "setLineWidth":
+						if(objc != 4)  { rez = "1setLineWidth adr LineWidth"; break; }
+						mas_QObject[to!uint(objv[2])].qobj.uQLabel.setLineWidth(to!int(objv[3]));
+						rez = "0";
+						break;
+					case "setText":
+						if(objc != 4)  { rez = "1setText adr str"; break; }
+						mas_QObject[to!uint(objv[2])].qobj.uQLabel.setText(objv[3]);
+						rez = "0";
+						break;
+					default:
+				}
+				break;
 // QToolBar
 			case "QToolBar":
 				if(objc < 2) { rez = "1new|adr ..."; break; }
@@ -684,7 +883,7 @@ class CTclQt  {
 							mas_QObject ~= ob;
 							rez = "0" ~ to!string(mas_QObject.length - 1);
 						} else {
-							if(mas_QObject[to!uint(objv[2])].type == TypeOb.QWidget) {
+							if( (mas_QObject[to!uint(objv[2])].type == TypeOb.QWidget) || (mas_QObject[to!uint(objv[2])].type == TypeOb.QFrame)  ) {
 								SQobject ob; 
 									ob.type = TypeOb.QMainWindow;
 									ob.qobj.uQMainWindow = new QMainWindow(mas_QObject[to!uint(objv[2])].qobj.uQWidget);
@@ -751,7 +950,7 @@ class CTclQt  {
 							mas_QObject ~= ob;
 							rez = "0" ~ to!string(mas_QObject.length - 1);
 						} else {
-							if(mas_QObject[to!uint(objv[2])].type == TypeOb.QWidget) {
+							if((mas_QObject[to!uint(objv[2])].type == TypeOb.QWidget) || (mas_QObject[to!uint(objv[2])].type == TypeOb.QFrame) ) {
 								SQobject ob; 
 									ob.type = TypeOb.QLineEdit;
 									ob.qobj.uQLineEdit = new QLineEdit(mas_QObject[to!uint(objv[2])].qobj.uQWidget);
@@ -804,7 +1003,7 @@ class CTclQt  {
 							mas_QObject ~= ob;
 							rez = "0" ~ to!string(mas_QObject.length - 1);
 						} else {
-							if(mas_QObject[to!uint(objv[2])].type == TypeOb.QWidget) {
+							if( (mas_QObject[to!uint(objv[2])].type == TypeOb.QWidget) || (mas_QObject[to!uint(objv[2])].type == TypeOb.QFrame)   ) {
 								SQobject ob; 
 									ob.type = TypeOb.QPushButton;
 									ob.qobj.uQPushButton = new QPushButton(title, mas_QObject[to!uint(objv[2])].qobj.uQWidget);
@@ -816,18 +1015,43 @@ class CTclQt  {
 						}
 						break;
 					case "resize":
-						if(objc != 5)  { rez = "1QPushButton resize adr w h"; break; }
+						if(objc != 5)  { rez = "1resize adr w h"; break; }
 						mas_QObject[to!uint(objv[2])].qobj.uQPushButton.resize(to!int(objv[3]), to!int(objv[4]));
 						rez = "0";
 						break;
 					case "move":
-						if(objc != 5)  { rez = "1QPushButton move adr x y"; break; }
+						if(objc != 5)  { rez = "1move adr x y"; break; }
 						mas_QObject[to!uint(objv[2])].qobj.uQPushButton.move(to!int(objv[3]), to!int(objv[4]));
 						rez = "0";
 						break;
 					case "setStyleSheet":
-						if(objc != 4)  { rez = "1QPushButton setStyleSheet adr str"; break; }
+						if(objc != 4)  { rez = "1setStyleSheet adr str"; break; }
 						mas_QObject[to!uint(objv[2])].qobj.uQPushButton.setStyleSheet(objv[3]);
+						rez = "0";
+						break;
+					case "setToolTip":
+						if(objc != 4)  { rez = "1setStyleSheet adr str"; break; }
+						mas_QObject[to!uint(objv[2])].qobj.uQPushButton.setToolTip(objv[3]);
+						rez = "0";
+						break;
+					case "setText":
+						if(objc != 4)  { rez = "1setText adr str"; break; }
+						mas_QObject[to!uint(objv[2])].qobj.uQPushButton.setText(objv[3]);
+						rez = "0";
+						break;
+					case "text":
+						if(objc != 3)  { rez = "1text adr"; break; }
+						rez = "0" ~ mas_QObject[to!uint(objv[2])].qobj.uQPushButton.text!string;
+						break;
+					case "setEnabled":
+						if(objc != 4)  { rez = "1setEnabled adr bool"; break; }
+						string a = objv[3];
+						writeln("a = ", a);
+						if( (a == "0") || (a == "false") || (a == "FALSE") || (a == "f") || (a == "F")) {
+							mas_QObject[to!uint(objv[2])].qobj.uQPushButton.setEnabled(false);
+						} else {
+							mas_QObject[to!uint(objv[2])].qobj.uQPushButton.setEnabled(true);
+						}
 						rez = "0";
 						break;
 					default:
@@ -850,7 +1074,7 @@ class CTclQt  {
 							mas_QAction_script ~= script;
 							rez = "0" ~ to!string(mas_QObject.length - 1);
 						} else {
-							if(mas_QObject[to!uint(objv[2])].type == TypeOb.QWidget) {
+							if( (mas_QObject[to!uint(objv[2])].type == TypeOb.QWidget)  || (mas_QObject[to!uint(objv[2])].type == TypeOb.QFrame) ) {
 								SQobject ob; 
 									ob.type = TypeOb.QAction;
 									ob.qobj.uQAction = new QAction(mas_QObject[to!uint(objv[2])].qobj.uQWidget, &onNumStr, aThis, lastAction);
@@ -890,6 +1114,69 @@ class CTclQt  {
 				}
 				rez = "0";
 				break;
+// QMsgBox
+			case "QMsgBox":
+				string text, caption, type, parent;
+				if(objc > 9) { rez = "-text TXT -caption TXT -type TXT -parent null|adr"; break; }
+				if(objc == 9) {
+					if(objv[1] == "-text") { text = objv[2]; goto textEnd; }
+					if(objv[3] == "-text") { text = objv[4]; goto textEnd; }
+					if(objv[5] == "-text") { text = objv[6]; goto textEnd; }
+					if(objv[7] == "-text") { text = objv[8];  }
+textEnd:					
+					if(objv[1] == "-caption") { caption = objv[2]; goto captionEnd; }
+					if(objv[3] == "-caption") { caption = objv[4]; goto captionEnd; }
+					if(objv[5] == "-caption") { caption = objv[6]; goto captionEnd; }
+					if(objv[7] == "-caption") { caption = objv[8];  }
+captionEnd:					
+					if(objv[1] == "-type") { type = objv[2]; goto typeEnd; }
+					if(objv[3] == "-type") { type = objv[4]; goto typeEnd; }
+					if(objv[5] == "-type") { type = objv[6]; goto typeEnd; }
+					if(objv[7] == "-type") { type = objv[8];  }
+typeEnd:					
+					if(objv[1] == "-parent") { parent = objv[2]; goto parentEnd; }
+					if(objv[3] == "-parent") { parent = objv[4]; goto parentEnd; }
+					if(objv[5] == "-parent") { parent = objv[6]; goto parentEnd; }
+					if(objv[7] == "-parent") { parent = objv[8];  }
+parentEnd:
+					if(toUpper(type) == "NOICON") {
+						if(parent == "null") {
+							msgbox(text, caption, QMessageBox.Icon.NoIcon, null);
+						} else {
+							msgbox(text, caption, QMessageBox.Icon.NoIcon, mas_QObject[to!uint(parent)].qobj.uQWidget);
+						}
+					}
+					if(toUpper(type) == "INFORMATION") {
+						if(parent == "null") {
+							msgbox(text, caption, QMessageBox.Icon.Information, null);
+						} else {
+							msgbox(text, caption, QMessageBox.Icon.Information, mas_QObject[to!uint(parent)].qobj.uQWidget);
+						}
+					}
+					if(toUpper(type) == "WARNING") {
+						if(parent == "null") {
+							msgbox(text, caption, QMessageBox.Icon.Warning, null);
+						} else {
+							msgbox(text, caption, QMessageBox.Icon.Warning, mas_QObject[to!uint(parent)].qobj.uQWidget);
+						}
+					}
+					if(toUpper(type) == "CRITICAL") {
+						if(parent == "null") {
+							msgbox(text, caption, QMessageBox.Icon.Critical, null);
+						} else {
+							msgbox(text, caption, QMessageBox.Icon.Critical, mas_QObject[to!uint(parent)].qobj.uQWidget);
+						}
+					}
+					if(toUpper(type) == "QUESTION") {
+						if(parent == "null") {
+							msgbox(text, caption, QMessageBox.Icon.Question, null);
+						} else {
+							msgbox(text, caption, QMessageBox.Icon.Question, mas_QObject[to!uint(parent)].qobj.uQWidget);
+						}
+					}
+				}
+				rez = "0";
+				break;
 // QBoxLayout				
 			case "QBoxLayout":
 				if(objc < 3) { rez = "1new|cmd null|adr ..."; break; }
@@ -916,7 +1203,7 @@ class CTclQt  {
 						} else {
 							uint nn = to!uint(objv[2]);
 							SQobject ob; 	ob.type = TypeOb.QBoxLayout;
-							if(mas_QObject[nn].type == TypeOb.QWidget) {
+							if((mas_QObject[nn].type == TypeOb.QWidget) || (mas_QObject[nn].type == TypeOb.QFrame)  ) {
 								if(direction == ">") {   // LeftToRight
 									ob.qobj.uQBoxLayout = new QBoxLayout(mas_QObject[nn].qobj.uQWidget, QBoxLayout.Direction.LeftToRight);
 								}
@@ -956,6 +1243,12 @@ class CTclQt  {
 						}
 						if(mas_QObject[nnW].type == TypeOb.QPlainTextEdit) {
 							mas_QObject[nnA].qobj.uQBoxLayout.addWidget(mas_QObject[nnW].qobj.uQPlainTextEdit);
+						}
+						if(mas_QObject[nnW].type == TypeOb.QFrame) {
+							mas_QObject[nnA].qobj.uQBoxLayout.addWidget(mas_QObject[nnW].qobj.uQFrame);
+						}
+						if(mas_QObject[nnW].type == TypeOb.QLabel) {
+							mas_QObject[nnA].qobj.uQBoxLayout.addWidget(mas_QObject[nnW].qobj.uQLabel);
 						}
 						rez = "0";
 						break;
@@ -1039,6 +1332,9 @@ export extern(C) int Qtt_Init(Tcl_Interp* interp) {
     Tcl_CreateObjCommand(interp, "QStatusBar",   	&qQApplication,      null, null);
     Tcl_CreateObjCommand(interp, "QToolBar",	   	&qQApplication,      null, null);
     Tcl_CreateObjCommand(interp, "QConnects",    	&qQApplication,      null, null);
+    Tcl_CreateObjCommand(interp, "QMsgBox", 	   	&qQApplication,      null, null);
+    Tcl_CreateObjCommand(interp, "QFrame", 		   	&qQApplication,      null, null);
+    Tcl_CreateObjCommand(interp, "QLabel", 		   	&qQApplication,      null, null);
 
 	bool fDebug = false;									// T - выдавать диагностику загрузки QtE5
 	if (1 == LoadQt(dll.QtE5Widgets, fDebug)) return 1;  	// Выйти,если ошибка загрузки библиотеки
