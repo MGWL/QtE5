@@ -1,3 +1,5 @@
+<u>update for Qt 5.12.7</u> See build/QtE5Widgets/ReadMe.txt and source/qte5.d
+
 # QtE5 is Qt-based library, provides easy access to Qt-5 from D and C++.
 
 ![logo](https://github.com/MGWL/QtE5/blob/master/ICONS/qte5.png)
