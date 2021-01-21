@@ -1,4 +1,4 @@
-#ifndef QTE5WIDGETS_H
+a#ifndef QTE5WIDGETS_H
 #define QTE5WIDGETS_H
 
 #include "qte5widgets_global.h"
@@ -60,6 +60,7 @@
 #include <QTextStream>
 #include <QCalendarWidget>
 #include <QTranslator>
+#include <QPointer>
 // #include <QtCore/qpointer.h>
 
 typedef int PTRINT;
