@@ -31,15 +31,19 @@ extern "C" MSVC_API void QObject_dumpObjectInfo(QObject* obj, int ps) {
 }
 
 // =========== QApplication ==========
-extern "C" MSVC_API  QtRefH qteQApplication_create1(int* argc, char *argv[], int AnParam3) {
+extern "C" MSVC_API QtRefH qteQApplication_create1(QtRefH wd, int* argc, char *argv[], int AnParam3) {
     // This string for CLang Mac OSX. No work witchout this string ....
     // void* zz =
     //        QCoreApplication::libraryPaths().join(",").toUtf8().data();
 
     // Init tabCallDlang for link QScript and Dlang
-
-    return (QtRefH)new QApplication(*argc, argv, AnParam3);
+	
+    *((QPointer<QApplication>*)wd) = new QApplication(*argc, argv, AnParam3);
+    return (QtRefH)( ((QPointer<QApplication>*)wd)->data() );
 }
+
+
+
 extern "C" MSVC_API  void qteQApplication_delete1(QApplication* app) {
 #ifdef debDelete
     printf("del QApplication --> \n");
@@ -135,9 +139,17 @@ extern "C" MSVC_API  void qteQLineEdit_setKeyPressEvent(eQLineEdit* wd, void* ad
     wd->aKeyPressEvent = adr;
     wd->aDThis = aThis;
 }
-extern "C" MSVC_API  eQLineEdit* qteQLineEdit_create1(QWidget* parent) {
-    return new eQLineEdit(parent);
+// extern "C" MSVC_API  eQLineEdit* qteQLineEdit_create1(QWidget* parent) {
+//     return new eQLineEdit(parent);
+// }
+
+extern "C" MSVC_API QtRefH qteQLineEdit_create1(QtRefH wd, QtRefH parent) {
+    *((QPointer<eQLineEdit>*)wd) = new eQLineEdit((eQWidget*)parent);
+    return (QtRefH)( ((QPointer<eQLineEdit>*)wd)->data() );
 }
+
+
+
 extern "C" MSVC_API  void qteQLineEdit_delete1(eQLineEdit* wd) {
 #ifdef debDelete
     printf("del eQLineEdit --> n\n");
@@ -235,8 +247,9 @@ extern "C" MSVC_API  void qteQLineEdit_setX3(eQLineEdit* wd, int a, int b, int p
 }
 
 // =========== QStatusBar ==========
-extern "C" MSVC_API  QStatusBar* qteQStatusBar_create1(QWidget* parent) {
-    return new QStatusBar(parent);
+extern "C" MSVC_API QtRefH qteQStatusBar_create1(QtRefH wd, QtRefH parent) {
+    *((QPointer<QStatusBar>*)wd) = new QStatusBar((QWidget*)parent);
+    return (QtRefH)( ((QPointer<QStatusBar>*)wd)->data() );
 }
 extern "C" MSVC_API  void qteQStatusBar_delete1(QStatusBar* wd) {
 #ifdef debDelete
@@ -266,9 +279,13 @@ eQMainWindow::eQMainWindow(QWidget *parent, Qt::WindowFlags f): QMainWindow(pare
 }
 eQMainWindow::~eQMainWindow() {
 }
-extern "C" MSVC_API  eQMainWindow* qteQMainWindow_create1(QWidget* parent, Qt::WindowFlags f) {
-    return new eQMainWindow(parent, f);
+
+extern "C" MSVC_API QtRefH qteQMainWindow_create1(QtRefH wd, QtRefH parent, Qt::WindowFlags f) {
+    *((QPointer<eQMainWindow>*)wd) = new eQMainWindow((eQWidget*)parent, f);
+    return (QtRefH)( ((QPointer<eQMainWindow>*)wd)->data() );
 }
+
+
 
 extern "C" MSVC_API  void qteQMainWindow_delete1(eQMainWindow* wd) {
 #ifdef debDelete
@@ -458,9 +475,115 @@ void eQWidget::resizeEvent(QResizeEvent *event) {
         ((ExecZIM_v__vp_vp)aResizeEvent)(*(void**)aDThis, event);
     }
 }
-extern "C" MSVC_API  QtRefH qteQWidget_create1(QtRefH parent, Qt::WindowFlags f) {
-    return (QtRefH)new eQWidget((eQWidget*)parent, f);
+// 700
+extern "C" MSVC_API QtRefH qteQPointer_create(int tp) {
+    if(tp == 0) return (QtRefH)(new QPointer<eQWidget>());
+    if(tp == 1) return (QtRefH)(new QPointer<QBoxLayout>());
+    if(tp == 2) return (QtRefH)(new QPointer<QVBoxLayout>());
+    if(tp == 3) return (QtRefH)(new QPointer<QHBoxLayout>());
+    if(tp == 4) return (QtRefH)(new QPointer<QFrame>());
+    if(tp == 5) return (QtRefH)(new QPointer<QLabel>());
+    if(tp == 6) return (QtRefH)(new QPointer<eQMainWindow>());
+    if(tp == 7) return (QtRefH)(new QPointer<QStatusBar>());
+    if(tp == 8) return (QtRefH)(new QPointer<QPushButton>());
+    if(tp == 9) return (QtRefH)(new QPointer<eAction>());
+    if(tp == 10) return (QtRefH)(new QPointer<QApplication>());
+    if(tp == 11) return (QtRefH)(new QPointer<eQLineEdit>());
+    if(tp == 12) return (QtRefH)(new QPointer<eQPlainTextEdit>());
+    if(tp == 13) return (QtRefH)(new QPointer<QMenu>());
+    if(tp == 14) return (QtRefH)(new QPointer<QMenuBar>());
+    if(tp == 15) return (QtRefH)(new QPointer<QFont>());
+    if(tp == 16) return (QtRefH)(new QPointer<QIcon>());
+    if(tp == 17) return (QtRefH)(new QPointer<QToolBar>());
+    if(tp == 18) return (QtRefH)(new QPointer<QDialog>());
+    if(tp == 19) return (QtRefH)(new QPointer<QMessageBox>());
+    if(tp == 20) return (QtRefH)(new QPointer<QProgressBar>());
+    if(tp == 21) return (QtRefH)(new QPointer<QMdiArea>());
+    if(tp == 22) return (QtRefH)(new QPointer<QMdiSubWindow>());
+    if(tp == 23) return (QtRefH)(new QPointer<QComboBox>());
+    if(tp == 24) return (QtRefH)(new QPointer<QSlider>());
+    if(tp == 25) return (QtRefH)(new QPointer<QGroupBox>());
+    //---------
+    if(tp == 26) return (QtRefH)(new QPointer<QTabBar>());
+    if(tp == 27) return (QtRefH)(new QPointer<QStackedWidget>());
+    if(tp == 28) return (QtRefH)(new QPointer<QLCDNumber>());
+    return nullptr;
 }
+// 701
+extern "C" MSVC_API void qteQPointer_delete(QtRefH wd, int tp) {
+    if(tp == 0) delete (QPointer<eQWidget>*)wd;
+    if(tp == 1) delete (QPointer<QBoxLayout>*)wd;
+    if(tp == 2) delete (QPointer<QVBoxLayout>*)wd;
+    if(tp == 3) delete (QPointer<QHBoxLayout>*)wd;
+    if(tp == 4) delete (QPointer<QFrame>*)wd;
+    if(tp == 5) delete (QPointer<QLabel>*)wd;
+    if(tp == 6) delete (QPointer<eQMainWindow>*)wd;
+    if(tp == 7) delete (QPointer<QStatusBar>*)wd;
+    if(tp == 8) delete (QPointer<QPushButton>*)wd;
+    if(tp == 9) delete (QPointer<eAction>*)wd;
+    if(tp == 10) delete (QPointer<QApplication>*)wd;
+    if(tp == 11) delete (QPointer<eQLineEdit>*)wd;
+    if(tp == 12) delete (QPointer<eQPlainTextEdit>*)wd;
+    if(tp == 13) delete (QPointer<QMenu>*)wd;
+    if(tp == 14) delete (QPointer<QMenuBar>*)wd;
+    if(tp == 15) delete (QPointer<QFont>*)wd;
+    if(tp == 16) delete (QPointer<QIcon>*)wd;
+    if(tp == 17) delete (QPointer<QToolBar>*)wd;
+    if(tp == 18) delete (QPointer<QDialog>*)wd;
+    if(tp == 19) delete (QPointer<QMessageBox>*)wd;
+    if(tp == 20) delete (QPointer<QProgressBar>*)wd;
+    if(tp == 21) delete (QPointer<QMdiArea>*)wd;
+    if(tp == 22) delete (QPointer<QMdiSubWindow>*)wd;
+    if(tp == 23) delete (QPointer<QComboBox>*)wd;
+    if(tp == 24) delete (QPointer<QSlider>*)wd;
+    if(tp == 25) delete (QPointer<QGroupBox>*)wd;
+    //---------
+    if(tp == 26) delete (QPointer<QTabBar>*)wd;
+    if(tp == 27) delete (QPointer<QStackedWidget>*)wd;
+    if(tp == 28) delete (QPointer<QLCDNumber>*)wd;
+}
+// 702
+extern "C" MSVC_API bool qteQPointer_isNull(QtRefH wd, int tp) {
+    if(tp == 0) return ((QPointer<eQWidget>*)wd)->isNull();
+    if(tp == 1) return ((QPointer<QBoxLayout>*)wd)->isNull();
+    if(tp == 2) return ((QPointer<QVBoxLayout>*)wd)->isNull();
+    if(tp == 3) return ((QPointer<QHBoxLayout>*)wd)->isNull();
+    if(tp == 4) return ((QPointer<QFrame>*)wd)->isNull();
+    if(tp == 5) return ((QPointer<QLabel>*)wd)->isNull();
+    if(tp == 6) return ((QPointer<eQMainWindow>*)wd)->isNull();
+    if(tp == 7) return ((QPointer<QStatusBar>*)wd)->isNull();
+    if(tp == 8) return ((QPointer<QPushButton>*)wd)->isNull();
+    if(tp == 9) return ((QPointer<eAction>*)wd)->isNull();
+    if(tp == 10) return ((QPointer<QApplication>*)wd)->isNull();
+    if(tp == 11) return ((QPointer<eQLineEdit>*)wd)->isNull();
+    if(tp == 12) return ((QPointer<eQPlainTextEdit>*)wd)->isNull();
+    if(tp == 13) return ((QPointer<QMenu>*)wd)->isNull();
+    if(tp == 14) return ((QPointer<QMenuBar>*)wd)->isNull();
+    if(tp == 15) return ((QPointer<QFont>*)wd)->isNull();
+    if(tp == 16) return ((QPointer<QIcon>*)wd)->isNull();
+    if(tp == 17) return ((QPointer<QToolBar>*)wd)->isNull();
+    if(tp == 18) return ((QPointer<QDialog>*)wd)->isNull();
+    if(tp == 19) return ((QPointer<QMessageBox>*)wd)->isNull();
+    if(tp == 20) return ((QPointer<QProgressBar>*)wd)->isNull();
+    if(tp == 21) return ((QPointer<QMdiArea>*)wd)->isNull();
+    if(tp == 22) return ((QPointer<QMdiSubWindow>*)wd)->isNull();
+    if(tp == 23) return ((QPointer<QComboBox>*)wd)->isNull();
+    if(tp == 24) return ((QPointer<QSlider>*)wd)->isNull();
+    if(tp == 25) return ((QPointer<QGroupBox>*)wd)->isNull();
+    //---------
+    if(tp == 26) return ((QPointer<QTabBar>*)wd)->isNull();
+    if(tp == 27) return ((QPointer<QStackedWidget>*)wd)->isNull();
+    if(tp == 28) return ((QPointer<QLCDNumber>*)wd)->isNull();
+    return false;
+}
+//extern "C" MSVC_API  QtRefH qteQWidget_create1(QtRefH parent, Qt::WindowFlags f) {
+//    return (QtRefH)new eQWidget((eQWidget*)parent, f);
+//}
+extern "C" MSVC_API QtRefH qteQWidget_create1(QtRefH wd, QtRefH parent, Qt::WindowFlags f) {
+    *((QPointer<eQWidget>*)wd) = new eQWidget((eQWidget*)parent, f);
+    return (QtRefH)( ((QPointer<eQWidget>*)wd)->data() );
+}
+
 extern "C" MSVC_API  void qteQWidget_delete1(eQWidget* wd) {
 #ifdef debDelete
     printf("del QWidget --> \n");
@@ -492,6 +615,20 @@ extern "C" MSVC_API  void qteQWidget_setWindowTitle(QtRefH wd, QtRefH qs) {
 }
 extern "C" MSVC_API  void qteQWidget_setStyleSheet(QtRefH wd, QtRefH qs) {
     ((QWidget*)wd)->setStyleSheet(*(QString*)qs);
+}
+// 521
+extern "C" MSVC_API  void qteQWidget_returnStr(QWidget* wd, QString* qs, int pr) {
+    switch ( pr ) {
+	case 0:   *qs = wd->styleSheet();    				break;
+	case 1:   *qs = wd->accessibleDescription();    	break;
+	case 2:   *qs = wd->accessibleName(); 			   	break;
+	case 3:   *qs = wd->statusTip();	 			   	break;
+	case 4:   *qs = wd->toolTip();		 			   	break;
+	case 5:   *qs = wd->whatsThis();					break;
+	case 6:   *qs = wd->windowFilePath(); 				break;
+	case 7:   *qs = wd->windowRole(); 					break; 
+	case 8:   *qs = wd->windowTitle(); 					break; 
+    }
 }
 extern "C" MSVC_API  void qteQWidget_setToolTip(QtRefH wd, QtRefH qs) {
     ((QWidget*)wd)->setToolTip(*(QString*)qs);
@@ -718,8 +855,9 @@ extern "C" MSVC_API  void qteQPalette_delete(QPalette* wd) {
 #endif
 }
 // =========== QPushButton =========
-extern "C" MSVC_API  QtRefH qteQPushButton_create1(QtRefH parent, QtRefH name) {
-    return  (QtRefH) new QPushButton((const QString &)*name, (QWidget*)parent);
+extern "C" MSVC_API  QtRefH qteQPushButton_create1(QtRefH wd, QtRefH parent, QtRefH name) {
+    *((QPointer<QPushButton>*)wd) = new QPushButton((const QString &)*name, (QWidget*)parent);
+    return (QtRefH)( ((QPointer<QPushButton>*)wd)->data() );
 }
 extern "C" MSVC_API  void qteQPushButton_delete(QPushButton* wd) {
 #ifdef debDelete
@@ -840,33 +978,52 @@ extern "C" MSVC_API void qteQGridLayout_addLayout1(QGridLayout* wd, QLayout* w, 
 
 // ===================== QLyout ====================
 // 35
-extern "C" MSVC_API  QtRefH qteQVBoxLayout(QWidget* wd) {
-    if(wd == NULL) {
-        return  (QtRefH) new QVBoxLayout();
+extern "C" MSVC_API  QtRefH qteQVBoxLayout(QtRefH wd, QtRefH parent) {
+    if(parent == NULL) {
+        *((QPointer<QVBoxLayout>*)wd) = new QVBoxLayout();
+        return (QtRefH)( ((QPointer<QVBoxLayout>*)wd)->data() );
     } else {
-        return  (QtRefH) new QVBoxLayout(wd);
+        *((QPointer<QVBoxLayout>*)wd) = new QVBoxLayout((QWidget*)parent);
+        return (QtRefH)( ((QPointer<QVBoxLayout>*)wd)->data() );
     }
-    // return  (QtRefH) new QVBoxLayout(wd);
+    return  NULL;
 }
 // 36
-extern "C" MSVC_API  QtRefH qteQHBoxLayout(QWidget* wd) {
-    if(wd == NULL) {
-        return  (QtRefH) new QHBoxLayout();
+extern "C" MSVC_API  QtRefH qteQHBoxLayout(QtRefH wd, QtRefH parent) {
+    if(parent == NULL) {
+        *((QPointer<QHBoxLayout>*)wd) = new QHBoxLayout();
+        QHBoxLayout* qq = new QHBoxLayout();
+        delete qq;
+        return (QtRefH)( ((QPointer<QHBoxLayout>*)wd)->data() );
     } else {
-        return  (QtRefH) new QHBoxLayout(wd);
+        *((QPointer<QHBoxLayout>*)wd) = new QHBoxLayout((QWidget*)parent);
+        return (QtRefH)( ((QPointer<QHBoxLayout>*)wd)->data() );
     }
+    return  NULL;
 }
+
 // 34
-extern "C" MSVC_API  QtRefH qteQBoxLayout(QtRefH wd, QBoxLayout::Direction dir) {
-    return  (QtRefH) new QBoxLayout(dir, (QWidget*)wd);
+extern "C" MSVC_API  QtRefH qteQBoxLayout(QtRefH wd, QtRefH parent, QBoxLayout::Direction dir) {
+    *((QPointer<QBoxLayout>*)wd) = new QBoxLayout(dir, (QWidget*)parent);
+    return (QtRefH)( ((QPointer<QBoxLayout>*)wd)->data() );
 }
+
+
 // 37
-extern "C" MSVC_API  void qteQBoxLayout_delete(QBoxLayout* wd) {
+extern "C" MSVC_API  void qteQBoxLayout_delete(QtRefH* wd, int tp) {
 #ifdef debDelete
     printf("del QBoxLayout --> %p\n");
 #endif
 #ifdef debDestr
-    if(wd->parent() == NULL) delete wd;
+    if(tp == 1) { if(((QBoxLayout*)wd)->parent() == NULL)  delete (QBoxLayout*)wd;  }
+    if(tp == 2) { if(((QVBoxLayout*)wd)->parent() == NULL) delete (QVBoxLayout*)wd; }
+    if(tp == 3) {
+        if(((QHBoxLayout*)wd)->parent() == NULL) {
+            printf("del2 QHBoxLayout --> %p\n", (QHBoxLayout*)wd);
+            delete (QHBoxLayout*)wd;
+            printf("del3 QHBoxLayout --> \n");
+        }
+    }
 #endif
 #ifdef debDelete
     printf("----------------> Ok\n");
@@ -903,9 +1060,15 @@ extern "C" MSVC_API  void qteQBoxLayout_addWidget(QtRefH BoxLyout, QtRefH widget
 extern "C" MSVC_API  void qteQBoxLayout_addLayout(QtRefH BoxLyout, QtRefH layout) {
 	((QBoxLayout*)BoxLyout)->addLayout((QBoxLayout*)layout);
 }
-extern "C" MSVC_API  void qteQBoxLayout_setSpacing(QBoxLayout* BoxLyout, int sp) {
+extern "C" MSVC_API  void qteQBoxLayout_setSpacing(QBoxLayout* BoxLyout, int sp, int pr) {
     BoxLyout->setSpacing(sp);
+    switch ( pr ) {
+    case 0:   BoxLyout->setSpacing(sp);    break;
+    case 1:   BoxLyout->addStretch(sp);    break;
+    case 2:   BoxLyout->addStrut(sp);      break;
+    }
 }
+
 extern "C" MSVC_API  int qteQBoxLayout_spacing(QBoxLayout* BoxLyout) {
     return BoxLyout->spacing();
 }
@@ -936,9 +1099,11 @@ extern "C" MSVC_API  QFrame* qteQFrame_create1(QWidget* parent, Qt::WindowFlags 
 }
 */
 
-extern "C" MSVC_API  eQFrame* qteQFrame_create1(QWidget* parent, Qt::WindowFlags f) {
-    return new eQFrame(parent, f);
+extern "C" MSVC_API  QtRefH qteQFrame_create1(QtRefH wd, QtRefH parent, Qt::WindowFlags f) {
+    *((QPointer<eQFrame>*)wd) = new eQFrame((eQWidget*)parent, f);
+    return (QtRefH)( ((QPointer<eQFrame>*)wd)->data() );
 }
+
 extern "C" MSVC_API  void qteQFrame_delete1(eQFrame* wd) {
 #ifdef debDelete
     printf("del eQFrame --> \n");
@@ -994,8 +1159,9 @@ extern "C" MSVC_API  void qteQFrame_listChildren(eQFrame* wd) {
 }
 
 // ===================== QLabel ====================
-extern "C" MSVC_API  QtRefH qteQLabel_create1(QtRefH parent, Qt::WindowFlags f) {
-    return (QtRefH)new QLabel((QWidget*)parent, f);
+extern "C" MSVC_API  QtRefH qteQLabel_create1(QtRefH wd, QtRefH parent, Qt::WindowFlags f) {
+    *((QPointer<QLabel>*)wd) = new QLabel((QLabel*)parent, f);
+    return (QtRefH)( ((QPointer<QLabel>*)wd)->data() );
 }
 extern "C" MSVC_API  void qteQLabel_delete1(QLabel* wd) {
 #ifdef debDelete
@@ -1014,6 +1180,11 @@ extern "C" MSVC_API  void qteQLabel_setText(QtRefH wd, QtRefH qs) {
 extern "C" MSVC_API  void qteQLabel_setPixmap(QLabel* wd, QPixmap* pm) {
     wd->setPixmap(*pm);
 }
+// 522
+extern "C" MSVC_API  void qteQLabel_setAligment(QLabel* wd, Qt::Alignment alg) {
+    wd->setAlignment(alg);
+}
+
 // ===================== QEvent ====================
 extern "C" MSVC_API  int qteQEvent_type(QEvent* ev) {
     return ev->type();
@@ -1041,10 +1212,10 @@ extern "C" MSVC_API  int qteQMouseEvent1(QMouseEvent* ev, int pr) {
 extern "C" MSVC_API  int qteQMouseEvent2(QWheelEvent* ev, int pr) {
     int rez = 0;
     switch ( pr ) {
-    case 0:   rez = ev->x();    break;
-    case 1:   rez = ev->y();    break;
-    case 2:   rez = ev->globalX();    break;
-    case 3:   rez = ev->globalY();    break;
+    case 0:   rez = ev->position().toPoint().x();    break;
+    case 1:   rez = ev->position().toPoint().y();    break;
+    case 2:   rez = ev->globalPosition().toPoint().x();    break;
+    case 3:   rez = ev->globalPosition().toPoint().y();    break;
     }
     return rez;
 }
@@ -1052,9 +1223,9 @@ extern "C" MSVC_API  int qteQMouseEvent2(QWheelEvent* ev, int pr) {
 extern "C" MSVC_API  void qteQMouseangleDelta(QWheelEvent* ev, QPoint* point, int pr) {
     switch ( pr ) {
     case 0:   *point = ev->angleDelta();    break;
-    case 1:   *point = ev->globalPos();     break;
+    case 1:   *point = ev->globalPosition().toPoint();   break;
     case 2:   *point = ev->pixelDelta();    break;
-    case 3:   *point = ev->pos();           break;
+    case 3:   *point = ev->position().toPoint();         break;
     }
 }
 
@@ -1198,9 +1369,12 @@ void eQPlainTextEdit::keyReleaseEvent(QKeyEvent* event) {
         if(otv != NULL) {  QPlainTextEdit::keyReleaseEvent(otv); }
     }
 }
-extern "C" MSVC_API  eQPlainTextEdit* qteQPlainTextEdit_create1(QWidget* parent) {
-    return new eQPlainTextEdit(parent);
+extern "C" MSVC_API QtRefH qteQPlainTextEdit_create1(QtRefH wd, QtRefH parent) {
+    *((QPointer<eQPlainTextEdit>*)wd) = new eQPlainTextEdit((eQWidget*)parent);
+    return (QtRefH)( ((QPointer<eQPlainTextEdit>*)wd)->data() );
 }
+
+
 extern "C" MSVC_API  void qteQPlainTextEdit_delete1(eQPlainTextEdit* wd) {
 #ifdef debDelete
     printf("del eQPlainTextEdit --> \n");
@@ -1274,7 +1448,7 @@ extern "C" MSVC_API  void qteQPlainTextEdit_cursorRect(QPlainTextEdit* wd, QRect
     *tk = wd->cursorRect();
 }
 extern "C" MSVC_API  void qteQPlainTextEdit_setTabStopWidth(QPlainTextEdit* wd, int width) {
-    wd->setTabStopWidth(width);
+    wd->setTabStopDistance(double(width));
 }
 // 282
 extern "C" MSVC_API  void qteQPlainTextEdit_firstVisibleBlock(eQPlainTextEdit* wd, QTextBlock* tb) {
@@ -1391,7 +1565,10 @@ extern "C" MSVC_API  int qteQAction_getInt(eAction* qw) {  return qw->m_qint; }
 // 463
 extern "C" MSVC_API  void qteQAction_setInt(eAction* qw, int pqs) {  qw->setQint(pqs); }
 // -------------------------------------------------------
-extern "C" MSVC_API  void* qteQAction_create(QObject * parent) {  return new eAction(parent); }
+extern "C" MSVC_API QtRefH qteQAction_create(QtRefH wd, QtRefH parent) {
+    *((QPointer<eAction>*)wd) = new eAction((eQWidget*)parent);
+    return (QtRefH)( ((QPointer<eAction>*)wd)->data() );
+}
 extern "C" MSVC_API  void  qteQAction_delete(eAction* wd)      {
 #ifdef debDelete
     printf("del eAction --> %p\n", wd->parent());
@@ -1446,8 +1623,9 @@ extern "C" MSVC_API  void qte_Connect(QtRefH obj1, char* signal, QtRefH slot, ch
 }
 */
 // ================= QMenu ==================================
-extern "C" MSVC_API   void* qteQMenu_create(QWidget * parent) {
-     return new QMenu(parent);
+extern "C" MSVC_API QtRefH qteQMenu_create(QtRefH wd, QtRefH parent) {
+    *((QPointer<QMenu>*)wd) = new QMenu((QWidget*)parent);
+    return (QtRefH)( ((QPointer<QMenu>*)wd)->data() );
 }
 extern "C" MSVC_API  void qteQMenu_delete(QMenu* wd) {
 #ifdef debDelete
@@ -1473,9 +1651,11 @@ extern "C" MSVC_API   void qteQMenu_addMenu(QMenu* menu, QMenu* nmenu) {
     menu->addMenu(nmenu);
 }
 // ============ QMenuBar ====================================
-extern "C" MSVC_API   void* qteQMenuBar_create(QWidget * parent) {
-     return new QMenuBar(parent);
+extern "C" MSVC_API QtRefH qteQMenuBar_create(QtRefH wd, QtRefH parent) {
+    *((QPointer<QMenuBar>*)wd) = new QMenuBar((QWidget*)parent);
+    return (QtRefH)( ((QPointer<QMenuBar>*)wd)->data() );
 }
+
 extern "C" MSVC_API  void qteQMenuBar_delete(QMenuBar* wd) {
 #ifdef debDelete
     printf("del QMenuBar --> \n");
@@ -1491,9 +1671,15 @@ extern "C" MSVC_API  void qteQMenuBar_addMenu(QMenuBar* wd, QMenu* mn) {
     wd->addMenu(mn);
 }
 // ============ QFont =======================================
-extern "C" MSVC_API   void* qteQFont_create() {
-     return new QFont();
+extern "C" MSVC_API   QtRefH qteQFont_create() {
+    return (QtRefH)(new QFont());
 }
+/*
+extern "C" MSVC_API QtRefH qteQFont_create(QtRefH wd) {
+    *((QPointer<QFont>*)wd) = new QFont();
+    return (QtRefH)( ((QPointer<QFont>*)wd)->data() );
+}
+*/
 extern "C" MSVC_API  void qteQFont_delete(QFont* wd) {
 #ifdef debDelete
     printf("del QFont --> \n");
@@ -1539,9 +1725,10 @@ extern "C" MSVC_API  bool qteQFont_getBoolXX1(QFont* wd, int pr) {
 }
 
 // ============ QIcon =======================================
-extern "C" MSVC_API   void* qteQIcon_create() {
-     return new QIcon();
+extern "C" MSVC_API   QtRefH qteQIcon_create() {
+    return (QtRefH)(new QIcon());
 }
+
 extern "C" MSVC_API  void qteQIcon_delete(QIcon* wd) {
 #ifdef debDelete
     printf("del QIcon --> \n");
@@ -1571,9 +1758,17 @@ extern "C" MSVC_API  void qteQIcon_swap( QIcon* wd, QIcon* iconSwap ) {
     wd->swap(*iconSwap);
 }
 // ============ QToolBar ====================================
+/*
 extern "C" MSVC_API   void* qteQToolBar_create() {
     return new QToolBar();
 }
+*/
+extern "C" MSVC_API QtRefH qteQToolBar_create(QtRefH wd, QtRefH parent) {
+    *((QPointer<QToolBar>*)wd) = new QToolBar((QWidget*)parent);
+    return (QtRefH)( ((QPointer<QToolBar>*)wd)->data() );
+}
+
+
 extern "C" MSVC_API  void qteQToolBar_delete(QToolBar* wd) {
 #ifdef debDelete
     printf("del QToolBar --> \n");
@@ -1605,9 +1800,17 @@ extern "C" MSVC_API  void qteQToolBar_addSeparator(QToolBar* wd, int pr) {
 }
 
 // ============ QDialog ====================================
+/*
 extern "C" MSVC_API  QDialog* qteQDialog_create(QWidget* parent, Qt::WindowFlags f) {
     return new QDialog(parent, f);
 }
+*/
+extern "C" MSVC_API QtRefH qteQDialog_create(QtRefH wd, QtRefH parent, Qt::WindowFlags f) {
+    *((QPointer<QDialog>*)wd) = new QDialog((QWidget*)parent, f);
+    return (QtRefH)( ((QPointer<QDialog>*)wd)->data() );
+}
+
+
 extern "C" MSVC_API  void qteQDialog_delete(QDialog* wd) {
 #ifdef debDelete
     printf("del QDialog --> \n");
@@ -1623,9 +1826,16 @@ extern "C" MSVC_API  int qteQDialog_exec(QDialog* wd) {
     return wd->exec();
 }
 // ============ QMessageBox ====================================
+/*
 extern "C" MSVC_API  QMessageBox* qteQMessageBox_create(QWidget* parent) {
     return new QMessageBox(parent);
 }
+*/
+extern "C" MSVC_API QtRefH qteQMessageBox_create(QtRefH wd, QtRefH parent) {
+    *((QPointer<QMessageBox>*)wd) = new QMessageBox((QWidget*)parent);
+    return (QtRefH)( ((QPointer<QMessageBox>*)wd)->data() );
+}
+
 extern "C" MSVC_API  void qteQMessageBox_delete(QMessageBox* wd) {
 #ifdef debDelete
     printf("del QMessageBox --> \n");
@@ -1654,9 +1864,16 @@ extern "C" MSVC_API  void qteQMessageBox_setStandardButtons(QMessageBox* wd,
     }
 }
 // ============ QProgressBar ====================================
+/*
 extern "C" MSVC_API  QProgressBar* qteQProgressBar_create(QWidget* parent) {
     return new QProgressBar(parent);
 }
+*/
+extern "C" MSVC_API QtRefH qteQProgressBar_create(QtRefH wd, QtRefH parent) {
+    *((QPointer<QProgressBar>*)wd) = new QProgressBar((QWidget*)parent);
+    return (QtRefH)( ((QPointer<QProgressBar>*)wd)->data() );
+}
+
 extern "C" MSVC_API  void qteQProgressBar_delete(QProgressBar* wd) {
 #ifdef debDelete
     printf("del QProgressBar --> \n");
@@ -1821,8 +2038,9 @@ extern "C" MSVC_API  void qteQAbstractScrollArea_delete(QAbstractScrollArea* wd)
 }
 // =========== QMdiArea ==========
 // 151
-extern "C" MSVC_API  QMdiArea* qteQMdiArea_create(QWidget* parent) {
-    return new QMdiArea(parent);
+extern "C" MSVC_API  QtRefH qteQMdiArea_create(QtRefH wd, QWidget* parent) {
+    *((QPointer<QMdiArea>*)wd) = new QMdiArea((QWidget*)parent);
+    return (QtRefH)( ((QPointer<QMdiArea>*)wd)->data() );
 }
 extern "C" MSVC_API  void qteQMdiArea_delete(QMdiArea* wd) {
 #ifdef debDelete
@@ -1869,9 +2087,11 @@ extern "C" MSVC_API  void qteQMdiArea_setViewMode(QMdiArea* ma, QMdiArea::ViewMo
 }
 
 // =========== QMdiSubWindow ==========
-extern "C" MSVC_API  QMdiSubWindow* qteQMdiSubWindow_create(QWidget* parent, Qt::WindowFlags f) {
-    return new QMdiSubWindow(parent, f);
+extern "C" MSVC_API QtRefH qteQMdiSubWindow_create(QtRefH wd, QtRefH parent, Qt::WindowFlags f) {
+    *((QPointer<QMdiSubWindow>*)wd) = new QMdiSubWindow((QWidget*)parent, f);
+    return (QtRefH)( ((QPointer<QMdiSubWindow>*)wd)->data() );
 }
+
 extern "C" MSVC_API  void qteQMdiSubWindow_delete(QMdiSubWindow* wd) {
 #ifdef debDelete
     printf("del QMdiSubWindow --> \n");
@@ -2058,9 +2278,11 @@ extern "C" MSVC_API  QTableWidgetItem* qteQTableWidget_takeItem (QTableWidget* w
 }
 
 // =========== QComboBox ==========
-extern "C" MSVC_API  QComboBox* qteQComboBox_create(QWidget* parent) {
-    return new QComboBox(parent);
+extern "C" MSVC_API QtRefH qteQComboBox_create(QtRefH wd, QtRefH parent) {
+    *((QPointer<QComboBox>*)wd) = new QComboBox((QWidget*)parent);
+    return (QtRefH)( ((QPointer<QComboBox>*)wd)->data() );
 }
+
 extern "C" MSVC_API  void qteQComboBox_delete(QComboBox* wd) {
 #ifdef debDelete
     printf("del QComboBox --> \n");
@@ -2078,6 +2300,12 @@ extern "C" MSVC_API  void qteQComboBox_setXX(QComboBox* wd, QString *qstr, int n
     case 1:   wd->setItemText(n, *qstr);   break;
     case 2:   wd->setMaxCount(n);          break;
     case 3:   wd->setMaxVisibleItems(n);   break;
+	case 4:   wd->setCurrentIndex(n);      break;
+	
+	case 5:   wd->insertSeparator(n);      break;
+	case 6:   wd->removeItem(n);      	   break;
+	case 7:   wd->setMinimumContentsLength(n); break;
+	case 8:   wd->setModelColumn(n);           break;
     }
 }
 extern "C" MSVC_API  int qteQComboBox_getXX(QComboBox* wd, int pr) {
@@ -2173,11 +2401,14 @@ extern "C" MSVC_API  void qteQPainter_drawPixmap1(QPainter* qp, QPixmap* pm, int
 }
 
 // =========== QLCDNumber ==========
-extern "C" MSVC_API  QLCDNumber* qteQLCDNumber_create1(QWidget* parent) {
-    return new QLCDNumber(parent);
+extern "C" MSVC_API QtRefH qteQLCDNumber_create1(QtRefH wd, QtRefH parent) {
+    *((QPointer<QLCDNumber>*)wd) = new QLCDNumber((QWidget*)parent);
+    return (QtRefH)( ((QPointer<QLCDNumber>*)wd)->data() );
 }
-extern "C" MSVC_API  QLCDNumber* qteQLCDNumber_create2(QWidget* parent, int n) {
-    return new QLCDNumber(n, parent);
+
+extern "C" MSVC_API QtRefH qteQLCDNumber_create2(QtRefH wd, QtRefH parent, int n) {
+    *((QPointer<QLCDNumber>*)wd) = new QLCDNumber(n, (QWidget*)parent);
+    return (QtRefH)( ((QPointer<QLCDNumber>*)wd)->data() );
 }
 extern "C" MSVC_API  void qteQLCDNumber_delete1(QLCDNumber* wd) {
 #ifdef debDelete
@@ -2227,9 +2458,11 @@ extern "C" MSVC_API  int qteQAbstractSlider_getXX(QAbstractSlider* wd, int pr) {
     return rez;
 }
 // =========== QSlider ==========
-extern "C" MSVC_API  QSlider* qteQSlider_create1(QWidget* parent, Qt::Orientation n) {
-    return new QSlider(n, parent);
+extern "C" MSVC_API QtRefH qteQSlider_create1(QtRefH wd, QtRefH parent, Qt::Orientation n) {
+    *((QPointer<QSlider>*)wd) = new QSlider(n,  (QWidget*)parent);
+    return (QtRefH)( ((QPointer<QSlider>*)wd)->data() );
 }
+
 extern "C" MSVC_API  void qteQSlider_delete1(QSlider* wd) {
 #ifdef debDelete
     printf("del QSlider --> \n");
@@ -2242,9 +2475,11 @@ extern "C" MSVC_API  void qteQSlider_delete1(QSlider* wd) {
 #endif
 }
 // =========== QGroupBox ==========
-extern "C" MSVC_API  QGroupBox* qteQGroupBox_create(QWidget* parent) {
-    return new QGroupBox(parent);
+extern "C" MSVC_API QtRefH qteQGroupBox_create(QtRefH wd, QtRefH parent) {
+    *((QPointer<QGroupBox>*)wd) = new QGroupBox((QWidget*)parent);
+    return (QtRefH)( ((QPointer<QGroupBox>*)wd)->data() );
 }
+
 extern "C" MSVC_API  void qteQGroupBox_delete(QGroupBox* wd) {
 #ifdef debDelete
     printf("del QGroupBox --> \n");
@@ -2889,7 +3124,7 @@ extern "C" MSVC_API  void qteQTextEdit_cursorRect(QTextEdit* wd, QRect* tk) {
     *tk = wd->cursorRect();
 }
 extern "C" MSVC_API  void qteQTextEdit_setTabStopWidth(QTextEdit* wd, int width) {
-    wd->setTabStopWidth(width);
+    wd->setTabStopDistance(double(width));
 }
 // ===================== QTimer ====================
 // 262
@@ -3035,7 +3270,7 @@ extern "C" MSVC_API  int qteQImage_getXX1(QImage* wd, int pr) {
     case 0:   rez = wd->width();           break;
     case 1:   rez = wd->height();          break;
     case 2:   rez = wd->bitPlaneCount();   break;
-    case 3:   rez = wd->byteCount();       break;
+    case 3:   rez = wd->sizeInBytes();     break;
     case 4:   rez = wd->bytesPerLine();    break;
     case 5:   rez = wd->colorCount();      break;
     case 6:   rez = wd->depth();           break;
@@ -3244,9 +3479,11 @@ extern "C" MSVC_API bool QResource_registerResource2(QResource* wd, uchar* rccDa
 
 // ===================== QStackedWidget ====================
 // 402
-extern "C" MSVC_API  QtRefH QStackedWidget_create1(QWidget* parent) {
-    return (QtRefH)new QStackedWidget(parent);
+extern "C" MSVC_API QtRefH QStackedWidget_create1(QtRefH wd, QtRefH parent) {
+    *((QPointer<QStackedWidget>*)wd) = new QStackedWidget((QWidget*)parent);
+    return (QtRefH)( ((QPointer<QStackedWidget>*)wd)->data() );
 }
+
 // 403
 extern "C" MSVC_API  void QStackedWidget_delete1(QStackedWidget* wd) {
 #ifdef debDelete
@@ -3289,9 +3526,11 @@ extern "C" MSVC_API  int QStackedWidget_setXX3(QStackedWidget* wd, QWidget* w, i
 
 // ===================== QTabBar ====================
 // 407
-extern "C" MSVC_API  QtRefH QTabBar_create1(QWidget* parent) {
-    return (QtRefH)new QTabBar(parent);
+extern "C" MSVC_API QtRefH QTabBar_create1(QtRefH wd, QtRefH parent) {
+    *((QPointer<QTabBar>*)wd) = new QTabBar((QWidget*)parent);
+    return (QtRefH)( ((QPointer<QTabBar>*)wd)->data() );
 }
+
 // 408
 extern "C" MSVC_API  void QTabBar_delete1(QTabBar* wd) {
 #ifdef debDelete
@@ -3578,7 +3817,7 @@ extern "C" MSVC_API void  QT_QTextStream_setCodec(QTextStream* ts, const char *c
 }
 extern "C" MSVC_API void  QT_QTextStream_readLine(QTextStream* ts, QByteArray* ba, int maxLen) {
     ba->clear();
-    ba->append( ts->readLine(maxLen) );
+    ba->append( ts->readLine(maxLen).toUtf8() );
 }
 extern "C" MSVC_API bool QT_QTextStream_atEnd(QTextStream* dev) {
     return dev->atEnd();
