@@ -507,6 +507,8 @@ extern "C" MSVC_API QtRefH qteQPointer_create(int tp) {
     if(tp == 26) return (QtRefH)(new QPointer<QTabBar>());
     if(tp == 27) return (QtRefH)(new QPointer<QStackedWidget>());
     if(tp == 28) return (QtRefH)(new QPointer<QLCDNumber>());
+	//---------
+	if(tp == 29) return (QtRefH)(new QPointer<QCommandLinkButton>());
     return nullptr;
 }
 // 701
@@ -541,6 +543,8 @@ extern "C" MSVC_API void qteQPointer_delete(QtRefH wd, int tp) {
     if(tp == 26) delete (QPointer<QTabBar>*)wd;
     if(tp == 27) delete (QPointer<QStackedWidget>*)wd;
     if(tp == 28) delete (QPointer<QLCDNumber>*)wd;
+	//---------
+    if(tp == 29) delete (QPointer<QCommandLinkButton>*)wd;
 }
 // 702
 extern "C" MSVC_API bool qteQPointer_isNull(QtRefH wd, int tp) {
@@ -574,6 +578,8 @@ extern "C" MSVC_API bool qteQPointer_isNull(QtRefH wd, int tp) {
     if(tp == 26) return ((QPointer<QTabBar>*)wd)->isNull();
     if(tp == 27) return ((QPointer<QStackedWidget>*)wd)->isNull();
     if(tp == 28) return ((QPointer<QLCDNumber>*)wd)->isNull();
+    //---------
+    if(tp == 29) return ((QPointer<QCommandLinkButton>*)wd)->isNull();
     return false;
 }
 //extern "C" MSVC_API  QtRefH qteQWidget_create1(QtRefH parent, Qt::WindowFlags f) {
@@ -1211,22 +1217,47 @@ extern "C" MSVC_API  int qteQMouseEvent1(QMouseEvent* ev, int pr) {
 // ===================== QMouseEvent2 ====================
 extern "C" MSVC_API  int qteQMouseEvent2(QWheelEvent* ev, int pr) {
     int rez = 0;
-    switch ( pr ) {
-    case 0:   rez = ev->position().toPoint().x();    break;
-    case 1:   rez = ev->position().toPoint().y();    break;
-    case 2:   rez = ev->globalPosition().toPoint().x();    break;
-    case 3:   rez = ev->globalPosition().toPoint().y();    break;
-    }
+#if QT_VERSION == QT_VERSION_CHECK(5, 15, 2)
+	if(QT_VERSION == QT_VERSION_CHECK(5, 15, 2)) {
+		switch ( pr ) {
+		case 0:   rez = ev->position().toPoint().x();    break;
+		case 1:   rez = ev->position().toPoint().y();    break;
+		case 2:   rez = ev->globalPosition().toPoint().x();    break;
+		case 3:   rez = ev->globalPosition().toPoint().y();    break;
+		}
+	}
+#endif
+#if QT_VERSION == QT_VERSION_CHECK(5, 12, 7)
+    if(QT_VERSION == QT_VERSION_CHECK(5, 12, 7)) {
+		switch ( pr ) {
+        case 0:   rez = ev->pos().x();    break;
+        case 1:   rez = ev->pos().y();    break;
+        case 2:   rez = ev->globalPos().x();    break;
+        case 3:   rez = ev->globalPos().y();    break;
+		}
+	}
+#endif
     return rez;
 }
 //437
 extern "C" MSVC_API  void qteQMouseangleDelta(QWheelEvent* ev, QPoint* point, int pr) {
+#if QT_VERSION == QT_VERSION_CHECK(5, 15, 2)
     switch ( pr ) {
     case 0:   *point = ev->angleDelta();    break;
     case 1:   *point = ev->globalPosition().toPoint();   break;
     case 2:   *point = ev->pixelDelta();    break;
     case 3:   *point = ev->position().toPoint();         break;
     }
+#endif
+#if QT_VERSION == QT_VERSION_CHECK(5, 12, 7)
+    switch ( pr ) {
+    case 0:   *point = ev->angleDelta();    break;
+    case 1:   *point = ev->globalPos();   break;
+    case 2:   *point = ev->pixelDelta();    break;
+    case 3:   *point = ev->pos();         break;
+    }
+#endif
+
 }
 
 extern "C" MSVC_API  Qt::MouseButton qteQMouse_button(QMouseEvent* ev) {
@@ -1238,6 +1269,41 @@ extern "C" MSVC_API  QtRefH qteQResizeEvent_size(QResizeEvent* ev) {
 }
 extern "C" MSVC_API  QtRefH qteQResizeEvent_oldSize(QResizeEvent* ev) {
     return (QtRefH)&ev->oldSize();
+}
+// ===================== QStringList ====================
+// 680
+extern "C" MSVC_API  QtRefH qteQStringList_create1() {
+    return (QtRefH)new QStringList();
+}
+// 679
+extern "C" MSVC_API  void qteQStringList_delete1(QStringList* wd) {
+    delete wd;
+}
+// 678
+extern "C" MSVC_API  void qteQStringList_set(QStringList* qw, QString *qstr, int pr) {
+    switch ( pr ) {
+    case 0:   qw->append(*qstr); break;
+    case 1:   qw->prepend(*qstr);  break;
+    case 2:   qw->clear();  break;
+    }
+}
+// 677
+extern "C" MSVC_API  int qteQStringList_getInt(QStringList* qw, int pr) {
+    int rez = 0;
+    switch ( pr ) {
+    case 0:   rez = qw->size(); break;
+    case 1:   rez = qw->removeDuplicates();  break;
+    }
+    return rez;
+}
+// 676
+extern "C" MSVC_API  void qteQStringList_getQStr1(QStringList* wd, QString* qs, int arg, int pr) {
+    switch ( pr ) {
+    case 0:   *qs = wd->at(arg);    				break;
+    case 1:   *qs = wd->constFirst();    	break;
+    case 2:   *qs = wd->constLast();    	break;
+    case 3:   *qs = wd->join(QChar(arg));  	break;
+    }
 }
 // ===================== QSize ====================
 extern "C" MSVC_API  QtRefH qteQSize_create1(int wd, int ht) {
@@ -2524,6 +2590,36 @@ extern "C" MSVC_API  void qteQCheckBox_setTristate(QCheckBox* qs, bool st) {
 extern "C" MSVC_API  bool qteQCheckBox_isTristate(QCheckBox* qs) {
     return qs->isTristate();
 }
+// =========== QCommandLinkButton ==========
+// 694
+extern "C" MSVC_API  QtRefH qteQCommandLinkButton_create2(QtRefH wd, QtRefH parent, QtRefH name, QtRefH description) {
+    *((QPointer<QCommandLinkButton>*)wd) = new QCommandLinkButton((const QString &)*name, (const QString &)*description, (QWidget*)parent);
+    return (QtRefH)( ((QPointer<QCommandLinkButton>*)wd)->data() );
+}
+// 695
+extern "C" MSVC_API  QtRefH qteQCommandLinkButton_create1(QtRefH wd, QtRefH parent, QtRefH name) {
+    *((QPointer<QCommandLinkButton>*)wd) = new QCommandLinkButton((const QString &)*name, (QWidget*)parent);
+    return (QtRefH)( ((QPointer<QCommandLinkButton>*)wd)->data() );
+}
+// 697
+extern "C" MSVC_API QtRefH qteQCommandLinkButton_create(QtRefH wd, QtRefH parent) {
+    *((QPointer<QCommandLinkButton>*)wd) = new QCommandLinkButton((QWidget*)parent);
+    return (QtRefH)( ((QPointer<QCommandLinkButton>*)wd)->data() );
+}
+// 696
+extern "C" MSVC_API  void qteQCommandLinkButton_delete(QCommandLinkButton* wd) {
+	printf("1 -- QCommandLinkButton_delete\n");
+    if(wd->parent() == NULL) {
+		printf("3 -- %p -- QCommandLinkButton_delete\n", wd);
+		delete wd;
+	}
+	printf("2 -- QCommandLinkButton_delete\n");
+}
+// 693
+extern "C" MSVC_API  void qteQCommandLinkButton_setDiscript(QtRefH wd, QtRefH qs) {
+    ((QCommandLinkButton*)wd)->setDescription( (const QString &)*qs  );
+}
+
 // =========== QRadioButton ==========
 extern "C" MSVC_API  QRadioButton* qteQRadioButton_create1(QWidget* parent, QString* name) {
     return  new QRadioButton(*name, parent);
