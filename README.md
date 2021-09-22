@@ -8,6 +8,8 @@ It uses dynamic Qt5 loading and a predefined set of slots, allows you not to use
 
 ## Usage
 ```
+domnload demo_Qt6 - This for Win64+Qt6_dll* and compile, execute demo ...
+
 Make app for D:
     dmd app.d qte5.d
     
