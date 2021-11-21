@@ -1,0 +1,1188 @@
+## 	Комментарий
+
+
+%%Демо|Демо №1 (проще некуда)
+%%Демо|Демо №2 (QtE5 - одиночная форма)
+%%Демо|Демо №3 (QtE5 - Изображение в окне QImage)
+%%Демо|Демо №4 (QtE5 - QLabel приветствие)
+%%Демо|Демо №5 (Пример диапазона)
+
+%%Файлы|Правильное чтение файла
+%%Файлы|Ищем позицию в файле
+%%Файлы|СтдВход,читать,постр,strip,sort-функция
+%%Файлы|Запись в файл, байтов, строк, буферов
+%%Файлы|Форматное чтение файла
+%%Файлы|Различные файловые операции
+
+%%Простые примеры|Пример №1
+%%Простые примеры|Пример №2
+%%Простые примеры|Пример №3
+%%|
+
+%!Демо|Демо №1 (проще некуда)
+<p>Простая програма, показывает как работать с аргументами командной строки.</p>
+<hr>
+<pre><span class='inner-pre' style='font-family: "Hack"; <!--[[FS]]-->'>
+<font color='green'>/**</font>
+<font color='green'> *  Authors: ????_NAME_????, ????_email_????</font>
+<font color='green'> *  ????_Date_????</font>
+<font color='green'> *  ___</font>
+<font color='green'> *  Description: ????</font>
+<font color='green'> *  ___</font>
+<font color='green'> */</font>
+
+<font color='blue'>// dmd hello.d -release -mcpu=native -m64</font>
+
+<font color='Purple'>import</font> std.stdio;
+
+<font color='green'>// ________________________________________________________________</font>
+<font color='green'>// Start application ...</font>
+int main(string[] args) {
+	<font color='green'>// Количество входных аргументов</font>
+	int numOfArgs = args.length;
+	<font color='green'>// Первый аргумент == имя программы</font>
+	string nameApp = args[0];
+	
+	writeln(<font color='red'>"Hello world!"</font>);
+	writeln(<font color='red'>"numOfArgs = "</font>, numOfArgs, <font color='red'>"    Name App = "</font>, nameApp);
+	return 0;
+}
+
+<font color='green'>__EOF__ ___________________________________________________________</font>
+</span>
+</pre>
+%!!
+%!Демо|Демо №2 (QtE5 - одиночная форма)
+http://hilite.me/ -- autumn
+<hr>
+<!-- HTML generated using hilite.me -->
+<div overflow:auto;width:auto;border:solid gray;border-width:.1em .1em .1em .8em;padding:.2em .6em;">
+<pre><span class='inner-pre' style='font-family: "Hack"; <!--[[FS]]--> '>
+<span style="color: #0000ff">import</span> std.stdio;
+<span style="color: #0000ff">import</span> qte56;			<span style="color: #008000">// Графическая библиотека QtE5</span>
+<span style="color: #0000ff">import</span> core.runtime;		<span style="color: #008000">// Обработка входных параметров</span>
+
+<span style="color: blue">// dmd p2.d qte56.d -release -mcpu=native -m64</span>
+
+<span style="color: #0000ff">const</span> strRed   = <span style="color: #a31515">&quot;background: pink&quot;</span>;
+
+<span style="color: #008000">// ________________________________________________________________</span>
+<span style="color: #008000">// Start application ...</span>
+<span style="color: #2b91af">int</span> main(string[] ards) {
+	<span style="color: #2b91af">bool</span> fDebug = <span style="color: #0000ff">true</span>; 	<span style="color: #008000">// Загрузка QtE56 с отладочной информацией</span>
+
+	<span style="color: #008000">// Если ошибки во время загрузки, то выйти с кодом 1</span>
+	<span style="color: #0000ff">if</span> (1 == LoadQt(dll.QtE6Widgets, fDebug)) <span style="color: #0000ff">return</span> 1;
+	
+	<span style="color: #008000">// Сосдание главного QApplication</span>
+	QApplication app = <span style="color: #0000ff">new</span> QApplication(&amp;Runtime.cArgs.argc, Runtime.cArgs.argv, 1);
+	<span style="color: #008000">// ---- код программы</span>
+	QWidget widget = <span style="color: #0000ff">new</span> QWidget(<span style="color: #0000ff">null</span>);
+	widget.setWindowTitle(<span style="color: #a31515">&quot;===[ Привет из QtE5! ]===&quot;</span>).setStyleSheet(strRed).show();
+	<span style="color: #008000">// ----</span>
+	<span style="color: #0000ff">return</span> app.exec();
+}  
+
+__EOF__ ___________________________________________________________
+</pre></div>
+%!!
+
+%!Демо|Демо №3 (QtE5 - Изображение в окне QImage)
+Image - Открыть, массштабировать.
+<hr>
+<div style="background: #ffffff; overflow:auto;width:auto;border:solid gray;border-width:.1em .1em .1em .8em;padding:.2em .6em;">
+<pre><span class='inner-pre' style='font-family: "Hack"; <!--[[FS]]-->'>
+<span style="color: #0000ff">import</span> std.stdio;
+<span style="color: #0000ff">import</span> qte56;			<span style="color: #008000">// Графическая библиотека QtE5</span>
+<span style="color: #0000ff">import</span> core.runtime;		<span style="color: #008000">// Обработка входных параметров</span>
+
+<span style="color: blue">// dmd t1.d qte56.d -release -mcpu=native -m64</span>
+
+<span style="color: #008000">// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~</span>
+<span style="color: #008000">// CView - окно визуализации Image</span>
+<span style="color: #008000">// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~</span>
+<span style="color: #0000ff">extern</span> (C) {
+	<span style="color: #2b91af">void</span>  onPaintWidget(CView* uk, <span style="color: #2b91af">void</span>* ev, <span style="color: #2b91af">void</span>* qpaint)  { (*uk).runPaint(ev, qpaint); };
+}
+<span style="color: #008000">// __________________________________________________________________</span>
+<span style="color: #0000ff">class</span> CView : QWidget {
+	QImage im;
+	QPoint pointer;
+	<span style="color: #0000ff">const</span> wWin = 800;
+	<span style="color: #0000ff">this</span>() {
+		<span style="color: #0000ff">super</span>(<span style="color: #0000ff">null</span>);
+
+		<span style="color: #008000">// Запросить файл Image для просмотра</span>
+		QFileDialog fileDlg = <span style="color: #0000ff">new</span> QFileDialog(<span style="color: #a31515">&#39;+&#39;</span>, <span style="color: #0000ff">null</span>);
+		string cmd = fileDlg.getOpenFileNameSt(<span style="color: #a31515">&quot;Укажите графический файл ...&quot;</span>,
+				<span style="color: #a31515">&quot;&quot;</span>, <span style="color: #a31515">&quot;*.jpg *.png *.ppt *.gif&quot;</span>);
+		<span style="color: #0000ff">if</span>(cmd != <span style="color: #a31515">&quot;&quot;</span>) {
+			im = <span style="color: #0000ff">new</span> QImage(); im.load(cmd);
+			resize(wWin, <span style="color: #0000ff">cast</span>(<span style="color: #2b91af">int</span>)( <span style="color: #0000ff">cast</span>(<span style="color: #2b91af">real</span>)im.height / (<span style="color: #0000ff">cast</span>(<span style="color: #2b91af">real</span>)im.width / <span style="color: #0000ff">cast</span>(<span style="color: #2b91af">real</span>)wWin) ));
+			writeln(<span style="color: #a31515">&quot;width = &quot;</span>, im.width, <span style="color: #a31515">&quot;  height = &quot;</span>, im.height);
+			setPaintEvent(&amp;onPaintWidget, aThis());
+			setWindowTitle(cmd);
+		} <span style="color: #0000ff">else</span> {
+			setWindowTitle(<span style="color: #a31515">&quot;=== Ни чего не выбрано ===&quot;</span>);
+		}
+	}
+	<span style="color: #008000">// ______________________________________________________________</span>
+	<span style="color: #008000">// Перерисовать себя</span>
+	<span style="color: #2b91af">void</span> runPaint(<span style="color: #2b91af">void</span>* ev, <span style="color: #2b91af">void</span>* qpaint) { <span style="color: #008000">//-&gt; Перерисовка области</span>
+		QPainter qp = <span style="color: #0000ff">new</span> QPainter(<span style="color: #a31515">&#39;+&#39;</span>, qpaint);
+		<span style="color: #008000">// Масштабируем по размеру виджета</span>
+		QRect nr = <span style="color: #0000ff">new</span> QRect();
+		qp.drawImage(contentsRect(nr), im);
+		<span style="color: #008000">// Масштабируем опираясь на ширину главного окна</span>
+		resize(width, <span style="color: #0000ff">cast</span>(<span style="color: #2b91af">int</span>)( <span style="color: #0000ff">cast</span>(<span style="color: #2b91af">real</span>)im.height / (<span style="color: #0000ff">cast</span>(<span style="color: #2b91af">real</span>)im.width / <span style="color: #0000ff">cast</span>(<span style="color: #2b91af">real</span>)width) ));
+		nr.destroy();
+		qp.end();
+	}
+}
+
+<span style="color: #2b91af">void</span> main(string[] ards) {
+	<span style="color: #0000ff">if</span> (1 == LoadQt(dll.QtE6Widgets | dll.QtE6core, <span style="color: #0000ff">false</span>)) <span style="color: #0000ff">return</span>;
+	QApplication app = <span style="color: #0000ff">new</span> QApplication(&amp;Runtime.cArgs.argc, Runtime.cArgs.argv, 1);
+	CView widget = <span style="color: #0000ff">new</span> CView(); widget.saveThis(&amp;widget); widget.show();
+	app.exec();
+}
+
+__EOF__ ___________________________________________________________
+</pre></div>
+%!!
+%!Демо|Демо №4 (QtE5 - QLabel приветствие)
+QLabel - пример.
+<hr>
+<style type="text/css">
+html  { background-color: #fdf6e3; color: #002b36; }
+.kwrd { color: #b58900; font-weight: bold;  }
+.com  { color: Green; font-style: italic; }
+.num  { color: #dc322f; font-weight: bold;  }
+.str  { color: #2aa198; font-style: italic; }
+.op   { color: #586e75; font-weight: bold;  }
+.type { color: #268bd2; font-weight: bold;  }
+.cons { color: #859900; font-weight: bold;  }
+</style>
+<pre>
+<span class="kwrd">import</span> qte56<span class="op">;</span> <span class="com">// Графическая библиотека QtE5</span>
+<span class="kwrd">import</span> core<span class="op">.</span>runtime<span class="op">;</span> <span class="com">// Обработка входных параметров</span>
+
+<span class="com">// dmd t1.d qte56.d -release -mcpu=native -m64</span>
+
+<span class="type">void</span> main<span class="op">(</span>string<span class="op">[</span><span class="op">]</span> ards<span class="op">)</span> <span class="op">{</span>
+	string s <span class="op">=</span> <span class="str">"
+&lt;p>&lt;font size='34' color='red'>QtE5&lt;/font>
+&lt;font size='34' color='blue'>&lt;i> - a small wrapper of Qt-5 for D&lt;/i>&lt;/font>&lt;/p>
+"</span><span class="op">;</span>
+	<span class="kwrd">if</span> <span class="op">(</span><span class="num">1</span> <span class="op">==</span> LoadQt<span class="op">(</span>dll<span class="op">.</span>QtE6Widgets<span class="op">,</span> <span class="kwrd">false</span><span class="op">)</span><span class="op">)</span>
+		<span class="kwrd">return</span><span class="op">;</span>
+	QApplication app <span class="op">=</span> <span class="kwrd">new</span> QApplication<span class="op">(</span><span class="op">&amp;</span>Runtime<span class="op">.</span>cArgs<span class="op">.</span>argc<span class="op">,</span> Runtime<span class="op">.</span>cArgs<span class="op">.</span>argv<span class="op">,</span> <span class="num">1</span><span class="op">)</span><span class="op">;</span>
+	QLabel lb <span class="op">=</span> <span class="kwrd">new</span> QLabel<span class="op">(</span><span class="kwrd">null</span><span class="op">)</span><span class="op">;</span>
+	lb<span class="op">.</span>setText<span class="op">(</span>s<span class="op">)</span><span class="op">.</span>show<span class="op">(</span><span class="op">)</span><span class="op">;</span>
+	app<span class="op">.</span>exec<span class="op">(</span><span class="op">)</span><span class="op">;</span>
+<span class="op">}</span>
+</pre>
+%!!
+%!Демо|Демо №5 (Пример диапазона)
+<!-- HTML generated using hilite.me --><div style="background: #ffffff; overflow:auto;width:auto;border:solid gray;border-width:.1em .1em .1em .8em;padding:.2em .6em;">
+<pre><span class='inner-pre' style='font-family: "Hack"; <!--[[FS]]-->'>
+<span style="color: #0000aa">import</span> std.stdio;
+<span style="color: #0000aa">import</span> std.file;
+<span style="color: #0000aa">import</span> std.conv;
+<span style="color: #0000aa">import</span> std.algorithm;
+
+<span style="color: #0000aa">struct</span> t1 {
+	<span style="color: #00aaaa">int</span> max = <span style="color: #009999">1</span>;
+	<span style="color: #00aaaa">string</span> front = <span style="color: #aa5500">&quot;[0]&quot;</span>;
+	<span style="color: #aaaaaa; font-style: italic">// string back;</span>
+	<span style="color: #00aaaa">bool</span> empty;
+	<span style="color: #aaaaaa; font-style: italic">// __________________________</span>
+	<span style="color: #00aaaa">string</span> opIndex(<span style="color: #00aaaa">int</span> ind) {
+		<span style="color: #0000aa">return</span> <span style="color: #aa5500">&quot;[&quot;</span> ~ to!<span style="color: #00aaaa">string</span>(ind) ~ <span style="color: #aa5500">&quot;]&quot;</span>;
+	}
+	<span style="color: #aaaaaa; font-style: italic">// __________________________</span>
+	<span style="color: #00aaaa">void</span> popFront() {
+		front = <span style="color: #aa5500">&quot;[&quot;</span> ~ to!<span style="color: #00aaaa">string</span>(max) ~ <span style="color: #aa5500">&quot;]&quot;</span>;
+		<span style="color: #0000aa">if</span>(max++ != <span style="color: #009999">10</span>) empty = <span style="color: #0000aa">false</span>; <span style="color: #0000aa">else</span> empty = <span style="color: #0000aa">true</span>;
+	}
+	<span style="color: #aaaaaa; font-style: italic">// __________________________</span>
+	<span style="color: #00aaaa">void</span> popBack() {
+		<span style="color: #0000aa">if</span>(--max != <span style="color: #009999">0</span>) empty = <span style="color: #0000aa">false</span>; <span style="color: #0000aa">else</span> empty = <span style="color: #0000aa">true</span>;
+		front = <span style="color: #aa5500">&quot;[&quot;</span> ~ to!<span style="color: #00aaaa">string</span>(max) ~ <span style="color: #aa5500">&quot;]&quot;</span>;
+	}
+}
+
+<span style="color: #00aaaa">void</span> main() {
+	t1 t;
+	writeln(t);
+	writeln(t[<span style="color: #009999">4</span>]);
+}
+</pre></div>
+%!!
+
+%!Файлы|Правильное чтение файла
+<!-- HTML generated using hilite.me -->
+<div style="background: #ffffff; overflow:auto;width:auto;border:solid gray;border-width:.1em .1em .1em .8em;padding:.2em .6em;">
+<pre><span class='inner-pre' style='font-family: "Hack"; font-size: <!--[[FS]]-->'>
+<span style="color: #0000ff">try</span> {
+    <span style="color: #008000">// 2ой параметр File — это режим доступа к файлу, он из функции fopen библиотеки C.</span>
+    <span style="color: #008000">//</span>
+    <span style="color: #008000">// <b>r</b> — открыть файл на чтение. Файл должен существовать.</span>
+    <span style="color: #008000">// <b>w</b> — создать пустой файл для записи. Если файл с таким же</span>
+    <span style="color: #008000">// именем уже существует, его содержимое будет удалено, и</span>
+    <span style="color: #008000">// файл считается пустым.</span>
+    <span style="color: #008000">// <b>a</b> — открыть файл на запись в конце файла. Операции вывода</span>
+    <span style="color: #008000">// всегда записывают данные в конец файла, увеличивая его объём.</span>
+    <span style="color: #008000">// Операции переразмещения данных игнорируются.</span>
+    <span style="color: #008000">// Если файл не существует, он создаётся.</span>
+    <span style="color: #008000">// <b>r+</b> — открыть файл на обновление (чтение и запись).</span>
+    <span style="color: #008000">// Файл должен существовать.</span>
+    <span style="color: #008000">// <b>w+</b> — создать пустой файл и открыть его на обновление (на чтение</span>
+    <span style="color: #008000">// и запись). Если файл с таким именем уже существует,</span>
+    <span style="color: #008000">//    его содержимое удаляется, и файл считается пустым.</span>
+    <span style="color: #008000">// <b>a+</b> — открыть файл на обновление (чтение и запись), причём все</span>
+    <span style="color: #008000">// операции вывода записывают данные в конец файла.</span>
+    <span style="color: #008000">// Операции переразмещения влияют на следующие операции чтения,</span>
+    <span style="color: #008000">// однако операции записи перемещают позицию в конец файла.</span>
+    <span style="color: #008000">// Если файл не существует, он создаётся.</span>
+
+    <span style="color: #0000ff">auto</span> file = File(<span style="color: #a31515">&quot;test.txt&quot;</span>, <span style="color: #a31515">&quot;r&quot;</span>);
+
+    <span style="color: #008000">// Файл закрывается автоматически, но можно его закрыть вручную,</span>
+    <span style="color: #008000">// если нужно.</span>
+    file.close();
+    <span style="color: #008000">// прим. перев.: Если кто-то параноик вроде меня и таки сомневается, что файл</span>
+    <span style="color: #008000">// закрывается при выходе из программы, можно использовать приблизительный аналог</span>
+    <span style="color: #008000">// Go&#39;шного defer:</span>
+    <span style="color: #008000">// scope(exit) file.close();</span>
+}
+<span style="color: #0000ff">catch</span> (ErrnoException ex)
+{
+    <span style="color: #0000ff">switch</span>(ex.errno)
+    {
+        <span style="color: #0000ff">case</span> EPERM:
+        <span style="color: #0000ff">case</span> EACCES:
+            <span style="color: #008000">// Доступ запрещён</span>
+            <span style="color: #0000ff">break</span>;
+        <span style="color: #0000ff">case</span> ENOENT:
+            <span style="color: #008000">// Файл не существует</span>
+            <span style="color: #0000ff">break</span>;
+        <span style="color: #0000ff">default</span>:
+            <span style="color: #008000">// Обрабатываем другие ошибки</span>
+            <span style="color: #0000ff">break</span>;
+    }
+}
+</pre></div>
+%!!
+%!Файлы|Ищем позицию в файле
+<!-- HTML generated using hilite.me -->
+<div style="background: #ffffff; overflow:auto;width:auto;border:solid gray;border-width:.1em .1em .1em .8em;padding:.2em .6em;">
+<pre><span class='inner-pre' style='font-family: "Hack"; font-size: <!--[[FS]]-->'>
+<span style="color: #008000">// -----------  Ищем позицию в файле --------</span>
+<span style="color: #0000ff">import</span> std.exception;
+<span style="color: #0000ff">import</span> std.stdio;
+
+<span style="color: #2b91af">void</span> main(string[] args)
+{
+    <span style="color: #0000ff">try</span>
+    {
+        <span style="color: #0000ff">auto</span> file = File(<span style="color: #a31515">&quot;test.txt&quot;</span>, <span style="color: #a31515">&quot;r&quot;</span>);
+
+        <span style="color: #008000">// Переходим на 10 байт от начала файла.</span>
+        file.seek(10, SEEK_SET);
+
+        <span style="color: #008000">// Переходим на 2 байта назад от текущей позиции.</span>
+        file.seek(-2, SEEK_CUR);
+
+        <span style="color: #008000">// Переходим на 4 байта назад от конца файла.</span>
+        file.seek(-4, SEEK_END);
+
+        <span style="color: #008000">// Получить текущую позицию смещения.</span>
+        <span style="color: #0000ff">auto</span> pos = file.tell();
+
+        <span style="color: #008000">// Переходим назад к началу файла.</span>
+        file.rewind();
+    }
+    <span style="color: #0000ff">catch</span> (ErrnoException ex)
+    {
+        <span style="color: #008000">// Обрабатываем ошибки</span>
+    }
+}
+</pre></div>
+%!!
+%!Файлы|СтдВход,читать,постр,strip,sort-функция
+Читать построчно со ст.входа, обрезать пробелы, всё в массив.
+Сортировать при помощи внешней функции.
+<hr>
+<!-- HTML generated using hilite.me -->
+<div style="background: #ffffff; overflow:auto;width:auto;border:solid gray;border-width:.1em .1em .1em .8em;padding:.2em .6em;">
+<pre><span class='inner-pre' style='font-family: "Hack"; font-size: <!--[[FS]]-->'>
+<span style="color: #0000ff">import</span> std.stdio;
+<span style="color: #0000ff">import</span> std.array;
+<span style="color: #0000ff">import</span> std.algorithm;
+<span style="color: #0000ff">import</span> std.string;
+
+<span style="color: #008000">// _____________________________________________________________</span>
+<span style="color: #008000">// Сортировка</span>
+<span style="color: #2b91af">bool</span> tst(string a, string b, <span style="color: #2b91af">int</span> np) {
+    <span style="color: #2b91af">bool</span> rez;
+    <span style="color: #008000">// Сравнивает a, b используя параметр np</span>
+    <span style="color: #0000ff">if</span>(np == 1) {
+        rez = a &lt; b;
+    } <span style="color: #0000ff">else</span> {
+        rez = a &gt; b;
+    }
+    <span style="color: #0000ff">return</span> rez;
+}
+
+
+<span style="color: #2b91af">void</span> main(string[] args) {
+    <span style="color: #008000">// Стандартный вход --&gt; в массив строк</span>
+    string[] mas = stdin.byLineCopy.map!strip.array;
+    <span style="color: #008000">// Сортировка через участие внешней функции    </span>
+    <span style="color: #0000ff">auto</span> mas2 = mas.sort!((a, b) =&gt; tst(a, b, 1));
+    <span style="color: #008000">// Отсортированный массив</span>
+    <span style="color: #0000ff">foreach</span> (st; mas2) writeln(st);
+
+    <span style="color: #008000">// Выкинуть gовторяющиеся элементы из массива объектов</span>
+    <span style="color: #008000">// auto masObjNew = masObj.addRootStrMas.map!strip.array.sort.uniq;</span>
+}
+</pre></div>
+%!!
+
+%!Файлы|Запись в файл, байтов, строк, буферов
+<!-- HTML generated using hilite.me --><div style="background: #ffffff; overflow:auto;width:auto;border:solid gray;border-width:.1em .1em .1em .8em;padding:.2em .6em;">
+<pre><span class='inner-pre' style='font-family: "Hack"; font-size: <!--[[FS]]-->'>
+<span style="color: #008000">// ----------- Записываем байты в файл --------</span>
+<span style="color: #0000ff">import</span> std.exception;
+<span style="color: #0000ff">import</span> std.stdio;
+
+<span style="color: #2b91af">void</span> main(string[] args)
+{
+    <span style="color: #0000ff">try</span>
+    {
+        <span style="color: #2b91af">byte</span>[] data = [0x68, 0x65, 0x6c, 0x6c, 0x6f];
+        <span style="color: #0000ff">auto</span> file = File(<span style="color: #a31515">&quot;test.txt&quot;</span>, <span style="color: #a31515">&quot;w&quot;</span>);
+        file.rawWrite(data);
+    }
+    <span style="color: #0000ff">catch</span> (ErrnoException ex)
+    {
+        <span style="color: #008000">// Обрабатываем ошибки</span>
+    }
+}
+<span style="color: #008000">// ----------- Быстрая запись в файл --------</span>
+<span style="color: #0000ff">import</span> std.file;
+
+<span style="color: #2b91af">void</span> main(string[] args)
+{
+    <span style="color: #0000ff">try</span>
+    {
+        write(<span style="color: #a31515">&quot;test.txt&quot;</span>, [0x68, 0x65, 0x6c, 0x6c, 0x6f]);
+    }
+    <span style="color: #0000ff">catch</span> (FileException ex)
+    {
+        <span style="color: #008000">// Обрабатываем ошибки</span>
+    }
+}
+<span style="color: #008000">// ----------- Записываем строки в файл --------</span>
+<span style="color: #0000ff">import</span> std.exception;
+<span style="color: #0000ff">import</span> std.stdio;
+
+<span style="color: #2b91af">void</span> main(string[] args)
+{
+    <span style="color: #0000ff">try</span>
+    {
+        <span style="color: #0000ff">auto</span> file = File(<span style="color: #a31515">&quot;test.txt&quot;</span>, <span style="color: #a31515">&quot;w&quot;</span>);
+        <span style="color: #008000">// Записываем строку.</span>
+        file.write(<span style="color: #a31515">&quot;1: Lorem ipsum\n&quot;</span>);
+        <span style="color: #008000">// Записываем строку, за которой следует символ перевода строки.</span>
+        file.writeln(<span style="color: #a31515">&quot;2: Lorem ipsum&quot;</span>);
+        <span style="color: #008000">// Записываем форматированную строку.</span>
+        file.writef(<span style="color: #a31515">&quot;3: %s&quot;</span>, <span style="color: #a31515">&quot;Lorem ipsum\n&quot;</span>);
+        <span style="color: #008000">// Записываем форматированную строку, за которой следует символ перевода строки.</span>
+        file.writefln(<span style="color: #a31515">&quot;4: %s&quot;</span>, <span style="color: #a31515">&quot;Lorem ipsum&quot;</span>);
+    }
+    <span style="color: #0000ff">catch</span> (ErrnoException ex)
+    {
+        <span style="color: #008000">// Обрабатываем ошибки</span>
+    }
+}
+<span style="color: #008000">// ----------- Использование буфера ввода-вывода перед записью в файл --------</span>
+<span style="color: #0000ff">import</span> std.file;
+<span style="color: #0000ff">import</span> std.outbuffer;
+
+<span style="color: #2b91af">void</span> main(string[] args)
+{
+    <span style="color: #0000ff">auto</span> buffer  = <span style="color: #0000ff">new</span> OutBuffer();
+    <span style="color: #2b91af">ubyte</span>[] data = [0x68, 0x65, 0x6c, 0x6c, 0x6f];
+    buffer.write(data);
+    buffer.write(<span style="color: #a31515">&#39; &#39;</span>);
+    buffer.write(<span style="color: #a31515">&quot;world&quot;</span>);
+    <span style="color: #0000ff">try</span>
+    {
+        write(<span style="color: #a31515">&quot;test.txt&quot;</span>, buffer.toBytes());
+    }
+    <span style="color: #0000ff">catch</span> (FileException ex)
+    {
+        <span style="color: #008000">// Обрабатываем ошибки</span>
+    }
+}
+</pre></div>
+%!!
+%!Файлы|Форматное чтение файла
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8"/>
+<title>t2.d</title>
+</head>
+<body>
+<style type="text/css">
+html  { background-color: #fdf6e3; color: #002b36; }
+.kwrd { color: #b58900; font-weight: bold;  }
+.com  { color: #93a1a1; font-style: italic; }
+.num  { color: #dc322f; font-weight: bold;  }
+.str  { color: #2aa198; font-style: italic; }
+.op   { color: #586e75; font-weight: bold;  }
+.type { color: #268bd2; font-weight: bold;  }
+.cons { color: #859900; font-weight: bold;  }
+</style>
+<pre>
+<span class="type">int</span> nomer<span class="op">;</span>
+string fam<span class="op">,</span> nam<span class="op">,</span> jt<span class="op">,</span> dtr<span class="op">;</span>
+File f <span class="op">=</span> File<span class="op">(</span><span class="str">r"c:\qte_work\sql\all_260715.csv"</span><span class="op">,</span> <span class="str">"r"</span><span class="op">)</span><span class="op">;</span>
+<span class="kwrd">while</span> <span class="op">(</span><span class="op">!</span>f<span class="op">.</span>eof<span class="op">(</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span>
+	f<span class="op">.</span>readf<span class="op">(</span><span class="str">"%s;%s;%s;%s;%s\n"</span><span class="op">,</span>  <span class="op">&amp;</span> nomer<span class="op">,</span>  <span class="op">&amp;</span> fam<span class="op">,</span>  <span class="op">&amp;</span> nam<span class="op">,</span>  <span class="op">&amp;</span> ot<span class="op">,</span>  <span class="op">&amp;</span> dtr<span class="op">)</span><span class="op">;</span>
+	writeln<span class="op">(</span>i<span class="op">,</span> <span class="str">" ["</span><span class="op">,</span> nomer<span class="op">,</span> <span class="str">"] - ["</span><span class="op">,</span> fam<span class="op">,</span> <span class="str">"] - ["</span><span class="op">,</span> nam<span class="op">,</span> <span class="str">"] - ["</span><span class="op">,</span> ot<span class="op">,</span> <span class="str">"] - ["</span><span class="op">,</span> dtr<span class="op">,</span> <span class="str">"]"</span><span class="op">)</span><span class="op">;</span>
+<span class="op">}</span>
+</pre>
+</body></html>
+%!!
+
+
+%!Файлы|Различные файловые операции
+<!-- HTML generated using hilite.me -->
+<div style="background: #f8f8f8; overflow:auto;width:auto;border:solid gray;border-width:.1em .1em .1em .8em;padding:.2em .6em;"><pre style="margin: 0; line-height: 125%"><span style="color: #8f5902; font-style: italic">// -----------  Читаем файл --------</span>
+<span style="color: #204a87; font-weight: bold">try</span> <span style="color: #000000; font-weight: bold">{</span>
+		<span style="color: #8f5902; font-style: italic">// 2ой параметр File — это режим доступа к файлу, он идентичен режиму из функции fopen стандартной библиотеки C.</span>
+		<span style="color: #8f5902; font-style: italic">//</span>
+		<span style="color: #8f5902; font-style: italic">// r — открыть файл на чтение. Файл должен существовать.</span>
+		<span style="color: #8f5902; font-style: italic">// w — создать пустой файл для записи. Если файл с таким же</span>
+		<span style="color: #8f5902; font-style: italic">// именем уже существует, его содержимое будет удалено, и</span>
+		<span style="color: #8f5902; font-style: italic">// файл считается пустым.</span>
+		<span style="color: #8f5902; font-style: italic">// a — открыть файл на запись в конце файла. Операции вывода</span>
+		<span style="color: #8f5902; font-style: italic">// всегда записывают данные в конец файла, увеличивая его объём.</span>
+		<span style="color: #8f5902; font-style: italic">// Операции переразмещения данных игнорируются.</span>
+		<span style="color: #8f5902; font-style: italic">// Если файл не существует, он создаётся.</span>
+		<span style="color: #8f5902; font-style: italic">// r+ — открыть файл на обновление (чтение и запись).</span>
+		<span style="color: #8f5902; font-style: italic">// Файл должен существовать.</span>
+		<span style="color: #8f5902; font-style: italic">// w+ — создать пустой файл и открыть его на обновление (на чтение</span>
+		<span style="color: #8f5902; font-style: italic">// и запись). Если файл с таким именем уже существует,</span>
+		<span style="color: #8f5902; font-style: italic">//    его содержимое удаляется, и файл считается пустым.</span>
+		<span style="color: #8f5902; font-style: italic">// a+ — открыть файл на обновление (чтение и запись), причём все</span>
+		<span style="color: #8f5902; font-style: italic">// операции вывода записывают данные в конец файла.</span>
+		<span style="color: #8f5902; font-style: italic">// Операции переразмещения влияют на следующие операции чтения,</span>
+		<span style="color: #8f5902; font-style: italic">// однако операции записи перемещают позицию в конец файла.</span>
+		<span style="color: #8f5902; font-style: italic">// Если файл не существует, он создаётся.</span>
+
+		<span style="color: #204a87; font-weight: bold">auto</span> <span style="color: #000000">file</span> <span style="color: #000000; font-weight: bold">=</span> <span style="color: #000000">File</span><span style="color: #000000; font-weight: bold">(</span><span style="color: #4e9a06">&quot;test.txt&quot;</span><span style="color: #000000; font-weight: bold">,</span> <span style="color: #4e9a06">&quot;r&quot;</span><span style="color: #000000; font-weight: bold">);</span>
+
+		<span style="color: #8f5902; font-style: italic">// Файл закрывается автоматически, но можно его закрыть вручную,</span>
+		<span style="color: #8f5902; font-style: italic">// если нужно.</span>
+		<span style="color: #000000">file</span><span style="color: #000000; font-weight: bold">.</span><span style="color: #000000">close</span><span style="color: #000000; font-weight: bold">();</span>
+		<span style="color: #8f5902; font-style: italic">// прим. перев.: Если кто-то параноик вроде меня и таки сомневается, что файл</span>
+		<span style="color: #8f5902; font-style: italic">// закрывается при выходе из программы, можно использовать приблизительный аналог</span>
+		<span style="color: #8f5902; font-style: italic">// Go&#39;шного defer:</span>
+		<span style="color: #8f5902; font-style: italic">// scope(exit) file.close();</span>
+	<span style="color: #000000; font-weight: bold">}</span>
+	<span style="color: #204a87; font-weight: bold">catch</span> <span style="color: #000000; font-weight: bold">(</span><span style="color: #000000">ErrnoException</span> <span style="color: #000000">ex</span><span style="color: #000000; font-weight: bold">)</span>
+	<span style="color: #000000; font-weight: bold">{</span>
+		<span style="color: #204a87; font-weight: bold">switch</span><span style="color: #000000; font-weight: bold">(</span><span style="color: #000000">ex</span><span style="color: #000000; font-weight: bold">.</span><span style="color: #000000">errno</span><span style="color: #000000; font-weight: bold">)</span>
+		<span style="color: #000000; font-weight: bold">{</span>
+			<span style="color: #204a87; font-weight: bold">case</span> <span style="color: #000000">EPERM</span><span style="color: #000000; font-weight: bold">:</span>
+			<span style="color: #204a87; font-weight: bold">case</span> <span style="color: #000000">EACCES</span><span style="color: #000000; font-weight: bold">:</span>
+				<span style="color: #8f5902; font-style: italic">// Доступ запрещён</span>
+				<span style="color: #204a87; font-weight: bold">break</span><span style="color: #000000; font-weight: bold">;</span>
+			<span style="color: #204a87; font-weight: bold">case</span> <span style="color: #000000">ENOENT</span><span style="color: #000000; font-weight: bold">:</span>
+				<span style="color: #8f5902; font-style: italic">// Файл не существует</span>
+				<span style="color: #204a87; font-weight: bold">break</span><span style="color: #000000; font-weight: bold">;</span>
+			<span style="color: #204a87; font-weight: bold">default</span><span style="color: #000000; font-weight: bold">:</span>
+				<span style="color: #8f5902; font-style: italic">// Обрабатываем другие ошибки</span>
+				<span style="color: #204a87; font-weight: bold">break</span><span style="color: #000000; font-weight: bold">;</span>
+		<span style="color: #000000; font-weight: bold">}</span>
+	<span style="color: #000000; font-weight: bold">}</span>
+
+<span style="color: #8f5902; font-style: italic">// -----------  Ищем позицию в файле --------</span>
+
+<span style="color: #204a87; font-weight: bold">import</span> <span style="color: #000000">std</span><span style="color: #000000; font-weight: bold">.</span><span style="color: #000000">exception</span><span style="color: #000000; font-weight: bold">;</span>
+<span style="color: #204a87; font-weight: bold">import</span> <span style="color: #000000">std</span><span style="color: #000000; font-weight: bold">.</span><span style="color: #000000">stdio</span><span style="color: #000000; font-weight: bold">;</span>
+
+<span style="color: #204a87; font-weight: bold">void</span> <span style="color: #000000">main</span><span style="color: #000000; font-weight: bold">(</span><span style="color: #204a87">string</span><span style="color: #000000; font-weight: bold">[]</span> <span style="color: #000000">args</span><span style="color: #000000; font-weight: bold">)</span>
+<span style="color: #000000; font-weight: bold">{</span>
+	<span style="color: #204a87; font-weight: bold">try</span>
+	<span style="color: #000000; font-weight: bold">{</span>
+		<span style="color: #204a87; font-weight: bold">auto</span> <span style="color: #000000">file</span> <span style="color: #000000; font-weight: bold">=</span> <span style="color: #000000">File</span><span style="color: #000000; font-weight: bold">(</span><span style="color: #4e9a06">&quot;test.txt&quot;</span><span style="color: #000000; font-weight: bold">,</span> <span style="color: #4e9a06">&quot;r&quot;</span><span style="color: #000000; font-weight: bold">);</span>
+
+		<span style="color: #8f5902; font-style: italic">// Переходим на 10 байт от начала файла.</span>
+		<span style="color: #000000">file</span><span style="color: #000000; font-weight: bold">.</span><span style="color: #000000">seek</span><span style="color: #000000; font-weight: bold">(</span><span style="color: #0000cf; font-weight: bold">10</span><span style="color: #000000; font-weight: bold">,</span> <span style="color: #000000">SEEK_SET</span><span style="color: #000000; font-weight: bold">);</span>
+
+		<span style="color: #8f5902; font-style: italic">// Переходим на 2 байта назад от текущей позиции.</span>
+		<span style="color: #000000">file</span><span style="color: #000000; font-weight: bold">.</span><span style="color: #000000">seek</span><span style="color: #000000; font-weight: bold">(-</span><span style="color: #0000cf; font-weight: bold">2</span><span style="color: #000000; font-weight: bold">,</span> <span style="color: #000000">SEEK_CUR</span><span style="color: #000000; font-weight: bold">);</span>
+
+		<span style="color: #8f5902; font-style: italic">// Переходим на 4 байта назад от конца файла.</span>
+		<span style="color: #000000">file</span><span style="color: #000000; font-weight: bold">.</span><span style="color: #000000">seek</span><span style="color: #000000; font-weight: bold">(-</span><span style="color: #0000cf; font-weight: bold">4</span><span style="color: #000000; font-weight: bold">,</span> <span style="color: #000000">SEEK_END</span><span style="color: #000000; font-weight: bold">);</span>
+
+		<span style="color: #8f5902; font-style: italic">// Получить текущую позицию смещения.</span>
+		<span style="color: #204a87; font-weight: bold">auto</span> <span style="color: #000000">pos</span> <span style="color: #000000; font-weight: bold">=</span> <span style="color: #000000">file</span><span style="color: #000000; font-weight: bold">.</span><span style="color: #000000">tell</span><span style="color: #000000; font-weight: bold">();</span>
+
+		<span style="color: #8f5902; font-style: italic">// Переходим назад к началу файла.</span>
+		<span style="color: #000000">file</span><span style="color: #000000; font-weight: bold">.</span><span style="color: #000000">rewind</span><span style="color: #000000; font-weight: bold">();</span>
+	<span style="color: #000000; font-weight: bold">}</span>
+	<span style="color: #204a87; font-weight: bold">catch</span> <span style="color: #000000; font-weight: bold">(</span><span style="color: #000000">ErrnoException</span> <span style="color: #000000">ex</span><span style="color: #000000; font-weight: bold">)</span>
+	<span style="color: #000000; font-weight: bold">{</span>
+		<span style="color: #8f5902; font-style: italic">// Обрабатываем ошибки</span>
+	<span style="color: #000000; font-weight: bold">}</span>
+<span style="color: #000000; font-weight: bold">}</span>
+<span style="color: #8f5902; font-style: italic">// ----------- Записываем байты в файл --------</span>
+<span style="color: #204a87; font-weight: bold">import</span> <span style="color: #000000">std</span><span style="color: #000000; font-weight: bold">.</span><span style="color: #000000">exception</span><span style="color: #000000; font-weight: bold">;</span>
+<span style="color: #204a87; font-weight: bold">import</span> <span style="color: #000000">std</span><span style="color: #000000; font-weight: bold">.</span><span style="color: #000000">stdio</span><span style="color: #000000; font-weight: bold">;</span>
+
+<span style="color: #204a87; font-weight: bold">void</span> <span style="color: #000000">main</span><span style="color: #000000; font-weight: bold">(</span><span style="color: #204a87">string</span><span style="color: #000000; font-weight: bold">[]</span> <span style="color: #000000">args</span><span style="color: #000000; font-weight: bold">)</span>
+<span style="color: #000000; font-weight: bold">{</span>
+	<span style="color: #204a87; font-weight: bold">try</span>
+	<span style="color: #000000; font-weight: bold">{</span>
+		<span style="color: #204a87; font-weight: bold">byte</span><span style="color: #000000; font-weight: bold">[]</span> <span style="color: #000000">data</span> <span style="color: #000000; font-weight: bold">=</span> <span style="color: #000000; font-weight: bold">[</span><span style="color: #0000cf; font-weight: bold">0x68</span><span style="color: #000000; font-weight: bold">,</span> <span style="color: #0000cf; font-weight: bold">0x65</span><span style="color: #000000; font-weight: bold">,</span> <span style="color: #0000cf; font-weight: bold">0x6c</span><span style="color: #000000; font-weight: bold">,</span> <span style="color: #0000cf; font-weight: bold">0x6c</span><span style="color: #000000; font-weight: bold">,</span> <span style="color: #0000cf; font-weight: bold">0x6f</span><span style="color: #000000; font-weight: bold">];</span>
+		<span style="color: #204a87; font-weight: bold">auto</span> <span style="color: #000000">file</span> <span style="color: #000000; font-weight: bold">=</span> <span style="color: #000000">File</span><span style="color: #000000; font-weight: bold">(</span><span style="color: #4e9a06">&quot;test.txt&quot;</span><span style="color: #000000; font-weight: bold">,</span> <span style="color: #4e9a06">&quot;w&quot;</span><span style="color: #000000; font-weight: bold">);</span>
+		<span style="color: #000000">file</span><span style="color: #000000; font-weight: bold">.</span><span style="color: #000000">rawWrite</span><span style="color: #000000; font-weight: bold">(</span><span style="color: #000000">data</span><span style="color: #000000; font-weight: bold">);</span>
+	<span style="color: #000000; font-weight: bold">}</span>
+	<span style="color: #204a87; font-weight: bold">catch</span> <span style="color: #000000; font-weight: bold">(</span><span style="color: #000000">ErrnoException</span> <span style="color: #000000">ex</span><span style="color: #000000; font-weight: bold">)</span>
+	<span style="color: #000000; font-weight: bold">{</span>
+		<span style="color: #8f5902; font-style: italic">// Обрабатываем ошибки</span>
+	<span style="color: #000000; font-weight: bold">}</span>
+<span style="color: #000000; font-weight: bold">}</span>
+<span style="color: #8f5902; font-style: italic">// ----------- Быстрая запись в файл --------</span>
+<span style="color: #204a87; font-weight: bold">import</span> <span style="color: #000000">std</span><span style="color: #000000; font-weight: bold">.</span><span style="color: #000000">file</span><span style="color: #000000; font-weight: bold">;</span>
+
+<span style="color: #204a87; font-weight: bold">void</span> <span style="color: #000000">main</span><span style="color: #000000; font-weight: bold">(</span><span style="color: #204a87">string</span><span style="color: #000000; font-weight: bold">[]</span> <span style="color: #000000">args</span><span style="color: #000000; font-weight: bold">)</span>
+<span style="color: #000000; font-weight: bold">{</span>
+	<span style="color: #204a87; font-weight: bold">try</span>
+	<span style="color: #000000; font-weight: bold">{</span>
+		<span style="color: #000000">write</span><span style="color: #000000; font-weight: bold">(</span><span style="color: #4e9a06">&quot;test.txt&quot;</span><span style="color: #000000; font-weight: bold">,</span> <span style="color: #000000; font-weight: bold">[</span><span style="color: #0000cf; font-weight: bold">0x68</span><span style="color: #000000; font-weight: bold">,</span> <span style="color: #0000cf; font-weight: bold">0x65</span><span style="color: #000000; font-weight: bold">,</span> <span style="color: #0000cf; font-weight: bold">0x6c</span><span style="color: #000000; font-weight: bold">,</span> <span style="color: #0000cf; font-weight: bold">0x6c</span><span style="color: #000000; font-weight: bold">,</span> <span style="color: #0000cf; font-weight: bold">0x6f</span><span style="color: #000000; font-weight: bold">]);</span>
+	<span style="color: #000000; font-weight: bold">}</span>
+	<span style="color: #204a87; font-weight: bold">catch</span> <span style="color: #000000; font-weight: bold">(</span><span style="color: #000000">FileException</span> <span style="color: #000000">ex</span><span style="color: #000000; font-weight: bold">)</span>
+	<span style="color: #000000; font-weight: bold">{</span>
+		<span style="color: #8f5902; font-style: italic">// Обрабатываем ошибки</span>
+	<span style="color: #000000; font-weight: bold">}</span>
+<span style="color: #000000; font-weight: bold">}</span>
+<span style="color: #8f5902; font-style: italic">// ----------- Записываем строки в файл --------</span>
+<span style="color: #204a87; font-weight: bold">import</span> <span style="color: #000000">std</span><span style="color: #000000; font-weight: bold">.</span><span style="color: #000000">exception</span><span style="color: #000000; font-weight: bold">;</span>
+<span style="color: #204a87; font-weight: bold">import</span> <span style="color: #000000">std</span><span style="color: #000000; font-weight: bold">.</span><span style="color: #000000">stdio</span><span style="color: #000000; font-weight: bold">;</span>
+
+<span style="color: #204a87; font-weight: bold">void</span> <span style="color: #000000">main</span><span style="color: #000000; font-weight: bold">(</span><span style="color: #204a87">string</span><span style="color: #000000; font-weight: bold">[]</span> <span style="color: #000000">args</span><span style="color: #000000; font-weight: bold">)</span>
+<span style="color: #000000; font-weight: bold">{</span>
+	<span style="color: #204a87; font-weight: bold">try</span>
+	<span style="color: #000000; font-weight: bold">{</span>
+		<span style="color: #204a87; font-weight: bold">auto</span> <span style="color: #000000">file</span> <span style="color: #000000; font-weight: bold">=</span> <span style="color: #000000">File</span><span style="color: #000000; font-weight: bold">(</span><span style="color: #4e9a06">&quot;test.txt&quot;</span><span style="color: #000000; font-weight: bold">,</span> <span style="color: #4e9a06">&quot;w&quot;</span><span style="color: #000000; font-weight: bold">);</span>
+		<span style="color: #8f5902; font-style: italic">// Записываем строку.</span>
+		<span style="color: #000000">file</span><span style="color: #000000; font-weight: bold">.</span><span style="color: #000000">write</span><span style="color: #000000; font-weight: bold">(</span><span style="color: #4e9a06">&quot;1: Lorem ipsum\n&quot;</span><span style="color: #000000; font-weight: bold">);</span>
+		<span style="color: #8f5902; font-style: italic">// Записываем строку, за которой следует символ перевода строки.</span>
+		<span style="color: #000000">file</span><span style="color: #000000; font-weight: bold">.</span><span style="color: #000000">writeln</span><span style="color: #000000; font-weight: bold">(</span><span style="color: #4e9a06">&quot;2: Lorem ipsum&quot;</span><span style="color: #000000; font-weight: bold">);</span>
+		<span style="color: #8f5902; font-style: italic">// Записываем форматированную строку.</span>
+		<span style="color: #000000">file</span><span style="color: #000000; font-weight: bold">.</span><span style="color: #000000">writef</span><span style="color: #000000; font-weight: bold">(</span><span style="color: #4e9a06">&quot;3: %s&quot;</span><span style="color: #000000; font-weight: bold">,</span> <span style="color: #4e9a06">&quot;Lorem ipsum\n&quot;</span><span style="color: #000000; font-weight: bold">);</span>
+		<span style="color: #8f5902; font-style: italic">// Записываем форматированную строку, за которой следует символ перевода строки.</span>
+		<span style="color: #000000">file</span><span style="color: #000000; font-weight: bold">.</span><span style="color: #000000">writefln</span><span style="color: #000000; font-weight: bold">(</span><span style="color: #4e9a06">&quot;4: %s&quot;</span><span style="color: #000000; font-weight: bold">,</span> <span style="color: #4e9a06">&quot;Lorem ipsum&quot;</span><span style="color: #000000; font-weight: bold">);</span>
+	<span style="color: #000000; font-weight: bold">}</span>
+	<span style="color: #204a87; font-weight: bold">catch</span> <span style="color: #000000; font-weight: bold">(</span><span style="color: #000000">ErrnoException</span> <span style="color: #000000">ex</span><span style="color: #000000; font-weight: bold">)</span>
+	<span style="color: #000000; font-weight: bold">{</span>
+		<span style="color: #8f5902; font-style: italic">// Обрабатываем ошибки</span>
+	<span style="color: #000000; font-weight: bold">}</span>
+<span style="color: #000000; font-weight: bold">}</span>
+<span style="color: #8f5902; font-style: italic">// ----------- Использование буфера ввода-вывода перед записью в файл --------</span>
+<span style="color: #204a87; font-weight: bold">import</span> <span style="color: #000000">std</span><span style="color: #000000; font-weight: bold">.</span><span style="color: #000000">file</span><span style="color: #000000; font-weight: bold">;</span>
+<span style="color: #204a87; font-weight: bold">import</span> <span style="color: #000000">std</span><span style="color: #000000; font-weight: bold">.</span><span style="color: #000000">outbuffer</span><span style="color: #000000; font-weight: bold">;</span>
+
+<span style="color: #204a87; font-weight: bold">void</span> <span style="color: #000000">main</span><span style="color: #000000; font-weight: bold">(</span><span style="color: #204a87">string</span><span style="color: #000000; font-weight: bold">[]</span> <span style="color: #000000">args</span><span style="color: #000000; font-weight: bold">)</span>
+<span style="color: #000000; font-weight: bold">{</span>
+	<span style="color: #204a87; font-weight: bold">auto</span> <span style="color: #000000">buffer</span>  <span style="color: #000000; font-weight: bold">=</span> <span style="color: #204a87; font-weight: bold">new</span> <span style="color: #000000">OutBuffer</span><span style="color: #000000; font-weight: bold">();</span>
+	<span style="color: #204a87; font-weight: bold">ubyte</span><span style="color: #000000; font-weight: bold">[]</span> <span style="color: #000000">data</span> <span style="color: #000000; font-weight: bold">=</span> <span style="color: #000000; font-weight: bold">[</span><span style="color: #0000cf; font-weight: bold">0x68</span><span style="color: #000000; font-weight: bold">,</span> <span style="color: #0000cf; font-weight: bold">0x65</span><span style="color: #000000; font-weight: bold">,</span> <span style="color: #0000cf; font-weight: bold">0x6c</span><span style="color: #000000; font-weight: bold">,</span> <span style="color: #0000cf; font-weight: bold">0x6c</span><span style="color: #000000; font-weight: bold">,</span> <span style="color: #0000cf; font-weight: bold">0x6f</span><span style="color: #000000; font-weight: bold">];</span>
+	<span style="color: #000000">buffer</span><span style="color: #000000; font-weight: bold">.</span><span style="color: #000000">write</span><span style="color: #000000; font-weight: bold">(</span><span style="color: #000000">data</span><span style="color: #000000; font-weight: bold">);</span>
+	<span style="color: #000000">buffer</span><span style="color: #000000; font-weight: bold">.</span><span style="color: #000000">write</span><span style="color: #000000; font-weight: bold">(</span><span style="color: #4e9a06">&#39; &#39;</span><span style="color: #000000; font-weight: bold">);</span>
+	<span style="color: #000000">buffer</span><span style="color: #000000; font-weight: bold">.</span><span style="color: #000000">write</span><span style="color: #000000; font-weight: bold">(</span><span style="color: #4e9a06">&quot;world&quot;</span><span style="color: #000000; font-weight: bold">);</span>
+	<span style="color: #204a87; font-weight: bold">try</span>
+	<span style="color: #000000; font-weight: bold">{</span>
+		<span style="color: #000000">write</span><span style="color: #000000; font-weight: bold">(</span><span style="color: #4e9a06">&quot;test.txt&quot;</span><span style="color: #000000; font-weight: bold">,</span> <span style="color: #000000">buffer</span><span style="color: #000000; font-weight: bold">.</span><span style="color: #000000">toBytes</span><span style="color: #000000; font-weight: bold">());</span>
+	<span style="color: #000000; font-weight: bold">}</span>
+	<span style="color: #204a87; font-weight: bold">catch</span> <span style="color: #000000; font-weight: bold">(</span><span style="color: #000000">FileException</span> <span style="color: #000000">ex</span><span style="color: #000000; font-weight: bold">)</span>
+	<span style="color: #000000; font-weight: bold">{</span>
+		<span style="color: #8f5902; font-style: italic">// Обрабатываем ошибки</span>
+	<span style="color: #000000; font-weight: bold">}</span>
+<span style="color: #000000; font-weight: bold">}</span>
+<span style="color: #8f5902; font-style: italic">// ----------- Читаем байты из файла --------</span>
+<span style="color: #204a87; font-weight: bold">import</span> <span style="color: #000000">std</span><span style="color: #000000; font-weight: bold">.</span><span style="color: #000000">exception</span><span style="color: #000000; font-weight: bold">;</span>
+<span style="color: #204a87; font-weight: bold">import</span> <span style="color: #000000">std</span><span style="color: #000000; font-weight: bold">.</span><span style="color: #000000">stdio</span><span style="color: #000000; font-weight: bold">;</span>
+
+<span style="color: #204a87; font-weight: bold">void</span> <span style="color: #000000">main</span><span style="color: #000000; font-weight: bold">(</span><span style="color: #204a87">string</span><span style="color: #000000; font-weight: bold">[]</span> <span style="color: #000000">args</span><span style="color: #000000; font-weight: bold">)</span>
+<span style="color: #000000; font-weight: bold">{</span>
+	<span style="color: #204a87; font-weight: bold">try</span>
+	<span style="color: #000000; font-weight: bold">{</span>
+		<span style="color: #204a87; font-weight: bold">byte</span><span style="color: #000000; font-weight: bold">[]</span> <span style="color: #000000">buffer</span><span style="color: #000000; font-weight: bold">;</span>
+		<span style="color: #000000">buffer</span><span style="color: #000000; font-weight: bold">.</span><span style="color: #000000">length</span> <span style="color: #000000; font-weight: bold">=</span> <span style="color: #0000cf; font-weight: bold">1024</span><span style="color: #000000; font-weight: bold">;</span>
+		<span style="color: #204a87; font-weight: bold">auto</span> <span style="color: #000000">file</span> <span style="color: #000000; font-weight: bold">=</span> <span style="color: #000000">File</span><span style="color: #000000; font-weight: bold">(</span><span style="color: #4e9a06">&quot;test.txt&quot;</span><span style="color: #000000; font-weight: bold">,</span> <span style="color: #4e9a06">&quot;r&quot;</span><span style="color: #000000; font-weight: bold">);</span>
+		<span style="color: #204a87; font-weight: bold">auto</span> <span style="color: #000000">data</span> <span style="color: #000000; font-weight: bold">=</span> <span style="color: #000000">file</span><span style="color: #000000; font-weight: bold">.</span><span style="color: #000000">rawRead</span><span style="color: #000000; font-weight: bold">(</span><span style="color: #000000">buffer</span><span style="color: #000000; font-weight: bold">);</span>
+	<span style="color: #000000; font-weight: bold">}</span>
+	<span style="color: #204a87; font-weight: bold">catch</span> <span style="color: #000000; font-weight: bold">(</span><span style="color: #000000">ErrnoException</span> <span style="color: #000000">ex</span><span style="color: #000000; font-weight: bold">)</span>
+	<span style="color: #000000; font-weight: bold">{</span>
+		<span style="color: #8f5902; font-style: italic">// Обрабатываем ошибки</span>
+	<span style="color: #000000; font-weight: bold">}</span>
+<span style="color: #000000; font-weight: bold">}</span>
+<span style="color: #8f5902; font-style: italic">// ----------- Быстрое чтение из файла --------</span>
+<span style="color: #204a87; font-weight: bold">import</span> <span style="color: #000000">std</span><span style="color: #000000; font-weight: bold">.</span><span style="color: #000000">file</span><span style="color: #000000; font-weight: bold">;</span>
+
+<span style="color: #204a87; font-weight: bold">void</span> <span style="color: #000000">main</span><span style="color: #000000; font-weight: bold">(</span><span style="color: #204a87">string</span><span style="color: #000000; font-weight: bold">[]</span> <span style="color: #000000">args</span><span style="color: #000000; font-weight: bold">)</span>
+<span style="color: #000000; font-weight: bold">{</span>
+	<span style="color: #204a87; font-weight: bold">try</span>
+	<span style="color: #000000; font-weight: bold">{</span>
+		<span style="color: #204a87; font-weight: bold">auto</span> <span style="color: #000000">data</span> <span style="color: #000000; font-weight: bold">=</span> <span style="color: #204a87; font-weight: bold">cast</span><span style="color: #000000; font-weight: bold">(</span><span style="color: #204a87; font-weight: bold">byte</span><span style="color: #000000; font-weight: bold">[])</span> <span style="color: #000000">read</span><span style="color: #000000; font-weight: bold">(</span><span style="color: #4e9a06">&quot;test.txt&quot;</span><span style="color: #000000; font-weight: bold">);</span>
+	<span style="color: #000000; font-weight: bold">}</span>
+	<span style="color: #204a87; font-weight: bold">catch</span> <span style="color: #000000; font-weight: bold">(</span><span style="color: #000000">FileException</span> <span style="color: #000000">ex</span><span style="color: #000000; font-weight: bold">)</span>
+	<span style="color: #000000; font-weight: bold">{</span>
+		<span style="color: #8f5902; font-style: italic">// Обрабатываем ошибки</span>
+	<span style="color: #000000; font-weight: bold">}</span>
+<span style="color: #000000; font-weight: bold">}</span>
+<span style="color: #8f5902; font-style: italic">// ----------- Читаем n байт из файла --------</span>
+<span style="color: #204a87; font-weight: bold">import</span> <span style="color: #000000">std</span><span style="color: #000000; font-weight: bold">.</span><span style="color: #000000">file</span><span style="color: #000000; font-weight: bold">;</span>
+
+<span style="color: #204a87; font-weight: bold">void</span> <span style="color: #000000">main</span><span style="color: #000000; font-weight: bold">(</span><span style="color: #204a87">string</span><span style="color: #000000; font-weight: bold">[]</span> <span style="color: #000000">args</span><span style="color: #000000; font-weight: bold">)</span>
+<span style="color: #000000; font-weight: bold">{</span>
+	<span style="color: #204a87; font-weight: bold">try</span>
+	<span style="color: #000000; font-weight: bold">{</span>
+		<span style="color: #204a87; font-weight: bold">auto</span> <span style="color: #000000">data</span> <span style="color: #000000; font-weight: bold">=</span> <span style="color: #204a87; font-weight: bold">cast</span><span style="color: #000000; font-weight: bold">(</span><span style="color: #204a87; font-weight: bold">byte</span><span style="color: #000000; font-weight: bold">[])</span> <span style="color: #000000">read</span><span style="color: #000000; font-weight: bold">(</span><span style="color: #4e9a06">&quot;test.txt&quot;</span><span style="color: #000000; font-weight: bold">,</span> <span style="color: #0000cf; font-weight: bold">5</span><span style="color: #000000; font-weight: bold">);</span>
+	<span style="color: #000000; font-weight: bold">}</span>
+	<span style="color: #204a87; font-weight: bold">catch</span> <span style="color: #000000; font-weight: bold">(</span><span style="color: #000000">FileException</span> <span style="color: #000000">ex</span><span style="color: #000000; font-weight: bold">)</span>
+	<span style="color: #000000; font-weight: bold">{</span>
+		<span style="color: #8f5902; font-style: italic">// Обрабатываем ошибки</span>
+	<span style="color: #000000; font-weight: bold">}</span>
+<span style="color: #000000; font-weight: bold">}</span>
+<span style="color: #8f5902; font-style: italic">// ----------- Чтение файла порциями --------</span>
+<span style="color: #204a87; font-weight: bold">import</span> <span style="color: #000000">std</span><span style="color: #000000; font-weight: bold">.</span><span style="color: #000000">exception</span><span style="color: #000000; font-weight: bold">;</span>
+<span style="color: #204a87; font-weight: bold">import</span> <span style="color: #000000">std</span><span style="color: #000000; font-weight: bold">.</span><span style="color: #000000">stdio</span><span style="color: #000000; font-weight: bold">;</span>
+
+<span style="color: #204a87; font-weight: bold">void</span> <span style="color: #000000">main</span><span style="color: #000000; font-weight: bold">(</span><span style="color: #204a87">string</span><span style="color: #000000; font-weight: bold">[]</span> <span style="color: #000000">args</span><span style="color: #000000; font-weight: bold">)</span>
+<span style="color: #000000; font-weight: bold">{</span>
+	<span style="color: #204a87; font-weight: bold">try</span>
+	<span style="color: #000000; font-weight: bold">{</span>
+		<span style="color: #204a87; font-weight: bold">auto</span> <span style="color: #000000">file</span> <span style="color: #000000; font-weight: bold">=</span> <span style="color: #000000">File</span><span style="color: #000000; font-weight: bold">(</span><span style="color: #4e9a06">&quot;test.txt&quot;</span><span style="color: #000000; font-weight: bold">,</span> <span style="color: #4e9a06">&quot;r&quot;</span><span style="color: #000000; font-weight: bold">);</span>
+
+		<span style="color: #204a87; font-weight: bold">foreach</span> <span style="color: #000000; font-weight: bold">(</span><span style="color: #000000">buffer</span><span style="color: #000000; font-weight: bold">;</span> <span style="color: #000000">file</span><span style="color: #000000; font-weight: bold">.</span><span style="color: #000000">byChunk</span><span style="color: #000000; font-weight: bold">(</span><span style="color: #0000cf; font-weight: bold">1024</span><span style="color: #000000; font-weight: bold">))</span>
+		<span style="color: #000000; font-weight: bold">{</span>
+			<span style="color: #8f5902; font-style: italic">// Используем переменную buffer</span>
+		<span style="color: #000000; font-weight: bold">}</span>
+	<span style="color: #000000; font-weight: bold">}</span>
+	<span style="color: #204a87; font-weight: bold">catch</span> <span style="color: #000000; font-weight: bold">(</span><span style="color: #000000">ErrnoException</span> <span style="color: #000000">ex</span><span style="color: #000000; font-weight: bold">)</span>
+	<span style="color: #000000; font-weight: bold">{</span>
+		<span style="color: #8f5902; font-style: italic">// Обрабатываем ошибки</span>
+	<span style="color: #000000; font-weight: bold">}</span>
+<span style="color: #000000; font-weight: bold">}</span>
+<span style="color: #8f5902; font-style: italic">// ----------- Читаем строки из файла --------</span>
+<span style="color: #204a87; font-weight: bold">import</span> <span style="color: #000000">std</span><span style="color: #000000; font-weight: bold">.</span><span style="color: #000000">exception</span><span style="color: #000000; font-weight: bold">;</span>
+<span style="color: #204a87; font-weight: bold">import</span> <span style="color: #000000">std</span><span style="color: #000000; font-weight: bold">.</span><span style="color: #000000">stdio</span><span style="color: #000000; font-weight: bold">;</span>
+
+<span style="color: #204a87; font-weight: bold">void</span> <span style="color: #000000">main</span><span style="color: #000000; font-weight: bold">(</span><span style="color: #204a87">string</span><span style="color: #000000; font-weight: bold">[]</span> <span style="color: #000000">args</span><span style="color: #000000; font-weight: bold">)</span>
+<span style="color: #000000; font-weight: bold">{</span>
+	<span style="color: #204a87; font-weight: bold">try</span>
+	<span style="color: #000000; font-weight: bold">{</span>
+		<span style="color: #204a87; font-weight: bold">auto</span> <span style="color: #000000">file</span> <span style="color: #000000; font-weight: bold">=</span> <span style="color: #000000">File</span><span style="color: #000000; font-weight: bold">(</span><span style="color: #4e9a06">&quot;test.txt&quot;</span><span style="color: #000000; font-weight: bold">,</span> <span style="color: #4e9a06">&quot;r&quot;</span><span style="color: #000000; font-weight: bold">);</span>
+		<span style="color: #204a87">string</span> <span style="color: #000000">line</span><span style="color: #000000; font-weight: bold">;</span>
+
+		<span style="color: #204a87; font-weight: bold">while</span> <span style="color: #000000; font-weight: bold">((</span><span style="color: #000000">line</span> <span style="color: #000000; font-weight: bold">=</span> <span style="color: #000000">file</span><span style="color: #000000; font-weight: bold">.</span><span style="color: #000000">readln</span><span style="color: #000000; font-weight: bold">())</span> <span style="color: #000000; font-weight: bold">!</span><span style="color: #204a87; font-weight: bold">is</span> <span style="color: #204a87; font-weight: bold">null</span><span style="color: #000000; font-weight: bold">)</span>
+		<span style="color: #000000; font-weight: bold">{</span>
+			<span style="color: #8f5902; font-style: italic">// Используем переменную line</span>
+		<span style="color: #000000; font-weight: bold">}</span>
+	<span style="color: #000000; font-weight: bold">}</span>
+	<span style="color: #204a87; font-weight: bold">catch</span> <span style="color: #000000; font-weight: bold">(</span><span style="color: #000000">ErrnoException</span> <span style="color: #000000">ex</span><span style="color: #000000; font-weight: bold">)</span>
+	<span style="color: #000000; font-weight: bold">{</span>
+		<span style="color: #8f5902; font-style: italic">// Обрабатываем ошибки</span>
+	<span style="color: #000000; font-weight: bold">}</span>
+<span style="color: #000000; font-weight: bold">}</span>
+<span style="color: #8f5902; font-style: italic">// ----------- Читаем строки из файла в выделенный буфер --------</span>
+<span style="color: #204a87; font-weight: bold">import</span> <span style="color: #000000">std</span><span style="color: #000000; font-weight: bold">.</span><span style="color: #000000">exception</span><span style="color: #000000; font-weight: bold">;</span>
+<span style="color: #204a87; font-weight: bold">import</span> <span style="color: #000000">std</span><span style="color: #000000; font-weight: bold">.</span><span style="color: #000000">stdio</span><span style="color: #000000; font-weight: bold">;</span>
+
+<span style="color: #204a87; font-weight: bold">void</span> <span style="color: #000000">main</span><span style="color: #000000; font-weight: bold">(</span><span style="color: #204a87">string</span><span style="color: #000000; font-weight: bold">[]</span> <span style="color: #000000">args</span><span style="color: #000000; font-weight: bold">)</span>
+<span style="color: #000000; font-weight: bold">{</span>
+	<span style="color: #204a87; font-weight: bold">try</span>
+	<span style="color: #000000; font-weight: bold">{</span>
+		<span style="color: #204a87; font-weight: bold">auto</span> <span style="color: #000000">file</span> <span style="color: #000000; font-weight: bold">=</span> <span style="color: #000000">File</span><span style="color: #000000; font-weight: bold">(</span><span style="color: #4e9a06">&quot;test.txt&quot;</span><span style="color: #000000; font-weight: bold">,</span> <span style="color: #4e9a06">&quot;r&quot;</span><span style="color: #000000; font-weight: bold">);</span>
+		<span style="color: #204a87; font-weight: bold">char</span><span style="color: #000000; font-weight: bold">[]</span> <span style="color: #000000">buffer</span><span style="color: #000000; font-weight: bold">;</span>
+
+		<span style="color: #204a87; font-weight: bold">while</span> <span style="color: #000000; font-weight: bold">(</span><span style="color: #000000">file</span><span style="color: #000000; font-weight: bold">.</span><span style="color: #000000">readln</span><span style="color: #000000; font-weight: bold">(</span><span style="color: #000000">buffer</span><span style="color: #000000; font-weight: bold">))</span>
+		<span style="color: #000000; font-weight: bold">{</span>
+			<span style="color: #8f5902; font-style: italic">// Используем переменную buffer</span>
+		<span style="color: #000000; font-weight: bold">}</span>
+	<span style="color: #000000; font-weight: bold">}</span>
+	<span style="color: #204a87; font-weight: bold">catch</span> <span style="color: #000000; font-weight: bold">(</span><span style="color: #000000">ErrnoException</span> <span style="color: #000000">ex</span><span style="color: #000000; font-weight: bold">)</span>
+	<span style="color: #000000; font-weight: bold">{</span>
+		<span style="color: #8f5902; font-style: italic">// Обрабатываем ошибки</span>
+	<span style="color: #000000; font-weight: bold">}</span>
+<span style="color: #000000; font-weight: bold">}</span>
+<span style="color: #8f5902; font-style: italic">// ----------- Читаем файл как диапазон строк --------</span>
+<span style="color: #8f5902; font-style: italic">// Чтение файла как диапазона позволяет вам использовать множество</span>
+<span style="color: #8f5902; font-style: italic">// типовых алгоритмов, определённых в библиотеке Phobos.</span>
+
+<span style="color: #204a87; font-weight: bold">import</span> <span style="color: #000000">std</span><span style="color: #000000; font-weight: bold">.</span><span style="color: #000000">exception</span><span style="color: #000000; font-weight: bold">;</span>
+<span style="color: #204a87; font-weight: bold">import</span> <span style="color: #000000">std</span><span style="color: #000000; font-weight: bold">.</span><span style="color: #000000">stdio</span><span style="color: #000000; font-weight: bold">;</span>
+
+<span style="color: #204a87; font-weight: bold">void</span> <span style="color: #000000">main</span><span style="color: #000000; font-weight: bold">(</span><span style="color: #204a87">string</span><span style="color: #000000; font-weight: bold">[]</span> <span style="color: #000000">args</span><span style="color: #000000; font-weight: bold">)</span>
+<span style="color: #000000; font-weight: bold">{</span>
+	<span style="color: #204a87; font-weight: bold">try</span>
+	<span style="color: #000000; font-weight: bold">{</span>
+		<span style="color: #204a87; font-weight: bold">auto</span> <span style="color: #000000">file</span> <span style="color: #000000; font-weight: bold">=</span> <span style="color: #000000">File</span><span style="color: #000000; font-weight: bold">(</span><span style="color: #4e9a06">&quot;test.txt&quot;</span><span style="color: #000000; font-weight: bold">,</span> <span style="color: #4e9a06">&quot;r&quot;</span><span style="color: #000000; font-weight: bold">);</span>
+
+		<span style="color: #204a87; font-weight: bold">foreach</span> <span style="color: #000000; font-weight: bold">(</span><span style="color: #000000">line</span><span style="color: #000000; font-weight: bold">;</span> <span style="color: #000000">file</span><span style="color: #000000; font-weight: bold">.</span><span style="color: #000000">byLine</span><span style="color: #000000; font-weight: bold">)</span>
+		<span style="color: #000000; font-weight: bold">{</span>
+			<span style="color: #8f5902; font-style: italic">// Используем переменную line</span>
+		<span style="color: #000000; font-weight: bold">}</span>
+	<span style="color: #000000; font-weight: bold">}</span>
+	<span style="color: #204a87; font-weight: bold">catch</span> <span style="color: #000000; font-weight: bold">(</span><span style="color: #000000">ErrnoException</span> <span style="color: #000000">ex</span><span style="color: #000000; font-weight: bold">)</span>
+	<span style="color: #000000; font-weight: bold">{</span>
+		<span style="color: #8f5902; font-style: italic">// Обрабатываем ошибки</span>
+	<span style="color: #000000; font-weight: bold">}</span>
+<span style="color: #000000; font-weight: bold">}</span>
+
+<span style="color: #8f5902; font-style: italic">// Метод byLine возвращает входной диапазон, который считывает</span>
+<span style="color: #8f5902; font-style: italic">// из дескриптора файла одну строку за раз. При каждом вызове буфер</span>
+<span style="color: #8f5902; font-style: italic">// используется снова, поэтому если вам нужно сохранять данные между</span>
+<span style="color: #8f5902; font-style: italic">// вызовами, вы должны их копировать. Впрочем, существует удобный метод byLineCopy,</span>
+<span style="color: #8f5902; font-style: italic">// который делает это автоматически.</span>
+
+<span style="color: #8f5902; font-style: italic">// ----------- Быстрое чтение целого файла как одна строка --------</span>
+<span style="color: #204a87; font-weight: bold">import</span> <span style="color: #000000">std</span><span style="color: #000000; font-weight: bold">.</span><span style="color: #000000">file</span><span style="color: #000000; font-weight: bold">;</span>
+<span style="color: #204a87; font-weight: bold">import</span> <span style="color: #000000">std</span><span style="color: #000000; font-weight: bold">.</span><span style="color: #000000">utf</span><span style="color: #000000; font-weight: bold">;</span>
+
+<span style="color: #204a87; font-weight: bold">void</span> <span style="color: #000000">main</span><span style="color: #000000; font-weight: bold">(</span><span style="color: #204a87">string</span><span style="color: #000000; font-weight: bold">[]</span> <span style="color: #000000">args</span><span style="color: #000000; font-weight: bold">)</span>
+<span style="color: #000000; font-weight: bold">{</span>
+	<span style="color: #204a87; font-weight: bold">try</span>
+	<span style="color: #000000; font-weight: bold">{</span>
+		<span style="color: #8f5902; font-style: italic">// Чтение и валидация UTF8-файла.</span>
+		<span style="color: #204a87; font-weight: bold">auto</span> <span style="color: #000000">utf8Data</span>  <span style="color: #000000; font-weight: bold">=</span> <span style="color: #000000">readText</span><span style="color: #000000; font-weight: bold">(</span><span style="color: #4e9a06">&quot;test.txt&quot;</span><span style="color: #000000; font-weight: bold">);</span>
+		<span style="color: #8f5902; font-style: italic">// Чтение и валидация UTF16-файла.</span>
+		<span style="color: #204a87; font-weight: bold">auto</span> <span style="color: #000000">utf16Data</span> <span style="color: #000000; font-weight: bold">=</span> <span style="color: #000000">readText</span><span style="color: #000000; font-weight: bold">!(</span><span style="color: #204a87">wstring</span><span style="color: #000000; font-weight: bold">)(</span><span style="color: #4e9a06">&quot;test.txt&quot;</span><span style="color: #000000; font-weight: bold">);</span>
+		<span style="color: #8f5902; font-style: italic">// Чтение и валидация utf32-файла..</span>
+		<span style="color: #204a87; font-weight: bold">auto</span> <span style="color: #000000">utf32Data</span> <span style="color: #000000; font-weight: bold">=</span> <span style="color: #000000">readText</span><span style="color: #000000; font-weight: bold">!(</span><span style="color: #204a87">dstring</span><span style="color: #000000; font-weight: bold">)(</span><span style="color: #4e9a06">&quot;test.txt&quot;</span><span style="color: #000000; font-weight: bold">);</span>
+	<span style="color: #000000; font-weight: bold">}</span>
+	<span style="color: #204a87; font-weight: bold">catch</span> <span style="color: #000000; font-weight: bold">(</span><span style="color: #000000">UTFException</span> <span style="color: #000000">ex</span><span style="color: #000000; font-weight: bold">)</span>
+	<span style="color: #000000; font-weight: bold">{</span>
+		<span style="color: #8f5902; font-style: italic">// Обрабатываем ошибки валидации</span>
+	<span style="color: #000000; font-weight: bold">}</span>
+	<span style="color: #204a87; font-weight: bold">catch</span> <span style="color: #000000; font-weight: bold">(</span><span style="color: #000000">FileException</span> <span style="color: #000000">ex</span><span style="color: #000000; font-weight: bold">)</span>
+	<span style="color: #000000; font-weight: bold">{</span>
+		<span style="color: #8f5902; font-style: italic">// Обрабатываем ошибки</span>
+	<span style="color: #000000; font-weight: bold">}</span>
+<span style="color: #000000; font-weight: bold">}</span>
+
+<span style="color: #a40000; border: 1px solid #ef2929">Базовые</span> <span style="color: #a40000; border: 1px solid #ef2929">операции</span>
+
+<span style="color: #a40000; border: 1px solid #ef2929">Создание</span> <span style="color: #a40000; border: 1px solid #ef2929">пустого</span> <span style="color: #a40000; border: 1px solid #ef2929">файла</span>
+
+<span style="color: #a40000; border: 1px solid #ef2929">Нижеприведённый</span> <span style="color: #a40000; border: 1px solid #ef2929">код</span> <span style="color: #a40000; border: 1px solid #ef2929">создаёт</span> <span style="color: #a40000; border: 1px solid #ef2929">пустой</span> <span style="color: #a40000; border: 1px solid #ef2929">файл</span> <span style="color: #000000; font-weight: bold">(</span><span style="color: #a40000; border: 1px solid #ef2929">если</span> <span style="color: #a40000; border: 1px solid #ef2929">он</span> <span style="color: #a40000; border: 1px solid #ef2929">уже</span> <span style="color: #a40000; border: 1px solid #ef2929">не</span> <span style="color: #a40000; border: 1px solid #ef2929">существует</span><span style="color: #000000; font-weight: bold">)</span> <span style="color: #a40000; border: 1px solid #ef2929">при</span> <span style="color: #a40000; border: 1px solid #ef2929">инициализации</span> <span style="color: #a40000; border: 1px solid #ef2929">структуры</span> <span style="color: #a40000; border: 1px solid #ef2929">типа</span> <span style="color: #000000">File</span><span style="color: #000000; font-weight: bold">.</span> <span style="color: #a40000; border: 1px solid #ef2929">Если</span> <span style="color: #a40000; border: 1px solid #ef2929">файл</span> <span style="color: #a40000; border: 1px solid #ef2929">с</span> <span style="color: #a40000; border: 1px solid #ef2929">таким</span> <span style="color: #a40000; border: 1px solid #ef2929">именем</span> <span style="color: #a40000; border: 1px solid #ef2929">уже</span> <span style="color: #a40000; border: 1px solid #ef2929">существует</span><span style="color: #000000; font-weight: bold">,</span> <span style="color: #a40000; border: 1px solid #ef2929">его</span> <span style="color: #a40000; border: 1px solid #ef2929">содержимое</span> <span style="color: #a40000; border: 1px solid #ef2929">удаляется</span><span style="color: #000000; font-weight: bold">,</span> <span style="color: #a40000; border: 1px solid #ef2929">и</span> <span style="color: #a40000; border: 1px solid #ef2929">файл</span> <span style="color: #a40000; border: 1px solid #ef2929">считается</span> <span style="color: #a40000; border: 1px solid #ef2929">пустым</span><span style="color: #000000; font-weight: bold">.</span>
+
+<span style="color: #204a87; font-weight: bold">import</span> <span style="color: #000000">std</span><span style="color: #000000; font-weight: bold">.</span><span style="color: #000000">exception</span><span style="color: #000000; font-weight: bold">;</span>
+
+<span style="color: #204a87; font-weight: bold">void</span> <span style="color: #000000">main</span><span style="color: #000000; font-weight: bold">(</span><span style="color: #204a87">string</span><span style="color: #000000; font-weight: bold">[]</span> <span style="color: #000000">args</span><span style="color: #000000; font-weight: bold">)</span>
+<span style="color: #000000; font-weight: bold">{</span>
+	<span style="color: #204a87; font-weight: bold">try</span>
+	<span style="color: #000000; font-weight: bold">{</span>
+		<span style="color: #000000">File</span><span style="color: #000000; font-weight: bold">(</span><span style="color: #4e9a06">&quot;test.txt&quot;</span><span style="color: #000000; font-weight: bold">,</span> <span style="color: #4e9a06">&quot;w&quot;</span><span style="color: #000000; font-weight: bold">);</span>
+	<span style="color: #000000; font-weight: bold">}</span>
+	<span style="color: #204a87; font-weight: bold">catch</span> <span style="color: #000000; font-weight: bold">(</span><span style="color: #000000">ErrnoException</span> <span style="color: #000000">ex</span><span style="color: #000000; font-weight: bold">)</span>
+	<span style="color: #000000; font-weight: bold">{</span>
+		<span style="color: #8f5902; font-style: italic">// Обрабатываем ошибки</span>
+	<span style="color: #000000; font-weight: bold">}</span>
+<span style="color: #000000; font-weight: bold">}</span>
+
+<span style="color: #a40000; border: 1px solid #ef2929">Документация</span><span style="color: #000000; font-weight: bold">.</span>
+
+<span style="color: #a40000; border: 1px solid #ef2929">Проверка</span> <span style="color: #a40000; border: 1px solid #ef2929">на</span> <span style="color: #a40000; border: 1px solid #ef2929">существование</span> <span style="color: #a40000; border: 1px solid #ef2929">файла</span>
+
+<span style="color: #a40000; border: 1px solid #ef2929">Этот</span> <span style="color: #a40000; border: 1px solid #ef2929">код</span> <span style="color: #a40000; border: 1px solid #ef2929">просто</span> <span style="color: #a40000; border: 1px solid #ef2929">проверяет</span><span style="color: #000000; font-weight: bold">,</span> <span style="color: #a40000; border: 1px solid #ef2929">существует</span> <span style="color: #a40000; border: 1px solid #ef2929">ли</span> <span style="color: #a40000; border: 1px solid #ef2929">файл</span><span style="color: #000000; font-weight: bold">.</span>
+
+<span style="color: #204a87; font-weight: bold">import</span> <span style="color: #000000">std</span><span style="color: #000000; font-weight: bold">.</span><span style="color: #000000">file</span><span style="color: #000000; font-weight: bold">;</span>
+
+<span style="color: #204a87; font-weight: bold">void</span> <span style="color: #000000">main</span><span style="color: #000000; font-weight: bold">(</span><span style="color: #204a87">string</span><span style="color: #000000; font-weight: bold">[]</span> <span style="color: #000000">args</span><span style="color: #000000; font-weight: bold">)</span>
+<span style="color: #000000; font-weight: bold">{</span>
+	<span style="color: #204a87; font-weight: bold">if</span> <span style="color: #000000; font-weight: bold">(</span><span style="color: #000000">exists</span><span style="color: #000000; font-weight: bold">(</span><span style="color: #4e9a06">&quot;test.txt&quot;</span><span style="color: #000000; font-weight: bold">))</span>
+	<span style="color: #000000; font-weight: bold">{</span>
+		<span style="color: #8f5902; font-style: italic">// Используем файл</span>
+	<span style="color: #000000; font-weight: bold">}</span>
+<span style="color: #000000; font-weight: bold">}</span>
+
+<span style="color: #a40000; border: 1px solid #ef2929">Документация</span><span style="color: #000000; font-weight: bold">.</span>
+
+<span style="color: #a40000; border: 1px solid #ef2929">Переименование</span> <span style="color: #a40000; border: 1px solid #ef2929">и</span> <span style="color: #a40000; border: 1px solid #ef2929">перемещение</span> <span style="color: #a40000; border: 1px solid #ef2929">файла</span>
+
+<span style="color: #a40000; border: 1px solid #ef2929">Этот</span> <span style="color: #a40000; border: 1px solid #ef2929">код</span> <span style="color: #a40000; border: 1px solid #ef2929">переименовывает</span> <span style="color: #a40000; border: 1px solid #ef2929">и</span><span style="color: #000000; font-weight: bold">/</span><span style="color: #a40000; border: 1px solid #ef2929">или</span> <span style="color: #a40000; border: 1px solid #ef2929">перемещает</span> <span style="color: #a40000; border: 1px solid #ef2929">файл</span><span style="color: #000000; font-weight: bold">.</span> <span style="color: #a40000; border: 1px solid #ef2929">Если</span> <span style="color: #a40000; border: 1px solid #ef2929">целевой</span> <span style="color: #a40000; border: 1px solid #ef2929">файл</span> <span style="color: #a40000; border: 1px solid #ef2929">существует</span><span style="color: #000000; font-weight: bold">,</span> <span style="color: #a40000; border: 1px solid #ef2929">он</span> <span style="color: #a40000; border: 1px solid #ef2929">будет</span> <span style="color: #a40000; border: 1px solid #ef2929">перезаписан</span><span style="color: #000000; font-weight: bold">.</span>
+
+<span style="color: #204a87; font-weight: bold">import</span> <span style="color: #000000">std</span><span style="color: #000000; font-weight: bold">.</span><span style="color: #000000">file</span><span style="color: #000000; font-weight: bold">;</span>
+
+<span style="color: #204a87; font-weight: bold">void</span> <span style="color: #000000">main</span><span style="color: #000000; font-weight: bold">(</span><span style="color: #204a87">string</span><span style="color: #000000; font-weight: bold">[]</span> <span style="color: #000000">args</span><span style="color: #000000; font-weight: bold">)</span>
+<span style="color: #000000; font-weight: bold">{</span>
+	<span style="color: #204a87; font-weight: bold">try</span>
+	<span style="color: #000000; font-weight: bold">{</span>
+		<span style="color: #000000">rename</span><span style="color: #000000; font-weight: bold">(</span><span style="color: #4e9a06">&quot;source.txt&quot;</span><span style="color: #000000; font-weight: bold">,</span> <span style="color: #4e9a06">&quot;destination.txt&quot;</span><span style="color: #000000; font-weight: bold">);</span>
+	<span style="color: #000000; font-weight: bold">}</span>
+	<span style="color: #204a87; font-weight: bold">catch</span> <span style="color: #000000; font-weight: bold">(</span><span style="color: #000000">FileException</span> <span style="color: #000000">ex</span><span style="color: #000000; font-weight: bold">)</span>
+	<span style="color: #000000; font-weight: bold">{</span>
+		<span style="color: #8f5902; font-style: italic">// Обрабатываем ошибки</span>
+	<span style="color: #000000; font-weight: bold">}</span>
+<span style="color: #000000; font-weight: bold">}</span>
+
+<span style="color: #a40000; border: 1px solid #ef2929">Документация</span><span style="color: #000000; font-weight: bold">.</span>
+
+<span style="color: #a40000; border: 1px solid #ef2929">Копирование</span> <span style="color: #a40000; border: 1px solid #ef2929">файла</span>
+
+<span style="color: #a40000; border: 1px solid #ef2929">Этот</span> <span style="color: #a40000; border: 1px solid #ef2929">код</span> <span style="color: #a40000; border: 1px solid #ef2929">копирует</span> <span style="color: #a40000; border: 1px solid #ef2929">файл</span><span style="color: #000000; font-weight: bold">.</span> <span style="color: #a40000; border: 1px solid #ef2929">Если</span> <span style="color: #a40000; border: 1px solid #ef2929">целевой</span> <span style="color: #a40000; border: 1px solid #ef2929">файл</span> <span style="color: #a40000; border: 1px solid #ef2929">существует</span><span style="color: #000000; font-weight: bold">,</span> <span style="color: #a40000; border: 1px solid #ef2929">он</span> <span style="color: #a40000; border: 1px solid #ef2929">будет</span> <span style="color: #a40000; border: 1px solid #ef2929">перезаписан</span><span style="color: #000000; font-weight: bold">.</span>
+
+<span style="color: #204a87; font-weight: bold">import</span> <span style="color: #000000">std</span><span style="color: #000000; font-weight: bold">.</span><span style="color: #000000">file</span><span style="color: #000000; font-weight: bold">;</span>
+
+<span style="color: #204a87; font-weight: bold">void</span> <span style="color: #000000">main</span><span style="color: #000000; font-weight: bold">(</span><span style="color: #204a87">string</span><span style="color: #000000; font-weight: bold">[]</span> <span style="color: #000000">args</span><span style="color: #000000; font-weight: bold">)</span>
+<span style="color: #000000; font-weight: bold">{</span>
+	<span style="color: #204a87; font-weight: bold">try</span>
+	<span style="color: #000000; font-weight: bold">{</span>
+		<span style="color: #000000">copy</span><span style="color: #000000; font-weight: bold">(</span><span style="color: #4e9a06">&quot;source.txt&quot;</span><span style="color: #000000; font-weight: bold">,</span> <span style="color: #4e9a06">&quot;destination.txt&quot;</span><span style="color: #000000; font-weight: bold">);</span>
+	<span style="color: #000000; font-weight: bold">}</span>
+	<span style="color: #204a87; font-weight: bold">catch</span> <span style="color: #000000; font-weight: bold">(</span><span style="color: #000000">FileException</span> <span style="color: #000000">ex</span><span style="color: #000000; font-weight: bold">)</span>
+	<span style="color: #000000; font-weight: bold">{</span>
+		<span style="color: #8f5902; font-style: italic">// Обрабатываем ошибки</span>
+	<span style="color: #000000; font-weight: bold">}</span>
+<span style="color: #000000; font-weight: bold">}</span>
+
+<span style="color: #a40000; border: 1px solid #ef2929">Документация</span><span style="color: #000000; font-weight: bold">.</span>
+
+<span style="color: #a40000; border: 1px solid #ef2929">Удаление</span> <span style="color: #a40000; border: 1px solid #ef2929">файла</span>
+
+<span style="color: #a40000; border: 1px solid #ef2929">Этот</span> <span style="color: #a40000; border: 1px solid #ef2929">код</span> <span style="color: #a40000; border: 1px solid #ef2929">просто</span> <span style="color: #a40000; border: 1px solid #ef2929">удаляет</span> <span style="color: #a40000; border: 1px solid #ef2929">файл</span><span style="color: #000000; font-weight: bold">.</span>
+
+<span style="color: #204a87; font-weight: bold">import</span> <span style="color: #000000">std</span><span style="color: #000000; font-weight: bold">.</span><span style="color: #000000">file</span><span style="color: #000000; font-weight: bold">;</span>
+
+<span style="color: #204a87; font-weight: bold">void</span> <span style="color: #000000">main</span><span style="color: #000000; font-weight: bold">(</span><span style="color: #204a87">string</span><span style="color: #000000; font-weight: bold">[]</span> <span style="color: #000000">args</span><span style="color: #000000; font-weight: bold">)</span>
+<span style="color: #000000; font-weight: bold">{</span>
+	<span style="color: #204a87; font-weight: bold">try</span>
+	<span style="color: #000000; font-weight: bold">{</span>
+		<span style="color: #000000">remove</span><span style="color: #000000; font-weight: bold">(</span><span style="color: #4e9a06">&quot;test.txt&quot;</span><span style="color: #000000; font-weight: bold">);</span>
+	<span style="color: #000000; font-weight: bold">}</span>
+	<span style="color: #204a87; font-weight: bold">catch</span> <span style="color: #000000; font-weight: bold">(</span><span style="color: #000000">FileException</span> <span style="color: #000000">ex</span><span style="color: #000000; font-weight: bold">)</span>
+	<span style="color: #000000; font-weight: bold">{</span>
+		<span style="color: #8f5902; font-style: italic">// Обрабатываем ошибки</span>
+	<span style="color: #000000; font-weight: bold">}</span>
+<span style="color: #000000; font-weight: bold">}</span>
+
+<span style="color: #a40000; border: 1px solid #ef2929">Документация</span><span style="color: #000000; font-weight: bold">.</span>
+
+<span style="color: #a40000; border: 1px solid #ef2929">Получение</span> <span style="color: #a40000; border: 1px solid #ef2929">информации</span> <span style="color: #a40000; border: 1px solid #ef2929">о</span> <span style="color: #a40000; border: 1px solid #ef2929">файле</span>
+
+<span style="color: #a40000; border: 1px solid #ef2929">Этот</span> <span style="color: #a40000; border: 1px solid #ef2929">код</span> <span style="color: #a40000; border: 1px solid #ef2929">получает</span> <span style="color: #a40000; border: 1px solid #ef2929">информацию</span> <span style="color: #a40000; border: 1px solid #ef2929">о</span> <span style="color: #a40000; border: 1px solid #ef2929">файле</span> <span style="color: #a40000; border: 1px solid #ef2929">подобно</span> <span style="color: #a40000; border: 1px solid #ef2929">тому</span><span style="color: #000000; font-weight: bold">,</span> <span style="color: #a40000; border: 1px solid #ef2929">как</span> <span style="color: #a40000; border: 1px solid #ef2929">вы</span> <span style="color: #a40000; border: 1px solid #ef2929">бы</span> <span style="color: #a40000; border: 1px solid #ef2929">сделали</span> <span style="color: #a40000; border: 1px solid #ef2929">это</span> <span style="color: #a40000; border: 1px solid #ef2929">командой</span> <span style="color: #000000">stat</span> <span style="color: #000000; font-weight: bold">(</span><span style="color: #a40000; border: 1px solid #ef2929">англ</span><span style="color: #000000; font-weight: bold">.:</span> <span style="color: #a40000; border: 1px solid #ef2929">сорри</span><span style="color: #000000; font-weight: bold">,</span> <span style="color: #a40000; border: 1px solid #ef2929">в</span> <span style="color: #a40000; border: 1px solid #ef2929">Википедии</span> <span style="color: #a40000; border: 1px solid #ef2929">пока</span> <span style="color: #a40000; border: 1px solid #ef2929">нет</span> <span style="color: #a40000; border: 1px solid #ef2929">русскоязычной</span> <span style="color: #a40000; border: 1px solid #ef2929">статьи</span> <span style="color: #a40000; border: 1px solid #ef2929">—</span> <span style="color: #a40000; border: 1px solid #ef2929">прим</span><span style="color: #000000; font-weight: bold">.</span> <span style="color: #a40000; border: 1px solid #ef2929">перев</span><span style="color: #000000; font-weight: bold">.)</span> <span style="color: #a40000; border: 1px solid #ef2929">в</span> <span style="color: #000000">POSIX</span><span style="color: #000000; font-weight: bold">-</span><span style="color: #a40000; border: 1px solid #ef2929">совместимой</span> <span style="color: #a40000; border: 1px solid #ef2929">операционной</span> <span style="color: #a40000; border: 1px solid #ef2929">системе</span><span style="color: #000000; font-weight: bold">.</span> <span style="color: #a40000; border: 1px solid #ef2929">Ниже</span> <span style="color: #a40000; border: 1px solid #ef2929">показано</span> <span style="color: #a40000; border: 1px solid #ef2929">получение</span> <span style="color: #a40000; border: 1px solid #ef2929">только</span> <span style="color: #a40000; border: 1px solid #ef2929">кроссплатформенной</span> <span style="color: #a40000; border: 1px solid #ef2929">информации</span><span style="color: #000000; font-weight: bold">.</span> <span style="color: #a40000; border: 1px solid #ef2929">Другая</span> <span style="color: #a40000; border: 1px solid #ef2929">информация</span> <span style="color: #a40000; border: 1px solid #ef2929">доступна</span> <span style="color: #a40000; border: 1px solid #ef2929">в</span> <span style="color: #a40000; border: 1px solid #ef2929">зависимости</span> <span style="color: #a40000; border: 1px solid #ef2929">от</span> <span style="color: #a40000; border: 1px solid #ef2929">операционной</span> <span style="color: #a40000; border: 1px solid #ef2929">системы</span><span style="color: #000000; font-weight: bold">,</span> <span style="color: #a40000; border: 1px solid #ef2929">её</span> <span style="color: #a40000; border: 1px solid #ef2929">можно</span> <span style="color: #a40000; border: 1px solid #ef2929">получить</span> <span style="color: #a40000; border: 1px solid #ef2929">декодированием</span> <span style="color: #a40000; border: 1px solid #ef2929">свойства</span> <span style="color: #000000">attributes</span><span style="color: #000000; font-weight: bold">.</span>
+
+<span style="color: #204a87; font-weight: bold">import</span> <span style="color: #000000">std</span><span style="color: #000000; font-weight: bold">.</span><span style="color: #000000">file</span><span style="color: #000000; font-weight: bold">;</span>
+<span style="color: #204a87; font-weight: bold">import</span> <span style="color: #000000">std</span><span style="color: #000000; font-weight: bold">.</span><span style="color: #000000">stdio</span> <span style="color: #000000; font-weight: bold">:</span> <span style="color: #000000">writefln</span><span style="color: #000000; font-weight: bold">;</span>
+
+<span style="color: #204a87; font-weight: bold">void</span> <span style="color: #000000">main</span><span style="color: #000000; font-weight: bold">(</span><span style="color: #204a87">string</span><span style="color: #000000; font-weight: bold">[]</span> <span style="color: #000000">args</span><span style="color: #000000; font-weight: bold">)</span>
+<span style="color: #000000; font-weight: bold">{</span>
+	<span style="color: #204a87; font-weight: bold">try</span>
+	<span style="color: #000000; font-weight: bold">{</span>
+		<span style="color: #204a87; font-weight: bold">auto</span> <span style="color: #000000">file</span> <span style="color: #000000; font-weight: bold">=</span> <span style="color: #000000">DirEntry</span><span style="color: #000000; font-weight: bold">(</span><span style="color: #4e9a06">&quot;test.txt&quot;</span><span style="color: #000000; font-weight: bold">);</span>
+
+		<span style="color: #000000">writefln</span><span style="color: #000000; font-weight: bold">(</span><span style="color: #4e9a06">&quot;Имя файла: %s&quot;</span><span style="color: #000000; font-weight: bold">,</span> <span style="color: #000000">file</span><span style="color: #000000; font-weight: bold">.</span><span style="color: #000000">name</span><span style="color: #000000; font-weight: bold">);</span>
+		<span style="color: #000000">writefln</span><span style="color: #000000; font-weight: bold">(</span><span style="color: #4e9a06">&quot;Является каталогом: %s&quot;</span><span style="color: #000000; font-weight: bold">,</span> <span style="color: #000000">file</span><span style="color: #000000; font-weight: bold">.</span><span style="color: #000000">isDir</span><span style="color: #000000; font-weight: bold">);</span>
+		<span style="color: #000000">writefln</span><span style="color: #000000; font-weight: bold">(</span><span style="color: #4e9a06">&quot;Является файлом: %s&quot;</span><span style="color: #000000; font-weight: bold">,</span> <span style="color: #000000">file</span><span style="color: #000000; font-weight: bold">.</span><span style="color: #000000">isFile</span><span style="color: #000000; font-weight: bold">);</span>
+		<span style="color: #000000">writefln</span><span style="color: #000000; font-weight: bold">(</span><span style="color: #4e9a06">&quot;Является символической ссылкой: %s&quot;</span><span style="color: #000000; font-weight: bold">,</span> <span style="color: #000000">file</span><span style="color: #000000; font-weight: bold">.</span><span style="color: #000000">isSymlink</span><span style="color: #000000; font-weight: bold">);</span>
+		<span style="color: #000000">writefln</span><span style="color: #000000; font-weight: bold">(</span><span style="color: #4e9a06">&quot;Размер в байтах: %s&quot;</span><span style="color: #000000; font-weight: bold">,</span> <span style="color: #000000">file</span><span style="color: #000000; font-weight: bold">.</span><span style="color: #000000">size</span><span style="color: #000000; font-weight: bold">);</span>
+		<span style="color: #000000">writefln</span><span style="color: #000000; font-weight: bold">(</span><span style="color: #4e9a06">&quot;Время последнего доступа: %s&quot;</span><span style="color: #000000; font-weight: bold">,</span> <span style="color: #000000">file</span><span style="color: #000000; font-weight: bold">.</span><span style="color: #000000">timeLastAccessed</span><span style="color: #000000; font-weight: bold">);</span>
+		<span style="color: #000000">writefln</span><span style="color: #000000; font-weight: bold">(</span><span style="color: #4e9a06">&quot;Время последнего изменения: %s&quot;</span><span style="color: #000000; font-weight: bold">,</span> <span style="color: #000000">file</span><span style="color: #000000; font-weight: bold">.</span><span style="color: #000000">timeLastModified</span><span style="color: #000000; font-weight: bold">);</span>
+		<span style="color: #000000">writefln</span><span style="color: #000000; font-weight: bold">(</span><span style="color: #4e9a06">&quot;Атрибуты: %b&quot;</span><span style="color: #000000; font-weight: bold">,</span> <span style="color: #000000">file</span><span style="color: #000000; font-weight: bold">.</span><span style="color: #000000">attributes</span><span style="color: #000000; font-weight: bold">);</span>
+	<span style="color: #000000; font-weight: bold">}</span>
+	<span style="color: #204a87; font-weight: bold">catch</span> <span style="color: #000000; font-weight: bold">(</span><span style="color: #000000">FileException</span> <span style="color: #000000">ex</span><span style="color: #000000; font-weight: bold">)</span>
+	<span style="color: #000000; font-weight: bold">{</span>
+		<span style="color: #8f5902; font-style: italic">// Обрабатываем ошибки</span>
+	<span style="color: #000000; font-weight: bold">}</span>
+<span style="color: #000000; font-weight: bold">}</span>
+
+<span style="color: #a40000; border: 1px solid #ef2929">Документация</span><span style="color: #000000; font-weight: bold">.</span>
+
+<span style="color: #a40000; border: 1px solid #ef2929">Усечение</span> <span style="color: #a40000; border: 1px solid #ef2929">существующего</span> <span style="color: #a40000; border: 1px solid #ef2929">файла</span>
+
+<span style="color: #a40000; border: 1px solid #ef2929">Этот</span> <span style="color: #a40000; border: 1px solid #ef2929">код</span> <span style="color: #a40000; border: 1px solid #ef2929">усекает</span> <span style="color: #a40000; border: 1px solid #ef2929">существующий</span> <span style="color: #a40000; border: 1px solid #ef2929">файл</span> <span style="color: #a40000; border: 1px solid #ef2929">до</span> <span style="color: #0000cf; font-weight: bold">100</span> <span style="color: #a40000; border: 1px solid #ef2929">байт</span><span style="color: #000000; font-weight: bold">.</span> <span style="color: #a40000; border: 1px solid #ef2929">Если</span> <span style="color: #a40000; border: 1px solid #ef2929">исходный</span> <span style="color: #a40000; border: 1px solid #ef2929">файл</span> <span style="color: #a40000; border: 1px solid #ef2929">меньше</span><span style="color: #000000; font-weight: bold">,</span> <span style="color: #a40000; border: 1px solid #ef2929">усечения</span> <span style="color: #a40000; border: 1px solid #ef2929">не</span> <span style="color: #a40000; border: 1px solid #ef2929">происходит</span><span style="color: #000000; font-weight: bold">.</span>
+
+<span style="color: #204a87; font-weight: bold">import</span> <span style="color: #000000">std</span><span style="color: #000000; font-weight: bold">.</span><span style="color: #000000">file</span><span style="color: #000000; font-weight: bold">;</span>
+
+<span style="color: #204a87; font-weight: bold">void</span> <span style="color: #000000">main</span><span style="color: #000000; font-weight: bold">(</span><span style="color: #204a87">string</span><span style="color: #000000; font-weight: bold">[]</span> <span style="color: #000000">args</span><span style="color: #000000; font-weight: bold">)</span>
+<span style="color: #000000; font-weight: bold">{</span>
+	<span style="color: #204a87; font-weight: bold">auto</span> <span style="color: #000000">file</span> <span style="color: #000000; font-weight: bold">=</span> <span style="color: #4e9a06">&quot;test.txt&quot;</span><span style="color: #000000; font-weight: bold">;</span>
+	<span style="color: #204a87; font-weight: bold">auto</span> <span style="color: #000000">size</span> <span style="color: #000000; font-weight: bold">=</span> <span style="color: #0000cf; font-weight: bold">100</span><span style="color: #000000; font-weight: bold">;</span>
+
+	<span style="color: #204a87; font-weight: bold">try</span>
+	<span style="color: #000000; font-weight: bold">{</span>
+		<span style="color: #204a87; font-weight: bold">if</span> <span style="color: #000000; font-weight: bold">(</span><span style="color: #000000">file</span><span style="color: #000000; font-weight: bold">.</span><span style="color: #000000">exists</span><span style="color: #000000; font-weight: bold">()</span> <span style="color: #000000; font-weight: bold">&amp;&amp;</span> <span style="color: #000000">file</span><span style="color: #000000; font-weight: bold">.</span><span style="color: #000000">isFile</span><span style="color: #000000; font-weight: bold">())</span>
+		<span style="color: #000000; font-weight: bold">{</span>
+			<span style="color: #000000">write</span><span style="color: #000000; font-weight: bold">(</span><span style="color: #000000">file</span><span style="color: #000000; font-weight: bold">,</span> <span style="color: #000000">read</span><span style="color: #000000; font-weight: bold">(</span><span style="color: #000000">file</span><span style="color: #000000; font-weight: bold">,</span> <span style="color: #000000">size</span><span style="color: #000000; font-weight: bold">));</span>
+		<span style="color: #000000; font-weight: bold">}</span>
+	<span style="color: #000000; font-weight: bold">}</span>
+	<span style="color: #204a87; font-weight: bold">catch</span> <span style="color: #000000; font-weight: bold">(</span><span style="color: #000000">FileException</span> <span style="color: #000000">ex</span><span style="color: #000000; font-weight: bold">)</span>
+	<span style="color: #000000; font-weight: bold">{</span>
+		<span style="color: #8f5902; font-style: italic">// Обрабатываем ошибки</span>
+	<span style="color: #000000; font-weight: bold">}</span>
+<span style="color: #000000; font-weight: bold">}</span>
+
+<span style="color: #a40000; border: 1px solid #ef2929">Документация</span><span style="color: #000000; font-weight: bold">.</span>
+
+<span style="color: #a40000; border: 1px solid #ef2929">Архивирование</span>
+
+<span style="color: #a40000; border: 1px solid #ef2929">Создание</span> <span style="color: #000000">zip</span><span style="color: #000000; font-weight: bold">-</span><span style="color: #a40000; border: 1px solid #ef2929">архива</span>
+
+<span style="color: #a40000; border: 1px solid #ef2929">Основываясь</span> <span style="color: #a40000; border: 1px solid #ef2929">на</span> <span style="color: #a40000; border: 1px solid #ef2929">следующих</span> <span style="color: #a40000; border: 1px solid #ef2929">примерах</span><span style="color: #000000; font-weight: bold">,</span> <span style="color: #a40000; border: 1px solid #ef2929">этот</span> <span style="color: #a40000; border: 1px solid #ef2929">код</span> <span style="color: #a40000; border: 1px solid #ef2929">показывает</span><span style="color: #000000; font-weight: bold">,</span> <span style="color: #a40000; border: 1px solid #ef2929">как</span> <span style="color: #a40000; border: 1px solid #ef2929">создать</span> <span style="color: #000000">zip</span><span style="color: #000000; font-weight: bold">-</span><span style="color: #a40000; border: 1px solid #ef2929">архив</span><span style="color: #000000; font-weight: bold">.</span>
+
+<span style="color: #204a87; font-weight: bold">import</span> <span style="color: #000000">std</span><span style="color: #000000; font-weight: bold">.</span><span style="color: #000000">file</span><span style="color: #000000; font-weight: bold">;</span>
+<span style="color: #204a87; font-weight: bold">import</span> <span style="color: #000000">std</span><span style="color: #000000; font-weight: bold">.</span><span style="color: #000000">outbuffer</span><span style="color: #000000; font-weight: bold">;</span>
+<span style="color: #204a87; font-weight: bold">import</span> <span style="color: #000000">std</span><span style="color: #000000; font-weight: bold">.</span><span style="color: #204a87">string</span><span style="color: #000000; font-weight: bold">;</span>
+<span style="color: #204a87; font-weight: bold">import</span> <span style="color: #000000">std</span><span style="color: #000000; font-weight: bold">.</span><span style="color: #000000">zip</span><span style="color: #000000; font-weight: bold">;</span>
+
+<span style="color: #204a87; font-weight: bold">void</span> <span style="color: #000000">main</span><span style="color: #000000; font-weight: bold">(</span><span style="color: #204a87">string</span><span style="color: #000000; font-weight: bold">[]</span> <span style="color: #000000">args</span><span style="color: #000000; font-weight: bold">)</span>
+<span style="color: #000000; font-weight: bold">{</span>
+	<span style="color: #204a87; font-weight: bold">try</span>
+	<span style="color: #000000; font-weight: bold">{</span>
+		<span style="color: #204a87; font-weight: bold">auto</span> <span style="color: #000000">file</span> <span style="color: #000000; font-weight: bold">=</span> <span style="color: #204a87; font-weight: bold">new</span> <span style="color: #000000">ArchiveMember</span><span style="color: #000000; font-weight: bold">();</span>
+		<span style="color: #000000">file</span><span style="color: #000000; font-weight: bold">.</span><span style="color: #000000">name</span> <span style="color: #000000; font-weight: bold">=</span> <span style="color: #4e9a06">&quot;test.txt&quot;</span><span style="color: #000000; font-weight: bold">;</span>
+
+		<span style="color: #204a87; font-weight: bold">auto</span> <span style="color: #000000">data</span> <span style="color: #000000; font-weight: bold">=</span> <span style="color: #204a87; font-weight: bold">new</span> <span style="color: #000000">OutBuffer</span><span style="color: #000000; font-weight: bold">();</span>
+		<span style="color: #000000">data</span><span style="color: #000000; font-weight: bold">.</span><span style="color: #000000">write</span><span style="color: #000000; font-weight: bold">(</span><span style="color: #4e9a06">&quot;Lorem ipsum&quot;</span><span style="color: #000000; font-weight: bold">);</span>
+		<span style="color: #000000">file</span><span style="color: #000000; font-weight: bold">.</span><span style="color: #000000">expandedData</span> <span style="color: #000000; font-weight: bold">=</span> <span style="color: #000000">data</span><span style="color: #000000; font-weight: bold">.</span><span style="color: #000000">toBytes</span><span style="color: #000000; font-weight: bold">();</span>
+
+		<span style="color: #204a87; font-weight: bold">auto</span> <span style="color: #000000">zip</span> <span style="color: #000000; font-weight: bold">=</span> <span style="color: #204a87; font-weight: bold">new</span> <span style="color: #000000">ZipArchive</span><span style="color: #000000; font-weight: bold">();</span>
+		<span style="color: #000000">zip</span><span style="color: #000000; font-weight: bold">.</span><span style="color: #000000">addMember</span><span style="color: #000000; font-weight: bold">(</span><span style="color: #000000">file</span><span style="color: #000000; font-weight: bold">);</span>
+
+		<span style="color: #000000">write</span><span style="color: #000000; font-weight: bold">(</span><span style="color: #4e9a06">&quot;test.zip&quot;</span><span style="color: #000000; font-weight: bold">,</span> <span style="color: #000000">zip</span><span style="color: #000000; font-weight: bold">.</span><span style="color: #000000">build</span><span style="color: #000000; font-weight: bold">());</span>
+	<span style="color: #000000; font-weight: bold">}</span>
+	<span style="color: #204a87; font-weight: bold">catch</span> <span style="color: #000000; font-weight: bold">(</span><span style="color: #000000">ZipException</span> <span style="color: #000000">ex</span><span style="color: #000000; font-weight: bold">)</span>
+	<span style="color: #000000; font-weight: bold">{</span>
+		<span style="color: #8f5902; font-style: italic">// Обрабатываем ошибки</span>
+	<span style="color: #000000; font-weight: bold">}</span>
+<span style="color: #000000; font-weight: bold">}</span>
+
+<span style="color: #a40000; border: 1px solid #ef2929">Документация</span><span style="color: #000000; font-weight: bold">.</span>
+
+<span style="color: #a40000; border: 1px solid #ef2929">Чтение</span> <span style="color: #000000">zip</span><span style="color: #000000; font-weight: bold">-</span><span style="color: #a40000; border: 1px solid #ef2929">архива</span>
+
+<span style="color: #a40000; border: 1px solid #ef2929">В</span> <span style="color: #a40000; border: 1px solid #ef2929">следующем</span> <span style="color: #a40000; border: 1px solid #ef2929">примере</span> <span style="color: #a40000; border: 1px solid #ef2929">показано</span><span style="color: #000000; font-weight: bold">,</span> <span style="color: #a40000; border: 1px solid #ef2929">как</span> <span style="color: #a40000; border: 1px solid #ef2929">прочитать</span> <span style="color: #000000">zip</span><span style="color: #000000; font-weight: bold">-</span><span style="color: #a40000; border: 1px solid #ef2929">архив</span><span style="color: #000000; font-weight: bold">.</span>
+
+<span style="color: #204a87; font-weight: bold">import</span> <span style="color: #000000">std</span><span style="color: #000000; font-weight: bold">.</span><span style="color: #000000">file</span><span style="color: #000000; font-weight: bold">;</span>
+<span style="color: #204a87; font-weight: bold">import</span> <span style="color: #000000">std</span><span style="color: #000000; font-weight: bold">.</span><span style="color: #000000">zip</span><span style="color: #000000; font-weight: bold">;</span>
+
+<span style="color: #204a87; font-weight: bold">void</span> <span style="color: #000000">main</span><span style="color: #000000; font-weight: bold">(</span><span style="color: #204a87">string</span><span style="color: #000000; font-weight: bold">[]</span> <span style="color: #000000">args</span><span style="color: #000000; font-weight: bold">)</span>
+<span style="color: #000000; font-weight: bold">{</span>
+	<span style="color: #204a87; font-weight: bold">try</span>
+	<span style="color: #000000; font-weight: bold">{</span>
+		<span style="color: #204a87; font-weight: bold">auto</span> <span style="color: #000000">zip</span> <span style="color: #000000; font-weight: bold">=</span> <span style="color: #204a87; font-weight: bold">new</span> <span style="color: #000000">ZipArchive</span><span style="color: #000000; font-weight: bold">(</span><span style="color: #000000">read</span><span style="color: #000000; font-weight: bold">(</span><span style="color: #4e9a06">&quot;test.zip&quot;</span><span style="color: #000000; font-weight: bold">));</span>
+
+		<span style="color: #204a87; font-weight: bold">foreach</span> <span style="color: #000000; font-weight: bold">(</span><span style="color: #000000">filename</span><span style="color: #000000; font-weight: bold">,</span> <span style="color: #000000">member</span><span style="color: #000000; font-weight: bold">;</span> <span style="color: #000000">zip</span><span style="color: #000000; font-weight: bold">.</span><span style="color: #000000">directory</span><span style="color: #000000; font-weight: bold">)</span>
+		<span style="color: #000000; font-weight: bold">{</span>
+			<span style="color: #204a87; font-weight: bold">auto</span> <span style="color: #000000">data</span> <span style="color: #000000; font-weight: bold">=</span> <span style="color: #000000">zip</span><span style="color: #000000; font-weight: bold">.</span><span style="color: #000000">expand</span><span style="color: #000000; font-weight: bold">(</span><span style="color: #000000">member</span><span style="color: #000000; font-weight: bold">);</span>
+
+			<span style="color: #8f5902; font-style: italic">// Используем переменную data</span>
+		<span style="color: #000000; font-weight: bold">}</span>
+	<span style="color: #000000; font-weight: bold">}</span>
+	<span style="color: #204a87; font-weight: bold">catch</span> <span style="color: #000000; font-weight: bold">(</span><span style="color: #000000">ZipException</span> <span style="color: #000000">ex</span><span style="color: #000000; font-weight: bold">)</span>
+	<span style="color: #000000; font-weight: bold">{</span>
+		<span style="color: #8f5902; font-style: italic">// Обрабатываем ошибки</span>
+	<span style="color: #000000; font-weight: bold">}</span>
+<span style="color: #000000; font-weight: bold">}</span>
+
+<span style="color: #a40000; border: 1px solid #ef2929">Документация</span><span style="color: #000000; font-weight: bold">.</span>
+
+<span style="color: #a40000; border: 1px solid #ef2929">Сжатие</span> <span style="color: #a40000; border: 1px solid #ef2929">данных</span>
+
+<span style="color: #a40000; border: 1px solid #ef2929">Запись</span> <span style="color: #a40000; border: 1px solid #ef2929">сжатых</span> <span style="color: #a40000; border: 1px solid #ef2929">данных</span> <span style="color: #a40000; border: 1px solid #ef2929">в</span> <span style="color: #a40000; border: 1px solid #ef2929">файл</span>
+
+<span style="color: #a40000; border: 1px solid #ef2929">В</span> <span style="color: #a40000; border: 1px solid #ef2929">следующем</span> <span style="color: #a40000; border: 1px solid #ef2929">примере</span> <span style="color: #a40000; border: 1px solid #ef2929">показано</span><span style="color: #000000; font-weight: bold">,</span> <span style="color: #a40000; border: 1px solid #ef2929">как</span> <span style="color: #a40000; border: 1px solid #ef2929">сжимать</span> <span style="color: #a40000; border: 1px solid #ef2929">данные</span> <span style="color: #a40000; border: 1px solid #ef2929">перед</span> <span style="color: #a40000; border: 1px solid #ef2929">отправкой</span> <span style="color: #a40000; border: 1px solid #ef2929">их</span> <span style="color: #a40000; border: 1px solid #ef2929">в</span> <span style="color: #a40000; border: 1px solid #ef2929">файл</span><span style="color: #000000; font-weight: bold">.</span>
+
+<span style="color: #204a87; font-weight: bold">import</span> <span style="color: #000000">std</span><span style="color: #000000; font-weight: bold">.</span><span style="color: #000000">file</span><span style="color: #000000; font-weight: bold">;</span>
+<span style="color: #204a87; font-weight: bold">import</span> <span style="color: #000000">std</span><span style="color: #000000; font-weight: bold">.</span><span style="color: #000000">zlib</span><span style="color: #000000; font-weight: bold">;</span>
+
+<span style="color: #204a87; font-weight: bold">void</span> <span style="color: #000000">main</span><span style="color: #000000; font-weight: bold">(</span><span style="color: #204a87">string</span><span style="color: #000000; font-weight: bold">[]</span> <span style="color: #000000">args</span><span style="color: #000000; font-weight: bold">)</span>
+<span style="color: #000000; font-weight: bold">{</span>
+	<span style="color: #204a87; font-weight: bold">try</span>
+	<span style="color: #000000; font-weight: bold">{</span>
+		<span style="color: #204a87; font-weight: bold">auto</span> <span style="color: #000000">data</span> <span style="color: #000000; font-weight: bold">=</span> <span style="color: #000000">compress</span><span style="color: #000000; font-weight: bold">(</span><span style="color: #4e9a06">&quot;Lorem ipsum dolor sit amet&quot;</span><span style="color: #000000; font-weight: bold">);</span>
+
+		<span style="color: #000000">write</span><span style="color: #000000; font-weight: bold">(</span><span style="color: #4e9a06">&quot;test.dat&quot;</span><span style="color: #000000; font-weight: bold">,</span> <span style="color: #000000">data</span><span style="color: #000000; font-weight: bold">);</span>
+	<span style="color: #000000; font-weight: bold">}</span>
+	<span style="color: #204a87; font-weight: bold">catch</span> <span style="color: #000000; font-weight: bold">(</span><span style="color: #000000">ZlibException</span> <span style="color: #000000">ex</span><span style="color: #000000; font-weight: bold">)</span>
+	<span style="color: #000000; font-weight: bold">{</span>
+		<span style="color: #8f5902; font-style: italic">// Обрабатываем ошибки</span>
+	<span style="color: #000000; font-weight: bold">}</span>
+<span style="color: #000000; font-weight: bold">}</span>
+
+<span style="color: #a40000; border: 1px solid #ef2929">В</span> <span style="color: #a40000; border: 1px solid #ef2929">предыдущем</span> <span style="color: #a40000; border: 1px solid #ef2929">примере</span> <span style="color: #a40000; border: 1px solid #ef2929">сжимается</span> <span style="color: #a40000; border: 1px solid #ef2929">строка</span><span style="color: #000000; font-weight: bold">,</span> <span style="color: #a40000; border: 1px solid #ef2929">однако</span> <span style="color: #a40000; border: 1px solid #ef2929">сжать</span> <span style="color: #a40000; border: 1px solid #ef2929">можно</span> <span style="color: #a40000; border: 1px solid #ef2929">любые</span> <span style="color: #a40000; border: 1px solid #ef2929">данные</span><span style="color: #000000; font-weight: bold">.</span> <span style="color: #a40000; border: 1px solid #ef2929">Модуль</span> <span style="color: #000000">std</span><span style="color: #000000; font-weight: bold">.</span><span style="color: #000000">zlib</span> <span style="color: #a40000; border: 1px solid #ef2929">использует</span> <span style="color: #a40000; border: 1px solid #ef2929">библиотеку</span> <span style="color: #000000">Zlib</span> <span style="color: #a40000; border: 1px solid #ef2929">языка</span> <span style="color: #000000">C</span><span style="color: #000000; font-weight: bold">.</span>
+
+<span style="color: #a40000; border: 1px solid #ef2929">Документация</span><span style="color: #000000; font-weight: bold">.</span>
+
+<span style="color: #a40000; border: 1px solid #ef2929">Чтение</span> <span style="color: #a40000; border: 1px solid #ef2929">сжатых</span> <span style="color: #a40000; border: 1px solid #ef2929">данных</span> <span style="color: #a40000; border: 1px solid #ef2929">из</span> <span style="color: #a40000; border: 1px solid #ef2929">файла</span>
+
+<span style="color: #a40000; border: 1px solid #ef2929">Ниже</span> <span style="color: #a40000; border: 1px solid #ef2929">показано</span><span style="color: #000000; font-weight: bold">,</span> <span style="color: #a40000; border: 1px solid #ef2929">как</span> <span style="color: #a40000; border: 1px solid #ef2929">читать</span> <span style="color: #a40000; border: 1px solid #ef2929">сжатые</span> <span style="color: #a40000; border: 1px solid #ef2929">данные</span> <span style="color: #a40000; border: 1px solid #ef2929">из</span> <span style="color: #a40000; border: 1px solid #ef2929">файла</span><span style="color: #000000; font-weight: bold">.</span>
+
+<span style="color: #204a87; font-weight: bold">import</span> <span style="color: #000000">std</span><span style="color: #000000; font-weight: bold">.</span><span style="color: #000000">file</span><span style="color: #000000; font-weight: bold">;</span>
+<span style="color: #204a87; font-weight: bold">import</span> <span style="color: #000000">std</span><span style="color: #000000; font-weight: bold">.</span><span style="color: #000000">zlib</span><span style="color: #000000; font-weight: bold">;</span>
+
+<span style="color: #204a87; font-weight: bold">void</span> <span style="color: #000000">main</span><span style="color: #000000; font-weight: bold">(</span><span style="color: #204a87">string</span><span style="color: #000000; font-weight: bold">[]</span> <span style="color: #000000">args</span><span style="color: #000000; font-weight: bold">)</span>
+<span style="color: #000000; font-weight: bold">{</span>
+	<span style="color: #204a87; font-weight: bold">try</span>
+	<span style="color: #000000; font-weight: bold">{</span>
+		<span style="color: #204a87; font-weight: bold">auto</span> <span style="color: #000000">data</span> <span style="color: #000000; font-weight: bold">=</span> <span style="color: #000000">uncompress</span><span style="color: #000000; font-weight: bold">(</span><span style="color: #000000">read</span><span style="color: #000000; font-weight: bold">(</span><span style="color: #4e9a06">&quot;test.dat&quot;</span><span style="color: #000000; font-weight: bold">));</span>
+
+		<span style="color: #8f5902; font-style: italic">// Используем несжатые данные</span>
+	<span style="color: #000000; font-weight: bold">}</span>
+	<span style="color: #204a87; font-weight: bold">catch</span> <span style="color: #000000; font-weight: bold">(</span><span style="color: #000000">ZlibException</span> <span style="color: #000000">ex</span><span style="color: #000000; font-weight: bold">)</span>
+	<span style="color: #000000; font-weight: bold">{</span>
+		<span style="color: #8f5902; font-style: italic">// Обрабатываем ошибки</span>
+	<span style="color: #000000; font-weight: bold">}</span>
+<span style="color: #000000; font-weight: bold">}</span>
+
+<span style="color: #a40000; border: 1px solid #ef2929">Документация</span><span style="color: #000000; font-weight: bold">.</span>
+
+<span style="color: #000000">POSIX</span><span style="color: #000000; font-weight: bold">-</span><span style="color: #a40000; border: 1px solid #ef2929">операции</span>
+
+<span style="color: #a40000; border: 1px solid #ef2929">Изменение</span> <span style="color: #a40000; border: 1px solid #ef2929">прав</span> <span style="color: #a40000; border: 1px solid #ef2929">доступа</span> <span style="color: #a40000; border: 1px solid #ef2929">к</span> <span style="color: #a40000; border: 1px solid #ef2929">файлу</span>
+
+<span style="color: #a40000; border: 1px solid #ef2929">Этот</span> <span style="color: #a40000; border: 1px solid #ef2929">код</span> <span style="color: #a40000; border: 1px solid #ef2929">изменяет</span> <span style="color: #a40000; border: 1px solid #ef2929">права</span> <span style="color: #a40000; border: 1px solid #ef2929">доступа</span> <span style="color: #a40000; border: 1px solid #ef2929">к</span> <span style="color: #a40000; border: 1px solid #ef2929">файлам</span> <span style="color: #a40000; border: 1px solid #ef2929">в</span> <span style="color: #000000">POSIX</span><span style="color: #000000; font-weight: bold">-</span><span style="color: #a40000; border: 1px solid #ef2929">совместимых</span> <span style="color: #a40000; border: 1px solid #ef2929">операционных</span> <span style="color: #a40000; border: 1px solid #ef2929">системах</span><span style="color: #000000; font-weight: bold">,</span> <span style="color: #a40000; border: 1px solid #ef2929">таких</span><span style="color: #000000; font-weight: bold">,</span> <span style="color: #a40000; border: 1px solid #ef2929">как</span> <span style="color: #000000">Linux</span> <span style="color: #a40000; border: 1px solid #ef2929">или</span> <span style="color: #000000">Mac</span> <span style="color: #000000">OS</span><span style="color: #000000; font-weight: bold">.</span> <span style="color: #a40000; border: 1px solid #ef2929">В</span> <span style="color: #a40000; border: 1px solid #ef2929">библиотеке</span> <span style="color: #000000">Phobos</span> <span style="color: #a40000; border: 1px solid #ef2929">для</span> <span style="color: #a40000; border: 1px solid #ef2929">этой</span> <span style="color: #a40000; border: 1px solid #ef2929">задачи</span> <span style="color: #a40000; border: 1px solid #ef2929">нет</span> <span style="color: #a40000; border: 1px solid #ef2929">кроссплатформенного</span> <span style="color: #a40000; border: 1px solid #ef2929">решения</span><span style="color: #000000; font-weight: bold">,</span> <span style="color: #a40000; border: 1px solid #ef2929">поэтому</span> <span style="color: #a40000; border: 1px solid #ef2929">мы</span> <span style="color: #a40000; border: 1px solid #ef2929">можем</span> <span style="color: #a40000; border: 1px solid #ef2929">использовать</span> <span style="color: #a40000; border: 1px solid #ef2929">только</span> <span style="color: #a40000; border: 1px solid #ef2929">системные</span> <span style="color: #a40000; border: 1px solid #ef2929">вызовы</span><span style="color: #000000; font-weight: bold">,</span> <span style="color: #a40000; border: 1px solid #ef2929">специфичные</span> <span style="color: #a40000; border: 1px solid #ef2929">для</span> <span style="color: #000000">POSIX</span><span style="color: #000000; font-weight: bold">.</span>
+
+<span style="color: #204a87; font-weight: bold">import</span> <span style="color: #000000">core</span><span style="color: #000000; font-weight: bold">.</span><span style="color: #000000">stdc</span><span style="color: #000000; font-weight: bold">.</span><span style="color: #000000">errno</span><span style="color: #000000; font-weight: bold">;</span>
+<span style="color: #204a87; font-weight: bold">import</span> <span style="color: #000000">core</span><span style="color: #000000; font-weight: bold">.</span><span style="color: #000000">sys</span><span style="color: #000000; font-weight: bold">.</span><span style="color: #000000">posix</span><span style="color: #000000; font-weight: bold">.</span><span style="color: #000000">sys</span><span style="color: #000000; font-weight: bold">.</span><span style="color: #000000">stat</span><span style="color: #000000; font-weight: bold">;</span>
+<span style="color: #204a87; font-weight: bold">import</span> <span style="color: #000000">std</span><span style="color: #000000; font-weight: bold">.</span><span style="color: #000000">conv</span><span style="color: #000000; font-weight: bold">;</span>
+<span style="color: #204a87; font-weight: bold">import</span> <span style="color: #000000">std</span><span style="color: #000000; font-weight: bold">.</span><span style="color: #204a87">string</span><span style="color: #000000; font-weight: bold">;</span>
+
+<span style="color: #204a87; font-weight: bold">void</span> <span style="color: #000000">main</span><span style="color: #000000; font-weight: bold">(</span><span style="color: #204a87">string</span><span style="color: #000000; font-weight: bold">[]</span> <span style="color: #000000">args</span><span style="color: #000000; font-weight: bold">)</span>
+<span style="color: #000000; font-weight: bold">{</span>
+	<span style="color: #204a87; font-weight: bold">auto</span> <span style="color: #000000">file</span>   <span style="color: #000000; font-weight: bold">=</span> <span style="color: #4e9a06">&quot;test.txt&quot;</span><span style="color: #000000; font-weight: bold">;</span>
+	<span style="color: #204a87; font-weight: bold">auto</span> <span style="color: #000000">result</span> <span style="color: #000000; font-weight: bold">=</span> <span style="color: #000000">chmod</span><span style="color: #000000; font-weight: bold">(</span><span style="color: #000000">file</span><span style="color: #000000; font-weight: bold">.</span><span style="color: #000000">toStringz</span><span style="color: #000000; font-weight: bold">(),</span> <span style="color: #000000">octal</span><span style="color: #000000; font-weight: bold">!(</span><span style="color: #0000cf; font-weight: bold">666</span><span style="color: #000000; font-weight: bold">));</span>
+
+	<span style="color: #204a87; font-weight: bold">if</span> <span style="color: #000000; font-weight: bold">(</span><span style="color: #000000">result</span> <span style="color: #000000; font-weight: bold">!=</span> <span style="color: #0000cf; font-weight: bold">0</span><span style="color: #000000; font-weight: bold">)</span>
+	<span style="color: #000000; font-weight: bold">{</span>
+		<span style="color: #204a87; font-weight: bold">switch</span><span style="color: #000000; font-weight: bold">(</span><span style="color: #000000">errno</span><span style="color: #000000; font-weight: bold">)</span>
+		<span style="color: #000000; font-weight: bold">{</span>
+			<span style="color: #204a87; font-weight: bold">case</span> <span style="color: #000000">EPERM</span><span style="color: #000000; font-weight: bold">:</span>
+			<span style="color: #204a87; font-weight: bold">case</span> <span style="color: #000000">EACCES</span><span style="color: #000000; font-weight: bold">:</span>
+				<span style="color: #8f5902; font-style: italic">// Доступ запрещён</span>
+				<span style="color: #204a87; font-weight: bold">break</span><span style="color: #000000; font-weight: bold">;</span>
+
+			<span style="color: #204a87; font-weight: bold">case</span> <span style="color: #000000">ENOENT</span><span style="color: #000000; font-weight: bold">:</span>
+				<span style="color: #8f5902; font-style: italic">// Файл не существует</span>
+				<span style="color: #204a87; font-weight: bold">break</span><span style="color: #000000; font-weight: bold">;</span>
+
+			<span style="color: #204a87; font-weight: bold">default</span><span style="color: #000000; font-weight: bold">:</span>
+				<span style="color: #8f5902; font-style: italic">// Обрабатываем остальные ошибки</span>
+				<span style="color: #204a87; font-weight: bold">break</span><span style="color: #000000; font-weight: bold">;</span>
+		<span style="color: #000000; font-weight: bold">}</span>
+	<span style="color: #000000; font-weight: bold">}</span>
+<span style="color: #000000; font-weight: bold">}</span>
+
+<span style="color: #a40000; border: 1px solid #ef2929">Системный</span> <span style="color: #a40000; border: 1px solid #ef2929">вызов</span> <span style="color: #000000">chmod</span> <span style="color: #a40000; border: 1px solid #ef2929">работает</span> <span style="color: #a40000; border: 1px solid #ef2929">абсолютно</span> <span style="color: #a40000; border: 1px solid #ef2929">идентично</span> <span style="color: #a40000; border: 1px solid #ef2929">команде</span> <span style="color: #000000">chmod</span> <span style="color: #a40000; border: 1px solid #ef2929">из</span> <span style="color: #a40000; border: 1px solid #ef2929">командной</span> <span style="color: #a40000; border: 1px solid #ef2929">оболочки</span> <span style="color: #000000">Unix</span><span style="color: #000000; font-weight: bold">.</span> <span style="color: #a40000; border: 1px solid #ef2929">Указывается</span> <span style="color: #a40000; border: 1px solid #ef2929">имя</span> <span style="color: #a40000; border: 1px solid #ef2929">файла</span> <span style="color: #a40000; border: 1px solid #ef2929">и</span> <span style="color: #a40000; border: 1px solid #ef2929">его</span> <span style="color: #a40000; border: 1px solid #ef2929">новые</span> <span style="color: #a40000; border: 1px solid #ef2929">права</span> <span style="color: #a40000; border: 1px solid #ef2929">доступа</span> <span style="color: #000000; font-weight: bold">(</span><span style="color: #a40000; border: 1px solid #ef2929">выраженные</span> <span style="color: #a40000; border: 1px solid #ef2929">в</span> <span style="color: #a40000; border: 1px solid #ef2929">виде</span> <span style="color: #a40000; border: 1px solid #ef2929">восьмеричного</span> <span style="color: #a40000; border: 1px solid #ef2929">числа</span><span style="color: #000000; font-weight: bold">).</span> <span style="color: #a40000; border: 1px solid #ef2929">Чтобы</span> <span style="color: #a40000; border: 1px solid #ef2929">изменять</span> <span style="color: #a40000; border: 1px solid #ef2929">файл</span> <span style="color: #a40000; border: 1px solid #ef2929">таким</span> <span style="color: #a40000; border: 1px solid #ef2929">образом</span><span style="color: #000000; font-weight: bold">,</span> <span style="color: #a40000; border: 1px solid #ef2929">вам</span> <span style="color: #a40000; border: 1px solid #ef2929">нужны</span> <span style="color: #a40000; border: 1px solid #ef2929">права</span> <span style="color: #a40000; border: 1px solid #ef2929">доступа</span> <span style="color: #a40000; border: 1px solid #ef2929">на</span> <span style="color: #a40000; border: 1px solid #ef2929">саму</span> <span style="color: #a40000; border: 1px solid #ef2929">эту</span> <span style="color: #a40000; border: 1px solid #ef2929">операцию</span><span style="color: #000000; font-weight: bold">.</span> <span style="color: #a40000; border: 1px solid #ef2929">Для</span> <span style="color: #a40000; border: 1px solid #ef2929">этого</span> <span style="color: #a40000; border: 1px solid #ef2929">вам</span> <span style="color: #a40000; border: 1px solid #ef2929">нужно</span> <span style="color: #a40000; border: 1px solid #ef2929">быть</span> <span style="color: #a40000; border: 1px solid #ef2929">владельцем</span> <span style="color: #a40000; border: 1px solid #ef2929">файла</span> <span style="color: #a40000; border: 1px solid #ef2929">или</span> <span style="color: #a40000; border: 1px solid #ef2929">суперпользователем</span><span style="color: #000000; font-weight: bold">.</span>
+
+<span style="color: #a40000; border: 1px solid #ef2929">Документация</span><span style="color: #000000; font-weight: bold">.</span>
+
+<span style="color: #a40000; border: 1px solid #ef2929">Изменение</span> <span style="color: #a40000; border: 1px solid #ef2929">владельца</span> <span style="color: #a40000; border: 1px solid #ef2929">файла</span>
+
+<span style="color: #a40000; border: 1px solid #ef2929">Этот</span> <span style="color: #a40000; border: 1px solid #ef2929">код</span> <span style="color: #a40000; border: 1px solid #ef2929">изменяет</span> <span style="color: #a40000; border: 1px solid #ef2929">владельца</span> <span style="color: #a40000; border: 1px solid #ef2929">файла</span> <span style="color: #a40000; border: 1px solid #ef2929">в</span> <span style="color: #000000">POSIX</span><span style="color: #000000; font-weight: bold">-</span><span style="color: #a40000; border: 1px solid #ef2929">совместимых</span> <span style="color: #a40000; border: 1px solid #ef2929">системах</span><span style="color: #000000; font-weight: bold">.</span> <span style="color: #a40000; border: 1px solid #ef2929">Когда</span> <span style="color: #a40000; border: 1px solid #ef2929">вы</span> <span style="color: #a40000; border: 1px solid #ef2929">становитесь</span> <span style="color: #a40000; border: 1px solid #ef2929">владельцем</span><span style="color: #000000; font-weight: bold">,</span> <span style="color: #a40000; border: 1px solid #ef2929">можно</span> <span style="color: #a40000; border: 1px solid #ef2929">изменять</span> <span style="color: #a40000; border: 1px solid #ef2929">права</span> <span style="color: #a40000; border: 1px solid #ef2929">доступа</span> <span style="color: #a40000; border: 1px solid #ef2929">файла</span><span style="color: #000000; font-weight: bold">,</span> <span style="color: #a40000; border: 1px solid #ef2929">не</span> <span style="color: #a40000; border: 1px solid #ef2929">будучи</span> <span style="color: #a40000; border: 1px solid #ef2929">суперпользователем</span><span style="color: #000000; font-weight: bold">.</span>
+
+<span style="color: #204a87; font-weight: bold">import</span> <span style="color: #000000">core</span><span style="color: #000000; font-weight: bold">.</span><span style="color: #000000">stdc</span><span style="color: #000000; font-weight: bold">.</span><span style="color: #000000">errno</span><span style="color: #000000; font-weight: bold">;</span>
+<span style="color: #204a87; font-weight: bold">import</span> <span style="color: #000000">core</span><span style="color: #000000; font-weight: bold">.</span><span style="color: #000000">sys</span><span style="color: #000000; font-weight: bold">.</span><span style="color: #000000">posix</span><span style="color: #000000; font-weight: bold">.</span><span style="color: #000000">pwd</span><span style="color: #000000; font-weight: bold">;</span>
+<span style="color: #204a87; font-weight: bold">import</span> <span style="color: #000000">core</span><span style="color: #000000; font-weight: bold">.</span><span style="color: #000000">sys</span><span style="color: #000000; font-weight: bold">.</span><span style="color: #000000">posix</span><span style="color: #000000; font-weight: bold">.</span><span style="color: #000000">unistd</span><span style="color: #000000; font-weight: bold">;</span>
+<span style="color: #204a87; font-weight: bold">import</span> <span style="color: #000000">std</span><span style="color: #000000; font-weight: bold">.</span><span style="color: #204a87">string</span><span style="color: #000000; font-weight: bold">;</span>
+
+<span style="color: #204a87; font-weight: bold">void</span> <span style="color: #000000">main</span><span style="color: #000000; font-weight: bold">(</span><span style="color: #204a87">string</span><span style="color: #000000; font-weight: bold">[]</span> <span style="color: #000000">args</span><span style="color: #000000; font-weight: bold">)</span>
+<span style="color: #000000; font-weight: bold">{</span>
+	<span style="color: #204a87; font-weight: bold">auto</span> <span style="color: #000000">username</span> <span style="color: #000000; font-weight: bold">=</span> <span style="color: #4e9a06">&quot;gary&quot;</span><span style="color: #000000; font-weight: bold">;</span>
+	<span style="color: #204a87; font-weight: bold">auto</span> <span style="color: #000000">file</span>     <span style="color: #000000; font-weight: bold">=</span> <span style="color: #4e9a06">&quot;test.txt&quot;</span><span style="color: #000000; font-weight: bold">;</span>
+	<span style="color: #204a87; font-weight: bold">auto</span> <span style="color: #000000">record</span>   <span style="color: #000000; font-weight: bold">=</span> <span style="color: #000000">getpwnam</span><span style="color: #000000; font-weight: bold">(</span><span style="color: #000000">username</span><span style="color: #000000; font-weight: bold">.</span><span style="color: #000000">toStringz</span><span style="color: #000000; font-weight: bold">());</span>
+
+	<span style="color: #204a87; font-weight: bold">if</span> <span style="color: #000000; font-weight: bold">(</span><span style="color: #000000">record</span> <span style="color: #000000; font-weight: bold">!</span><span style="color: #204a87; font-weight: bold">is</span> <span style="color: #204a87; font-weight: bold">null</span><span style="color: #000000; font-weight: bold">)</span>
+	<span style="color: #000000; font-weight: bold">{</span>
+		<span style="color: #204a87; font-weight: bold">auto</span> <span style="color: #000000">user</span>   <span style="color: #000000; font-weight: bold">=</span> <span style="color: #000000">record</span><span style="color: #000000; font-weight: bold">.</span><span style="color: #000000">pw_uid</span><span style="color: #000000; font-weight: bold">;</span>
+		<span style="color: #204a87; font-weight: bold">auto</span> <span style="color: #000000">group</span>  <span style="color: #000000; font-weight: bold">=</span> <span style="color: #000000">record</span><span style="color: #000000; font-weight: bold">.</span><span style="color: #000000">pw_gid</span><span style="color: #000000; font-weight: bold">;</span>
+		<span style="color: #204a87; font-weight: bold">auto</span> <span style="color: #000000">result</span> <span style="color: #000000; font-weight: bold">=</span> <span style="color: #000000">chown</span><span style="color: #000000; font-weight: bold">(</span><span style="color: #000000">file</span><span style="color: #000000; font-weight: bold">.</span><span style="color: #000000">toStringz</span><span style="color: #000000; font-weight: bold">(),</span> <span style="color: #000000">user</span><span style="color: #000000; font-weight: bold">,</span> <span style="color: #000000">group</span><span style="color: #000000; font-weight: bold">);</span>
+
+		<span style="color: #204a87; font-weight: bold">if</span> <span style="color: #000000; font-weight: bold">(</span><span style="color: #000000">result</span> <span style="color: #000000; font-weight: bold">!=</span> <span style="color: #0000cf; font-weight: bold">0</span><span style="color: #000000; font-weight: bold">)</span>
+		<span style="color: #000000; font-weight: bold">{</span>
+			<span style="color: #204a87; font-weight: bold">switch</span><span style="color: #000000; font-weight: bold">(</span><span style="color: #000000">errno</span><span style="color: #000000; font-weight: bold">)</span>
+			<span style="color: #000000; font-weight: bold">{</span>
+				<span style="color: #204a87; font-weight: bold">case</span> <span style="color: #000000">EPERM</span><span style="color: #000000; font-weight: bold">:</span>
+					<span style="color: #8f5902; font-style: italic">// Доступ запрещён</span>
+					<span style="color: #204a87; font-weight: bold">break</span><span style="color: #000000; font-weight: bold">;</span>
+
+				<span style="color: #204a87; font-weight: bold">default</span><span style="color: #000000; font-weight: bold">:</span>
+					<span style="color: #8f5902; font-style: italic">// Обрабатываем остальные ошибки</span>
+					<span style="color: #204a87; font-weight: bold">break</span><span style="color: #000000; font-weight: bold">;</span>
+			<span style="color: #000000; font-weight: bold">}</span>
+		<span style="color: #000000; font-weight: bold">}</span>
+	<span style="color: #000000; font-weight: bold">}</span>
+<span style="color: #000000; font-weight: bold">}</span>
+
+<span style="color: #8f5902; font-style: italic">// Системный вызов chown работает абсолютно аналогично команде chown оболочки Unix. Указывается имя файла и его новый владелец и группа. Чтобы изменять владельца файла, ваша программа должна обладать правами суперпользователя.</span>
+
+<span style="color: #a40000; border: 1px solid #ef2929">Создание</span> <span style="color: #a40000; border: 1px solid #ef2929">жёстких</span> <span style="color: #a40000; border: 1px solid #ef2929">и</span> <span style="color: #a40000; border: 1px solid #ef2929">символических</span> <span style="color: #a40000; border: 1px solid #ef2929">ссылок</span>
+
+<span style="color: #a40000; border: 1px solid #ef2929">Иногда</span> <span style="color: #a40000; border: 1px solid #ef2929">в</span> <span style="color: #000000">POSIX</span><span style="color: #000000; font-weight: bold">-</span><span style="color: #a40000; border: 1px solid #ef2929">совместимых</span> <span style="color: #a40000; border: 1px solid #ef2929">системах</span> <span style="color: #a40000; border: 1px solid #ef2929">бывает</span> <span style="color: #a40000; border: 1px solid #ef2929">нужно</span> <span style="color: #a40000; border: 1px solid #ef2929">создать</span> <span style="color: #a40000; border: 1px solid #ef2929">жёсткую</span> <span style="color: #a40000; border: 1px solid #ef2929">или</span> <span style="color: #a40000; border: 1px solid #ef2929">символическую</span> <span style="color: #a40000; border: 1px solid #ef2929">ссылку</span><span style="color: #000000; font-weight: bold">.</span> <span style="color: #a40000; border: 1px solid #ef2929">В</span> <span style="color: #a40000; border: 1px solid #ef2929">следующем</span> <span style="color: #a40000; border: 1px solid #ef2929">примере</span> <span style="color: #a40000; border: 1px solid #ef2929">показано</span><span style="color: #000000; font-weight: bold">,</span> <span style="color: #a40000; border: 1px solid #ef2929">как</span> <span style="color: #a40000; border: 1px solid #ef2929">создать</span> <span style="color: #a40000; border: 1px solid #ef2929">жёсткую</span> <span style="color: #a40000; border: 1px solid #ef2929">ссылку</span><span style="color: #000000; font-weight: bold">.</span>
+
+<span style="color: #204a87; font-weight: bold">import</span> <span style="color: #000000">core</span><span style="color: #000000; font-weight: bold">.</span><span style="color: #000000">stdc</span><span style="color: #000000; font-weight: bold">.</span><span style="color: #000000">errno</span><span style="color: #000000; font-weight: bold">;</span>
+<span style="color: #204a87; font-weight: bold">import</span> <span style="color: #000000">core</span><span style="color: #000000; font-weight: bold">.</span><span style="color: #000000">sys</span><span style="color: #000000; font-weight: bold">.</span><span style="color: #000000">posix</span><span style="color: #000000; font-weight: bold">.</span><span style="color: #000000">unistd</span><span style="color: #000000; font-weight: bold">;</span>
+<span style="color: #204a87; font-weight: bold">import</span> <span style="color: #000000">std</span><span style="color: #000000; font-weight: bold">.</span><span style="color: #204a87">string</span><span style="color: #000000; font-weight: bold">;</span>
+
+<span style="color: #204a87; font-weight: bold">void</span> <span style="color: #000000">main</span><span style="color: #000000; font-weight: bold">(</span><span style="color: #204a87">string</span><span style="color: #000000; font-weight: bold">[]</span> <span style="color: #000000">args</span><span style="color: #000000; font-weight: bold">)</span>
+<span style="color: #000000; font-weight: bold">{</span>
+	<span style="color: #204a87; font-weight: bold">auto</span> <span style="color: #000000">file</span>   <span style="color: #000000; font-weight: bold">=</span> <span style="color: #4e9a06">&quot;test.txt&quot;</span><span style="color: #000000; font-weight: bold">;</span>
+	<span style="color: #204a87; font-weight: bold">auto</span> <span style="color: #000000">linked</span> <span style="color: #000000; font-weight: bold">=</span> <span style="color: #4e9a06">&quot;link.txt&quot;</span><span style="color: #000000; font-weight: bold">;</span>
+	<span style="color: #204a87; font-weight: bold">auto</span> <span style="color: #000000">result</span> <span style="color: #000000; font-weight: bold">=</span> <span style="color: #000000">link</span><span style="color: #000000; font-weight: bold">(</span><span style="color: #000000">file</span><span style="color: #000000; font-weight: bold">.</span><span style="color: #000000">toStringz</span><span style="color: #000000; font-weight: bold">(),</span> <span style="color: #000000">linked</span><span style="color: #000000; font-weight: bold">.</span><span style="color: #000000">toStringz</span><span style="color: #000000; font-weight: bold">());</span>
+
+	<span style="color: #204a87; font-weight: bold">if</span> <span style="color: #000000; font-weight: bold">(</span><span style="color: #000000">result</span> <span style="color: #000000; font-weight: bold">!=</span> <span style="color: #0000cf; font-weight: bold">0</span><span style="color: #000000; font-weight: bold">)</span>
+	<span style="color: #000000; font-weight: bold">{</span>
+		<span style="color: #204a87; font-weight: bold">switch</span><span style="color: #000000; font-weight: bold">(</span><span style="color: #000000">errno</span><span style="color: #000000; font-weight: bold">)</span>
+		<span style="color: #000000; font-weight: bold">{</span>
+			<span style="color: #204a87; font-weight: bold">case</span> <span style="color: #000000">EPERM</span><span style="color: #000000; font-weight: bold">:</span>
+			<span style="color: #204a87; font-weight: bold">case</span> <span style="color: #000000">EACCES</span><span style="color: #000000; font-weight: bold">:</span>
+				<span style="color: #8f5902; font-style: italic">// Доступ запрещён</span>
+				<span style="color: #204a87; font-weight: bold">break</span><span style="color: #000000; font-weight: bold">;</span>
+
+			<span style="color: #204a87; font-weight: bold">case</span> <span style="color: #000000">EEXIST</span><span style="color: #000000; font-weight: bold">:</span>
+				<span style="color: #8f5902; font-style: italic">// Ссылка с таким именем уже существует</span>
+				<span style="color: #204a87; font-weight: bold">break</span><span style="color: #000000; font-weight: bold">;</span>
+
+			<span style="color: #204a87; font-weight: bold">case</span> <span style="color: #000000">ENOENT</span><span style="color: #000000; font-weight: bold">:</span>
+				<span style="color: #8f5902; font-style: italic">// Файл не существует</span>
+
+			<span style="color: #204a87; font-weight: bold">default</span><span style="color: #000000; font-weight: bold">:</span>
+				<span style="color: #8f5902; font-style: italic">// Обрабатываем остальные ошибки</span>
+				<span style="color: #204a87; font-weight: bold">break</span><span style="color: #000000; font-weight: bold">;</span>
+		<span style="color: #000000; font-weight: bold">}</span>
+	<span style="color: #000000; font-weight: bold">}</span>
+<span style="color: #000000; font-weight: bold">}</span>
+
+<span style="color: #a40000; border: 1px solid #ef2929">Чтобы</span> <span style="color: #a40000; border: 1px solid #ef2929">создать</span> <span style="color: #a40000; border: 1px solid #ef2929">символическую</span> <span style="color: #a40000; border: 1px solid #ef2929">ссылку</span><span style="color: #000000; font-weight: bold">,</span> <span style="color: #a40000; border: 1px solid #ef2929">замените</span> <span style="color: #a40000; border: 1px solid #ef2929">строку</span>
+<span style="color: #204a87; font-weight: bold">auto</span> <span style="color: #000000">result</span> <span style="color: #000000; font-weight: bold">=</span> <span style="color: #000000">link</span><span style="color: #000000; font-weight: bold">(</span><span style="color: #000000">file</span><span style="color: #000000; font-weight: bold">.</span><span style="color: #000000">toStringz</span><span style="color: #000000; font-weight: bold">(),</span> <span style="color: #000000">linked</span><span style="color: #000000; font-weight: bold">.</span><span style="color: #000000">toStringz</span><span style="color: #000000; font-weight: bold">());</span>
+<span style="color: #a40000; border: 1px solid #ef2929">строкой</span>
+<span style="color: #204a87; font-weight: bold">auto</span> <span style="color: #000000">result</span> <span style="color: #000000; font-weight: bold">=</span> <span style="color: #000000">symlink</span><span style="color: #000000; font-weight: bold">(</span><span style="color: #000000">file</span><span style="color: #000000; font-weight: bold">.</span><span style="color: #000000">toStringz</span><span style="color: #000000; font-weight: bold">(),</span> <span style="color: #000000">linked</span><span style="color: #000000; font-weight: bold">.</span><span style="color: #000000">toStringz</span><span style="color: #000000; font-weight: bold">());</span>
+
+<span style="color: #a40000; border: 1px solid #ef2929">Заключение</span>
+
+<span style="color: #a40000; border: 1px solid #ef2929">Редко</span> <span style="color: #a40000; border: 1px solid #ef2929">существует</span> <span style="color: #a40000; border: 1px solid #ef2929">один</span> <span style="color: #a40000; border: 1px solid #ef2929">канонический</span> <span style="color: #a40000; border: 1px solid #ef2929">способ</span> <span style="color: #a40000; border: 1px solid #ef2929">работы</span> <span style="color: #a40000; border: 1px solid #ef2929">с</span> <span style="color: #a40000; border: 1px solid #ef2929">файлами</span><span style="color: #000000; font-weight: bold">,</span> <span style="color: #a40000; border: 1px solid #ef2929">и</span> <span style="color: #a40000; border: 1px solid #ef2929">разработчикам</span> <span style="color: #a40000; border: 1px solid #ef2929">нравится</span> <span style="color: #a40000; border: 1px solid #ef2929">выполнять</span> <span style="color: #a40000; border: 1px solid #ef2929">различные</span> <span style="color: #a40000; border: 1px solid #ef2929">файловые</span> <span style="color: #a40000; border: 1px solid #ef2929">задачи</span> <span style="color: #a40000; border: 1px solid #ef2929">собственным</span><span style="color: #000000; font-weight: bold">,</span> <span style="color: #a40000; border: 1px solid #ef2929">особым</span> <span style="color: #a40000; border: 1px solid #ef2929">образом</span><span style="color: #000000; font-weight: bold">.</span> <span style="color: #a40000; border: 1px solid #ef2929">Надеюсь</span><span style="color: #000000; font-weight: bold">,</span> <span style="color: #a40000; border: 1px solid #ef2929">эта</span> <span style="color: #a40000; border: 1px solid #ef2929">статья</span> <span style="color: #a40000; border: 1px solid #ef2929">показала</span> <span style="color: #a40000; border: 1px solid #ef2929">мощь</span> <span style="color: #a40000; border: 1px solid #ef2929">и</span> <span style="color: #a40000; border: 1px solid #ef2929">удобство</span> <span style="color: #a40000; border: 1px solid #ef2929">языка</span> <span style="color: #000000">D</span> <span style="color: #a40000; border: 1px solid #ef2929">и</span> <span style="color: #a40000; border: 1px solid #ef2929">позволила</span> <span style="color: #a40000; border: 1px solid #ef2929">выделить</span> <span style="color: #a40000; border: 1px solid #ef2929">удобные</span> <span style="color: #a40000; border: 1px solid #ef2929">функции</span> <span style="color: #a40000; border: 1px solid #ef2929">стандартной</span> <span style="color: #a40000; border: 1px solid #ef2929">библиотеки</span> <span style="color: #a40000; border: 1px solid #ef2929">для</span> <span style="color: #a40000; border: 1px solid #ef2929">работы</span> <span style="color: #a40000; border: 1px solid #ef2929">с</span> <span style="color: #a40000; border: 1px solid #ef2929">файлами</span><span style="color: #000000; font-weight: bold">.</span>
+</pre></div>
+%!!
+
+
+## 	Комментарий
+%!Простые примеры|Пример №1
+<p>Текст статьи</p>
+<p>Текст статьи</p>
+<p>Текст статьи</p>
+<p>Текст статьи</p>
+%!!
+
+## 	Комментарий
+%!Простые примеры|Пример №2
+%!!

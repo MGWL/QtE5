@@ -1,0 +1,377 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>QtE56Help</class>
+ <widget class="QMainWindow" name="QtE56Help">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>977</width>
+    <height>764</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>MainWindow</string>
+  </property>
+  <property name="styleSheet">
+   <string notr="true"/>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <layout class="QVBoxLayout" name="verticalLayout">
+    <item>
+     <widget class="QTabWidget" name="tabWidget">
+      <property name="tabShape">
+       <enum>QTabWidget::Rounded</enum>
+      </property>
+      <property name="currentIndex">
+       <number>1</number>
+      </property>
+      <widget class="QWidget" name="tabExample">
+       <attribute name="title">
+        <string notr="true">Примеры</string>
+       </attribute>
+       <layout class="QVBoxLayout" name="verticalLayout_2">
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout">
+          <item>
+           <widget class="QLabel" name="lbExTema">
+            <property name="maximumSize">
+             <size>
+              <width>80</width>
+              <height>16777215</height>
+             </size>
+            </property>
+            <property name="text">
+             <string>Тема:</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QComboBox" name="cmbExTema"/>
+          </item>
+          <item>
+           <widget class="QLabel" name="lbExPage">
+            <property name="maximumSize">
+             <size>
+              <width>80</width>
+              <height>16777215</height>
+             </size>
+            </property>
+            <property name="text">
+             <string>Пример:</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QComboBox" name="cmbExPage"/>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <widget class="QTextEdit" name="textEditPage"/>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="tab_2">
+       <attribute name="title">
+        <string notr="true">Построители</string>
+       </attribute>
+       <layout class="QVBoxLayout" name="verticalLayout_3">
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_2">
+          <item>
+           <widget class="QComboBox" name="comboBox_Nabor">
+            <property name="minimumSize">
+             <size>
+              <width>100</width>
+              <height>0</height>
+             </size>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="label">
+            <property name="text">
+             <string>Номер функции:</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QSpinBox" name="spinBox_Nomer">
+            <property name="maximum">
+             <number>1000</number>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="label_2">
+            <property name="text">
+             <string>Класс:</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLineEdit" name="lineEdit_Class">
+            <property name="maximumSize">
+             <size>
+              <width>100</width>
+              <height>16777215</height>
+             </size>
+            </property>
+            <property name="text">
+             <string>. . .</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="label_3">
+            <property name="text">
+             <string>Суффикс:</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLineEdit" name="lineEdit_Suffiks">
+            <property name="maximumSize">
+             <size>
+              <width>100</width>
+              <height>16777215</height>
+             </size>
+            </property>
+            <property name="text">
+             <string>. . .</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="knSave">
+            <property name="styleSheet">
+             <string notr="true">background-color: rgb(170, 170, 255);</string>
+            </property>
+            <property name="text">
+             <string>Save</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="knView">
+            <property name="styleSheet">
+             <string notr="true">background-color: rgb(170, 170, 255);</string>
+            </property>
+            <property name="text">
+             <string>View</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="pushButton_Nabor">
+            <property name="text">
+             <string>CreateCode</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="knMeta">
+            <property name="text">
+             <string>Meta</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <spacer name="horizontalSpacer">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>40</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <widget class="QPlainTextEdit" name="plainTextEdit_Post">
+          <property name="font">
+           <font>
+            <family>Hack</family>
+           </font>
+          </property>
+          <property name="frameShadow">
+           <enum>QFrame::Sunken</enum>
+          </property>
+          <property name="lineWidth">
+           <number>2</number>
+          </property>
+          <property name="midLineWidth">
+           <number>1</number>
+          </property>
+          <property name="lineWrapMode">
+           <enum>QPlainTextEdit::NoWrap</enum>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="tab">
+       <attribute name="title">
+        <string>Страница</string>
+       </attribute>
+       <widget class="QLabel" name="label_4">
+        <property name="geometry">
+         <rect>
+          <x>130</x>
+          <y>180</y>
+          <width>561</width>
+          <height>141</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>TextLabel</string>
+        </property>
+       </widget>
+      </widget>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>977</width>
+     <height>25</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menumain">
+    <property name="title">
+     <string>Файл</string>
+    </property>
+    <addaction name="actionFile"/>
+   </widget>
+   <widget class="QMenu" name="menuHelp">
+    <property name="title">
+     <string>Справка</string>
+    </property>
+    <addaction name="actionAboutQt"/>
+    <addaction name="actionAboutApp"/>
+   </widget>
+   <addaction name="menumain"/>
+   <addaction name="menuHelp"/>
+  </widget>
+  <widget class="QStatusBar" name="sb">
+   <property name="styleSheet">
+    <string notr="true">background-color: Moccasin;</string>
+   </property>
+  </widget>
+  <widget class="QToolBar" name="toolBar">
+   <property name="windowTitle">
+    <string>toolBar</string>
+   </property>
+   <attribute name="toolBarArea">
+    <enum>TopToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak">
+    <bool>false</bool>
+   </attribute>
+   <addaction name="actionExit"/>
+   <addaction name="actionAboutQt"/>
+   <addaction name="actionAboutApp"/>
+   <addaction name="actionHelp"/>
+   <addaction name="actionDialog"/>
+  </widget>
+  <action name="actionFile">
+   <property name="text">
+    <string>File</string>
+   </property>
+  </action>
+  <action name="actionHelp">
+   <property name="text">
+    <string>Help</string>
+   </property>
+   <property name="toolTip">
+    <string>Помощь ...</string>
+   </property>
+  </action>
+  <action name="actionDialog">
+   <property name="icon">
+    <iconset>
+     <normaloff>ICONS/DocSelect.ico</normaloff>ICONS/DocSelect.ico</iconset>
+   </property>
+   <property name="text">
+    <string>Dialog</string>
+   </property>
+   <property name="toolTip">
+    <string>Проверка диалога</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Alt+D</string>
+   </property>
+  </action>
+  <action name="actionExit">
+   <property name="icon">
+    <iconset theme=":/mainWin/qq">
+     <normalon>:/mainWin/qq</normalon>
+    </iconset>
+   </property>
+   <property name="text">
+    <string>Exit</string>
+   </property>
+   <property name="toolTip">
+    <string>Корректный выход из программы ...</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+X</string>
+   </property>
+  </action>
+  <action name="actionAboutQt">
+   <property name="icon">
+    <iconset theme=":/mainWin/ICONS/qt_icon.png" resource="a3.qrc">
+     <normaloff>:/mainWin/ICONS/qt_icon.png</normaloff>:/mainWin/ICONS/qt_icon.png</iconset>
+   </property>
+   <property name="text">
+    <string>Об текщем Qt</string>
+   </property>
+   <property name="toolTip">
+    <string>Показать версию текущего Qt.</string>
+   </property>
+  </action>
+  <action name="actionAboutApp">
+   <property name="icon">
+    <iconset theme=":/mainWin/ICONS/qt_icon.png" resource="a3.qrc">
+     <normaloff>:/mainWin/ICONS/about_icon.png</normaloff>:/mainWin/ICONS/about_icon.png</iconset>
+   </property>
+   <property name="text">
+    <string>Об QtE56Help</string>
+   </property>
+   <property name="toolTip">
+    <string>Показать версию программы.</string>
+   </property>
+  </action>
+ </widget>
+ <resources>
+  <include location="a3.qrc"/>
+ </resources>
+ <connections/>
+ <slots>
+  <slot>slot1()</slot>
+ </slots>
+</ui>
