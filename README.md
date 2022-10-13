@@ -8,7 +8,7 @@ It uses dynamic Qt5 loading and a predefined set of slots, allows you not to use
 
 ## Usage
 ```
-domnload demo_Qt6 - This for Win64+Qt6_dll* and compile, execute demo ...
+Download demo_Qt6 - this for Win64+Qt6_dll* and compile, execute demo ...
 
 Make app for D:
     dmd app.d qte5.d
@@ -36,7 +36,7 @@ QtE5 - uses the following libraries depending from OS<br>
 <p>The most actual version for Windows 32 (QtE5Widgets32.dll) as on it the basic working out and testing is conducted.</p>   
 <br>
 
-##Screenshot    
+## Screenshot    
 ![screen](https://pp.userapi.com/c638923/v638923410/5e562/5VCDQWdgr_M.jpg)
 Windows 32. Hello World.
 ![screen](https://pp.userapi.com/c840122/v840122383/70ffe/OIi51ZRtG3c.jpg)
